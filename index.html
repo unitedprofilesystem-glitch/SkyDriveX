@@ -1,16 +1,24 @@
-```html
 <!DOCTYPE html>
 <html lang="uz">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>SkyDriveX — Cloud Storage</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
 body{
     font-family:Inter,Arial,sans-serif;
     color:#f8fafc;
@@ -21,13 +29,34 @@ body{
         linear-gradient(135deg,#020617,#0b1120 45%,#111827);
     background-attachment:fixed;
 }
-button,input{font:inherit}
-button{border:0}
-.hidden{display:none!important}
 
-::-webkit-scrollbar{width:8px}
-::-webkit-scrollbar-track{background:#020617}
-::-webkit-scrollbar-thumb{background:#334155;border-radius:20px}
+button,input{
+    font:inherit;
+}
+
+button{
+    border:0;
+}
+
+.hidden{
+    display:none!important;
+}
+
+::-webkit-scrollbar{
+    width:8px;
+}
+
+::-webkit-scrollbar-track{
+    background:#020617;
+}
+
+::-webkit-scrollbar-thumb{
+    background:#334155;
+    border-radius:20px;
+}
+
+
+/* ================= AUTH ================= */
 
 #authPage{
     min-height:100vh;
@@ -36,6 +65,7 @@ button{border:0}
     justify-content:center;
     padding:20px;
 }
+
 .auth-card{
     width:100%;
     max-width:440px;
@@ -45,22 +75,58 @@ button{border:0}
     border:1px solid rgba(148,163,184,.13);
     box-shadow:0 35px 100px rgba(0,0,0,.55);
 }
-.auth-logo{text-align:center;font-size:36px;font-weight:900;margin-bottom:8px}
-.auth-logo span,.logo span{color:#60a5fa}
-.auth-subtitle{text-align:center;color:#64748b;font-size:13px;margin-bottom:30px}
-.auth-title{text-align:center;color:#cbd5e1;font-size:16px;margin-bottom:24px}
-.input-group{margin-bottom:13px}
-.input-label{display:block;font-size:12px;color:#94a3b8;margin-bottom:7px}
+
+.auth-logo{
+    text-align:center;
+    font-size:36px;
+    font-weight:900;
+    margin-bottom:8px;
+}
+
+.auth-logo span,
+.logo span{
+    color:#60a5fa;
+}
+
+.auth-subtitle{
+    text-align:center;
+    color:#64748b;
+    font-size:13px;
+    margin-bottom:30px;
+}
+
+.auth-title{
+    text-align:center;
+    color:#cbd5e1;
+    margin-bottom:24px;
+}
+
+.input-group{
+    margin-bottom:13px;
+}
+
+.input-label{
+    display:block;
+    font-size:12px;
+    color:#94a3b8;
+    margin-bottom:7px;
+}
+
 .input{
     width:100%;
     padding:14px 15px;
     color:#f8fafc;
-    background:rgba(15,23,42,.8);
+    background:#0f172a;
     border:1px solid #263449;
     border-radius:12px;
     outline:none;
 }
-.input:focus{border-color:#3b82f6}
+
+.input:focus{
+    border-color:#3b82f6;
+    box-shadow:0 0 0 3px rgba(59,130,246,.10);
+}
+
 .auth-btn{
     width:100%;
     padding:14px;
@@ -71,7 +137,12 @@ button{border:0}
     cursor:pointer;
     background:linear-gradient(135deg,#2563eb,#7c3aed);
 }
-.auth-btn:disabled{opacity:.55}
+
+.auth-btn:disabled{
+    opacity:.55;
+    cursor:not-allowed;
+}
+
 .switch-btn{
     width:100%;
     background:transparent;
@@ -80,7 +151,16 @@ button{border:0}
     margin-top:20px;
     font-size:13px;
 }
-#authMessage{min-height:20px;margin-top:16px;text-align:center;font-size:13px}
+
+#authMessage{
+    min-height:20px;
+    margin-top:16px;
+    text-align:center;
+    font-size:13px;
+}
+
+
+/* ================= HEADER ================= */
 
 .header{
     position:sticky;
@@ -90,46 +170,32 @@ button{border:0}
     display:flex;
     align-items:center;
     justify-content:space-between;
-    gap:20px;
     padding:0 28px;
-    background:rgba(2,6,23,.78);
+    background:rgba(2,6,23,.82);
     border-bottom:1px solid rgba(148,163,184,.10);
     backdrop-filter:blur(20px);
 }
-.logo{font-size:25px;font-weight:900;white-space:nowrap}
-.header-right{display:flex;align-items:center;gap:10px}
-.profile{
+
+.logo{
+    font-size:25px;
+    font-weight:900;
+}
+
+.header-right{
     display:flex;
     align-items:center;
-    gap:9px;
-    cursor:pointer;
+    gap:10px;
 }
-.profile-avatar{
-    width:42px;
-    height:42px;
-    border-radius:50%;
-    object-fit:cover;
-    background:#1e293b;
-    border:2px solid rgba(96,165,250,.35);
-}
-.profile-initial{
-    width:42px;
-    height:42px;
-    border-radius:50%;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    background:linear-gradient(135deg,#2563eb,#7c3aed);
-    font-weight:800;
-}
+
 .user{
-    max-width:220px;
     color:#94a3b8;
     font-size:13px;
+    max-width:260px;
     overflow:hidden;
     text-overflow:ellipsis;
     white-space:nowrap;
 }
+
 .logout{
     padding:9px 13px;
     border-radius:10px;
@@ -139,15 +205,32 @@ button{border:0}
     cursor:pointer;
 }
 
+
+/* ================= MAIN ================= */
+
 .container{
     width:100%;
     max-width:1150px;
-    margin:0 auto;
+    margin:auto;
     padding:35px 20px 70px;
 }
-.welcome{margin-bottom:25px}
-.welcome h1{font-size:34px;margin-bottom:7px}
-.welcome p{color:#94a3b8;font-size:14px}
+
+.welcome{
+    margin-bottom:25px;
+}
+
+.welcome h1{
+    font-size:34px;
+    margin-bottom:7px;
+}
+
+.welcome p{
+    color:#94a3b8;
+    font-size:14px;
+}
+
+
+/* ================= STATS ================= */
 
 .stats{
     display:grid;
@@ -155,32 +238,51 @@ button{border:0}
     gap:14px;
     margin-bottom:20px;
 }
+
 .stat{
     padding:17px;
     border-radius:17px;
     background:linear-gradient(145deg,rgba(15,23,42,.85),rgba(2,6,23,.88));
     border:1px solid rgba(148,163,184,.09);
 }
-.stat-icon{font-size:21px;margin-bottom:7px}
-.stat-title{color:#64748b;font-size:12px}
-.stat-value{font-size:18px;font-weight:800;color:#e2e8f0}
+
+.stat-icon{
+    font-size:21px;
+    margin-bottom:7px;
+}
+
+.stat-title{
+    color:#64748b;
+    font-size:12px;
+}
+
+.stat-value{
+    font-size:18px;
+    font-weight:800;
+}
+
+
+/* ================= UPLOAD ================= */
 
 .upload-box{
     position:relative;
-    overflow:hidden;
     text-align:center;
     padding:38px 20px;
     margin-bottom:20px;
     border-radius:22px;
     background:linear-gradient(145deg,rgba(15,23,42,.95),rgba(2,6,23,.94));
     border:1px dashed #334155;
+    transition:.2s;
 }
+
 .upload-box.dragging{
     border-color:#60a5fa;
-    background:linear-gradient(145deg,rgba(37,99,235,.14),rgba(124,58,237,.10));
+    background:rgba(37,99,235,.12);
 }
+
 .upload-icon{
-    width:64px;height:64px;
+    width:64px;
+    height:64px;
     margin:0 auto 15px;
     display:flex;
     align-items:center;
@@ -189,8 +291,18 @@ button{border:0}
     font-size:30px;
     background:linear-gradient(135deg,rgba(37,99,235,.18),rgba(124,58,237,.18));
 }
-.upload-box h2{font-size:21px;margin-bottom:7px}
-.upload-box p{color:#64748b;font-size:13px;margin-bottom:19px}
+
+.upload-box h2{
+    font-size:21px;
+    margin-bottom:7px;
+}
+
+.upload-box p{
+    color:#64748b;
+    font-size:13px;
+    margin-bottom:19px;
+}
+
 .upload-btn{
     display:inline-flex;
     align-items:center;
@@ -203,15 +315,29 @@ button{border:0}
     cursor:pointer;
     background:linear-gradient(135deg,#2563eb,#7c3aed);
 }
-#fileInput{display:none}
-#uploadStatus{margin-top:15px;min-height:20px;color:#94a3b8;font-size:13px}
+
+#fileInput{
+    display:none;
+}
+
+#uploadStatus{
+    margin-top:15px;
+    min-height:20px;
+    color:#94a3b8;
+    font-size:13px;
+}
+
+
+/* ================= FILE CARD ================= */
 
 .files-card{
     padding:22px;
     border-radius:22px;
     background:linear-gradient(145deg,rgba(15,23,42,.96),rgba(2,6,23,.96));
     border:1px solid rgba(148,163,184,.09);
+    box-shadow:0 25px 70px rgba(0,0,0,.22);
 }
+
 .files-header{
     display:flex;
     align-items:center;
@@ -219,26 +345,93 @@ button{border:0}
     gap:20px;
     margin-bottom:18px;
 }
-.files-title h2{font-size:21px}
-.file-count{color:#64748b;font-size:12px;margin-top:3px}
-.file-tools{display:flex;gap:8px}
+
+.files-title h2{
+    font-size:21px;
+}
+
+.file-count{
+    color:#64748b;
+    font-size:12px;
+    margin-top:3px;
+}
+
+.file-tools{
+    display:flex;
+    gap:8px;
+}
+
 .file-search{
     width:240px;
     padding:11px 13px;
-    color:#f8fafc;
+    color:white;
     background:#0b1220;
     border:1px solid #263449;
     border-radius:10px;
     outline:none;
 }
-.refresh-btn,.btn{
-    padding:9px 11px;
-    border-radius:9px;
+
+.refresh-btn,
+.back-btn{
+    padding:10px 12px;
+    border-radius:10px;
     color:#cbd5e1;
     background:#111827;
     border:1px solid rgba(148,163,184,.10);
     cursor:pointer;
 }
+
+.back-btn{
+    display:none;
+}
+
+
+/* ================= BREADCRUMB ================= */
+
+.breadcrumb{
+    display:flex;
+    align-items:center;
+    gap:7px;
+    flex-wrap:wrap;
+    padding:12px 14px;
+    margin-bottom:15px;
+    border-radius:13px;
+    background:#0b1220;
+    border:1px solid rgba(148,163,184,.08);
+}
+
+.crumb{
+    color:#93c5fd;
+    cursor:pointer;
+    font-size:13px;
+}
+
+.crumb:hover{
+    text-decoration:underline;
+}
+
+.crumb-separator{
+    color:#475569;
+}
+
+
+/* ================= NEW FOLDER ================= */
+
+.folder-actions{
+    display:flex;
+    gap:9px;
+    margin-bottom:18px;
+}
+
+.new-folder-btn{
+    padding:10px 15px;
+    border-radius:10px;
+    color:white;
+    font-weight:700;
+    background:linear-gradient(135deg,#2563eb,#7c3aed);
+    cursor:pointer;
+}
+
 .storage-box{
     padding:17px;
     margin-bottom:18px;
@@ -246,27 +439,36 @@ button{border:0}
     background:linear-gradient(135deg,rgba(37,99,235,.13),rgba(124,58,237,.10));
     border:1px solid rgba(96,165,250,.13);
 }
+
 .storage-top{
     display:flex;
     justify-content:space-between;
     margin-bottom:10px;
     font-size:13px;
 }
-#storageText{color:#93c5fd;font-weight:700}
+
+#storageText{
+    color:#93c5fd;
+    font-weight:700;
+}
+
 .storage-bar{
     width:100%;
     height:8px;
-    overflow:hidden;
     border-radius:20px;
+    overflow:hidden;
     background:#111827;
 }
+
 .storage-progress{
     width:0%;
     height:100%;
-    border-radius:20px;
     background:linear-gradient(90deg,#2563eb,#7c3aed);
-    transition:width .4s;
+    transition:.4s;
 }
+
+
+/* ================= FILES ================= */
 
 .file{
     display:flex;
@@ -276,6 +478,12 @@ button{border:0}
     padding:14px 8px;
     border-bottom:1px solid rgba(148,163,184,.07);
 }
+
+.file:hover{
+    background:rgba(30,41,59,.35);
+    border-radius:12px;
+}
+
 .file-main{
     min-width:0;
     flex:1;
@@ -283,8 +491,10 @@ button{border:0}
     align-items:center;
     gap:12px;
 }
+
 .file-icon{
-    width:42px;height:42px;
+    width:42px;
+    height:42px;
     flex-shrink:0;
     display:flex;
     align-items:center;
@@ -293,7 +503,11 @@ button{border:0}
     font-size:20px;
     background:rgba(30,41,59,.75);
 }
-.file-info{min-width:0}
+
+.file-info{
+    min-width:0;
+}
+
 .file-name{
     overflow:hidden;
     text-overflow:ellipsis;
@@ -302,39 +516,59 @@ button{border:0}
     font-size:14px;
     font-weight:700;
 }
-.file-size{color:#64748b;font-size:11px;margin-top:3px}
-.file-actions{display:flex;gap:7px;flex-shrink:0}
-.delete{color:#fca5a5;background:rgba(127,29,29,.20)}
 
-.empty,.loading{padding:45px 10px;text-align:center;color:#64748b}
-.empty-icon{font-size:42px;margin-bottom:8px}
+.file-size{
+    color:#64748b;
+    font-size:11px;
+    margin-top:3px;
+}
 
-.spinner{
-    width:28px;height:28px;
-    margin:0 auto 10px;
-    border:3px solid #1e293b;
-    border-top-color:#60a5fa;
-    border-radius:50%;
-    animation:spin .8s linear infinite;
+.file-actions{
+    display:flex;
+    gap:7px;
 }
-@keyframes spin{to{transform:rotate(360deg)}}
 
-#toastContainer{
-    position:fixed;
-    right:20px;
-    bottom:20px;
-    z-index:9999;
+.btn{
+    padding:9px 11px;
+    border-radius:9px;
+    color:#cbd5e1;
+    background:#111827;
+    border:1px solid rgba(148,163,184,.10);
+    cursor:pointer;
 }
-.toast{
-    min-width:260px;
-    margin-top:9px;
-    padding:13px 15px;
-    border-radius:12px;
-    color:#e2e8f0;
-    background:rgba(15,23,42,.96);
-    border:1px solid rgba(148,163,184,.13);
-    box-shadow:0 20px 50px rgba(0,0,0,.35);
+
+.btn:hover{
+    background:#1e293b;
+    color:white;
 }
+
+.delete{
+    color:#fca5a5;
+    background:rgba(127,29,29,.20);
+}
+
+.empty,
+.loading{
+    padding:45px 10px;
+    text-align:center;
+    color:#64748b;
+}
+
+.empty-icon{
+    font-size:42px;
+    margin-bottom:8px;
+}
+
+.folder{
+    cursor:pointer;
+}
+
+.folder .file-icon{
+    background:rgba(37,99,235,.15);
+}
+
+
+/* ================= PREVIEW ================= */
 
 #previewModal{
     position:fixed;
@@ -344,31 +578,40 @@ button{border:0}
     align-items:center;
     justify-content:center;
     padding:20px;
-    background:rgba(0,0,0,.78);
+    background:rgba(0,0,0,.82);
     backdrop-filter:blur(12px);
 }
-#previewModal.active{display:flex}
+
+#previewModal.active{
+    display:flex;
+}
+
 .preview-box{
     width:100%;
-    max-width:900px;
+    max-width:950px;
     max-height:90vh;
     overflow:auto;
     padding:18px;
     border-radius:18px;
     background:#0b1120;
+    border:1px solid rgba(148,163,184,.12);
 }
+
 .preview-header{
     display:flex;
+    align-items:center;
     justify-content:space-between;
     gap:15px;
     margin-bottom:15px;
 }
+
 .preview-title{
     overflow:hidden;
     text-overflow:ellipsis;
     white-space:nowrap;
     font-weight:700;
 }
+
 .close-preview{
     padding:8px 11px;
     border-radius:9px;
@@ -376,287 +619,437 @@ button{border:0}
     background:#1e293b;
     cursor:pointer;
 }
+
 .preview-content{
     display:flex;
     align-items:center;
     justify-content:center;
     min-height:250px;
 }
-.preview-content img,.preview-content video{
+
+.preview-content img{
     max-width:100%;
     max-height:70vh;
     border-radius:10px;
 }
-.preview-content audio{width:100%}
 
-/* PROFILE MODAL */
-#profileModal{
-    position:fixed;
-    inset:0;
-    z-index:600;
-    display:none;
-    align-items:center;
-    justify-content:center;
-    padding:20px;
-    background:rgba(0,0,0,.78);
-    backdrop-filter:blur(12px);
-}
-#profileModal.active{display:flex}
-.profile-box{
+.preview-content video{
     width:100%;
-    max-width:420px;
-    padding:28px;
-    border-radius:22px;
+    max-height:70vh;
+    border-radius:10px;
+}
+
+.preview-content audio{
+    width:100%;
+}
+
+.preview-message{
     text-align:center;
-    background:linear-gradient(145deg,#0f172a,#020617);
-    border:1px solid rgba(148,163,184,.12);
-    box-shadow:0 35px 90px rgba(0,0,0,.55);
+    color:#64748b;
 }
-.profile-big{
-    width:120px;
-    height:120px;
-    margin:0 auto 15px;
-    border-radius:50%;
-    object-fit:cover;
-    background:#1e293b;
-    border:3px solid #3b82f6;
+
+
+/* ================= TOAST ================= */
+
+#toastContainer{
+    position:fixed;
+    right:20px;
+    bottom:20px;
+    z-index:9999;
 }
-.profile-box h2{margin-bottom:5px}
-.profile-email{color:#64748b;font-size:13px;margin-bottom:20px}
-.avatar-btn{
-    display:block;
-    width:100%;
-    padding:12px;
-    margin-top:10px;
-    border-radius:11px;
-    color:white;
-    font-weight:700;
-    cursor:pointer;
-    background:linear-gradient(135deg,#2563eb,#7c3aed);
+
+.toast{
+    min-width:260px;
+    max-width:360px;
+    margin-top:9px;
+    padding:13px 15px;
+    border-radius:12px;
+    color:#e2e8f0;
+    background:rgba(15,23,42,.96);
+    border:1px solid rgba(148,163,184,.13);
+    box-shadow:0 20px 50px rgba(0,0,0,.35);
 }
-.avatar-delete{
-    background:rgba(127,29,29,.25);
-    color:#fca5a5;
-}
-#avatarInput{display:none}
+
+
+/* ================= MOBILE ================= */
 
 @media(max-width:700px){
-    .header{padding:10px 13px}
-    .logo{font-size:20px}
-    .user{display:none}
-    .container{padding:23px 12px 50px}
-    .welcome h1{font-size:26px}
-    .stats{grid-template-columns:1fr}
-    .upload-box{padding:30px 15px}
-    .upload-btn{width:100%}
-    .files-card{padding:14px}
-    .files-header{flex-direction:column;align-items:stretch}
-    .file-tools{width:100%}
-    .file-search{width:100%;flex:1}
-    .file{align-items:stretch;flex-direction:column}
-    .file-actions{width:100%}
-    .file-actions .btn{flex:1}
-    .auth-card{padding:32px 20px}
-    #toastContainer{left:12px;right:12px;bottom:12px}
-    .toast{min-width:0;width:100%}
+
+    .header{
+        min-height:64px;
+        padding:10px 13px;
+    }
+
+    .logo{
+        font-size:20px;
+    }
+
+    .user{
+        display:none;
+    }
+
+    .container{
+        padding:23px 12px 50px;
+    }
+
+    .welcome h1{
+        font-size:26px;
+    }
+
+    .stats{
+        grid-template-columns:1fr;
+    }
+
+    .upload-box{
+        padding:30px 15px;
+    }
+
+    .upload-btn{
+        width:100%;
+    }
+
+    .files-card{
+        padding:14px;
+    }
+
+    .files-header{
+        flex-direction:column;
+        align-items:stretch;
+    }
+
+    .file-tools{
+        width:100%;
+    }
+
+    .file-search{
+        width:100%;
+    }
+
+    .file{
+        align-items:stretch;
+        flex-direction:column;
+    }
+
+    .file-actions{
+        width:100%;
+    }
+
+    .file-actions .btn{
+        flex:1;
+    }
+
+    .folder-actions{
+        flex-direction:column;
+    }
+
+    .new-folder-btn,
+    .back-btn{
+        width:100%;
+    }
 }
 </style>
 </head>
 
 <body>
 
+<!-- ================= AUTH ================= -->
+
 <section id="authPage">
-    <div class="auth-card">
-        <div class="auth-logo">Sky<span>DriveX</span></div>
-        <div class="auth-subtitle">Secure Cloud Storage</div>
-        <div class="auth-title" id="authTitle">Hisobingizga kiring</div>
 
-        <div class="input-group">
-            <label class="input-label">Email</label>
-            <input type="email" id="email" class="input"
-                   placeholder="example@email.com">
-        </div>
+<div class="auth-card">
 
-        <div class="input-group">
-            <label class="input-label">Parol</label>
-            <input type="password" id="password" class="input"
-                   placeholder="••••••••">
-        </div>
+<div class="auth-logo">
+Sky<span>DriveX</span>
+</div>
 
-        <button class="auth-btn" id="authButton" onclick="login()">Kirish</button>
+<div class="auth-subtitle">
+Secure Cloud Storage
+</div>
 
-        <button class="switch-btn" id="switchButton" onclick="toggleAuth()">
-            Hisobingiz yo‘qmi? Ro‘yxatdan o‘ting
-        </button>
+<div class="auth-title" id="authTitle">
+Hisobingizga kiring
+</div>
 
-        <div id="authMessage"></div>
-    </div>
+<div class="input-group">
+<label class="input-label">Email</label>
+<input
+type="email"
+id="email"
+class="input"
+placeholder="example@email.com">
+</div>
+
+<div class="input-group">
+<label class="input-label">Parol</label>
+<input
+type="password"
+id="password"
+class="input"
+placeholder="••••••••">
+</div>
+
+<button
+class="auth-btn"
+id="authButton"
+onclick="login()">
+Kirish
+</button>
+
+<button
+class="switch-btn"
+id="switchButton"
+onclick="toggleAuth()">
+Hisobingiz yo‘qmi? Ro‘yxatdan o‘ting
+</button>
+
+<div id="authMessage"></div>
+
+</div>
 </section>
+
+
+<!-- ================= CLOUD ================= -->
 
 <section id="cloudPage" class="hidden">
 
 <header class="header">
-    <div class="logo">Sky<span>DriveX</span></div>
 
-    <div class="header-right">
+<div class="logo">
+Sky<span>DriveX</span>
+</div>
 
-        <div class="profile" onclick="openProfile()">
-            <div id="headerAvatar"></div>
-            <div class="user" id="userEmail"></div>
-        </div>
+<div class="header-right">
 
-        <button class="logout" onclick="logout()">Chiqish</button>
-    </div>
+<div class="user" id="userEmail"></div>
+
+<button class="logout" onclick="logout()">
+Chiqish
+</button>
+
+</div>
 </header>
+
 
 <main class="container">
 
 <section class="welcome">
-    <h1>Mening fayllarim</h1>
-    <p>Fayllaringizni xavfsiz saqlang va istalgan qurilmadan foydalaning.</p>
+
+<h1>
+Mening fayllarim
+</h1>
+
+<p>
+Fayllaringizni xavfsiz saqlang va istalgan qurilmadan foydalaning.
+</p>
+
 </section>
+
+
+<!-- STATS -->
 
 <section class="stats">
 
-    <div class="stat">
-        <div class="stat-icon">📁</div>
-        <div class="stat-title">Fayllar</div>
-        <div class="stat-value" id="statFiles">0</div>
-    </div>
+<div class="stat">
+<div class="stat-icon">📁</div>
+<div class="stat-title">Elementlar</div>
+<div class="stat-value" id="statFiles">0</div>
+</div>
 
-    <div class="stat">
-        <div class="stat-icon">💾</div>
-        <div class="stat-title">Ishlatilgan joy</div>
-        <div class="stat-value" id="statSize">0 B</div>
-    </div>
+<div class="stat">
+<div class="stat-icon">💾</div>
+<div class="stat-title">Ishlatilgan joy</div>
+<div class="stat-value" id="statSize">0 B</div>
+</div>
 
-    <div class="stat">
-        <div class="stat-icon">☁️</div>
-        <div class="stat-title">Storage</div>
-        <div class="stat-value">1 GB</div>
-    </div>
+<div class="stat">
+<div class="stat-icon">☁️</div>
+<div class="stat-title">Storage</div>
+<div class="stat-value">1 GB</div>
+</div>
 
 </section>
+
+
+<!-- UPLOAD -->
 
 <section class="upload-box" id="uploadBox">
 
-    <div class="upload-icon">☁️</div>
+<div class="upload-icon">
+☁️
+</div>
 
-    <h2>Fayl yuklash</h2>
+<h2>
+Fayl yuklash
+</h2>
 
-    <p>Faylni shu yerga tashlang yoki kompyuterdan tanlang</p>
+<p>
+Faylni shu yerga tashlang yoki kompyuterdan tanlang
+</p>
 
-    <label class="upload-btn" for="fileInput">
-        ⬆️ Fayl tanlash
-    </label>
+<label class="upload-btn" for="fileInput">
+⬆️ Fayl tanlash
+</label>
 
-    <input type="file" id="fileInput" multiple>
+<input
+type="file"
+id="fileInput"
+multiple>
 
-    <div id="uploadStatus"></div>
+<div id="uploadStatus"></div>
 
 </section>
 
+
+<!-- FILE CARD -->
+
 <section class="files-card">
 
-    <div class="files-header">
+<div class="files-header">
 
-        <div class="files-title">
-            <h2>📂 Fayllar</h2>
-            <p class="file-count" id="fileCount">
-                Fayllar yuklanmoqda...
-            </p>
-        </div>
+<div class="files-title">
 
-        <div class="file-tools">
-            <input type="text"
-                   id="fileSearch"
-                   class="file-search"
-                   placeholder="🔍 Fayl qidirish...">
+<h2>
+📂 Fayllar
+</h2>
 
-            <button class="refresh-btn"
-                    onclick="loadFiles()">🔄</button>
-        </div>
+<p class="file-count" id="fileCount">
+Yuklanmoqda...
+</p>
 
-    </div>
+</div>
 
-    <div class="storage-box">
+<div class="file-tools">
 
-        <div class="storage-top">
-            <span>☁️ Storage</span>
-            <span id="storageText">Hisoblanmoqda...</span>
-        </div>
+<input
+type="text"
+id="fileSearch"
+class="file-search"
+placeholder="🔍 Fayl qidirish...">
 
-        <div class="storage-bar">
-            <div id="storageProgress" class="storage-progress"></div>
-        </div>
+<button
+class="refresh-btn"
+onclick="loadCurrentFolder()">
+🔄
+</button>
 
-    </div>
+</div>
 
-    <div id="fileList">
-        <div class="loading">
-            <div class="spinner"></div>
-            Fayllar yuklanmoqda...
-        </div>
-    </div>
+</div>
+
+
+<!-- BREADCRUMB -->
+
+<div id="breadcrumb" class="breadcrumb"></div>
+
+
+<!-- FOLDER BUTTON -->
+
+<div class="folder-actions">
+
+<button
+class="new-folder-btn"
+onclick="createFolder()">
+📁 + Yangi papka
+</button>
+
+<button
+id="backButton"
+class="back-btn"
+onclick="goBack()">
+⬅️ Orqaga
+</button>
+
+</div>
+
+
+<!-- STORAGE -->
+
+<div class="storage-box">
+
+<div class="storage-top">
+
+<span>
+☁️ Storage
+</span>
+
+<span id="storageText">
+Hisoblanmoqda...
+</span>
+
+</div>
+
+<div class="storage-bar">
+
+<div
+id="storageProgress"
+class="storage-progress">
+</div>
+
+</div>
+
+</div>
+
+
+<!-- FILE LIST -->
+
+<div id="fileList">
+
+<div class="loading">
+Fayllar yuklanmoqda...
+</div>
+
+</div>
 
 </section>
 
 </main>
+
 </section>
+
+
+<!-- ================= PREVIEW ================= -->
+
+<div
+id="previewModal"
+onclick="closePreview(event)">
+
+<div class="preview-box">
+
+<div class="preview-header">
+
+<div
+id="previewTitle"
+class="preview-title">
+</div>
+
+<button
+class="close-preview"
+onclick="closePreview()">
+✕
+</button>
+
+</div>
+
+<div
+id="previewContent"
+class="preview-content">
+</div>
+
+</div>
+
+</div>
+
+
+<!-- ================= TOAST ================= -->
 
 <div id="toastContainer"></div>
 
-<!-- FILE PREVIEW -->
-<div id="previewModal" onclick="closePreview(event)">
-    <div class="preview-box">
-
-        <div class="preview-header">
-            <div class="preview-title" id="previewTitle"></div>
-
-            <button class="close-preview"
-                    onclick="closePreview()">✕</button>
-        </div>
-
-        <div class="preview-content" id="previewContent"></div>
-    </div>
-</div>
-
-<!-- PROFILE -->
-<div id="profileModal" onclick="closeProfile(event)">
-    <div class="profile-box">
-
-        <div id="profileBigContainer"></div>
-
-        <h2>Profil</h2>
-        <div class="profile-email" id="profileEmail"></div>
-
-        <label class="avatar-btn" for="avatarInput">
-            📷 Profil rasmini tanlash
-        </label>
-
-        <input type="file"
-               id="avatarInput"
-               accept="image/*">
-
-        <button class="avatar-btn avatar-delete"
-                onclick="deleteAvatar()">
-            🗑️ Profil rasmini o‘chirish
-        </button>
-
-        <button class="close-preview"
-                style="width:100%;margin-top:10px"
-                onclick="closeProfile()">
-            Yopish
-        </button>
-
-    </div>
-</div>
 
 <script>
 
-/* =========================
+/* =====================================================
    SUPABASE
-========================= */
+===================================================== */
 
 const SUPABASE_URL =
 "https://xfhxkdbwvhzdcbzlnnim.supabase.co";
@@ -666,1382 +1059,1874 @@ const SUPABASE_KEY =
 
 const supabaseClient =
 window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
+SUPABASE_URL,
+SUPABASE_KEY
 );
 
 
-/* =========================
-   ELEMENTS
-========================= */
-
-const authPage = document.getElementById("authPage");
-const cloudPage = document.getElementById("cloudPage");
-const authTitle = document.getElementById("authTitle");
-const authButton = document.getElementById("authButton");
-const switchButton = document.getElementById("switchButton");
-const authMessage = document.getElementById("authMessage");
-const emailInput = document.getElementById("email");
-const passwordInput = document.getElementById("password");
-const fileInput = document.getElementById("fileInput");
-const fileList = document.getElementById("fileList");
-const userEmail = document.getElementById("userEmail");
-const uploadStatus = document.getElementById("uploadStatus");
-const uploadBox = document.getElementById("uploadBox");
-const fileSearch = document.getElementById("fileSearch");
-const avatarInput = document.getElementById("avatarInput");
+/* =====================================================
+   VARIABLES
+===================================================== */
 
 let registerMode = false;
-let currentAvatarPath = null;
+
+let currentFolder = "";
+
+let currentUser = null;
 
 
-/* =========================
-   AUTH
-========================= */
+/* =====================================================
+   ELEMENTS
+===================================================== */
+
+const authPage =
+document.getElementById("authPage");
+
+const cloudPage =
+document.getElementById("cloudPage");
+
+const authTitle =
+document.getElementById("authTitle");
+
+const authButton =
+document.getElementById("authButton");
+
+const switchButton =
+document.getElementById("switchButton");
+
+const authMessage =
+document.getElementById("authMessage");
+
+const emailInput =
+document.getElementById("email");
+
+const passwordInput =
+document.getElementById("password");
+
+const fileInput =
+document.getElementById("fileInput");
+
+const fileList =
+document.getElementById("fileList");
+
+const uploadBox =
+document.getElementById("uploadBox");
+
+const uploadStatus =
+document.getElementById("uploadStatus");
+
+const fileSearch =
+document.getElementById("fileSearch");
+
+
+/* =====================================================
+   AUTH MODE
+===================================================== */
 
 function toggleAuth(){
 
-    registerMode = !registerMode;
+registerMode = !registerMode;
 
-    if(registerMode){
+if(registerMode){
 
-        authTitle.textContent = "Yangi hisob yarating";
-        authButton.textContent = "Ro‘yxatdan o‘tish";
-        switchButton.textContent =
-            "Hisobingiz bormi? Kirish";
+authTitle.textContent =
+"Yangi hisob yarating";
 
-    }else{
+authButton.textContent =
+"Ro‘yxatdan o‘tish";
 
-        authTitle.textContent = "Hisobingizga kiring";
-        authButton.textContent = "Kirish";
-        switchButton.textContent =
-            "Hisobingiz yo‘qmi? Ro‘yxatdan o‘ting";
-    }
+switchButton.textContent =
+"Hisobingiz bormi? Kirish";
 
-    authMessage.textContent = "";
+}else{
+
+authTitle.textContent =
+"Hisobingizga kiring";
+
+authButton.textContent =
+"Kirish";
+
+switchButton.textContent =
+"Hisobingiz yo‘qmi? Ro‘yxatdan o‘ting";
+
 }
 
+authMessage.textContent = "";
+
+}
+
+
+/* =====================================================
+   LOGIN / REGISTER
+===================================================== */
 
 async function login(){
 
-    const email = emailInput.value.trim();
-    const password = passwordInput.value;
+const email =
+emailInput.value.trim();
 
-    if(!email || !password){
+const password =
+passwordInput.value;
 
-        showAuthMessage(
-            "Email va parolni kiriting.",
-            "error"
-        );
+if(!email || !password){
 
-        return;
-    }
+showAuthMessage(
+"Email va parolni kiriting.",
+"error"
+);
 
-    authButton.disabled = true;
-
-    try{
-
-        if(registerMode){
-
-            const {data,error} =
-                await supabaseClient.auth.signUp({
-                    email,
-                    password
-                });
-
-            if(error) throw error;
-
-            showAuthMessage(
-                "Ro‘yxatdan o‘tildi.",
-                "success"
-            );
-
-            if(data.session){
-                showCloud(data.session.user);
-            }
-
-        }else{
-
-            const {data,error} =
-                await supabaseClient.auth.signInWithPassword({
-                    email,
-                    password
-                });
-
-            if(error) throw error;
-
-            showCloud(data.user);
-        }
-
-    }catch(error){
-
-        showAuthMessage(
-            error.message,
-            "error"
-        );
-
-    }finally{
-
-        authButton.disabled = false;
-    }
+return;
 }
 
+authButton.disabled = true;
+
+try{
+
+if(registerMode){
+
+const {data,error} =
+await supabaseClient.auth.signUp({
+email,
+password
+});
+
+if(error) throw error;
+
+showAuthMessage(
+"Ro‘yxatdan o‘tildi.",
+"success"
+);
+
+if(data.session){
+
+showCloud(data.session.user);
+
+}else{
+
+showAuthMessage(
+"Emailingizni tasdiqlang.",
+"success"
+);
+
+}
+
+}else{
+
+const {data,error} =
+await supabaseClient.auth.signInWithPassword({
+email,
+password
+});
+
+if(error) throw error;
+
+showCloud(data.user);
+
+}
+
+}catch(error){
+
+showAuthMessage(
+error.message,
+"error"
+);
+
+}finally{
+
+authButton.disabled = false;
+
+}
+
+}
+
+
+/* =====================================================
+   AUTH MESSAGE
+===================================================== */
 
 function showAuthMessage(message,type){
 
-    authMessage.textContent = message;
+authMessage.textContent =
+message;
 
-    authMessage.style.color =
-        type === "success"
-        ? "#4ade80"
-        : "#f87171";
+authMessage.style.color =
+type === "success"
+? "#4ade80"
+: "#f87171";
+
 }
 
 
-/* =========================
+/* =====================================================
    SHOW CLOUD
-========================= */
+===================================================== */
 
-async function showCloud(user){
+function showCloud(user){
 
-    authPage.classList.add("hidden");
-    cloudPage.classList.remove("hidden");
+currentUser = user;
 
-    userEmail.textContent = user.email;
+currentFolder = "";
 
-    await loadAvatar(user);
+authPage.classList.add("hidden");
 
-    await loadFiles();
+cloudPage.classList.remove("hidden");
+
+document.getElementById("userEmail")
+.textContent = user.email;
+
+loadCurrentFolder();
+
 }
 
 
-/* =========================
+/* =====================================================
    LOGOUT
-========================= */
+===================================================== */
 
 async function logout(){
 
-    await supabaseClient.auth.signOut();
+await supabaseClient.auth.signOut();
 
-    cloudPage.classList.add("hidden");
-    authPage.classList.remove("hidden");
+currentUser = null;
 
-    emailInput.value = "";
-    passwordInput.value = "";
+currentFolder = "";
 
-    fileList.innerHTML = "";
+cloudPage.classList.add("hidden");
 
-    document.getElementById("statFiles").textContent = "0";
-    document.getElementById("statSize").textContent = "0 B";
+authPage.classList.remove("hidden");
 
-    currentAvatarPath = null;
+emailInput.value = "";
+
+passwordInput.value = "";
+
+fileList.innerHTML = "";
+
 }
 
 
-/* =========================
+/* =====================================================
    SESSION
-========================= */
+===================================================== */
 
 async function checkSession(){
 
-    const {
-        data:{session}
-    } = await supabaseClient.auth.getSession();
+const {
+data:{
+session
+}
+} =
+await supabaseClient.auth.getSession();
 
-    if(session){
+if(session){
 
-        showCloud(session.user);
+showCloud(session.user);
 
-    }else{
+}else{
 
-        authPage.classList.remove("hidden");
-        cloudPage.classList.add("hidden");
-    }
+authPage.classList.remove("hidden");
+
+cloudPage.classList.add("hidden");
+
+}
+
 }
 
 
-/* =========================
-   AVATAR
-========================= */
-
-function avatarHTML(url,user){
-
-    if(url){
-
-        return `
-            <img
-                class="profile-avatar"
-                src="${url}"
-                alt="Profil">
-        `;
-
-    }
-
-    const letter =
-        (user?.email || "?")
-        .charAt(0)
-        .toUpperCase();
-
-    return `
-        <div class="profile-initial">
-            ${letter}
-        </div>
-    `;
-}
-
-
-async function loadAvatar(user){
-
-    const {data,error} =
-        await supabaseClient.storage
-            .from("avatars")
-            .list(user.id,{
-                limit:100
-            });
-
-    if(error){
-
-        console.error(error);
-
-        document.getElementById(
-            "headerAvatar"
-        ).innerHTML =
-            avatarHTML(null,user);
-
-        return;
-    }
-
-    const images =
-        (data || [])
-        .filter(x =>
-            x.name &&
-            x.name !== ".emptyFolderPlaceholder"
-        );
-
-    if(!images.length){
-
-        currentAvatarPath = null;
-
-        document.getElementById(
-            "headerAvatar"
-        ).innerHTML =
-            avatarHTML(null,user);
-
-        return;
-    }
-
-    images.sort((a,b)=>
-        new Date(b.created_at) -
-        new Date(a.created_at)
-    );
-
-    const file = images[0];
-
-    currentAvatarPath =
-        user.id + "/" + file.name;
-
-    const {data:urlData} =
-        supabaseClient.storage
-            .from("avatars")
-            .getPublicUrl(currentAvatarPath);
-
-    document.getElementById(
-        "headerAvatar"
-    ).innerHTML =
-        avatarHTML(urlData.publicUrl,user);
-}
-
-
-avatarInput.addEventListener(
-    "change",
-    async function(){
-
-        if(!this.files.length) return;
-
-        await uploadAvatar(this.files[0]);
-
-        this.value = "";
-    }
-);
-
-
-async function uploadAvatar(file){
-
-    if(!file.type.startsWith("image/")){
-
-        showToast(
-            "Faqat rasm tanlang.",
-            "error"
-        );
-
-        return;
-    }
-
-    const {
-        data:{user}
-    } =
-        await supabaseClient.auth.getUser();
-
-    if(!user) return;
-
-    try{
-
-        showToast(
-            "Profil rasmi yuklanmoqda...",
-            "success"
-        );
-
-        /* Eski rasmlarni topamiz */
-
-        const {data:oldFiles} =
-            await supabaseClient.storage
-                .from("avatars")
-                .list(user.id,{
-                    limit:100
-                });
-
-        if(oldFiles && oldFiles.length){
-
-            const oldPaths =
-                oldFiles
-                .filter(x =>
-                    x.name &&
-                    x.name !== ".emptyFolderPlaceholder"
-                )
-                .map(x =>
-                    user.id + "/" + x.name
-                );
-
-            if(oldPaths.length){
-
-                await supabaseClient.storage
-                    .from("avatars")
-                    .remove(oldPaths);
-            }
-        }
-
-        const extension =
-            file.name
-                .split(".")
-                .pop()
-                .toLowerCase();
-
-        const fileName =
-            "avatar_" +
-            Date.now() +
-            "." +
-            extension;
-
-        const path =
-            user.id + "/" + fileName;
-
-        const {error} =
-            await supabaseClient.storage
-                .from("avatars")
-                .upload(
-                    path,
-                    file,
-                    {
-                        upsert:false,
-                        contentType:file.type
-                    }
-                );
-
-        if(error) throw error;
-
-        currentAvatarPath = path;
-
-        const {data:urlData} =
-            supabaseClient.storage
-                .from("avatars")
-                .getPublicUrl(path);
-
-        document.getElementById(
-            "headerAvatar"
-        ).innerHTML =
-            avatarHTML(
-                urlData.publicUrl,
-                user
-            );
-
-        showToast(
-            "Profil rasmi yangilandi!",
-            "success"
-        );
-
-        openProfile();
-
-    }catch(error){
-
-        console.error(error);
-
-        showToast(
-            "Profil rasmi yuklanmadi: " +
-            error.message,
-            "error"
-        );
-    }
-}
-
-
-async function deleteAvatar(){
-
-    if(!currentAvatarPath){
-
-        showToast(
-            "Profil rasmi mavjud emas.",
-            "error"
-        );
-
-        return;
-    }
-
-    const ok =
-        confirm(
-            "Profil rasmini o‘chirishni xohlaysizmi?"
-        );
-
-    if(!ok) return;
-
-    try{
-
-        const {error} =
-            await supabaseClient.storage
-                .from("avatars")
-                .remove([
-                    currentAvatarPath
-                ]);
-
-        if(error) throw error;
-
-        const {
-            data:{user}
-        } =
-            await supabaseClient.auth.getUser();
-
-        currentAvatarPath = null;
-
-        document.getElementById(
-            "headerAvatar"
-        ).innerHTML =
-            avatarHTML(null,user);
-
-        showToast(
-            "Profil rasmi o‘chirildi.",
-            "success"
-        );
-
-        openProfile();
-
-    }catch(error){
-
-        showToast(
-            "O‘chirishda xatolik: " +
-            error.message,
-            "error"
-        );
-    }
-}
-
-
-/* =========================
-   PROFILE MODAL
-========================= */
-
-async function openProfile(){
-
-    const {
-        data:{user}
-    } =
-        await supabaseClient.auth.getUser();
-
-    if(!user) return;
-
-    document.getElementById(
-        "profileEmail"
-    ).textContent = user.email;
-
-    const container =
-        document.getElementById(
-            "profileBigContainer"
-        );
-
-    if(currentAvatarPath){
-
-        const {data} =
-            supabaseClient.storage
-                .from("avatars")
-                .getPublicUrl(currentAvatarPath);
-
-        container.innerHTML = `
-            <img
-                class="profile-big"
-                src="${data.publicUrl}"
-                alt="Profil">
-        `;
-
-    }else{
-
-        const letter =
-            user.email
-            .charAt(0)
-            .toUpperCase();
-
-        container.innerHTML = `
-            <div class="profile-big"
-                 style="
-                 display:flex;
-                 align-items:center;
-                 justify-content:center;
-                 font-size:42px;
-                 font-weight:900;
-                 background:linear-gradient(135deg,#2563eb,#7c3aed);
-                 ">
-                ${letter}
-            </div>
-        `;
-    }
-
-    document.getElementById(
-        "profileModal"
-    ).classList.add("active");
-}
-
-
-function closeProfile(event){
-
-    const modal =
-        document.getElementById(
-            "profileModal"
-        );
-
-    if(
-        event &&
-        event.target !== modal
-    ) return;
-
-    modal.classList.remove("active");
-}
-
-
-/* =========================
+/* =====================================================
    DRAG & DROP
-========================= */
+===================================================== */
 
-["dragenter","dragover"].forEach(name=>{
-
-    uploadBox.addEventListener(
-        name,
-        e=>{
-            e.preventDefault();
-            uploadBox.classList.add("dragging");
-        }
-    );
-});
-
-["dragleave","drop"].forEach(name=>{
-
-    uploadBox.addEventListener(
-        name,
-        e=>{
-            e.preventDefault();
-            uploadBox.classList.remove("dragging");
-        }
-    );
-});
+["dragenter","dragover"].forEach(eventName=>{
 
 uploadBox.addEventListener(
-    "drop",
-    e=>{
+eventName,
+event=>{
 
-        const files =
-            e.dataTransfer.files;
+event.preventDefault();
 
-        if(files.length)
-            uploadFiles(files);
-    }
-);
+uploadBox.classList.add("dragging");
+
+});
+
+});
 
 
-/* =========================
+["dragleave","drop"].forEach(eventName=>{
+
+uploadBox.addEventListener(
+eventName,
+event=>{
+
+event.preventDefault();
+
+uploadBox.classList.remove("dragging");
+
+});
+
+});
+
+
+uploadBox.addEventListener(
+"drop",
+event=>{
+
+const files =
+event.dataTransfer.files;
+
+if(files.length){
+
+uploadFiles(files);
+
+}
+
+});
+
+
+/* =====================================================
    FILE INPUT
-========================= */
+===================================================== */
 
 fileInput.addEventListener(
-    "change",
-    async function(){
+"change",
+async function(){
 
-        if(!this.files.length) return;
+if(!this.files.length)
+return;
 
-        await uploadFiles(this.files);
+await uploadFiles(this.files);
 
-        this.value = "";
-    }
-);
+this.value = "";
+
+});
 
 
-/* =========================
-   UPLOAD FILES
-========================= */
+/* =====================================================
+   GET FULL PATH
+===================================================== */
+
+function getFullPath(fileName){
+
+if(currentFolder){
+
+return currentUser.id +
+"/" +
+currentFolder +
+"/" +
+fileName;
+
+}
+
+return currentUser.id +
+"/" +
+fileName;
+
+}
+
+
+/* =====================================================
+   UPLOAD
+===================================================== */
 
 async function uploadFiles(fileCollection){
 
-    const {
-        data:{user}
-    } =
-        await supabaseClient.auth.getUser();
+if(!currentUser){
 
-    if(!user){
+showToast(
+"Avval tizimga kiring.",
+"error"
+);
 
-        showToast(
-            "Avval tizimga kiring.",
-            "error"
-        );
+return;
 
-        return;
-    }
+}
 
-    const files =
-        Array.from(fileCollection);
+const files =
+Array.from(fileCollection);
 
-    uploadStatus.textContent =
-        `⏳ ${files.length} ta fayl yuklanmoqda...`;
+if(!files.length)
+return;
 
-    let successCount = 0;
+let success = 0;
 
-    for(const file of files){
+uploadStatus.textContent =
+`⏳ ${files.length} ta fayl yuklanmoqda...`;
 
-        try{
+for(const file of files){
 
-            const safeName =
-                file.name
-                .normalize("NFKD")
-                .replace(/[^\x00-\x7F]/g,"")
-                .replace(/[^a-zA-Z0-9._-]/g,"_");
+try{
 
-            const fileName =
-                Date.now() +
-                "_" +
-                Math.random()
-                    .toString(36)
-                    .slice(2,8) +
-                "_" +
-                safeName;
+const safeName =
+file.name
+.normalize("NFKD")
+.replace(/[^\x00-\x7F]/g,"")
+.replace(/[^a-zA-Z0-9._-]/g,"_");
 
-            const path =
-                user.id + "/" + fileName;
+const fileName =
+Date.now() +
+"_" +
+Math.random()
+.toString(36)
+.slice(2,8) +
+"_" +
+safeName;
 
-            const {error} =
-                await supabaseClient.storage
-                    .from("files")
-                    .upload(
-                        path,
-                        file,
-                        {
-                            upsert:false,
-                            contentType:file.type
-                        }
-                    );
+const path =
+getFullPath(fileName);
 
-            if(error) throw error;
+const {error} =
+await supabaseClient
+.storage
+.from("files")
+.upload(
+path,
+file,
+{
+upsert:false,
+contentType:file.type
+}
+);
 
-            successCount++;
+if(error)
+throw error;
 
-            uploadStatus.textContent =
-                `⏳ ${successCount}/${files.length} yuklandi...`;
+success++;
 
-        }catch(error){
+uploadStatus.textContent =
+`⏳ ${success}/${files.length} yuklandi...`;
 
-            console.error(error);
+}catch(error){
 
-            showToast(
-                `${file.name}: ${error.message}`,
-                "error"
-            );
-        }
-    }
+console.error(error);
 
-    if(successCount){
+showToast(
+`${file.name}: ${error.message}`,
+"error"
+);
 
-        uploadStatus.textContent =
-            `✅ ${successCount} ta fayl muvaffaqiyatli yuklandi`;
+}
 
-        showToast(
-            `${successCount} ta fayl yuklandi`,
-            "success"
-        );
+}
 
-    }else{
+if(success){
 
-        uploadStatus.textContent =
-            "❌ Fayllar yuklanmadi";
-    }
+uploadStatus.textContent =
+`✅ ${success} ta fayl yuklandi`;
 
-    await loadFiles();
+showToast(
+`${success} ta fayl yuklandi`,
+"success"
+);
+
+}else{
+
+uploadStatus.textContent =
+"❌ Fayllar yuklanmadi";
+
+}
+
+await loadCurrentFolder();
+
 }
 
 
-/* =========================
-   LOAD FILES
-========================= */
+/* =====================================================
+   CREATE FOLDER
+===================================================== */
 
-async function loadFiles(){
+async function createFolder(){
 
-    const {
-        data:{user}
-    } =
-        await supabaseClient.auth.getUser();
+if(!currentUser)
+return;
 
-    if(!user) return;
+const name =
+prompt("Yangi papka nomini kiriting:");
 
-    fileList.innerHTML = `
-        <div class="loading">
-            <div class="spinner"></div>
-            Fayllar yuklanmoqda...
-        </div>
-    `;
+if(!name)
+return;
 
-    try{
+const folderName =
+name
+.trim()
+.replace(/[\/\\]/g,"_");
 
-        const {data,error} =
-            await supabaseClient.storage
-                .from("files")
-                .list(
-                    user.id,
-                    {
-                        limit:1000,
-                        offset:0,
-                        sortBy:{
-                            column:"created_at",
-                            order:"desc"
-                        }
-                    }
-                );
+if(!folderName)
+return;
 
-        if(error) throw error;
+try{
 
-        const files =
-            (data || [])
-            .filter(file =>
-                file.name &&
-                file.metadata
-            );
+/*
+   Supabase Storage'da bo‘sh papka yo‘q.
+   Shuning uchun papka ichiga yashirin
+   .folder faylini yaratamiz.
+*/
 
-        let totalSize = 0;
+const path =
+getFullPath(
+folderName + "/.folder"
+);
 
-        files.forEach(file=>{
-            totalSize +=
-                Number(
-                    file.metadata?.size || 0
-                );
-        });
+const blob =
+new Blob(
+["SkyDriveX folder"],
+{
+type:"text/plain"
+}
+);
 
-        updateStats(
-            files.length,
-            totalSize
-        );
+const {error} =
+await supabaseClient
+.storage
+.from("files")
+.upload(
+path,
+blob,
+{
+upsert:false
+}
+);
 
-        const storageLimit =
-            1024 * 1024 * 1024;
+if(error)
+throw error;
 
-        const percentage =
-            Math.min(
-                totalSize / storageLimit * 100,
-                100
-            );
+showToast(
+"📁 Papka yaratildi",
+"success"
+);
 
-        document.getElementById(
-            "storageText"
-        ).textContent =
-            `${formatSize(totalSize)} / 1 GB`;
+await loadCurrentFolder();
 
-        document.getElementById(
-            "storageProgress"
-        ).style.width =
-            percentage + "%";
+}catch(error){
 
-        if(!files.length){
+console.error(error);
 
-            fileList.innerHTML = `
-                <div class="empty">
-                    <div class="empty-icon">📂</div>
-                    Hozircha fayllar yo‘q.
-                    <div style="margin-top:5px;font-size:12px">
-                        Birinchi faylingizni yuklang.
-                    </div>
-                </div>
-            `;
+showToast(
+"Papka yaratishda xatolik: " +
+error.message,
+"error"
+);
 
-            return;
-        }
+}
 
-        fileList.innerHTML = "";
-
-        files.forEach(file=>{
-            createFileElement(file,user);
-        });
-
-        applySearch();
-
-    }catch(error){
-
-        console.error(error);
-
-        fileList.innerHTML = `
-            <div class="empty">
-                ❌ Fayllarni yuklashda xatolik.
-            </div>
-        `;
-
-        showToast(
-            error.message,
-            "error"
-        );
-    }
 }
 
 
-/* =========================
-   CREATE FILE
-========================= */
+/* =====================================================
+   LOAD CURRENT FOLDER
+===================================================== */
 
-function createFileElement(file,user){
+async function loadCurrentFolder(){
 
-    const fullPath =
-        user.id + "/" + file.name;
+if(!currentUser)
+return;
 
-    const div =
-        document.createElement("div");
+fileList.innerHTML = `
+<div class="loading">
+⏳ Yuklanmoqda...
+</div>
+`;
 
-    div.className = "file";
+updateBreadcrumb();
 
-    div.dataset.fileName =
-        file.name.toLowerCase();
+try{
 
-    const icon =
-        getFileIcon(file.name);
+const {
+data,
+error
+} =
+await supabaseClient
+.storage
+.from("files")
+.list(
+getListPath(),
+{
+limit:1000,
+offset:0,
+sortBy:{
+column:"created_at",
+order:"desc"
+}
+}
+);
 
-    const size =
-        formatSize(
-            file.metadata?.size || 0
-        );
+if(error)
+throw error;
 
-    const previewable =
-        isPreviewable(file.name);
+const items =
+data || [];
 
-    div.innerHTML = `
+renderItems(items);
 
-        <div class="file-main">
+await updateStorage();
 
-            <div class="file-icon">
-                ${icon}
-            </div>
+}catch(error){
 
-            <div class="file-info">
+console.error(error);
 
-                <div class="file-name"
-                     title="${escapeHtml(file.name)}">
-                    ${escapeHtml(file.name)}
-                </div>
+fileList.innerHTML = `
+<div class="empty">
+❌ Fayllarni yuklashda xatolik.
+<br><br>
+${escapeHtml(error.message)}
+</div>
+`;
 
-                <div class="file-size">
-                    ${size}
-                </div>
+showToast(
+error.message,
+"error"
+);
 
-            </div>
+}
 
-        </div>
-
-        <div class="file-actions">
-
-            ${
-                previewable
-                ? `
-                    <button class="btn"
-                        onclick="previewFile(
-                            '${escapeJs(fullPath)}',
-                            '${escapeJs(file.name)}'
-                        )">
-                        👁️ Ko‘rish
-                    </button>
-                `
-                : ""
-            }
-
-            <button class="btn"
-                onclick="downloadFile(
-                    '${escapeJs(fullPath)}'
-                )">
-                ⬇️
-            </button>
-
-            <button class="btn delete"
-                onclick="deleteFile(
-                    '${escapeJs(fullPath)}'
-                )">
-                🗑️
-            </button>
-
-        </div>
-    `;
-
-    fileList.appendChild(div);
 }
 
 
-/* =========================
+/* =====================================================
+   LIST PATH
+===================================================== */
+
+function getListPath(){
+
+if(currentFolder){
+
+return currentUser.id +
+"/" +
+currentFolder;
+
+}
+
+return currentUser.id;
+
+}
+
+
+/* =====================================================
+   RENDER ITEMS
+===================================================== */
+
+function renderItems(items){
+
+fileList.innerHTML = "";
+
+let visibleItems = 0;
+
+items.forEach(item=>{
+
+/*
+   .folder faylini foydalanuvchiga
+   ko‘rsatmaymiz.
+*/
+
+if(item.name === ".folder")
+return;
+
+
+/*
+   Agar metadata bo‘lmasa yoki
+   metadata ichida mime type bo‘lmasa,
+   bu odatda folder.
+*/
+
+const isFolder =
+!item.metadata ||
+item.metadata.mimetype === undefined ||
+item.metadata.size === undefined;
+
+if(isFolder){
+
+createFolderElement(item);
+
+}else{
+
+createFileElement(item);
+
+}
+
+visibleItems++;
+
+});
+
+
+if(!visibleItems){
+
+fileList.innerHTML = `
+<div class="empty">
+
+<div class="empty-icon">
+📂
+</div>
+
+<div>
+Bu papka bo‘sh.
+</div>
+
+<div style="margin-top:5px;font-size:12px;">
+Fayl yuklang yoki yangi papka yarating.
+</div>
+
+</div>
+`;
+
+}
+
+updateFileCount(visibleItems);
+
+applySearch();
+
+}
+
+
+/* =====================================================
+   CREATE FOLDER ELEMENT
+===================================================== */
+
+function createFolderElement(folder){
+
+const div =
+document.createElement("div");
+
+div.className =
+"file folder";
+
+div.dataset.fileName =
+folder.name.toLowerCase();
+
+div.innerHTML = `
+
+<div class="file-main">
+
+<div class="file-icon">
+📁
+</div>
+
+<div class="file-info">
+
+<div class="file-name">
+${escapeHtml(folder.name)}
+</div>
+
+<div class="file-size">
+Papka
+</div>
+
+</div>
+
+</div>
+
+<div class="file-actions">
+
+<button
+class="btn"
+onclick="openFolder('${escapeJs(folder.name)}')">
+
+📂 Ochish
+
+</button>
+
+<button
+class="btn delete"
+onclick="deleteFolder('${escapeJs(folder.name)}')">
+
+🗑️
+
+</button>
+
+</div>
+
+`;
+
+fileList.appendChild(div);
+
+}
+
+
+/* =====================================================
+   OPEN FOLDER
+===================================================== */
+
+function openFolder(folderName){
+
+if(currentFolder){
+
+currentFolder +=
+"/" +
+folderName;
+
+}else{
+
+currentFolder =
+folderName;
+
+}
+
+fileSearch.value = "";
+
+loadCurrentFolder();
+
+}
+
+
+/* =====================================================
+   GO BACK
+===================================================== */
+
+function goBack(){
+
+if(!currentFolder)
+return;
+
+const parts =
+currentFolder.split("/");
+
+parts.pop();
+
+currentFolder =
+parts.join("/");
+
+fileSearch.value = "";
+
+loadCurrentFolder();
+
+}
+
+
+/* =====================================================
+   BREADCRUMB
+===================================================== */
+
+function updateBreadcrumb(){
+
+const breadcrumb =
+document.getElementById("breadcrumb");
+
+breadcrumb.innerHTML = "";
+
+const home =
+document.createElement("span");
+
+home.className =
+"crumb";
+
+home.textContent =
+"🏠 Mening fayllarim";
+
+home.onclick = ()=>{
+currentFolder = "";
+fileSearch.value = "";
+loadCurrentFolder();
+};
+
+breadcrumb.appendChild(home);
+
+if(currentFolder){
+
+const parts =
+currentFolder.split("/");
+
+let accumulated = "";
+
+parts.forEach((part,index)=>{
+
+const separator =
+document.createElement("span");
+
+separator.className =
+"crumb-separator";
+
+separator.textContent =
+"›";
+
+breadcrumb.appendChild(separator);
+
+if(index === 0){
+
+accumulated = part;
+
+}else{
+
+accumulated +=
+"/" +
+part;
+
+}
+
+const crumb =
+document.createElement("span");
+
+crumb.className =
+"crumb";
+
+crumb.textContent =
+"📁 " +
+part;
+
+const path =
+accumulated;
+
+crumb.onclick = ()=>{
+
+currentFolder = path;
+
+fileSearch.value = "";
+
+loadCurrentFolder();
+
+};
+
+breadcrumb.appendChild(crumb);
+
+});
+
+}
+
+document.getElementById("backButton")
+.style.display =
+currentFolder
+? "block"
+: "none";
+
+}
+
+
+/* =====================================================
+   CREATE FILE ELEMENT
+===================================================== */
+
+function createFileElement(file){
+
+const fullPath =
+getFullPath(file.name);
+
+const div =
+document.createElement("div");
+
+div.className =
+"file";
+
+div.dataset.fileName =
+file.name.toLowerCase();
+
+const icon =
+getFileIcon(file.name);
+
+const size =
+formatSize(
+file.metadata?.size || 0
+);
+
+const preview =
+isPreviewable(file.name);
+
+div.innerHTML = `
+
+<div class="file-main">
+
+<div class="file-icon">
+${icon}
+</div>
+
+<div class="file-info">
+
+<div
+class="file-name"
+title="${escapeHtml(file.name)}">
+
+${escapeHtml(file.name)}
+
+</div>
+
+<div class="file-size">
+${size}
+</div>
+
+</div>
+
+</div>
+
+<div class="file-actions">
+
+${
+preview
+?
+`
+<button
+class="btn"
+onclick="previewFile(
+'${escapeJs(fullPath)}',
+'${escapeJs(file.name)}'
+)">
+👁️ Ko‘rish
+</button>
+`
+:
+""
+}
+
+<button
+class="btn"
+onclick="downloadFile(
+'${escapeJs(fullPath)}'
+)">
+⬇️ Yuklash
+</button>
+
+<button
+class="btn delete"
+onclick="deleteFile(
+'${escapeJs(fullPath)}'
+)">
+🗑️
+</button>
+
+</div>
+
+`;
+
+fileList.appendChild(div);
+
+}
+
+
+/* =====================================================
+   DELETE FILE
+===================================================== */
+
+async function deleteFile(path){
+
+const name =
+path.split("/").pop();
+
+if(!confirm(
+`"${name}" faylini o‘chirishni xohlaysizmi?`
+))
+return;
+
+try{
+
+const {error} =
+await supabaseClient
+.storage
+.from("files")
+.remove([path]);
+
+if(error)
+throw error;
+
+showToast(
+"Fayl o‘chirildi",
+"success"
+);
+
+await loadCurrentFolder();
+
+}catch(error){
+
+showToast(
+"O‘chirishda xatolik: " +
+error.message,
+"error"
+);
+
+}
+
+}
+
+
+/* =====================================================
+   DELETE FOLDER
+===================================================== */
+
+async function deleteFolder(folderName){
+
+if(!confirm(
+`"${folderName}" papkasini o‘chirishni xohlaysizmi?\n\nPapka ichidagi fayllar ham o‘chiriladi.`
+))
+return;
+
+try{
+
+const folderPath =
+getFullPath(folderName);
+
+const allFiles =
+await collectFolderFiles(folderPath);
+
+if(allFiles.length){
+
+const {error} =
+await supabaseClient
+.storage
+.from("files")
+.remove(allFiles);
+
+if(error)
+throw error;
+
+}
+
+showToast(
+"📁 Papka o‘chirildi",
+"success"
+);
+
+await loadCurrentFolder();
+
+}catch(error){
+
+console.error(error);
+
+showToast(
+"Papka o‘chirishda xatolik: " +
+error.message,
+"error"
+);
+
+}
+
+}
+
+
+/* =====================================================
+   COLLECT FOLDER FILES
+===================================================== */
+
+async function collectFolderFiles(path){
+
+const result = [];
+
+async function scan(folder){
+
+const {data,error} =
+await supabaseClient
+.storage
+.from("files")
+.list(
+folder,
+{
+limit:1000,
+offset:0
+}
+);
+
+if(error)
+throw error;
+
+for(const item of data || []){
+
+const child =
+folder +
+"/" +
+item.name;
+
+const isFolder =
+!item.metadata ||
+item.metadata.size === undefined;
+
+if(isFolder){
+
+await scan(child);
+
+}else{
+
+result.push(child);
+
+}
+
+}
+
+}
+
+await scan(path);
+
+return result;
+
+}
+
+
+/* =====================================================
+   DOWNLOAD
+===================================================== */
+
+async function downloadFile(path){
+
+try{
+
+showToast(
+"⬇️ Yuklab olinmoqda...",
+"success"
+);
+
+const {data,error} =
+await supabaseClient
+.storage
+.from("files")
+.download(path);
+
+if(error)
+throw error;
+
+const url =
+URL.createObjectURL(data);
+
+const a =
+document.createElement("a");
+
+a.href = url;
+
+a.download =
+path.split("/").pop();
+
+document.body.appendChild(a);
+
+a.click();
+
+a.remove();
+
+setTimeout(()=>{
+URL.revokeObjectURL(url);
+},1000);
+
+}catch(error){
+
+showToast(
+"Yuklab olishda xatolik: " +
+error.message,
+"error"
+);
+
+}
+
+}
+
+
+/* =====================================================
+   PREVIEW
+===================================================== */
+
+async function previewFile(path,name){
+
+try{
+
+showToast(
+"⏳ Fayl ochilmoqda...",
+"success"
+);
+
+const {data,error} =
+await supabaseClient
+.storage
+.from("files")
+.download(path);
+
+if(error)
+throw error;
+
+const url =
+URL.createObjectURL(data);
+
+const extension =
+name
+.split(".")
+.pop()
+.toLowerCase();
+
+const modal =
+document.getElementById("previewModal");
+
+const title =
+document.getElementById("previewTitle");
+
+const content =
+document.getElementById("previewContent");
+
+title.textContent =
+name;
+
+content.innerHTML = "";
+
+
+/* IMAGE */
+
+if([
+"jpg",
+"jpeg",
+"png",
+"gif",
+"webp",
+"bmp",
+"svg"
+].includes(extension)){
+
+const img =
+document.createElement("img");
+
+img.src = url;
+
+img.alt = name;
+
+content.appendChild(img);
+
+
+/* VIDEO */
+
+}else if([
+"mp4",
+"webm",
+"ogg",
+"mov",
+"m4v"
+].includes(extension)){
+
+const video =
+document.createElement("video");
+
+video.src = url;
+
+video.controls = true;
+
+video.autoplay = true;
+
+video.playsInline = true;
+
+video.preload = "metadata";
+
+content.appendChild(video);
+
+
+/* AUDIO */
+
+}else if([
+"mp3",
+"wav",
+"ogg",
+"m4a",
+"aac",
+"flac"
+].includes(extension)){
+
+const audio =
+document.createElement("audio");
+
+audio.src = url;
+
+audio.controls = true;
+
+audio.autoplay = true;
+
+content.appendChild(audio);
+
+
+/* OTHER */
+
+}else{
+
+content.innerHTML = `
+<div class="preview-message">
+
+📄 Bu faylni brauzerda ko‘rib bo‘lmaydi.
+
+<br><br>
+
+⬇️ Yuklab olish tugmasidan foydalaning.
+
+</div>
+`;
+
+}
+
+modal.classList.add("active");
+
+modal.dataset.objectUrl =
+url;
+
+}catch(error){
+
+showToast(
+"Preview xatosi: " +
+error.message,
+"error"
+);
+
+}
+
+}
+
+
+/* =====================================================
+   CLOSE PREVIEW
+===================================================== */
+
+function closePreview(event){
+
+const modal =
+document.getElementById("previewModal");
+
+if(
+event &&
+event.target !== modal
+)
+return;
+
+modal.classList.remove("active");
+
+const url =
+modal.dataset.objectUrl;
+
+if(url){
+
+URL.revokeObjectURL(url);
+
+}
+
+modal.dataset.objectUrl = "";
+
+document.getElementById(
+"previewContent"
+).innerHTML = "";
+
+}
+
+
+/* =====================================================
    SEARCH
-========================= */
+===================================================== */
 
 fileSearch.addEventListener(
-    "input",
-    applySearch
+"input",
+applySearch
 );
 
 function applySearch(){
 
-    const query =
-        fileSearch.value
-        .toLowerCase()
-        .trim();
+const query =
+fileSearch.value
+.toLowerCase()
+.trim();
 
-    const files =
-        document.querySelectorAll(
-            "#fileList .file"
-        );
+const items =
+document.querySelectorAll(
+"#fileList .file"
+);
 
-    files.forEach(file=>{
+let visible = 0;
 
-        const name =
-            file.dataset.fileName || "";
+items.forEach(item=>{
 
-        file.style.display =
-            name.includes(query)
-            ? "flex"
-            : "none";
-    });
+const name =
+item.dataset.fileName || "";
+
+if(name.includes(query)){
+
+item.style.display =
+"flex";
+
+visible++;
+
+}else{
+
+item.style.display =
+"none";
+
+}
+
+});
+
 }
 
 
-/* =========================
-   DOWNLOAD
-========================= */
+/* =====================================================
+   STORAGE
+===================================================== */
 
-async function downloadFile(path){
+async function updateStorage(){
 
-    try{
+try{
 
-        showToast(
-            "Yuklab olinmoqda...",
-            "success"
-        );
+const files =
+await collectAllUserFiles(
+currentUser.id
+);
 
-        const {data,error} =
-            await supabaseClient.storage
-                .from("files")
-                .download(path);
+let total = 0;
 
-        if(error) throw error;
+files.forEach(file=>{
+total += Number(file.size || 0);
+});
 
-        const url =
-            URL.createObjectURL(data);
+const limit =
+1024 *
+1024 *
+1024;
 
-        const a =
-            document.createElement("a");
+const percentage =
+Math.min(
+(total / limit) * 100,
+100
+);
 
-        a.href = url;
+document.getElementById(
+"storageText"
+).textContent =
+`${formatSize(total)} / 1 GB`;
 
-        a.download =
-            path.split("/").pop();
+document.getElementById(
+"storageProgress"
+).style.width =
+percentage + "%";
 
-        document.body.appendChild(a);
+document.getElementById(
+"statSize"
+).textContent =
+formatSize(total);
 
-        a.click();
+}catch(error){
 
-        a.remove();
+console.error(error);
 
-        setTimeout(()=>{
-            URL.revokeObjectURL(url);
-        },1000);
+}
 
-    }catch(error){
-
-        showToast(
-            "Yuklab olishda xatolik: " +
-            error.message,
-            "error"
-        );
-    }
 }
 
 
-/* =========================
-   DELETE FILE
-========================= */
+/* =====================================================
+   COLLECT ALL USER FILES
+===================================================== */
 
-async function deleteFile(path){
+async function collectAllUserFiles(root){
 
-    const fileName =
-        path.split("/").pop();
+const result = [];
 
-    if(!confirm(
-        `"${fileName}" faylini o‘chirishni xohlaysizmi?`
-    )) return;
+async function scan(folder){
 
-    try{
+const {data,error} =
+await supabaseClient
+.storage
+.from("files")
+.list(
+folder,
+{
+limit:1000,
+offset:0
+}
+);
 
-        const {error} =
-            await supabaseClient.storage
-                .from("files")
-                .remove([path]);
+if(error)
+throw error;
 
-        if(error) throw error;
+for(const item of data || []){
 
-        showToast(
-            "Fayl o‘chirildi",
-            "success"
-        );
+if(item.name === ".folder")
+continue;
 
-        await loadFiles();
+const path =
+folder +
+"/" +
+item.name;
 
-    }catch(error){
+const isFolder =
+!item.metadata ||
+item.metadata.size === undefined;
 
-        showToast(
-            "O‘chirishda xatolik: " +
-            error.message,
-            "error"
-        );
-    }
+if(isFolder){
+
+await scan(path);
+
+}else{
+
+result.push({
+path,
+size:item.metadata?.size || 0
+});
+
+}
+
+}
+
+}
+
+await scan(root);
+
+return result;
+
 }
 
 
-/* =========================
-   PREVIEW
-========================= */
-
-async function previewFile(path,name){
-
-    const extension =
-        name.split(".").pop().toLowerCase();
-
-    const {data,error} =
-        await supabaseClient.storage
-            .from("files")
-            .download(path);
-
-    if(error){
-
-        showToast(
-            error.message,
-            "error"
-        );
-
-        return;
-    }
-
-    const url =
-        URL.createObjectURL(data);
-
-    const modal =
-        document.getElementById(
-            "previewModal"
-        );
-
-    const title =
-        document.getElementById(
-            "previewTitle"
-        );
-
-    const content =
-        document.getElementById(
-            "previewContent"
-        );
-
-    title.textContent = name;
-    content.innerHTML = "";
-
-    if([
-        "jpg","jpeg","png",
-        "gif","webp","bmp"
-    ].includes(extension)){
-
-        const img =
-            document.createElement("img");
-
-        img.src = url;
-
-        content.appendChild(img);
-
-    }else if([
-        "mp4","webm","ogg","mov"
-    ].includes(extension)){
-
-        const video =
-            document.createElement("video");
-
-        video.src = url;
-        video.controls = true;
-        video.autoplay = true;
-
-        content.appendChild(video);
-
-    }else if([
-        "mp3","wav","m4a","ogg"
-    ].includes(extension)){
-
-        const audio =
-            document.createElement("audio");
-
-        audio.src = url;
-        audio.controls = true;
-
-        content.appendChild(audio);
-
-    }else{
-
-        content.innerHTML = `
-            <div class="preview-message">
-                Bu fayl turini brauzerda ko‘rib bo‘lmaydi.
-                <br><br>
-                ⬇️ Yuklab olish tugmasidan foydalaning.
-            </div>
-        `;
-    }
-
-    modal.classList.add("active");
-
-    modal.dataset.objectUrl = url;
-}
-
-
-function closePreview(event){
-
-    const modal =
-        document.getElementById(
-            "previewModal"
-        );
-
-    if(
-        event &&
-        event.target !== modal
-    ) return;
-
-    modal.classList.remove("active");
-
-    const url =
-        modal.dataset.objectUrl;
-
-    if(url)
-        URL.revokeObjectURL(url);
-
-    modal.dataset.objectUrl = "";
-}
-
-
-/* =========================
-   FILE ICON
-========================= */
+/* =====================================================
+   ICON
+===================================================== */
 
 function getFileIcon(name){
 
-    const ext =
-        name.split(".").pop().toLowerCase();
+const ext =
+name
+.split(".")
+.pop()
+.toLowerCase();
 
-    if([
-        "jpg","jpeg","png",
-        "gif","webp","bmp"
-    ].includes(ext))
-        return "🖼️";
+if([
+"jpg",
+"jpeg",
+"png",
+"gif",
+"webp",
+"bmp",
+"svg"
+].includes(ext))
+return "🖼️";
 
-    if([
-        "mp4","mov","avi",
-        "mkv","webm"
-    ].includes(ext))
-        return "🎬";
+if([
+"mp4",
+"mov",
+"avi",
+"mkv",
+"webm",
+"m4v",
+"ogg"
+].includes(ext))
+return "🎬";
 
-    if([
-        "mp3","wav","ogg","m4a"
-    ].includes(ext))
-        return "🎵";
+if([
+"mp3",
+"wav",
+"m4a",
+"aac",
+"flac"
+].includes(ext))
+return "🎵";
 
-    if(ext === "pdf")
-        return "📕";
+if(ext === "pdf")
+return "📕";
 
-    if(["doc","docx"].includes(ext))
-        return "📝";
+if([
+"doc",
+"docx"
+].includes(ext))
+return "📝";
 
-    if(["xls","xlsx","csv"].includes(ext))
-        return "📊";
+if([
+"xls",
+"xlsx",
+"csv"
+].includes(ext))
+return "📊";
 
-    if(["zip","rar","7z"].includes(ext))
-        return "📦";
+if([
+"zip",
+"rar",
+"7z"
+].includes(ext))
+return "📦";
 
-    if([
-        "js","html","css",
-        "py","php","json"
-    ].includes(ext))
-        return "💻";
+if([
+"js",
+"html",
+"css",
+"py",
+"php",
+"json"
+].includes(ext))
+return "💻";
 
-    return "📄";
+return "📄";
+
 }
 
+
+/* =====================================================
+   PREVIEWABLE
+===================================================== */
 
 function isPreviewable(name){
 
-    const ext =
-        name.split(".").pop().toLowerCase();
+const ext =
+name
+.split(".")
+.pop()
+.toLowerCase();
 
-    return [
-        "jpg","jpeg","png","gif",
-        "webp","bmp",
-        "mp4","webm","ogg","mov",
-        "mp3","wav","m4a"
-    ].includes(ext);
+return [
+"jpg",
+"jpeg",
+"png",
+"gif",
+"webp",
+"bmp",
+"svg",
+"mp4",
+"webm",
+"ogg",
+"mov",
+"m4v",
+"mp3",
+"wav",
+"m4a",
+"aac",
+"flac"
+].includes(ext);
+
 }
 
 
-/* =========================
-   STATS
-========================= */
+/* =====================================================
+   FILE COUNT
+===================================================== */
 
-function updateStats(count,size){
+function updateFileCount(count){
 
-    document.getElementById(
-        "statFiles"
-    ).textContent = count;
+document.getElementById(
+"statFiles"
+).textContent = count;
 
-    document.getElementById(
-        "statSize"
-    ).textContent =
-        formatSize(size);
+document.getElementById(
+"fileCount"
+).textContent =
+`${count} ta element`;
 
-    document.getElementById(
-        "fileCount"
-    ).textContent =
-        `${count} ta fayl`;
 }
 
 
-/* =========================
-   FORMAT
-========================= */
+/* =====================================================
+   FORMAT SIZE
+===================================================== */
 
 function formatSize(bytes){
 
-    bytes = Number(bytes) || 0;
+bytes =
+Number(bytes) || 0;
 
-    if(bytes === 0) return "0 B";
+if(bytes === 0)
+return "0 B";
 
-    const units =
-        ["B","KB","MB","GB","TB"];
+const units =
+[
+"B",
+"KB",
+"MB",
+"GB",
+"TB"
+];
 
-    const i =
-        Math.floor(
-            Math.log(bytes) /
-            Math.log(1024)
-        );
+const i =
+Math.floor(
+Math.log(bytes) /
+Math.log(1024)
+);
 
-    return (
-        parseFloat(
-            (
-                bytes /
-                Math.pow(1024,i)
-            ).toFixed(2)
-        ) +
-        " " +
-        units[i]
-    );
+return (
+parseFloat(
+(
+bytes /
+Math.pow(1024,i)
+).toFixed(2)
+)
++
+" " +
+units[i]
+);
+
 }
 
 
-/* =========================
-   ESCAPE
-========================= */
+/* =====================================================
+   ESCAPE HTML
+===================================================== */
 
 function escapeHtml(text){
 
-    return String(text)
-        .replace(/&/g,"&amp;")
-        .replace(/</g,"&lt;")
-        .replace(/>/g,"&gt;")
-        .replace(/"/g,"&quot;")
-        .replace(/'/g,"&#039;");
+return String(text)
+.replace(/&/g,"&amp;")
+.replace(/</g,"&lt;")
+.replace(/>/g,"&gt;")
+.replace(/"/g,"&quot;")
+.replace(/'/g,"&#039;");
+
 }
 
+
+/* =====================================================
+   ESCAPE JS
+===================================================== */
 
 function escapeJs(text){
 
-    return String(text)
-        .replace(/\\/g,"\\\\")
-        .replace(/'/g,"\\'");
+return String(text)
+.replace(/\\/g,"\\\\")
+.replace(/'/g,"\\'");
+
 }
 
 
-/* =========================
-   TOAST
-========================= */
+/* =====================================================
+   AUTH TOAST
+===================================================== */
 
 function showToast(message,type="success"){
 
-    const container =
-        document.getElementById(
-            "toastContainer"
-        );
+const container =
+document.getElementById(
+"toastContainer"
+);
 
-    const toast =
-        document.createElement("div");
+const toast =
+document.createElement("div");
 
-    toast.className =
-        `toast ${type}`;
+toast.className =
+"toast";
 
-    toast.textContent = message;
+toast.textContent =
+message;
 
-    container.appendChild(toast);
+container.appendChild(toast);
 
-    setTimeout(()=>{
-        toast.remove();
-    },3000);
+setTimeout(()=>{
+
+toast.style.opacity = "0";
+
+setTimeout(()=>{
+toast.remove();
+},300);
+
+},3000);
+
 }
 
 
-/* =========================
+/* =====================================================
    KEYBOARD
-========================= */
+===================================================== */
 
 document.addEventListener(
-    "keydown",
-    event=>{
+"keydown",
+event=>{
 
-        if(event.key === "Escape"){
+if(event.key === "Escape"){
 
-            closePreview();
-            closeProfile();
-        }
-    }
-);
+closePreview();
 
+}
 
-/* =========================
-   ENTER
-========================= */
-
-[emailInput,passwordInput]
-.forEach(input=>{
-
-    input.addEventListener(
-        "keydown",
-        event=>{
-
-            if(event.key === "Enter")
-                login();
-        }
-    );
 });
 
 
-/* =========================
+[emailInput,passwordInput].forEach(input=>{
+
+input.addEventListener(
+"keydown",
+event=>{
+
+if(event.key === "Enter"){
+
+login();
+
+}
+
+});
+
+});
+
+
+/* =====================================================
    START
-========================= */
+===================================================== */
 
 checkSession();
 
@@ -2049,4 +2934,3 @@ checkSession();
 
 </body>
 </html>
-```
