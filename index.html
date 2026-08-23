@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>SkyDriveX</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f7fb;
+            color: #172033;
+        }
+
+        button,
+        input {
+            font: inherit;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* AUTH */
+
+        #authPage {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .auth-card {
+            width: 100%;
+            max-width: 420px;
+            background: white;
+            padding: 35px;
+            border-radius: 22px;
+            box-shadow: 0 15px 45px rgba(0,0,0,0.08);
+        }
+
+        .auth-logo {
+            text-align: center;
+            font-size: 30px;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .auth-logo span {
+            color: #2563eb;
+        }
+
+        .auth-title {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #667085;
+        }
+
+        .input {
+            width: 100%;
+            padding: 13px 14px;
+            border: 1px solid #d0d5dd;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            outline: none;
+        }
+
+        .input:focus {
+            border-color: #2563eb;
+        }
+
+        .auth-btn {
+            width: 100%;
+            border: none;
+            padding: 13px;
+            border-radius: 10px;
+            background: #2563eb;
+            color: white;
+            cursor: pointer;
+            font-weight: 700;
+            margin-top: 5px;
+        }
+
+        .switch-btn {
+            width: 100%;
+            border: none;
+            background: transparent;
+            color: #2563eb;
+            cursor: pointer;
+            margin-top: 18px;
+        }
+
+        #authMessage {
+            margin-top: 15px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        /* HEADER */
+
+        .header {
+            height: 70px;
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 25px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .logo span {
+            color: #2563eb;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user {
+            font-size: 14px;
+            color: #667085;
+        }
+
+        .logout {
+            border: none;
+            background: #fee2e2;
+            padding: 9px 13px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        /* MAIN */
+
+        .container {
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .welcome {
+            margin-bottom: 25px;
+        }
+
+        .welcome h1 {
+            font-size: 30px;
+            margin-bottom: 8px;
+        }
+
+        .welcome p {
+            color: #667085;
+        }
+
+        /* UPLOAD */
+
+        .upload-box {
+            background: white;
+            border: 2px dashed #cbd5e1;
+            border-radius: 18px;
+            padding: 35px 20px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .upload-box h2 {
+            margin-bottom: 10px;
+        }
+
+        .upload-box p {
+            color: #667085;
+            margin-bottom: 20px;
+        }
+
+        .upload-btn {
+            display: inline-block;
+            background: #2563eb;
+            color: white;
+            padding: 13px 22px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        #uploadStatus {
+            margin-top: 15px;
+            color: #667085;
+        }
+
+        /* FILES */
+
+        .files-card {
+            background: white;
+            border-radius: 18px;
+            padding: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.04);
+        }
+
+        .files-card h2 {
+            margin-bottom: 18px;
+        }
+
+        .file {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 15px 5px;
+            border-bottom: 1px solid #eef0f4;
+        }
+
+        .file:last-child {
+            border-bottom: none;
+        }
+
+        .file-info {
+            min-width: 0;
+        }
+
+        .file-name {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-weight: 600;
+        }
+
+        .file-size {
+            color: #667085;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            border: none;
+            padding: 9px 13px;
+            border-radius: 8px;
+            cursor: pointer;
+            background: #eef2ff;
+        }
+
+        .delete {
+            background: #fee2e2;
+        }
+
+        @media (max-width: 600px) {
+
+            .header {
+                padding: 0 15px;
+            }
+
+            .logo {
+                font-size: 20px;
+            }
+
+            .user {
+                display: none;
+            }
+
+            .container {
+                margin-top: 20px;
+                padding: 0 12px;
+            }
+
+            .welcome h1 {
+                font-size: 25px;
+            }
+
+            .file {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .file-actions {
+                width: 100%;
+            }
+
+            .btn {
+                flex: 1;
+            }
+
+            .auth-card {
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- =========================
+     LOGIN / REGISTER
+========================= -->
+
+<section id="authPage">
+
+    <div class="auth-card">
+
+        <div class="auth-logo">
+            Sky<span>DriveX</span>
+        </div>
+
+        <p class="auth-title" id="authTitle">
+            Hisobingizga kiring
+        </p>
+
+        <input
+            type="email"
+            id="email"
+            class="input"
+            placeholder="Email"
+        >
+
+        <input
+            type="password"
+            id="password"
+            class="input"
+            placeholder="Parol"
+        >
+
+        <button
+            class="auth-btn"
+            id="authButton"
+            onclick="login()">
+            Kirish
+        </button>
+
+        <button
+            class="switch-btn"
+            onclick="toggleAuth()"
+            id="switchButton">
+            Hisobingiz yo‘qmi? Ro‘yxatdan o‘ting
+        </button>
+
+        <div id="authMessage"></div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     CLOUD
+========================= -->
+
+<section id="cloudPage" class="hidden">
+
+    <header class="header">
+
+        <div class="logo">
+            Sky<span>DriveX</span>
+        </div>
+
+        <div class="header-right">
+
+            <div class="user" id="userEmail"></div>
+
+            <button
+                class="logout"
+                onclick="logout()">
+                Chiqish
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <main class="container">
+
+        <section class="welcome">
+
+            <h1>Mening fayllarim</h1>
+
+            <p>
+                Fayllaringizni xavfsiz saqlang va
+                istalgan qurilmadan foydalaning.
+            </p>
+
+        </section>
+
+
+        <!-- UPLOAD -->
+
+        <section class="upload-box">
+
+            <h2>☁️ Fayl yuklash</h2>
+
+            <p>
+                Telefon yoki kompyuterdan fayl tanlang
+            </p>
+
+            <label
+                class="upload-btn"
+                for="fileInput">
+                ⬆️ Fayl tanlash
+            </label>
+
+            <input
+                type="file"
+                id="fileInput">
+
+            <div id="uploadStatus"></div>
+
+        </section>
+
+
+        <!-- FILE LIST -->
+
+        <section class="files-card">
+
+            <h2>📂 Fayllar</h2>
+
+            <div id="fileList">
+
+                <p style="color:#667085;">
+                    Fayllar yuklanmoqda...
+                </p>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</section>
+
+
+<script>
+
+/* =====================================
+   SUPABASE
+===================================== */
+
+const SUPABASE_URL =
+    "https://xfhxkdbwvhzdcbzlnnim.supabase.co";
+
+const SUPABASE_KEY =
+    "sb_publishable_hkxNeCCzHufwArjRe5g0Dg_LgRS6Dlv";
+
+const supabaseClient =
+    window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+    );
+
+
+/* =====================================
+   ELEMENTS
+===================================== */
+
+const authPage =
+    document.getElementById("authPage");
+
+const cloudPage =
+    document.getElementById("cloudPage");
+
+const authTitle =
+    document.getElementById("authTitle");
+
+const authButton =
+    document.getElementById("authButton");
+
+const switchButton =
+    document.getElementById("switchButton");
+
+const authMessage =
+    document.getElementById("authMessage");
+
+const emailInput =
+    document.getElementById("email");
+
+const passwordInput =
+    document.getElementById("password");
+
+const fileInput =
+    document.getElementById("fileInput");
+
+const fileList =
+    document.getElementById("fileList");
+
+const userEmail =
+    document.getElementById("userEmail");
+
+const uploadStatus =
+    document.getElementById("uploadStatus");
+
+
+let registerMode = false;
+
+
+/* =====================================
+   AUTH MODE
+===================================== */
+
+function toggleAuth() {
+
+    registerMode = !registerMode;
+
+    if (registerMode) {
+
+        authTitle.textContent =
+            "Yangi hisob yarating";
+
+        authButton.textContent =
+            "Ro‘yxatdan o‘tish";
+
+        switchButton.textContent =
+            "Hisobingiz bormi? Kirish";
+
+    } else {
+
+        authTitle.textContent =
+            "Hisobingizga kiring";
+
+        authButton.textContent =
+            "Kirish";
+
+        switchButton.textContent =
+            "Hisobingiz yo‘qmi? Ro‘yxatdan o‘ting";
+    }
+
+    authMessage.textContent = "";
+}
+
+
+/* =====================================
+   LOGIN / REGISTER
+===================================== */
+
+async function login() {
+
+    const email =
+        emailInput.value.trim();
+
+    const password =
+        passwordInput.value;
+
+    if (!email || !password) {
+
+        showAuthMessage(
+            "Email va parolni kiriting.",
+            "red"
+        );
+
+        return;
+    }
+
+
+    authButton.disabled = true;
+
+
+    try {
+
+        if (registerMode) {
+
+            const { data, error } =
+                await supabaseClient.auth.signUp({
+                    email: email,
+                    password: password
+                });
+
+
+            if (error) {
+                throw error;
+            }
+
+
+            showAuthMessage(
+                "Ro‘yxatdan o‘tildi. Emailni tasdiqlash kerak bo‘lishi mumkin.",
+                "green"
+            );
+
+
+            if (data.session) {
+                showCloud(data.session.user);
+            }
+
+
+        } else {
+
+            const { data, error } =
+                await supabaseClient.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+
+
+            if (error) {
+                throw error;
+            }
+
+
+            showCloud(data.user);
+        }
+
+
+    } catch (error) {
+
+        showAuthMessage(
+            error.message,
+            "red"
+        );
+
+    } finally {
+
+        authButton.disabled = false;
+    }
+}
+
+
+/* =====================================
+   AUTH MESSAGE
+===================================== */
+
+function showAuthMessage(
+    message,
+    color
+) {
+
+    authMessage.textContent =
+        message;
+
+    authMessage.style.color =
+        color;
+}
+
+
+/* =====================================
+   SHOW CLOUD
+===================================== */
+
+function showCloud(user) {
+
+    authPage.classList.add("hidden");
+
+    cloudPage.classList.remove("hidden");
+
+    userEmail.textContent =
+        user.email;
+
+    loadFiles();
+}
+
+
+/* =====================================
+   LOGOUT
+===================================== */
+
+async function logout() {
+
+    await supabaseClient.auth.signOut();
+
+    cloudPage.classList.add("hidden");
+
+    authPage.classList.remove("hidden");
+
+    emailInput.value = "";
+    passwordInput.value = "";
+
+    fileList.innerHTML = "";
+}
+
+
+/* =====================================
+   CHECK SESSION
+===================================== */
+
+async function checkSession() {
+
+    const {
+        data: {
+            session
+        }
+    } =
+        await supabaseClient.auth.getSession();
+
+
+    if (session) {
+
+        showCloud(session.user);
+
+    } else {
+
+        authPage.classList.remove("hidden");
+
+        cloudPage.classList.add("hidden");
+    }
+}
+
+
+/* =====================================
+   FILE UPLOAD
+===================================== */
+
+fileInput.addEventListener(
+    "change",
+    async function () {
+
+        const file =
+            this.files[0];
+
+        if (!file) return;
+
+
+        const {
+            data: {
+                user
+            }
+        } =
+            await supabaseClient.auth.getUser();
+
+
+        if (!user) {
+
+            alert(
+                "Avval tizimga kiring."
+            );
+
+            return;
+        }
+
+
+        uploadStatus.textContent =
+            "⏳ Fayl yuklanmoqda...";
+
+
+        /*
+           HAR BIR USER UCHUN
+           ALOHIDA PAPKA
+        */
+
+        const filePath =
+            user.id +
+            "/" +
+            Date.now() +
+            "_" +
+            file.name;
+
+
+        try {
+
+            const {
+                error
+            } =
+                await supabaseClient
+                    .storage
+                    .from("files")
+                    .upload(
+                        filePath,
+                        file
+                    );
+
+
+            if (error) {
+                throw error;
+            }
+
+
+            uploadStatus.textContent =
+                "✅ Fayl muvaffaqiyatli yuklandi!";
+
+
+            fileInput.value = "";
+
+
+            await loadFiles();
+
+
+        } catch (error) {
+
+            console.error(error);
+
+            uploadStatus.textContent =
+                "❌ Xatolik: " +
+                error.message;
+        }
+    }
+);
+
+
+/* =====================================
+   LOAD FILES
+===================================== */
+
+async function loadFiles() {
+
+    const {
+        data: {
+            user
+        }
+    } =
+        await supabaseClient.auth.getUser();
+
+
+    if (!user) return;
+
+
+    fileList.innerHTML =
+        '<p style="color:#667085;">Yuklanmoqda...</p>';
+
+
+    try {
+
+        const {
+            data,
+            error
+        } =
+            await supabaseClient
+                .storage
+                .from("files")
+                .list(
+                    user.id,
+                    {
+                        limit: 100,
+                        offset: 0,
+                        sortBy: {
+                            column: "created_at",
+                            order: "desc"
+                        }
+                    }
+                );
+
+
+        if (error) {
+            throw error;
+        }
+
+
+        if (!data || data.length === 0) {
+
+            fileList.innerHTML =
+                '<p style="color:#667085;">Hozircha fayllar yo‘q.</p>';
+
+            return;
+        }
+
+
+        fileList.innerHTML = "";
+
+
+        data.forEach(file => {
+
+            if (!file.name) return;
+
+
+            const fullPath =
+                user.id +
+                "/" +
+                file.name;
+
+
+            const size =
+                formatSize(
+                    file.metadata?.size || 0
+                );
+
+
+            const div =
+                document.createElement("div");
+
+            div.className =
+                "file";
+
+
+            div.innerHTML = `
+
+                <div class="file-info">
+
+                    <div class="file-name">
+                        📄 ${escapeHtml(file.name)}
+                    </div>
+
+                    <div class="file-size">
+                        ${size}
+                    </div>
+
+                </div>
+
+                <div class="file-actions">
+
+                    <button
+                        class="btn"
+                        onclick="downloadFile('${escapeJs(fullPath)}')">
+                        ⬇️ Yuklab olish
+                    </button>
+
+                    <button
+                        class="btn delete"
+                        onclick="deleteFile('${escapeJs(fullPath)}')">
+                        🗑️ O‘chirish
+                    </button>
+
+                </div>
+            `;
+
+
+            fileList.appendChild(div);
+        });
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        fileList.innerHTML =
+            '<p style="color:red;">Fayllarni yuklashda xatolik.</p>';
+    }
+}
+
+
+/* =====================================
+   DOWNLOAD
+===================================== */
+
+async function downloadFile(
+    path
+) {
+
+    try {
+
+        const {
+            data,
+            error
+        } =
+            await supabaseClient
+                .storage
+                .from("files")
+                .download(path);
+
+
+        if (error) {
+            throw error;
+        }
+
+
+        const url =
+            URL.createObjectURL(data);
+
+
+        const a =
+            document.createElement("a");
+
+        a.href = url;
+
+        a.download =
+            path.split("/").pop();
+
+        document.body.appendChild(a);
+
+        a.click();
+
+        a.remove();
+
+        URL.revokeObjectURL(url);
+
+
+    } catch (error) {
+
+        alert(
+            "Yuklab olishda xatolik: " +
+            error.message
+        );
+    }
+}
+
+
+/* =====================================
+   DELETE
+===================================== */
+
+async function deleteFile(
+    path
+) {
+
+    const ok =
+        confirm(
+            "Bu faylni o‘chirishni xohlaysizmi?"
+        );
+
+
+    if (!ok) return;
+
+
+    try {
+
+        const {
+            error
+        } =
+            await supabaseClient
+                .storage
+                .from("files")
+                .remove([
+                    path
+                ]);
+
+
+        if (error) {
+            throw error;
+        }
+
+
+        await loadFiles();
+
+
+    } catch (error) {
+
+        alert(
+            "O‘chirishda xatolik: " +
+            error.message
+        );
+    }
+}
+
+
+/* =====================================
+   FILE SIZE
+===================================== */
+
+function formatSize(
+    bytes
+) {
+
+    if (bytes === 0)
+        return "0 B";
+
+
+    const units =
+        [
+            "B",
+            "KB",
+            "MB",
+            "GB",
+            "TB"
+        ];
+
+
+    const i =
+        Math.floor(
+            Math.log(bytes) /
+            Math.log(1024)
+        );
+
+
+    return (
+        parseFloat(
+            (bytes /
+            Math.pow(1024, i))
+            .toFixed(2)
+        )
+        +
+        " " +
+        units[i]
+    );
+}
+
+
+/* =====================================
+   SECURITY HELPERS
+===================================== */
+
+function escapeHtml(
+    text
+) {
+
+    return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+function escapeJs(
+    text
+) {
+
+    return text
+        .replace(/\\/g, "\\\\")
+        .replace(/'/g, "\\'");
+}
+
+
+/* =====================================
+   START
+===================================== */
+
+checkSession();
+
+</script>
+
+</body>
+</html>
