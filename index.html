@@ -1,319 +1,1443 @@
 <!DOCTYPE html>
 <html lang="uz">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>SkyDriveX</title>
+<title>SkyDriveX — Cloud Storage</title>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+<style>
 
-        body {
-            font-family: Arial, sans-serif;
-            background: #f5f7fb;
-            color: #172033;
-        }
+/* =====================================================
+   RESET
+===================================================== */
 
-        button,
-        input {
-            font: inherit;
-        }
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
 
-        .hidden {
-            display: none !important;
-        }
+html {
+    scroll-behavior: smooth;
+}
 
-        /* AUTH */
+body {
+    font-family:
+        Inter,
+        Arial,
+        Helvetica,
+        sans-serif;
 
-        #authPage {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
+    color: #f8fafc;
 
-        .auth-card {
-            width: 100%;
-            max-width: 420px;
-            background: white;
-            padding: 35px;
-            border-radius: 22px;
-            box-shadow: 0 15px 45px rgba(0,0,0,0.08);
-        }
+    min-height: 100vh;
 
-        .auth-logo {
-            text-align: center;
-            font-size: 30px;
-            font-weight: 800;
-            margin-bottom: 10px;
-        }
+    line-height: 1.5;
 
-        .auth-logo span {
-            color: #2563eb;
-        }
+    overflow-x: hidden;
 
-        .auth-title {
-            text-align: center;
-            margin-bottom: 25px;
-            color: #667085;
-        }
+    background:
+        radial-gradient(
+            circle at 10% 0%,
+            rgba(59,130,246,.20),
+            transparent 28%
+        ),
+        radial-gradient(
+            circle at 90% 5%,
+            rgba(139,92,246,.18),
+            transparent 30%
+        ),
+        linear-gradient(
+            135deg,
+            #020617 0%,
+            #0b1120 45%,
+            #111827 100%
+        );
 
-        .input {
-            width: 100%;
-            padding: 13px 14px;
-            border: 1px solid #d0d5dd;
-            border-radius: 10px;
-            margin-bottom: 12px;
-            outline: none;
-        }
+    background-attachment: fixed;
+}
 
-        .input:focus {
-            border-color: #2563eb;
-        }
+button,
+input {
+    font: inherit;
+}
 
-        .auth-btn {
-            width: 100%;
-            border: none;
-            padding: 13px;
-            border-radius: 10px;
-            background: #2563eb;
-            color: white;
-            cursor: pointer;
-            font-weight: 700;
-            margin-top: 5px;
-        }
+button {
+    border: none;
+}
 
-        .switch-btn {
-            width: 100%;
-            border: none;
-            background: transparent;
-            color: #2563eb;
-            cursor: pointer;
-            margin-top: 18px;
-        }
+.hidden {
+    display: none !important;
+}
 
-        #authMessage {
-            margin-top: 15px;
-            text-align: center;
-            font-size: 14px;
-        }
 
-        /* HEADER */
+/* =====================================================
+   SCROLLBAR
+===================================================== */
 
-        .header {
-            height: 70px;
-            background: white;
-            border-bottom: 1px solid #e5e7eb;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 25px;
-        }
+::-webkit-scrollbar {
+    width: 8px;
+}
 
-        .logo {
-            font-size: 24px;
-            font-weight: 700;
-        }
+::-webkit-scrollbar-track {
+    background: #020617;
+}
 
-        .logo span {
-            color: #2563eb;
-        }
+::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 20px;
+}
 
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
+::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+}
 
-        .user {
-            font-size: 14px;
-            color: #667085;
-        }
 
-        .logout {
-            border: none;
-            background: #fee2e2;
-            padding: 9px 13px;
-            border-radius: 8px;
-            cursor: pointer;
-        }
+/* =====================================================
+   AUTH PAGE
+===================================================== */
 
-        /* MAIN */
+#authPage {
+    min-height: 100vh;
 
-        .container {
-            max-width: 1100px;
-            margin: 30px auto;
-            padding: 0 20px;
-        }
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-        .welcome {
-            margin-bottom: 25px;
-        }
+    padding: 20px;
 
-        .welcome h1 {
-            font-size: 30px;
-            margin-bottom: 8px;
-        }
+    position: relative;
+    overflow: hidden;
+}
 
-        .welcome p {
-            color: #667085;
-        }
+#authPage::before {
+    content: "";
 
-        /* UPLOAD */
+    position: absolute;
 
-        .upload-box {
-            background: white;
-            border: 2px dashed #cbd5e1;
-            border-radius: 18px;
-            padding: 35px 20px;
-            text-align: center;
-            margin-bottom: 30px;
-        }
+    width: 500px;
+    height: 500px;
 
-        .upload-box h2 {
-            margin-bottom: 10px;
-        }
+    background: rgba(37,99,235,.12);
 
-        .upload-box p {
-            color: #667085;
-            margin-bottom: 20px;
-        }
+    filter: blur(100px);
 
-        .upload-btn {
-            display: inline-block;
-            background: #2563eb;
-            color: white;
-            padding: 13px 22px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 600;
-        }
+    top: -220px;
+    left: -150px;
 
-        #fileInput {
-            display: none;
-        }
+    pointer-events: none;
+}
 
-        #uploadStatus {
-            margin-top: 15px;
-            color: #667085;
-        }
+#authPage::after {
+    content: "";
 
-        /* FILES */
+    position: absolute;
 
-        .files-card {
-            background: white;
-            border-radius: 18px;
-            padding: 20px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.04);
-        }
+    width: 450px;
+    height: 450px;
 
-        .files-card h2 {
-            margin-bottom: 18px;
-        }
+    background: rgba(124,58,237,.10);
 
-        .file {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 15px;
-            padding: 15px 5px;
-            border-bottom: 1px solid #eef0f4;
-        }
+    filter: blur(100px);
 
-        .file:last-child {
-            border-bottom: none;
-        }
+    bottom: -200px;
+    right: -120px;
 
-        .file-info {
-            min-width: 0;
-        }
+    pointer-events: none;
+}
 
-        .file-name {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            font-weight: 600;
-        }
+.auth-card {
+    width: 100%;
+    max-width: 440px;
 
-        .file-size {
-            color: #667085;
-            font-size: 13px;
-            margin-top: 5px;
-        }
+    padding: 42px 34px;
 
-        .file-actions {
-            display: flex;
-            gap: 8px;
-        }
+    position: relative;
+    z-index: 2;
 
-        .btn {
-            border: none;
-            padding: 9px 13px;
-            border-radius: 8px;
-            cursor: pointer;
-            background: #eef2ff;
-        }
+    border-radius: 28px;
 
-        .delete {
-            background: #fee2e2;
-        }
+    background:
+        linear-gradient(
+            145deg,
+            rgba(15,23,42,.94),
+            rgba(2,6,23,.97)
+        );
 
-        @media (max-width: 600px) {
+    border:
+        1px solid rgba(148,163,184,.13);
 
-            .header {
-                padding: 0 15px;
-            }
+    box-shadow:
+        0 35px 100px rgba(0,0,0,.55),
+        0 0 70px rgba(37,99,235,.07);
 
-            .logo {
-                font-size: 20px;
-            }
+    backdrop-filter: blur(20px);
+}
 
-            .user {
-                display: none;
-            }
+.auth-logo {
+    text-align: center;
 
-            .container {
-                margin-top: 20px;
-                padding: 0 12px;
-            }
+    font-size: 36px;
 
-            .welcome h1 {
-                font-size: 25px;
-            }
+    font-weight: 900;
 
-            .file {
-                align-items: flex-start;
-                flex-direction: column;
-            }
+    letter-spacing: -1.5px;
 
-            .file-actions {
-                width: 100%;
-            }
+    margin-bottom: 8px;
+}
 
-            .btn {
-                flex: 1;
-            }
+.auth-logo span {
+    color: #60a5fa;
+}
 
-            .auth-card {
-                padding: 25px;
-            }
-        }
-    </style>
+.auth-subtitle {
+    text-align: center;
+
+    color: #64748b;
+
+    font-size: 13px;
+
+    margin-bottom: 30px;
+}
+
+.auth-title {
+    text-align: center;
+
+    color: #cbd5e1;
+
+    font-size: 16px;
+
+    margin-bottom: 24px;
+}
+
+.input-group {
+    margin-bottom: 13px;
+}
+
+.input-label {
+    display: block;
+
+    font-size: 12px;
+
+    color: #94a3b8;
+
+    margin-bottom: 7px;
+}
+
+.input {
+    width: 100%;
+
+    padding: 14px 15px;
+
+    color: #f8fafc;
+
+    background:
+        rgba(15,23,42,.8);
+
+    border:
+        1px solid #263449;
+
+    border-radius: 12px;
+
+    outline: none;
+
+    transition: .2s ease;
+}
+
+.input::placeholder {
+    color: #475569;
+}
+
+.input:focus {
+    border-color: #3b82f6;
+
+    box-shadow:
+        0 0 0 3px rgba(59,130,246,.10),
+        0 0 25px rgba(59,130,246,.07);
+}
+
+.auth-btn {
+    width: 100%;
+
+    padding: 14px;
+
+    margin-top: 8px;
+
+    border-radius: 12px;
+
+    color: white;
+
+    font-weight: 800;
+
+    cursor: pointer;
+
+    background:
+        linear-gradient(
+            135deg,
+            #2563eb,
+            #7c3aed
+        );
+
+    box-shadow:
+        0 12px 30px rgba(37,99,235,.25);
+
+    transition: .2s ease;
+}
+
+.auth-btn:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 17px 38px rgba(37,99,235,.35);
+}
+
+.auth-btn:disabled {
+    opacity: .55;
+
+    cursor: not-allowed;
+
+    transform: none;
+}
+
+.switch-btn {
+    width: 100%;
+
+    background: transparent;
+
+    color: #60a5fa;
+
+    cursor: pointer;
+
+    margin-top: 20px;
+
+    font-size: 13px;
+}
+
+.switch-btn:hover {
+    color: #93c5fd;
+}
+
+#authMessage {
+    min-height: 20px;
+
+    margin-top: 16px;
+
+    text-align: center;
+
+    font-size: 13px;
+}
+
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.header {
+    position: sticky;
+
+    top: 0;
+
+    z-index: 100;
+
+    min-height: 72px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding: 0 28px;
+
+    background:
+        rgba(2,6,23,.78);
+
+    border-bottom:
+        1px solid rgba(148,163,184,.10);
+
+    backdrop-filter: blur(20px);
+
+    -webkit-backdrop-filter: blur(20px);
+}
+
+.logo {
+    font-size: 25px;
+
+    font-weight: 900;
+
+    letter-spacing: -.8px;
+
+    white-space: nowrap;
+}
+
+.logo span {
+    color: #60a5fa;
+}
+
+.header-right {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+}
+
+.user {
+    max-width: 260px;
+
+    color: #94a3b8;
+
+    font-size: 13px;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+.logout {
+    padding: 9px 13px;
+
+    border-radius: 10px;
+
+    color: #fca5a5;
+
+    background:
+        rgba(127,29,29,.20);
+
+    border:
+        1px solid rgba(248,113,113,.15);
+
+    cursor: pointer;
+
+    transition: .2s ease;
+}
+
+.logout:hover {
+    background:
+        rgba(127,29,29,.38);
+
+    border-color:
+        rgba(248,113,113,.30);
+}
+
+
+/* =====================================================
+   MAIN
+===================================================== */
+
+.container {
+    width: 100%;
+
+    max-width: 1150px;
+
+    margin: 0 auto;
+
+    padding:
+        35px
+        20px
+        70px;
+}
+
+.welcome {
+    margin-bottom: 25px;
+}
+
+.welcome h1 {
+    font-size: 34px;
+
+    line-height: 1.15;
+
+    letter-spacing: -.9px;
+
+    margin-bottom: 7px;
+}
+
+.welcome p {
+    color: #94a3b8;
+
+    font-size: 14px;
+}
+
+
+/* =====================================================
+   DASHBOARD STATS
+===================================================== */
+
+.stats {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 14px;
+
+    margin-bottom: 20px;
+}
+
+.stat {
+    padding: 17px;
+
+    border-radius: 17px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(15,23,42,.85),
+            rgba(2,6,23,.88)
+        );
+
+    border:
+        1px solid rgba(148,163,184,.09);
+
+    box-shadow:
+        0 15px 40px rgba(0,0,0,.18);
+}
+
+.stat-icon {
+    font-size: 21px;
+
+    margin-bottom: 7px;
+}
+
+.stat-title {
+    color: #64748b;
+
+    font-size: 12px;
+
+    margin-bottom: 3px;
+}
+
+.stat-value {
+    font-size: 18px;
+
+    font-weight: 800;
+
+    color: #e2e8f0;
+}
+
+
+/* =====================================================
+   UPLOAD
+===================================================== */
+
+.upload-box {
+    position: relative;
+
+    overflow: hidden;
+
+    text-align: center;
+
+    padding: 38px 20px;
+
+    margin-bottom: 20px;
+
+    border-radius: 22px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(15,23,42,.95),
+            rgba(2,6,23,.94)
+        );
+
+    border:
+        1px dashed #334155;
+
+    transition: .25s ease;
+}
+
+.upload-box.dragging {
+    border-color: #60a5fa;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(37,99,235,.14),
+            rgba(124,58,237,.10)
+        );
+
+    transform: scale(1.005);
+}
+
+.upload-box::before {
+    content: "";
+
+    position: absolute;
+
+    width: 260px;
+    height: 260px;
+
+    left: 50%;
+    top: -170px;
+
+    transform: translateX(-50%);
+
+    background:
+        rgba(37,99,235,.13);
+
+    filter: blur(55px);
+
+    pointer-events: none;
+}
+
+.upload-icon {
+    position: relative;
+
+    width: 64px;
+    height: 64px;
+
+    margin: 0 auto 15px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 18px;
+
+    font-size: 30px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(37,99,235,.18),
+            rgba(124,58,237,.18)
+        );
+
+    border:
+        1px solid rgba(96,165,250,.15);
+}
+
+.upload-box h2 {
+    position: relative;
+
+    font-size: 21px;
+
+    margin-bottom: 7px;
+}
+
+.upload-box p {
+    position: relative;
+
+    color: #64748b;
+
+    font-size: 13px;
+
+    margin-bottom: 19px;
+}
+
+.upload-btn {
+    position: relative;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-width: 190px;
+
+    padding: 13px 22px;
+
+    border-radius: 11px;
+
+    color: white;
+
+    font-size: 14px;
+
+    font-weight: 800;
+
+    cursor: pointer;
+
+    background:
+        linear-gradient(
+            135deg,
+            #2563eb,
+            #7c3aed
+        );
+
+    box-shadow:
+        0 12px 30px rgba(37,99,235,.25);
+
+    transition: .2s ease;
+}
+
+.upload-btn:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 16px 35px rgba(37,99,235,.35);
+}
+
+#fileInput {
+    display: none;
+}
+
+#uploadStatus {
+    position: relative;
+
+    margin-top: 15px;
+
+    min-height: 20px;
+
+    color: #94a3b8;
+
+    font-size: 13px;
+}
+
+
+/* =====================================================
+   FILES CARD
+===================================================== */
+
+.files-card {
+    padding: 22px;
+
+    border-radius: 22px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(15,23,42,.96),
+            rgba(2,6,23,.96)
+        );
+
+    border:
+        1px solid rgba(148,163,184,.09);
+
+    box-shadow:
+        0 25px 70px rgba(0,0,0,.22);
+}
+
+.files-header {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+    margin-bottom: 18px;
+}
+
+.files-title h2 {
+    font-size: 21px;
+}
+
+.file-count {
+    color: #64748b;
+
+    font-size: 12px;
+
+    margin-top: 3px;
+}
+
+.file-tools {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+}
+
+.file-search {
+    width: 240px;
+
+    padding: 11px 13px;
+
+    color: #f8fafc;
+
+    background: #0b1220;
+
+    border:
+        1px solid #263449;
+
+    border-radius: 10px;
+
+    outline: none;
+}
+
+.file-search::placeholder {
+    color: #475569;
+}
+
+.file-search:focus {
+    border-color: #3b82f6;
+}
+
+.refresh-btn {
+    padding: 10px 12px;
+
+    border-radius: 10px;
+
+    color: #cbd5e1;
+
+    background: #111827;
+
+    border:
+        1px solid rgba(148,163,184,.10);
+
+    cursor: pointer;
+
+    transition: .2s ease;
+}
+
+.refresh-btn:hover {
+    background: #1e293b;
+
+    color: white;
+}
+
+
+/* =====================================================
+   STORAGE
+===================================================== */
+
+.storage-box {
+    position: relative;
+
+    overflow: hidden;
+
+    padding: 17px;
+
+    margin-bottom: 18px;
+
+    border-radius: 16px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(37,99,235,.13),
+            rgba(124,58,237,.10)
+        );
+
+    border:
+        1px solid rgba(96,165,250,.13);
+}
+
+.storage-top {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 10px;
+
+    margin-bottom: 10px;
+
+    font-size: 13px;
+
+    color: #cbd5e1;
+}
+
+#storageText {
+    color: #93c5fd;
+
+    font-weight: 700;
+}
+
+.storage-bar {
+    width: 100%;
+
+    height: 8px;
+
+    overflow: hidden;
+
+    border-radius: 20px;
+
+    background: #111827;
+}
+
+.storage-progress {
+    width: 0%;
+
+    height: 100%;
+
+    border-radius: 20px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #2563eb,
+            #7c3aed
+        );
+
+    box-shadow:
+        0 0 15px rgba(59,130,246,.35);
+
+    transition:
+        width .4s ease;
+}
+
+
+/* =====================================================
+   FILE LIST
+===================================================== */
+
+#fileList {
+    width: 100%;
+}
+
+.file {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 15px;
+
+    padding: 14px 8px;
+
+    border-bottom:
+        1px solid rgba(148,163,184,.07);
+
+    transition: .2s ease;
+}
+
+.file:last-child {
+    border-bottom: none;
+}
+
+.file:hover {
+    padding-left: 12px;
+    padding-right: 12px;
+
+    border-radius: 12px;
+
+    background:
+        rgba(30,41,59,.35);
+}
+
+.file-main {
+    min-width: 0;
+
+    flex: 1;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+}
+
+.file-icon {
+    width: 42px;
+    height: 42px;
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 11px;
+
+    font-size: 20px;
+
+    background:
+        rgba(30,41,59,.75);
+
+    border:
+        1px solid rgba(148,163,184,.08);
+}
+
+.file-info {
+    min-width: 0;
+}
+
+.file-name {
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+
+    color: #e2e8f0;
+
+    font-size: 14px;
+
+    font-weight: 700;
+}
+
+.file-size {
+    color: #64748b;
+
+    font-size: 11px;
+
+    margin-top: 3px;
+}
+
+.file-actions {
+    display: flex;
+
+    gap: 7px;
+
+    flex-shrink: 0;
+}
+
+.btn {
+    padding: 9px 11px;
+
+    border-radius: 9px;
+
+    color: #cbd5e1;
+
+    background: #111827;
+
+    border:
+        1px solid rgba(148,163,184,.10);
+
+    cursor: pointer;
+
+    transition: .2s ease;
+}
+
+.btn:hover {
+    background: #1e293b;
+
+    color: white;
+
+    border-color:
+        rgba(96,165,250,.25);
+}
+
+.delete {
+    color: #fca5a5;
+
+    background:
+        rgba(127,29,29,.20);
+
+    border-color:
+        rgba(248,113,113,.12);
+}
+
+.delete:hover {
+    background:
+        rgba(127,29,29,.38);
+
+    color: #fecaca;
+}
+
+.empty {
+    padding: 45px 10px;
+
+    text-align: center;
+
+    color: #64748b;
+}
+
+.empty-icon {
+    font-size: 42px;
+
+    margin-bottom: 8px;
+
+    opacity: .65;
+}
+
+
+/* =====================================================
+   LOADING
+===================================================== */
+
+.loading {
+    padding: 35px;
+
+    text-align: center;
+
+    color: #64748b;
+}
+
+.spinner {
+    width: 28px;
+    height: 28px;
+
+    margin: 0 auto 10px;
+
+    border:
+        3px solid #1e293b;
+
+    border-top-color: #60a5fa;
+
+    border-radius: 50%;
+
+    animation:
+        spin .8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+/* =====================================================
+   TOAST
+===================================================== */
+
+#toastContainer {
+    position: fixed;
+
+    right: 20px;
+    bottom: 20px;
+
+    z-index: 9999;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 9px;
+}
+
+.toast {
+    min-width: 260px;
+
+    max-width: 360px;
+
+    padding: 13px 15px;
+
+    border-radius: 12px;
+
+    color: #e2e8f0;
+
+    background:
+        rgba(15,23,42,.96);
+
+    border:
+        1px solid rgba(148,163,184,.13);
+
+    box-shadow:
+        0 20px 50px rgba(0,0,0,.35);
+
+    backdrop-filter: blur(15px);
+
+    animation:
+        toastIn .25s ease;
+}
+
+.toast.success {
+    border-color:
+        rgba(74,222,128,.25);
+}
+
+.toast.error {
+    border-color:
+        rgba(248,113,113,.25);
+}
+
+@keyframes toastIn {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+/* =====================================================
+   PREVIEW MODAL
+===================================================== */
+
+#previewModal {
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 500;
+
+    display: none;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 20px;
+
+    background:
+        rgba(0,0,0,.78);
+
+    backdrop-filter: blur(12px);
+}
+
+#previewModal.active {
+    display: flex;
+}
+
+.preview-box {
+    width: 100%;
+
+    max-width: 900px;
+
+    max-height: 90vh;
+
+    overflow: auto;
+
+    padding: 18px;
+
+    border-radius: 18px;
+
+    background:
+        #0b1120;
+
+    border:
+        1px solid rgba(148,163,184,.12);
+
+    box-shadow:
+        0 40px 100px rgba(0,0,0,.55);
+}
+
+.preview-header {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin-bottom: 15px;
+}
+
+.preview-title {
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+
+    color: #e2e8f0;
+
+    font-weight: 700;
+}
+
+.close-preview {
+    padding: 8px 11px;
+
+    border-radius: 9px;
+
+    color: #cbd5e1;
+
+    background: #1e293b;
+
+    cursor: pointer;
+}
+
+.preview-content {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-height: 250px;
+}
+
+.preview-content img,
+.preview-content video {
+    max-width: 100%;
+
+    max-height: 70vh;
+
+    border-radius: 10px;
+}
+
+.preview-content audio {
+    width: 100%;
+}
+
+.preview-message {
+    color: #64748b;
+
+    text-align: center;
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 700px) {
+
+    .header {
+        min-height: 64px;
+
+        padding:
+            10px 13px;
+    }
+
+    .logo {
+        font-size: 20px;
+    }
+
+    .user {
+        display: none;
+    }
+
+    .logout {
+        font-size: 12px;
+
+        padding:
+            8px 10px;
+    }
+
+    .container {
+        padding:
+            23px 12px 50px;
+    }
+
+    .welcome h1 {
+        font-size: 26px;
+    }
+
+    .welcome p {
+        font-size: 13px;
+    }
+
+    .stats {
+        grid-template-columns: 1fr;
+
+        gap: 9px;
+    }
+
+    .stat {
+        padding: 14px;
+    }
+
+    .upload-box {
+        padding:
+            30px 15px;
+
+        border-radius: 18px;
+    }
+
+    .upload-btn {
+        width: 100%;
+    }
+
+    .files-card {
+        padding: 14px;
+
+        border-radius: 18px;
+    }
+
+    .files-header {
+        flex-direction: column;
+
+        align-items: stretch;
+
+        gap: 12px;
+    }
+
+    .file-tools {
+        width: 100%;
+    }
+
+    .file-search {
+        width: 100%;
+
+        flex: 1;
+    }
+
+    .file {
+        align-items: stretch;
+
+        flex-direction: column;
+
+        gap: 11px;
+    }
+
+    .file-actions {
+        width: 100%;
+    }
+
+    .file-actions .btn {
+        flex: 1;
+
+        padding:
+            10px 6px;
+
+        font-size: 12px;
+    }
+
+    .auth-card {
+        padding:
+            32px 20px;
+
+        border-radius: 22px;
+    }
+
+    .auth-logo {
+        font-size: 30px;
+    }
+
+    #toastContainer {
+        left: 12px;
+        right: 12px;
+
+        bottom: 12px;
+    }
+
+    .toast {
+        min-width: 0;
+
+        width: 100%;
+    }
+}
+
+
+/* =====================================================
+   SMALL PHONE
+===================================================== */
+
+@media (max-width: 380px) {
+
+    .container {
+        padding-left: 9px;
+        padding-right: 9px;
+    }
+
+    .welcome h1 {
+        font-size: 23px;
+    }
+
+    .files-card {
+        padding: 12px;
+    }
+
+    .upload-box {
+        padding-left: 11px;
+        padding-right: 11px;
+    }
+}
+
+</style>
 </head>
+
 
 <body>
 
-<!-- =========================
-     LOGIN / REGISTER
-========================= -->
+
+<!-- =====================================================
+     AUTH
+===================================================== -->
 
 <section id="authPage">
 
@@ -323,37 +1447,69 @@
             Sky<span>DriveX</span>
         </div>
 
-        <p class="auth-title" id="authTitle">
+        <div class="auth-subtitle">
+            Secure Cloud Storage
+        </div>
+
+        <div class="auth-title" id="authTitle">
             Hisobingizga kiring
-        </p>
+        </div>
 
-        <input
-            type="email"
-            id="email"
-            class="input"
-            placeholder="Email"
-        >
 
-        <input
-            type="password"
-            id="password"
-            class="input"
-            placeholder="Parol"
-        >
+        <div class="input-group">
+
+            <label class="input-label">
+                Email
+            </label>
+
+            <input
+                type="email"
+                id="email"
+                class="input"
+                placeholder="example@email.com"
+                autocomplete="email"
+            >
+
+        </div>
+
+
+        <div class="input-group">
+
+            <label class="input-label">
+                Parol
+            </label>
+
+            <input
+                type="password"
+                id="password"
+                class="input"
+                placeholder="••••••••"
+                autocomplete="current-password"
+            >
+
+        </div>
+
 
         <button
             class="auth-btn"
             id="authButton"
             onclick="login()">
+
             Kirish
+
         </button>
+
 
         <button
             class="switch-btn"
-            onclick="toggleAuth()"
-            id="switchButton">
-            Hisobingiz yo‘qmi? Ro‘yxatdan o‘ting
+            id="switchButton"
+            onclick="toggleAuth()">
+
+            Hisobingiz yo‘qmi?
+            Ro‘yxatdan o‘ting
+
         </button>
+
 
         <div id="authMessage"></div>
 
@@ -362,11 +1518,16 @@
 </section>
 
 
-<!-- =========================
+<!-- =====================================================
      CLOUD
-========================= -->
+===================================================== -->
 
-<section id="cloudPage" class="hidden">
+<section
+    id="cloudPage"
+    class="hidden">
+
+
+    <!-- HEADER -->
 
     <header class="header">
 
@@ -374,14 +1535,21 @@
             Sky<span>DriveX</span>
         </div>
 
+
         <div class="header-right">
 
-            <div class="user" id="userEmail"></div>
+            <div
+                class="user"
+                id="userEmail">
+            </div>
+
 
             <button
                 class="logout"
                 onclick="logout()">
+
                 Chiqish
+
             </button>
 
         </div>
@@ -389,71 +1557,301 @@
     </header>
 
 
+    <!-- MAIN -->
+
     <main class="container">
+
+
+        <!-- WELCOME -->
 
         <section class="welcome">
 
-            <h1>Mening fayllarim</h1>
+            <h1>
+                Mening fayllarim
+            </h1>
 
             <p>
-                Fayllaringizni xavfsiz saqlang va
-                istalgan qurilmadan foydalaning.
+                Fayllaringizni xavfsiz saqlang
+                va istalgan qurilmadan foydalaning.
             </p>
+
+        </section>
+
+
+        <!-- STATS -->
+
+        <section class="stats">
+
+
+            <div class="stat">
+
+                <div class="stat-icon">
+                    📁
+                </div>
+
+                <div class="stat-title">
+                    Fayllar
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="statFiles">
+
+                    0
+
+                </div>
+
+            </div>
+
+
+            <div class="stat">
+
+                <div class="stat-icon">
+                    💾
+                </div>
+
+                <div class="stat-title">
+                    Ishlatilgan joy
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="statSize">
+
+                    0 B
+
+                </div>
+
+            </div>
+
+
+            <div class="stat">
+
+                <div class="stat-icon">
+                    ☁️
+                </div>
+
+                <div class="stat-title">
+                    Storage
+                </div>
+
+                <div
+                    class="stat-value">
+
+                    1 GB
+
+                </div>
+
+            </div>
+
 
         </section>
 
 
         <!-- UPLOAD -->
 
-        <section class="upload-box">
+        <section
+            class="upload-box"
+            id="uploadBox">
 
-            <h2>☁️ Fayl yuklash</h2>
+
+            <div class="upload-icon">
+                ☁️
+            </div>
+
+
+            <h2>
+                Fayl yuklash
+            </h2>
+
 
             <p>
-                Telefon yoki kompyuterdan fayl tanlang
+                Faylni shu yerga tashlang
+                yoki kompyuterdan tanlang
             </p>
+
 
             <label
                 class="upload-btn"
                 for="fileInput">
-                ⬆️ Fayl tanlash
+
+                ⬆️
+                Fayl tanlash
+
             </label>
+
 
             <input
                 type="file"
-                id="fileInput">
-
-            <div id="uploadStatus"></div>
-
-        </section>
+                id="fileInput"
+                multiple>
 
 
-        <!-- FILE LIST -->
-
-        <section class="files-card">
-
-            <h2>📂 Fayllar</h2>
-
-            <div id="fileList">
-
-                <p style="color:#667085;">
-                    Fayllar yuklanmoqda...
-                </p>
-
+            <div
+                id="uploadStatus">
             </div>
 
         </section>
+
+
+        <!-- FILES -->
+
+        <section class="files-card">
+
+
+            <div class="files-header">
+
+
+                <div class="files-title">
+
+                    <h2>
+                        📂 Fayllar
+                    </h2>
+
+                    <p
+                        class="file-count"
+                        id="fileCount">
+
+                        Fayllar yuklanmoqda...
+
+                    </p>
+
+                </div>
+
+
+                <div class="file-tools">
+
+
+                    <input
+                        type="text"
+                        id="fileSearch"
+                        class="file-search"
+                        placeholder="🔍 Fayl qidirish..."
+                    >
+
+
+                    <button
+                        class="refresh-btn"
+                        onclick="loadFiles()"
+                        title="Yangilash">
+
+                        🔄
+
+                    </button>
+
+
+                </div>
+
+
+            </div>
+
+
+            <!-- STORAGE -->
+
+            <div class="storage-box">
+
+
+                <div class="storage-top">
+
+                    <span>
+                        ☁️ Storage
+                    </span>
+
+                    <span id="storageText">
+                        Hisoblanmoqda...
+                    </span>
+
+                </div>
+
+
+                <div class="storage-bar">
+
+                    <div
+                        id="storageProgress"
+                        class="storage-progress">
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+            <!-- FILE LIST -->
+
+            <div id="fileList">
+
+                <div class="loading">
+
+                    <div class="spinner"></div>
+
+                    Fayllar yuklanmoqda...
+
+                </div>
+
+            </div>
+
+
+        </section>
+
 
     </main>
 
 </section>
 
 
+<!-- =====================================================
+     TOAST
+===================================================== -->
+
+<div id="toastContainer"></div>
+
+
+<!-- =====================================================
+     PREVIEW
+===================================================== -->
+
+<div
+    id="previewModal"
+    onclick="closePreview(event)">
+
+    <div class="preview-box">
+
+        <div class="preview-header">
+
+            <div
+                class="preview-title"
+                id="previewTitle">
+
+            </div>
+
+            <button
+                class="close-preview"
+                onclick="closePreview()">
+
+                ✕
+
+            </button>
+
+        </div>
+
+
+        <div
+            class="preview-content"
+            id="previewContent">
+
+        </div>
+
+    </div>
+
+</div>
+
+
 <script>
 
-/* =====================================
+/* =====================================================
    SUPABASE
-===================================== */
+===================================================== */
 
 const SUPABASE_URL =
     "https://xfhxkdbwvhzdcbzlnnim.supabase.co";
@@ -468,9 +1866,9 @@ const supabaseClient =
     );
 
 
-/* =====================================
+/* =====================================================
    ELEMENTS
-===================================== */
+===================================================== */
 
 const authPage =
     document.getElementById("authPage");
@@ -508,17 +1906,25 @@ const userEmail =
 const uploadStatus =
     document.getElementById("uploadStatus");
 
+const uploadBox =
+    document.getElementById("uploadBox");
+
+const fileSearch =
+    document.getElementById("fileSearch");
+
 
 let registerMode = false;
 
 
-/* =====================================
+/* =====================================================
    AUTH MODE
-===================================== */
+===================================================== */
 
 function toggleAuth() {
 
-    registerMode = !registerMode;
+    registerMode =
+        !registerMode;
+
 
     if (registerMode) {
 
@@ -543,13 +1949,14 @@ function toggleAuth() {
             "Hisobingiz yo‘qmi? Ro‘yxatdan o‘ting";
     }
 
+
     authMessage.textContent = "";
 }
 
 
-/* =====================================
-   LOGIN / REGISTER
-===================================== */
+/* =====================================================
+   AUTH
+===================================================== */
 
 async function login() {
 
@@ -559,11 +1966,12 @@ async function login() {
     const password =
         passwordInput.value;
 
+
     if (!email || !password) {
 
         showAuthMessage(
             "Email va parolni kiriting.",
-            "red"
+            "error"
         );
 
         return;
@@ -577,117 +1985,154 @@ async function login() {
 
         if (registerMode) {
 
-            const { data, error } =
+            const {
+                data,
+                error
+            } =
                 await supabaseClient.auth.signUp({
-                    email: email,
-                    password: password
+                    email,
+                    password
                 });
 
 
-            if (error) {
+            if (error)
                 throw error;
-            }
 
 
             showAuthMessage(
-                "Ro‘yxatdan o‘tildi. Emailni tasdiqlash kerak bo‘lishi mumkin.",
-                "green"
+                "Ro‘yxatdan o‘tildi.",
+                "success"
             );
 
 
             if (data.session) {
-                showCloud(data.session.user);
-            }
 
+                showCloud(
+                    data.session.user
+                );
+
+            }
 
         } else {
 
-            const { data, error } =
-                await supabaseClient.auth.signInWithPassword({
-                    email: email,
-                    password: password
-                });
+            const {
+                data,
+                error
+            } =
+                await supabaseClient
+                    .auth
+                    .signInWithPassword({
+                        email,
+                        password
+                    });
 
 
-            if (error) {
+            if (error)
                 throw error;
-            }
 
 
-            showCloud(data.user);
+            showCloud(
+                data.user
+            );
         }
-
 
     } catch (error) {
 
         showAuthMessage(
             error.message,
-            "red"
+            "error"
         );
 
     } finally {
 
         authButton.disabled = false;
+
     }
 }
 
 
-/* =====================================
+/* =====================================================
    AUTH MESSAGE
-===================================== */
+===================================================== */
 
 function showAuthMessage(
     message,
-    color
+    type
 ) {
 
     authMessage.textContent =
         message;
 
+
     authMessage.style.color =
-        color;
+        type === "success"
+            ? "#4ade80"
+            : "#f87171";
 }
 
 
-/* =====================================
+/* =====================================================
    SHOW CLOUD
-===================================== */
+===================================================== */
 
 function showCloud(user) {
 
-    authPage.classList.add("hidden");
+    authPage.classList.add(
+        "hidden"
+    );
 
-    cloudPage.classList.remove("hidden");
+    cloudPage.classList.remove(
+        "hidden"
+    );
+
 
     userEmail.textContent =
         user.email;
+
 
     loadFiles();
 }
 
 
-/* =====================================
+/* =====================================================
    LOGOUT
-===================================== */
+===================================================== */
 
 async function logout() {
 
-    await supabaseClient.auth.signOut();
+    await supabaseClient
+        .auth
+        .signOut();
 
-    cloudPage.classList.add("hidden");
 
-    authPage.classList.remove("hidden");
+    cloudPage.classList.add(
+        "hidden"
+    );
+
+    authPage.classList.remove(
+        "hidden"
+    );
+
 
     emailInput.value = "";
+
     passwordInput.value = "";
 
     fileList.innerHTML = "";
+
+    document.getElementById(
+        "statFiles"
+    ).textContent = "0";
+
+    document.getElementById(
+        "statSize"
+    ).textContent = "0 B";
 }
 
 
-/* =====================================
-   CHECK SESSION
-===================================== */
+/* =====================================================
+   SESSION
+===================================================== */
 
 async function checkSession() {
 
@@ -696,72 +2141,198 @@ async function checkSession() {
             session
         }
     } =
-        await supabaseClient.auth.getSession();
+        await supabaseClient
+            .auth
+            .getSession();
 
 
     if (session) {
 
-        showCloud(session.user);
+        showCloud(
+            session.user
+        );
 
     } else {
 
-        authPage.classList.remove("hidden");
+        authPage.classList.remove(
+            "hidden"
+        );
 
-        cloudPage.classList.add("hidden");
+        cloudPage.classList.add(
+            "hidden"
+        );
     }
 }
 
 
-/* =====================================
-   FILE UPLOAD
-===================================== */
+/* =====================================================
+   DRAG & DROP
+===================================================== */
+
+[
+    "dragenter",
+    "dragover"
+].forEach(eventName => {
+
+    uploadBox.addEventListener(
+        eventName,
+        event => {
+
+            event.preventDefault();
+
+            uploadBox.classList.add(
+                "dragging"
+            );
+
+        }
+    );
+
+});
+
+
+[
+    "dragleave",
+    "drop"
+].forEach(eventName => {
+
+    uploadBox.addEventListener(
+        eventName,
+        event => {
+
+            event.preventDefault();
+
+            uploadBox.classList.remove(
+                "dragging"
+            );
+
+        }
+    );
+
+});
+
+
+uploadBox.addEventListener(
+    "drop",
+    event => {
+
+        const files =
+            event.dataTransfer.files;
+
+
+        if (files.length) {
+
+            uploadFiles(files);
+
+        }
+    }
+);
+
+
+/* =====================================================
+   FILE INPUT
+===================================================== */
 
 fileInput.addEventListener(
     "change",
     async function () {
 
-        const file =
-            this.files[0];
-
-        if (!file) return;
-
-
-        const {
-            data: {
-                user
-            }
-        } =
-            await supabaseClient.auth.getUser();
-
-
-        if (!user) {
-
-            alert(
-                "Avval tizimga kiring."
-            );
-
+        if (!this.files.length)
             return;
+
+
+        await uploadFiles(
+            this.files
+        );
+
+
+        this.value = "";
+
+    }
+);
+
+
+/* =====================================================
+   UPLOAD FILES
+===================================================== */
+
+async function uploadFiles(
+    fileCollection
+) {
+
+    const {
+        data: {
+            user
         }
+    } =
+        await supabaseClient
+            .auth
+            .getUser();
 
 
-        uploadStatus.textContent =
-            "⏳ Fayl yuklanmoqda...";
+    if (!user) {
+
+        showToast(
+            "Avval tizimga kiring.",
+            "error"
+        );
+
+        return;
+    }
 
 
-        /*
-           HAR BIR USER UCHUN
-           ALOHIDA PAPKA
-        */
+    const files =
+        Array.from(
+            fileCollection
+        );
 
-        const filePath =
-            user.id +
-            "/" +
-            Date.now() +
-            "_" +
-            file.name;
 
+    if (!files.length)
+        return;
+
+
+    uploadStatus.textContent =
+        `⏳ ${files.length} ta fayl yuklanmoqda...`;
+
+
+    let successCount = 0;
+
+
+    for (const file of files) {
 
         try {
+
+            const originalName =
+                file.name;
+
+
+            const safeName =
+                originalName
+                    .normalize("NFKD")
+                    .replace(
+                        /[^\x00-\x7F]/g,
+                        ""
+                    )
+                    .replace(
+                        /[^a-zA-Z0-9._-]/g,
+                        "_"
+                    );
+
+
+            const fileName =
+                Date.now() +
+                "_" +
+                Math.random()
+                    .toString(36)
+                    .slice(2, 8) +
+                "_" +
+                safeName;
+
+
+            const filePath =
+                user.id +
+                "/" +
+                fileName;
+
 
             const {
                 error
@@ -771,40 +2342,64 @@ fileInput.addEventListener(
                     .from("files")
                     .upload(
                         filePath,
-                        file
+                        file,
+                        {
+                            upsert: false
+                        }
                     );
 
 
-            if (error) {
+            if (error)
                 throw error;
-            }
+
+
+            successCount++;
 
 
             uploadStatus.textContent =
-                "✅ Fayl muvaffaqiyatli yuklandi!";
-
-
-            fileInput.value = "";
-
-
-            await loadFiles();
+                `⏳ ${successCount}/${files.length} yuklandi...`;
 
 
         } catch (error) {
 
-            console.error(error);
+            console.error(
+                error
+            );
 
-            uploadStatus.textContent =
-                "❌ Xatolik: " +
-                error.message;
+            showToast(
+                `${file.name}: ${error.message}`,
+                "error"
+            );
         }
     }
-);
 
 
-/* =====================================
+    if (successCount > 0) {
+
+        uploadStatus.textContent =
+            `✅ ${successCount} ta fayl muvaffaqiyatli yuklandi`;
+
+        showToast(
+            `${successCount} ta fayl yuklandi`,
+            "success"
+        );
+
+    } else {
+
+        uploadStatus.textContent =
+            "❌ Fayllar yuklanmadi";
+
+    }
+
+
+    await loadFiles();
+
+}
+
+
+/* =====================================================
    LOAD FILES
-===================================== */
+===================================================== */
 
 async function loadFiles() {
 
@@ -813,14 +2408,21 @@ async function loadFiles() {
             user
         }
     } =
-        await supabaseClient.auth.getUser();
+        await supabaseClient
+            .auth
+            .getUser();
 
 
-    if (!user) return;
+    if (!user)
+        return;
 
 
-    fileList.innerHTML =
-        '<p style="color:#667085;">Yuklanmoqda...</p>';
+    fileList.innerHTML = `
+        <div class="loading">
+            <div class="spinner"></div>
+            Fayllar yuklanmoqda...
+        </div>
+    `;
 
 
     try {
@@ -835,7 +2437,7 @@ async function loadFiles() {
                 .list(
                     user.id,
                     {
-                        limit: 100,
+                        limit: 1000,
                         offset: 0,
                         sortBy: {
                             column: "created_at",
@@ -845,15 +2447,92 @@ async function loadFiles() {
                 );
 
 
-        if (error) {
+        if (error)
             throw error;
-        }
 
 
-        if (!data || data.length === 0) {
+        const files =
+            (data || [])
+                .filter(file =>
+                    file.name &&
+                    file.metadata
+                );
 
-            fileList.innerHTML =
-                '<p style="color:#667085;">Hozircha fayllar yo‘q.</p>';
+
+        let totalSize = 0;
+
+
+        files.forEach(file => {
+
+            totalSize +=
+                Number(
+                    file.metadata?.size ||
+                    0
+                );
+
+        });
+
+
+        updateStats(
+            files.length,
+            totalSize
+        );
+
+
+        /* STORAGE */
+
+        const storageLimit =
+            1024 *
+            1024 *
+            1024;
+
+
+        const percentage =
+            Math.min(
+                (
+                    totalSize /
+                    storageLimit
+                ) * 100,
+                100
+            );
+
+
+        document.getElementById(
+            "storageText"
+        ).textContent =
+            `${formatSize(totalSize)} / 1 GB`;
+
+
+        document.getElementById(
+            "storageProgress"
+        ).style.width =
+            percentage + "%";
+
+
+        /* EMPTY */
+
+        if (!files.length) {
+
+            fileList.innerHTML = `
+                <div class="empty">
+
+                    <div class="empty-icon">
+                        📂
+                    </div>
+
+                    <div>
+                        Hozircha fayllar yo‘q.
+                    </div>
+
+                    <div style="
+                        margin-top:5px;
+                        font-size:12px;
+                    ">
+                        Birinchi faylingizni yuklang.
+                    </div>
+
+                </div>
+            `;
 
             return;
         }
@@ -862,85 +2541,230 @@ async function loadFiles() {
         fileList.innerHTML = "";
 
 
-        data.forEach(file => {
+        files.forEach(file => {
 
-            if (!file.name) return;
+            createFileElement(
+                file,
+                user
+            );
 
-
-            const fullPath =
-                user.id +
-                "/" +
-                file.name;
-
-
-            const size =
-                formatSize(
-                    file.metadata?.size || 0
-                );
-
-
-            const div =
-                document.createElement("div");
-
-            div.className =
-                "file";
-
-
-            div.innerHTML = `
-
-                <div class="file-info">
-
-                    <div class="file-name">
-                        📄 ${escapeHtml(file.name)}
-                    </div>
-
-                    <div class="file-size">
-                        ${size}
-                    </div>
-
-                </div>
-
-                <div class="file-actions">
-
-                    <button
-                        class="btn"
-                        onclick="downloadFile('${escapeJs(fullPath)}')">
-                        ⬇️ Yuklab olish
-                    </button>
-
-                    <button
-                        class="btn delete"
-                        onclick="deleteFile('${escapeJs(fullPath)}')">
-                        🗑️ O‘chirish
-                    </button>
-
-                </div>
-            `;
-
-
-            fileList.appendChild(div);
         });
 
 
+        applySearch();
+
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            error
+        );
 
-        fileList.innerHTML =
-            '<p style="color:red;">Fayllarni yuklashda xatolik.</p>';
+
+        fileList.innerHTML = `
+            <div class="empty">
+                ❌ Fayllarni yuklashda xatolik.
+            </div>
+        `;
+
+        showToast(
+            error.message,
+            "error"
+        );
     }
 }
 
 
-/* =====================================
+/* =====================================================
+   CREATE FILE
+===================================================== */
+
+function createFileElement(
+    file,
+    user
+) {
+
+    const fullPath =
+        user.id +
+        "/" +
+        file.name;
+
+
+    const div =
+        document.createElement(
+            "div"
+        );
+
+
+    div.className =
+        "file";
+
+
+    div.dataset.fileName =
+        file.name.toLowerCase();
+
+
+    const icon =
+        getFileIcon(
+            file.name
+        );
+
+
+    const size =
+        formatSize(
+            file.metadata?.size || 0
+        );
+
+
+    const previewable =
+        isPreviewable(
+            file.name
+        );
+
+
+    div.innerHTML = `
+
+        <div class="file-main">
+
+            <div class="file-icon">
+                ${icon}
+            </div>
+
+            <div class="file-info">
+
+                <div
+                    class="file-name"
+                    title="${escapeHtml(file.name)}">
+
+                    ${escapeHtml(file.name)}
+
+                </div>
+
+                <div class="file-size">
+
+                    ${size}
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="file-actions">
+
+            ${
+                previewable
+                ?
+                `
+                <button
+                    class="btn"
+                    onclick="previewFile('${escapeJs(fullPath)}','${escapeJs(file.name)}')">
+
+                    👁️
+
+                </button>
+                `
+                :
+                ""
+            }
+
+
+            <button
+                class="btn"
+                onclick="downloadFile('${escapeJs(fullPath)}')">
+
+                ⬇️
+
+            </button>
+
+
+            <button
+                class="btn delete"
+                onclick="deleteFile('${escapeJs(fullPath)}')">
+
+                🗑️
+
+            </button>
+
+        </div>
+
+    `;
+
+
+    fileList.appendChild(
+        div
+    );
+}
+
+
+/* =====================================================
+   SEARCH
+===================================================== */
+
+fileSearch.addEventListener(
+    "input",
+    applySearch
+);
+
+
+function applySearch() {
+
+    const query =
+        fileSearch.value
+            .toLowerCase()
+            .trim();
+
+
+    const files =
+        document.querySelectorAll(
+            "#fileList .file"
+        );
+
+
+    let visible = 0;
+
+
+    files.forEach(file => {
+
+        const name =
+            file.dataset.fileName ||
+            "";
+
+
+        if (
+            name.includes(query)
+        ) {
+
+            file.style.display =
+                "flex";
+
+            visible++;
+
+        } else {
+
+            file.style.display =
+                "none";
+        }
+
+    });
+}
+
+
+/* =====================================================
    DOWNLOAD
-===================================== */
+===================================================== */
 
 async function downloadFile(
     path
 ) {
 
     try {
+
+        showToast(
+            "Yuklab olinmoqda...",
+            "success"
+        );
+
 
         const {
             data,
@@ -952,57 +2776,82 @@ async function downloadFile(
                 .download(path);
 
 
-        if (error) {
+        if (error)
             throw error;
-        }
 
 
         const url =
-            URL.createObjectURL(data);
+            URL.createObjectURL(
+                data
+            );
 
 
         const a =
-            document.createElement("a");
+            document.createElement(
+                "a"
+            );
+
 
         a.href = url;
 
         a.download =
-            path.split("/").pop();
+            path
+                .split("/")
+                .pop();
 
-        document.body.appendChild(a);
+
+        document.body.appendChild(
+            a
+        );
+
 
         a.click();
 
         a.remove();
 
-        URL.revokeObjectURL(url);
+
+        setTimeout(() => {
+
+            URL.revokeObjectURL(
+                url
+            );
+
+        }, 1000);
 
 
     } catch (error) {
 
-        alert(
+        showToast(
             "Yuklab olishda xatolik: " +
-            error.message
+            error.message,
+            "error"
         );
     }
 }
 
 
-/* =====================================
+/* =====================================================
    DELETE
-===================================== */
+===================================================== */
 
 async function deleteFile(
     path
 ) {
 
+    const fileName =
+        path
+            .split("/")
+            .pop();
+
+
     const ok =
         confirm(
-            "Bu faylni o‘chirishni xohlaysizmi?"
+            `"${fileName}" faylini o‘chirishni xohlaysizmi?`
         );
 
 
-    if (!ok) return;
+    if (!ok)
+        return;
 
 
     try {
@@ -1018,9 +2867,14 @@ async function deleteFile(
                 ]);
 
 
-        if (error) {
+        if (error)
             throw error;
-        }
+
+
+        showToast(
+            "Fayl o‘chirildi",
+            "success"
+        );
 
 
         await loadFiles();
@@ -1028,34 +2882,410 @@ async function deleteFile(
 
     } catch (error) {
 
-        alert(
+        showToast(
             "O‘chirishda xatolik: " +
-            error.message
+            error.message,
+            "error"
         );
     }
 }
 
 
-/* =====================================
-   FILE SIZE
-===================================== */
+/* =====================================================
+   PREVIEW
+===================================================== */
+
+async function previewFile(
+    path,
+    name
+) {
+
+    const extension =
+        name
+            .split(".")
+            .pop()
+            .toLowerCase();
+
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+            .storage
+            .from("files")
+            .download(path);
+
+
+    if (error) {
+
+        showToast(
+            error.message,
+            "error"
+        );
+
+        return;
+    }
+
+
+    const url =
+        URL.createObjectURL(
+            data
+        );
+
+
+    const modal =
+        document.getElementById(
+            "previewModal"
+        );
+
+
+    const title =
+        document.getElementById(
+            "previewTitle"
+        );
+
+
+    const content =
+        document.getElementById(
+            "previewContent"
+        );
+
+
+    title.textContent =
+        name;
+
+
+    content.innerHTML = "";
+
+
+    if (
+        [
+            "jpg",
+            "jpeg",
+            "png",
+            "gif",
+            "webp",
+            "bmp"
+        ].includes(extension)
+    ) {
+
+        const img =
+            document.createElement(
+                "img"
+            );
+
+        img.src = url;
+
+        content.appendChild(
+            img
+        );
+
+
+    } else if (
+        [
+            "mp4",
+            "webm",
+            "ogg",
+            "mov"
+        ].includes(extension)
+    ) {
+
+        const video =
+            document.createElement(
+                "video"
+            );
+
+        video.src = url;
+
+        video.controls = true;
+
+        video.autoplay = true;
+
+        content.appendChild(
+            video
+        );
+
+
+    } else if (
+        [
+            "mp3",
+            "wav",
+            "ogg",
+            "m4a"
+        ].includes(extension)
+    ) {
+
+        const audio =
+            document.createElement(
+                "audio"
+            );
+
+        audio.src = url;
+
+        audio.controls = true;
+
+        content.appendChild(
+            audio
+        );
+
+
+    } else {
+
+        content.innerHTML = `
+            <div class="preview-message">
+                Bu fayl turini brauzerda preview qilib bo‘lmaydi.
+                <br><br>
+                ⬇️ Yuklab olish tugmasidan foydalaning.
+            </div>
+        `;
+    }
+
+
+    modal.classList.add(
+        "active"
+    );
+
+
+    modal.dataset.objectUrl =
+        url;
+}
+
+
+/* =====================================================
+   CLOSE PREVIEW
+===================================================== */
+
+function closePreview(
+    event
+) {
+
+    const modal =
+        document.getElementById(
+            "previewModal"
+        );
+
+
+    if (
+        event &&
+        event.target !== modal
+    ) {
+        return;
+    }
+
+
+    modal.classList.remove(
+        "active"
+    );
+
+
+    const url =
+        modal.dataset.objectUrl;
+
+
+    if (url) {
+
+        URL.revokeObjectURL(
+            url
+        );
+
+    }
+
+
+    modal.dataset.objectUrl =
+        "";
+}
+
+
+/* =====================================================
+   FILE ICON
+===================================================== */
+
+function getFileIcon(
+    name
+) {
+
+    const ext =
+        name
+            .split(".")
+            .pop()
+            .toLowerCase();
+
+
+    if (
+        [
+            "jpg",
+            "jpeg",
+            "png",
+            "gif",
+            "webp",
+            "bmp"
+        ].includes(ext)
+    )
+        return "🖼️";
+
+
+    if (
+        [
+            "mp4",
+            "mov",
+            "avi",
+            "mkv",
+            "webm"
+        ].includes(ext)
+    )
+        return "🎬";
+
+
+    if (
+        [
+            "mp3",
+            "wav",
+            "ogg",
+            "m4a"
+        ].includes(ext)
+    )
+        return "🎵";
+
+
+    if (
+        [
+            "pdf"
+        ].includes(ext)
+    )
+        return "📕";
+
+
+    if (
+        [
+            "doc",
+            "docx"
+        ].includes(ext)
+    )
+        return "📝";
+
+
+    if (
+        [
+            "xls",
+            "xlsx",
+            "csv"
+        ].includes(ext)
+    )
+        return "📊";
+
+
+    if (
+        [
+            "zip",
+            "rar",
+            "7z"
+        ].includes(ext)
+    )
+        return "📦";
+
+
+    if (
+        [
+            "js",
+            "html",
+            "css",
+            "py",
+            "php",
+            "json"
+        ].includes(ext)
+    )
+        return "💻";
+
+
+    return "📄";
+}
+
+
+/* =====================================================
+   PREVIEWABLE
+===================================================== */
+
+function isPreviewable(
+    name
+) {
+
+    const ext =
+        name
+            .split(".")
+            .pop()
+            .toLowerCase();
+
+
+    return [
+        "jpg",
+        "jpeg",
+        "png",
+        "gif",
+        "webp",
+        "bmp",
+        "mp4",
+        "webm",
+        "ogg",
+        "mov",
+        "mp3",
+        "wav",
+        "m4a"
+    ].includes(ext);
+}
+
+
+/* =====================================================
+   STATS
+===================================================== */
+
+function updateStats(
+    count,
+    size
+) {
+
+    document.getElementById(
+        "statFiles"
+    ).textContent =
+        count;
+
+
+    document.getElementById(
+        "statSize"
+    ).textContent =
+        formatSize(size);
+
+
+    document.getElementById(
+        "fileCount"
+    ).textContent =
+        `${count} ta fayl`;
+}
+
+
+/* =====================================================
+   FORMAT SIZE
+===================================================== */
 
 function formatSize(
     bytes
 ) {
 
+    bytes =
+        Number(bytes) || 0;
+
+
     if (bytes === 0)
         return "0 B";
 
 
-    const units =
-        [
-            "B",
-            "KB",
-            "MB",
-            "GB",
-            "TB"
-        ];
+    const units = [
+        "B",
+        "KB",
+        "MB",
+        "GB",
+        "TB"
+    ];
 
 
     const i =
@@ -1067,9 +3297,13 @@ function formatSize(
 
     return (
         parseFloat(
-            (bytes /
-            Math.pow(1024, i))
-            .toFixed(2)
+            (
+                bytes /
+                Math.pow(
+                    1024,
+                    i
+                )
+            ).toFixed(2)
         )
         +
         " " +
@@ -1078,36 +3312,161 @@ function formatSize(
 }
 
 
-/* =====================================
-   SECURITY HELPERS
-===================================== */
+/* =====================================================
+   ESCAPE HTML
+===================================================== */
 
 function escapeHtml(
     text
 ) {
 
-    return text
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+    return String(text)
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
 }
 
+
+/* =====================================================
+   ESCAPE JS
+===================================================== */
 
 function escapeJs(
     text
 ) {
 
-    return text
-        .replace(/\\/g, "\\\\")
-        .replace(/'/g, "\\'");
+    return String(text)
+        .replace(
+            /\\/g,
+            "\\\\"
+        )
+        .replace(
+            /'/g,
+            "\\'"
+        );
 }
 
 
-/* =====================================
+/* =====================================================
+   TOAST
+===================================================== */
+
+function showToast(
+    message,
+    type = "success"
+) {
+
+    const container =
+        document.getElementById(
+            "toastContainer"
+        );
+
+
+    const toast =
+        document.createElement(
+            "div"
+        );
+
+
+    toast.className =
+        `toast ${type}`;
+
+
+    toast.textContent =
+        message;
+
+
+    container.appendChild(
+        toast
+    );
+
+
+    setTimeout(() => {
+
+        toast.style.opacity =
+            "0";
+
+        toast.style.transform =
+            "translateY(10px)";
+
+
+        setTimeout(() => {
+
+            toast.remove();
+
+        }, 250);
+
+    }, 3000);
+}
+
+
+/* =====================================================
+   ESC KEY
+===================================================== */
+
+document.addEventListener(
+    "keydown",
+    event => {
+
+        if (
+            event.key === "Escape"
+        ) {
+
+            closePreview();
+
+        }
+
+    }
+);
+
+
+/* =====================================================
+   ENTER LOGIN
+===================================================== */
+
+[
+    emailInput,
+    passwordInput
+].forEach(input => {
+
+    input.addEventListener(
+        "keydown",
+        event => {
+
+            if (
+                event.key === "Enter"
+            ) {
+
+                login();
+
+            }
+
+        }
+    );
+
+});
+
+
+/* =====================================================
    START
-===================================== */
+===================================================== */
 
 checkSession();
 
