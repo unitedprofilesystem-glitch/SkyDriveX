@@ -9,799 +9,924 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
 }
 
-html {
-    scroll-behavior: smooth;
+html{
+    scroll-behavior:smooth;
 }
 
-body {
-    font-family: Inter, Arial, Helvetica, sans-serif;
-    color: #f8fafc;
-    min-height: 100vh;
-    line-height: 1.5;
-    overflow-x: hidden;
+body{
+    font-family:Inter,Arial,Helvetica,sans-serif;
+    color:#f8fafc;
+    min-height:100vh;
+    line-height:1.5;
+    overflow-x:hidden;
 
     background:
-        radial-gradient(circle at 10% 0%, rgba(59,130,246,.20), transparent 28%),
-        radial-gradient(circle at 90% 5%, rgba(139,92,246,.18), transparent 30%),
-        linear-gradient(135deg, #020617 0%, #0b1120 45%, #111827 100%);
+        radial-gradient(circle at 10% 0%,rgba(59,130,246,.20),transparent 28%),
+        radial-gradient(circle at 90% 5%,rgba(139,92,246,.18),transparent 30%),
+        linear-gradient(135deg,#020617 0%,#0b1120 45%,#111827 100%);
 
-    background-attachment: fixed;
+    background-attachment:fixed;
 }
 
-button,
-input {
-    font: inherit;
+button,input{
+    font:inherit;
 }
 
-button {
-    border: none;
+button{
+    border:none;
 }
 
-.hidden {
-    display: none !important;
+.hidden{
+    display:none!important;
 }
 
-::-webkit-scrollbar {
-    width: 8px;
+::-webkit-scrollbar{
+    width:8px;
 }
 
-::-webkit-scrollbar-track {
-    background: #020617;
+::-webkit-scrollbar-track{
+    background:#020617;
 }
 
-::-webkit-scrollbar-thumb {
-    background: #334155;
-    border-radius: 20px;
+::-webkit-scrollbar-thumb{
+    background:#334155;
+    border-radius:20px;
 }
 
 /* ================= AUTH ================= */
 
-#authPage {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
+#authPage{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
 }
 
-.auth-card {
-    width: 100%;
-    max-width: 440px;
-    padding: 42px 34px;
-    border-radius: 28px;
+.auth-card{
+    width:100%;
+    max-width:440px;
+    padding:42px 34px;
+    border-radius:28px;
 
     background:
-        linear-gradient(145deg, rgba(15,23,42,.94), rgba(2,6,23,.97));
+        linear-gradient(145deg,rgba(15,23,42,.94),rgba(2,6,23,.97));
 
-    border: 1px solid rgba(148,163,184,.13);
+    border:1px solid rgba(148,163,184,.13);
 
     box-shadow:
         0 35px 100px rgba(0,0,0,.55),
         0 0 70px rgba(37,99,235,.07);
 
-    backdrop-filter: blur(20px);
+    backdrop-filter:blur(20px);
 }
 
-.auth-logo {
-    text-align: center;
-    font-size: 36px;
-    font-weight: 900;
-    letter-spacing: -1.5px;
+.auth-logo{
+    text-align:center;
+    font-size:36px;
+    font-weight:900;
+    letter-spacing:-1.5px;
 }
 
 .auth-logo span,
-.logo span {
-    color: #60a5fa;
+.logo span{
+    color:#60a5fa;
 }
 
-.auth-subtitle {
-    text-align: center;
-    color: #64748b;
-    font-size: 13px;
-    margin-bottom: 30px;
+.auth-subtitle{
+    text-align:center;
+    color:#64748b;
+    font-size:13px;
+    margin-bottom:30px;
 }
 
-.auth-title {
-    text-align: center;
-    color: #cbd5e1;
-    font-size: 16px;
-    margin-bottom: 24px;
+.auth-title{
+    text-align:center;
+    color:#cbd5e1;
+    font-size:16px;
+    margin-bottom:24px;
 }
 
-.input-group {
-    margin-bottom: 13px;
+.input-group{
+    margin-bottom:13px;
 }
 
-.input-label {
-    display: block;
-    font-size: 12px;
-    color: #94a3b8;
-    margin-bottom: 7px;
+.input-label{
+    display:block;
+    font-size:12px;
+    color:#94a3b8;
+    margin-bottom:7px;
 }
 
-.input {
-    width: 100%;
-    padding: 14px 15px;
-    color: #f8fafc;
-    background: rgba(15,23,42,.8);
-    border: 1px solid #263449;
-    border-radius: 12px;
-    outline: none;
+.input{
+    width:100%;
+    padding:14px 15px;
+    color:#f8fafc;
+    background:rgba(15,23,42,.8);
+    border:1px solid #263449;
+    border-radius:12px;
+    outline:none;
 }
 
-.input:focus {
-    border-color: #3b82f6;
+.input:focus{
+    border-color:#3b82f6;
 }
 
-.auth-btn {
-    width: 100%;
-    padding: 14px;
-    margin-top: 8px;
-    border-radius: 12px;
-    color: white;
-    font-weight: 800;
-    cursor: pointer;
+.auth-btn{
+    width:100%;
+    padding:14px;
+    margin-top:8px;
+    border-radius:12px;
+    color:white;
+    font-weight:800;
+    cursor:pointer;
 
-    background: linear-gradient(135deg, #2563eb, #7c3aed);
+    background:linear-gradient(135deg,#2563eb,#7c3aed);
 }
 
-.auth-btn:disabled {
-    opacity: .55;
+.auth-btn:disabled{
+    opacity:.55;
 }
 
-.switch-btn {
-    width: 100%;
-    background: transparent;
-    color: #60a5fa;
-    cursor: pointer;
-    margin-top: 20px;
-    font-size: 13px;
+.switch-btn{
+    width:100%;
+    background:transparent;
+    color:#60a5fa;
+    cursor:pointer;
+    margin-top:20px;
+    font-size:13px;
 }
 
-#authMessage {
-    min-height: 20px;
-    margin-top: 16px;
-    text-align: center;
-    font-size: 13px;
+#authMessage{
+    min-height:20px;
+    margin-top:16px;
+    text-align:center;
+    font-size:13px;
 }
 
 /* ================= HEADER ================= */
 
-.header {
-    position: sticky;
-    top: 0;
-    z-index: 100;
+.header{
+    position:sticky;
+    top:0;
+    z-index:100;
 
-    min-height: 72px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    min-height:72px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
 
-    padding: 0 28px;
+    padding:0 28px;
 
-    background: rgba(2,6,23,.78);
-    border-bottom: 1px solid rgba(148,163,184,.10);
+    background:rgba(2,6,23,.78);
+    border-bottom:1px solid rgba(148,163,184,.10);
 
-    backdrop-filter: blur(20px);
+    backdrop-filter:blur(20px);
 }
 
-.logo {
-    font-size: 25px;
-    font-weight: 900;
+.logo{
+    font-size:25px;
+    font-weight:900;
 }
 
-.header-right {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+.header-right{
+    display:flex;
+    align-items:center;
+    gap:10px;
 }
 
-.user {
-    max-width: 260px;
-    color: #94a3b8;
-    font-size: 13px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+.user{
+    max-width:260px;
+    color:#94a3b8;
+    font-size:13px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
 }
 
-.logout {
-    padding: 9px 13px;
-    border-radius: 10px;
-    color: #fca5a5;
-    background: rgba(127,29,29,.20);
-    cursor: pointer;
+.logout{
+    padding:9px 13px;
+    border-radius:10px;
+    color:#fca5a5;
+    background:rgba(127,29,29,.20);
+    cursor:pointer;
+}
+
+/* ================= PROFILE ================= */
+
+.profile{
+    position:relative;
+}
+
+.profile-button{
+    width:46px;
+    height:46px;
+    border-radius:50%;
+    overflow:hidden;
+    cursor:pointer;
+
+    background:
+        linear-gradient(135deg,#2563eb,#7c3aed);
+
+    border:2px solid rgba(255,255,255,.15);
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    color:white;
+    font-size:20px;
+    font-weight:800;
+}
+
+.profile-button img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+.profile-menu{
+    position:absolute;
+    right:0;
+    top:57px;
+
+    width:270px;
+    padding:15px;
+
+    border-radius:18px;
+
+    background:rgba(15,23,42,.98);
+    border:1px solid rgba(148,163,184,.13);
+
+    box-shadow:0 25px 70px rgba(0,0,0,.5);
+
+    display:none;
+}
+
+.profile-menu.active{
+    display:block;
+}
+
+.profile-user{
+    text-align:center;
+    margin-bottom:15px;
+}
+
+.profile-big{
+    width:90px;
+    height:90px;
+    margin:0 auto 10px;
+
+    overflow:hidden;
+    border-radius:50%;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:36px;
+    font-weight:800;
+
+    background:linear-gradient(135deg,#2563eb,#7c3aed);
+}
+
+.profile-big img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+.profile-email{
+    color:#94a3b8;
+    font-size:12px;
+    word-break:break-all;
+}
+
+.profile-actions{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+}
+
+.profile-action{
+    width:100%;
+    padding:11px;
+    border-radius:10px;
+
+    color:#cbd5e1;
+    background:#111827;
+
+    cursor:pointer;
+    text-align:center;
+}
+
+.profile-action:hover{
+    background:#1e293b;
+}
+
+.profile-delete{
+    color:#fca5a5;
 }
 
 /* ================= MAIN ================= */
 
-.container {
-    width: 100%;
-    max-width: 1150px;
-    margin: 0 auto;
-    padding: 35px 20px 70px;
+.container{
+    width:100%;
+    max-width:1150px;
+    margin:0 auto;
+    padding:35px 20px 70px;
 }
 
-.welcome {
-    margin-bottom: 25px;
+.welcome{
+    margin-bottom:25px;
 }
 
-.welcome h1 {
-    font-size: 34px;
-    line-height: 1.15;
-    margin-bottom: 7px;
+.welcome h1{
+    font-size:34px;
+    line-height:1.15;
+    margin-bottom:7px;
 }
 
-.welcome p {
-    color: #94a3b8;
-    font-size: 14px;
+.welcome p{
+    color:#94a3b8;
+    font-size:14px;
 }
 
 /* ================= STATS ================= */
 
-.stats {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 14px;
-    margin-bottom: 20px;
+.stats{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:14px;
+    margin-bottom:20px;
 }
 
-.stat {
-    padding: 17px;
-    border-radius: 17px;
+.stat{
+    padding:17px;
+    border-radius:17px;
 
     background:
-        linear-gradient(145deg, rgba(15,23,42,.85), rgba(2,6,23,.88));
+        linear-gradient(145deg,rgba(15,23,42,.85),rgba(2,6,23,.88));
 
-    border: 1px solid rgba(148,163,184,.09);
+    border:1px solid rgba(148,163,184,.09);
 }
 
-.stat-icon {
-    font-size: 21px;
-    margin-bottom: 7px;
+.stat-icon{
+    font-size:21px;
+    margin-bottom:7px;
 }
 
-.stat-title {
-    color: #64748b;
-    font-size: 12px;
+.stat-title{
+    color:#64748b;
+    font-size:12px;
 }
 
-.stat-value {
-    font-size: 18px;
-    font-weight: 800;
+.stat-value{
+    font-size:18px;
+    font-weight:800;
 }
 
 /* ================= UPLOAD ================= */
 
-.upload-box {
-    position: relative;
-    overflow: hidden;
-    text-align: center;
-    padding: 38px 20px;
-    margin-bottom: 20px;
+.upload-box{
+    position:relative;
+    overflow:hidden;
+    text-align:center;
+    padding:38px 20px;
+    margin-bottom:20px;
 
-    border-radius: 22px;
-
-    background:
-        linear-gradient(145deg, rgba(15,23,42,.95), rgba(2,6,23,.94));
-
-    border: 1px dashed #334155;
-}
-
-.upload-box.dragging {
-    border-color: #60a5fa;
-    background: rgba(37,99,235,.12);
-}
-
-.upload-icon {
-    width: 64px;
-    height: 64px;
-    margin: 0 auto 15px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 18px;
-    font-size: 30px;
+    border-radius:22px;
 
     background:
-        linear-gradient(135deg, rgba(37,99,235,.18), rgba(124,58,237,.18));
+        linear-gradient(145deg,rgba(15,23,42,.95),rgba(2,6,23,.94));
+
+    border:1px dashed #334155;
 }
 
-.upload-box h2 {
-    font-size: 21px;
-    margin-bottom: 7px;
+.upload-box.dragging{
+    border-color:#60a5fa;
+    background:rgba(37,99,235,.12);
 }
 
-.upload-box p {
-    color: #64748b;
-    font-size: 13px;
-    margin-bottom: 19px;
+.upload-icon{
+    width:64px;
+    height:64px;
+    margin:0 auto 15px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:18px;
+    font-size:30px;
+
+    background:
+        linear-gradient(135deg,rgba(37,99,235,.18),rgba(124,58,237,.18));
 }
 
-.upload-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    flex-wrap: wrap;
+.upload-box h2{
+    font-size:21px;
+    margin-bottom:7px;
 }
 
-.upload-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-
-    min-width: 180px;
-    padding: 13px 22px;
-
-    border-radius: 11px;
-    color: white;
-    font-size: 14px;
-    font-weight: 800;
-    cursor: pointer;
-
-    background: linear-gradient(135deg, #2563eb, #7c3aed);
+.upload-box p{
+    color:#64748b;
+    font-size:13px;
+    margin-bottom:19px;
 }
 
-.folder-btn {
-    background: linear-gradient(135deg, #475569, #334155);
+.upload-buttons{
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    flex-wrap:wrap;
+}
+
+.upload-btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+
+    min-width:180px;
+    padding:13px 22px;
+
+    border-radius:11px;
+    color:white;
+    font-size:14px;
+    font-weight:800;
+    cursor:pointer;
+
+    background:linear-gradient(135deg,#2563eb,#7c3aed);
+}
+
+.folder-btn{
+    background:linear-gradient(135deg,#475569,#334155);
 }
 
 #fileInput,
-#folderInput {
-    display: none;
+#folderInput,
+#profileInput{
+    display:none;
 }
 
-#uploadStatus {
-    margin-top: 15px;
-    min-height: 20px;
-    color: #94a3b8;
-    font-size: 13px;
+#uploadStatus{
+    margin-top:15px;
+    min-height:20px;
+    color:#94a3b8;
+    font-size:13px;
 }
 
 /* ================= FILE CARD ================= */
 
-.files-card {
-    padding: 22px;
-    border-radius: 22px;
+.files-card{
+    padding:22px;
+    border-radius:22px;
 
     background:
-        linear-gradient(145deg, rgba(15,23,42,.96), rgba(2,6,23,.96));
+        linear-gradient(145deg,rgba(15,23,42,.96),rgba(2,6,23,.96));
 
-    border: 1px solid rgba(148,163,184,.09);
+    border:1px solid rgba(148,163,184,.09);
 }
 
-.files-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-    margin-bottom: 18px;
+.files-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:20px;
+    margin-bottom:18px;
 }
 
-.files-title h2 {
-    font-size: 21px;
+.files-title h2{
+    font-size:21px;
 }
 
-.file-count {
-    color: #64748b;
-    font-size: 12px;
+.file-count{
+    color:#64748b;
+    font-size:12px;
 }
 
-.file-tools {
-    display: flex;
-    gap: 8px;
+.file-tools{
+    display:flex;
+    gap:8px;
 }
 
-.file-search {
-    width: 240px;
-    padding: 11px 13px;
+.file-search{
+    width:240px;
+    padding:11px 13px;
 
-    color: #f8fafc;
-    background: #0b1220;
-    border: 1px solid #263449;
-    border-radius: 10px;
-    outline: none;
+    color:#f8fafc;
+    background:#0b1220;
+    border:1px solid #263449;
+    border-radius:10px;
+    outline:none;
 }
 
 .refresh-btn,
-.back-btn {
-    padding: 10px 12px;
-    border-radius: 10px;
-    color: #cbd5e1;
-    background: #111827;
-    cursor: pointer;
+.back-btn,
+.create-folder-btn{
+    padding:10px 12px;
+    border-radius:10px;
+    color:#cbd5e1;
+    background:#111827;
+    cursor:pointer;
 }
 
-.back-btn {
-    margin-bottom: 12px;
+.create-folder-btn{
+    background:linear-gradient(135deg,#2563eb,#7c3aed);
+    color:white;
 }
 
-.breadcrumb {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    flex-wrap: wrap;
+.breadcrumb{
+    display:flex;
+    align-items:center;
+    gap:7px;
+    flex-wrap:wrap;
 
-    margin-bottom: 15px;
+    margin-bottom:15px;
 
-    color: #94a3b8;
-    font-size: 13px;
+    color:#94a3b8;
+    font-size:13px;
 }
 
-.breadcrumb button {
-    color: #60a5fa;
-    background: transparent;
-    cursor: pointer;
+.breadcrumb button{
+    color:#60a5fa;
+    background:transparent;
+    cursor:pointer;
 }
 
 /* ================= STORAGE ================= */
 
-.storage-box {
-    padding: 17px;
-    margin-bottom: 18px;
-    border-radius: 16px;
+.storage-box{
+    padding:17px;
+    margin-bottom:18px;
+    border-radius:16px;
 
     background:
-        linear-gradient(135deg, rgba(37,99,235,.13), rgba(124,58,237,.10));
+        linear-gradient(135deg,rgba(37,99,235,.13),rgba(124,58,237,.10));
 
-    border: 1px solid rgba(96,165,250,.13);
+    border:1px solid rgba(96,165,250,.13);
 }
 
-.storage-top {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 10px;
-    font-size: 13px;
+.storage-top{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:10px;
+    font-size:13px;
 }
 
-#storageText {
-    color: #93c5fd;
-    font-weight: 700;
+#storageText{
+    color:#93c5fd;
+    font-weight:700;
 }
 
-.storage-bar {
-    width: 100%;
-    height: 8px;
-    overflow: hidden;
-    border-radius: 20px;
-    background: #111827;
+.storage-bar{
+    width:100%;
+    height:8px;
+    overflow:hidden;
+    border-radius:20px;
+    background:#111827;
 }
 
-.storage-progress {
-    width: 0%;
-    height: 100%;
-    border-radius: 20px;
+.storage-progress{
+    width:0%;
+    height:100%;
+    border-radius:20px;
 
     background:
-        linear-gradient(90deg, #2563eb, #7c3aed);
+        linear-gradient(90deg,#2563eb,#7c3aed);
 
-    transition: width .4s ease;
+    transition:width .4s ease;
 }
 
 /* ================= FILES ================= */
 
-.file {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 15px;
+.file{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:15px;
 
-    padding: 14px 8px;
+    padding:14px 8px;
 
-    border-bottom: 1px solid rgba(148,163,184,.07);
+    border-bottom:1px solid rgba(148,163,184,.07);
 }
 
-.file:hover {
-    border-radius: 12px;
-    background: rgba(30,41,59,.35);
+.file:hover{
+    border-radius:12px;
+    background:rgba(30,41,59,.35);
 }
 
-.file-main {
-    min-width: 0;
-    flex: 1;
+.file-main{
+    min-width:0;
+    flex:1;
 
-    display: flex;
-    align-items: center;
-    gap: 12px;
+    display:flex;
+    align-items:center;
+    gap:12px;
 }
 
-.file-icon {
-    width: 42px;
-    height: 42px;
-    flex-shrink: 0;
+.file-icon{
+    width:42px;
+    height:42px;
+    flex-shrink:0;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display:flex;
+    align-items:center;
+    justify-content:center;
 
-    border-radius: 11px;
-    font-size: 20px;
+    border-radius:11px;
+    font-size:20px;
 
-    background: rgba(30,41,59,.75);
+    background:rgba(30,41,59,.75);
 }
 
-.file-info {
-    min-width: 0;
+.file-info{
+    min-width:0;
 }
 
-.file-name {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+.file-name{
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
 
-    color: #e2e8f0;
-    font-size: 14px;
-    font-weight: 700;
+    color:#e2e8f0;
+    font-size:14px;
+    font-weight:700;
 }
 
-.file-size {
-    color: #64748b;
-    font-size: 11px;
-    margin-top: 3px;
+.file-size{
+    color:#64748b;
+    font-size:11px;
+    margin-top:3px;
 }
 
-.file-actions {
-    display: flex;
-    gap: 7px;
+.file-actions{
+    display:flex;
+    gap:7px;
 }
 
-.btn {
-    padding: 9px 11px;
-    border-radius: 9px;
+.btn{
+    padding:9px 11px;
+    border-radius:9px;
 
-    color: #cbd5e1;
-    background: #111827;
+    color:#cbd5e1;
+    background:#111827;
 
-    border: 1px solid rgba(148,163,184,.10);
-    cursor: pointer;
+    border:1px solid rgba(148,163,184,.10);
+    cursor:pointer;
 }
 
-.btn:hover {
-    background: #1e293b;
-    color: white;
+.btn:hover{
+    background:#1e293b;
+    color:white;
 }
 
-.delete {
-    color: #fca5a5;
+.delete{
+    color:#fca5a5;
 }
 
 .empty,
-.loading {
-    padding: 45px 10px;
-    text-align: center;
-    color: #64748b;
+.loading{
+    padding:45px 10px;
+    text-align:center;
+    color:#64748b;
 }
 
-.empty-icon {
-    font-size: 42px;
-    margin-bottom: 8px;
+.empty-icon{
+    font-size:42px;
+    margin-bottom:8px;
 }
 
-.spinner {
-    width: 28px;
-    height: 28px;
-    margin: 0 auto 10px;
+.spinner{
+    width:28px;
+    height:28px;
+    margin:0 auto 10px;
 
-    border: 3px solid #1e293b;
-    border-top-color: #60a5fa;
-    border-radius: 50%;
+    border:3px solid #1e293b;
+    border-top-color:#60a5fa;
+    border-radius:50%;
 
-    animation: spin .8s linear infinite;
+    animation:spin .8s linear infinite;
 }
 
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
+@keyframes spin{
+    to{
+        transform:rotate(360deg);
     }
 }
 
 /* ================= PREVIEW ================= */
 
-#previewModal {
-    position: fixed;
-    inset: 0;
-    z-index: 500;
+#previewModal{
+    position:fixed;
+    inset:0;
+    z-index:500;
 
-    display: none;
-    align-items: center;
-    justify-content: center;
+    display:none;
+    align-items:center;
+    justify-content:center;
 
-    padding: 20px;
-    background: rgba(0,0,0,.82);
-    backdrop-filter: blur(12px);
+    padding:20px;
+    background:rgba(0,0,0,.82);
+    backdrop-filter:blur(12px);
 }
 
-#previewModal.active {
-    display: flex;
+#previewModal.active{
+    display:flex;
 }
 
-.preview-box {
-    width: 100%;
-    max-width: 950px;
-    max-height: 90vh;
+.preview-box{
+    width:100%;
+    max-width:950px;
+    max-height:90vh;
 
-    overflow: auto;
-    padding: 18px;
+    overflow:auto;
+    padding:18px;
 
-    border-radius: 18px;
-    background: #0b1120;
-    border: 1px solid rgba(148,163,184,.12);
+    border-radius:18px;
+    background:#0b1120;
+    border:1px solid rgba(148,163,184,.12);
 }
 
-.preview-header {
-    display: flex;
-    justify-content: space-between;
-    gap: 15px;
-    margin-bottom: 15px;
+.preview-header{
+    display:flex;
+    justify-content:space-between;
+    gap:15px;
+    margin-bottom:15px;
 }
 
-.preview-title {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-weight: 700;
+.preview-title{
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    font-weight:700;
 }
 
-.close-preview {
-    padding: 8px 11px;
-    border-radius: 9px;
-    color: #cbd5e1;
-    background: #1e293b;
-    cursor: pointer;
+.close-preview{
+    padding:8px 11px;
+    border-radius:9px;
+    color:#cbd5e1;
+    background:#1e293b;
+    cursor:pointer;
 }
 
-.preview-content {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 250px;
+.preview-content{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:250px;
 }
 
-.preview-content img {
-    max-width: 100%;
-    max-height: 70vh;
-    border-radius: 10px;
+.preview-content img{
+    max-width:100%;
+    max-height:70vh;
+    border-radius:10px;
 }
 
-.preview-content video {
-    width: 100%;
-    max-height: 70vh;
-    border-radius: 10px;
-    background: black;
+.preview-content video{
+    width:100%;
+    max-height:70vh;
+    border-radius:10px;
+    background:black;
 }
 
-.preview-content audio {
-    width: 100%;
-}
-
-.preview-message {
-    color: #64748b;
-    text-align: center;
+.preview-content audio{
+    width:100%;
 }
 
 /* ================= TOAST ================= */
 
-#toastContainer {
-    position: fixed;
-    right: 20px;
-    bottom: 20px;
-    z-index: 9999;
+#toastContainer{
+    position:fixed;
+    right:20px;
+    bottom:20px;
+    z-index:9999;
 
-    display: flex;
-    flex-direction: column;
-    gap: 9px;
+    display:flex;
+    flex-direction:column;
+    gap:9px;
 }
 
-.toast {
-    min-width: 260px;
-    max-width: 360px;
+.toast{
+    min-width:260px;
+    max-width:360px;
 
-    padding: 13px 15px;
+    padding:13px 15px;
 
-    border-radius: 12px;
+    border-radius:12px;
 
-    color: #e2e8f0;
-    background: rgba(15,23,42,.96);
+    color:#e2e8f0;
+    background:rgba(15,23,42,.96);
 
-    border: 1px solid rgba(148,163,184,.13);
+    border:1px solid rgba(148,163,184,.13);
 
-    box-shadow: 0 20px 50px rgba(0,0,0,.35);
+    box-shadow:0 20px 50px rgba(0,0,0,.35);
+
+    transition:.25s;
 }
 
 /* ================= MOBILE ================= */
 
-@media (max-width: 700px) {
+@media(max-width:700px){
 
-    .header {
-        min-height: 64px;
-        padding: 10px 13px;
+    .header{
+        min-height:64px;
+        padding:9px 12px;
     }
 
-    .logo {
-        font-size: 20px;
+    .logo{
+        font-size:20px;
     }
 
-    .user {
-        display: none;
+    .user{
+        display:none;
     }
 
-    .container {
-        padding: 23px 12px 50px;
+    .header-right{
+        gap:7px;
     }
 
-    .welcome h1 {
-        font-size: 26px;
+    .container{
+        padding:23px 12px 50px;
     }
 
-    .stats {
-        grid-template-columns: 1fr;
-        gap: 9px;
+    .welcome h1{
+        font-size:26px;
     }
 
-    .upload-box {
-        padding: 30px 15px;
+    .stats{
+        grid-template-columns:1fr;
+        gap:9px;
     }
 
-    .upload-btn {
-        width: 100%;
+    .upload-box{
+        padding:30px 15px;
     }
 
-    .upload-buttons {
-        flex-direction: column;
+    .upload-btn{
+        width:100%;
     }
 
-    .files-card {
-        padding: 14px;
+    .upload-buttons{
+        flex-direction:column;
     }
 
-    .files-header {
-        flex-direction: column;
-        align-items: stretch;
+    .files-card{
+        padding:14px;
     }
 
-    .file-tools {
-        width: 100%;
+    .files-header{
+        flex-direction:column;
+        align-items:stretch;
     }
 
-    .file-search {
-        width: 100%;
-        flex: 1;
+    .file-tools{
+        width:100%;
+        flex-wrap:wrap;
     }
 
-    .file {
-        align-items: stretch;
-        flex-direction: column;
+    .file-search{
+        width:100%;
+        flex:1;
     }
 
-    .file-actions {
-        width: 100%;
+    .file{
+        align-items:stretch;
+        flex-direction:column;
     }
 
-    .file-actions .btn {
-        flex: 1;
+    .file-actions{
+        width:100%;
     }
 
-    .auth-card {
-        padding: 32px 20px;
+    .file-actions .btn{
+        flex:1;
     }
 
-    #toastContainer {
-        left: 12px;
-        right: 12px;
-        bottom: 12px;
+    .auth-card{
+        padding:32px 20px;
     }
 
-    .toast {
-        min-width: 0;
-        width: 100%;
+    #toastContainer{
+        left:12px;
+        right:12px;
+        bottom:12px;
+    }
+
+    .toast{
+        min-width:0;
+        width:100%;
+    }
+
+    .profile-menu{
+        right:-5px;
+        width:260px;
     }
 }
 </style>
@@ -809,356 +934,425 @@ button {
 
 <body>
 
-<!-- ================= AUTH ================= -->
+<!-- =====================================================
+AUTH
+===================================================== -->
 
 <section id="authPage">
 
-    <div class="auth-card">
+<div class="auth-card">
 
-        <div class="auth-logo">
-            Sky<span>DriveX</span>
-        </div>
+<div class="auth-logo">
+Sky<span>DriveX</span>
+</div>
 
-        <div class="auth-subtitle">
-            Secure Cloud Storage
-        </div>
+<div class="auth-subtitle">
+Secure Cloud Storage
+</div>
 
-        <div class="auth-title" id="authTitle">
-            Hisobingizga kiring
-        </div>
+<div class="auth-title" id="authTitle">
+Hisobingizga kiring
+</div>
 
-        <div class="input-group">
-            <label class="input-label">Email</label>
+<div class="input-group">
+<label class="input-label">Email</label>
+<input
+type="email"
+id="email"
+class="input"
+placeholder="example@email.com"
+autocomplete="email">
+</div>
 
-            <input
-                type="email"
-                id="email"
-                class="input"
-                placeholder="example@email.com"
-                autocomplete="email">
-        </div>
+<div class="input-group">
+<label class="input-label">Parol</label>
+<input
+type="password"
+id="password"
+class="input"
+placeholder="••••••••"
+autocomplete="current-password">
+</div>
 
-        <div class="input-group">
-            <label class="input-label">Parol</label>
+<button
+class="auth-btn"
+id="authButton"
+onclick="login()">
+Kirish
+</button>
 
-            <input
-                type="password"
-                id="password"
-                class="input"
-                placeholder="••••••••"
-                autocomplete="current-password">
-        </div>
+<button
+class="switch-btn"
+id="switchButton"
+onclick="toggleAuth()">
+Hisobingiz yo‘qmi? Ro‘yxatdan o‘ting
+</button>
 
-        <button
-            class="auth-btn"
-            id="authButton"
-            onclick="login()">
+<div id="authMessage"></div>
 
-            Kirish
-        </button>
-
-        <button
-            class="switch-btn"
-            id="switchButton"
-            onclick="toggleAuth()">
-
-            Hisobingiz yo‘qmi?
-            Ro‘yxatdan o‘ting
-        </button>
-
-        <div id="authMessage"></div>
-
-    </div>
+</div>
 
 </section>
 
 
-<!-- ================= CLOUD ================= -->
+<!-- =====================================================
+CLOUD
+===================================================== -->
 
 <section id="cloudPage" class="hidden">
 
 <header class="header">
 
-    <div class="logo">
-        Sky<span>DriveX</span>
-    </div>
+<div class="logo">
+Sky<span>DriveX</span>
+</div>
 
-    <div class="header-right">
+<div class="header-right">
 
-        <div
-            class="user"
-            id="userEmail">
-        </div>
+<div
+class="user"
+id="userEmail">
+</div>
 
-        <button
-            class="logout"
-            onclick="logout()">
+<!-- PROFILE -->
 
-            Chiqish
-        </button>
+<div class="profile">
 
-    </div>
+<button
+class="profile-button"
+id="profileButton"
+onclick="toggleProfileMenu()">
+
+<span id="profileInitial">
+👤
+</span>
+
+<img
+id="profileHeaderImage"
+class="hidden"
+alt="Profile">
+
+</button>
+
+<div
+class="profile-menu"
+id="profileMenu">
+
+<div class="profile-user">
+
+<div class="profile-big">
+
+<span id="profileBigInitial">
+👤
+</span>
+
+<img
+id="profileBigImage"
+class="hidden"
+alt="Profile">
+
+</div>
+
+<div
+class="profile-email"
+id="profileEmail">
+</div>
+
+</div>
+
+<div class="profile-actions">
+
+<label
+class="profile-action"
+for="profileInput">
+
+👤 Profil rasmini yuklash
+</label>
+
+<button
+class="profile-action profile-delete"
+onclick="deleteProfileImage()">
+
+🗑️ Profil rasmini o‘chirish
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<input
+type="file"
+id="profileInput"
+accept="image/*">
+
+<button
+class="logout"
+onclick="logout()">
+Chiqish
+</button>
+
+</div>
 
 </header>
 
 
 <main class="container">
 
-    <section class="welcome">
+<section class="welcome">
 
-        <h1>Mening fayllarim</h1>
+<h1>Mening fayllarim</h1>
 
-        <p>
-            Fayllaringizni xavfsiz saqlang
-            va istalgan qurilmadan foydalaning.
-        </p>
+<p>
+Fayllaringizni xavfsiz saqlang
+va istalgan qurilmadan foydalaning.
+</p>
 
-    </section>
+</section>
 
 
-    <!-- STATS -->
+<!-- STATS -->
 
-    <section class="stats">
+<section class="stats">
 
-        <div class="stat">
+<div class="stat">
 
-            <div class="stat-icon">📁</div>
+<div class="stat-icon">📁</div>
 
-            <div class="stat-title">
-                Fayllar
-            </div>
+<div class="stat-title">
+Fayllar
+</div>
 
-            <div
-                class="stat-value"
-                id="statFiles">
+<div
+class="stat-value"
+id="statFiles">
+0
+</div>
 
-                0
-            </div>
+</div>
 
-        </div>
 
+<div class="stat">
 
-        <div class="stat">
+<div class="stat-icon">💾</div>
 
-            <div class="stat-icon">💾</div>
+<div class="stat-title">
+Ishlatilgan joy
+</div>
 
-            <div class="stat-title">
-                Ishlatilgan joy
-            </div>
+<div
+class="stat-value"
+id="statSize">
+0 B
+</div>
 
-            <div
-                class="stat-value"
-                id="statSize">
+</div>
 
-                0 B
-            </div>
 
-        </div>
+<div class="stat">
 
+<div class="stat-icon">☁️</div>
 
-        <div class="stat">
+<div class="stat-title">
+Storage
+</div>
 
-            <div class="stat-icon">☁️</div>
+<div class="stat-value">
+1 GB
+</div>
 
-            <div class="stat-title">
-                Storage
-            </div>
+</div>
 
-            <div class="stat-value">
-                1 GB
-            </div>
+</section>
 
-        </div>
 
-    </section>
+<!-- UPLOAD -->
 
+<section
+class="upload-box"
+id="uploadBox">
 
-    <!-- UPLOAD -->
+<div class="upload-icon">
+☁️
+</div>
 
-    <section
-        class="upload-box"
-        id="uploadBox">
+<h2>
+Fayl yoki papka yuklash
+</h2>
 
-        <div class="upload-icon">
-            ☁️
-        </div>
+<p>
+Faylni shu yerga tashlang
+yoki fayl/papka tanlang
+</p>
 
-        <h2>
-            Fayl yoki papka yuklash
-        </h2>
+<div class="upload-buttons">
 
-        <p>
-            Faylni shu yerga tashlang
-            yoki fayl/papka tanlang
-        </p>
+<label
+class="upload-btn"
+for="fileInput">
+⬆️ Fayl tanlash
+</label>
 
-        <div class="upload-buttons">
+<label
+class="upload-btn folder-btn"
+for="folderInput">
+📁 Papka tanlash
+</label>
 
-            <label
-                class="upload-btn"
-                for="fileInput">
+</div>
 
-                ⬆️ Fayl tanlash
-            </label>
+<input
+type="file"
+id="fileInput"
+multiple>
 
-            <label
-                class="upload-btn folder-btn"
-                for="folderInput">
+<input
+type="file"
+id="folderInput"
+webkitdirectory
+directory
+multiple>
 
-                📁 Papka tanlash
-            </label>
+<div id="uploadStatus"></div>
 
-        </div>
+</section>
 
-        <input
-            type="file"
-            id="fileInput"
-            multiple>
 
-        <input
-            type="file"
-            id="folderInput"
-            webkitdirectory
-            directory
-            multiple>
+<!-- FILES -->
 
-        <div id="uploadStatus"></div>
+<section class="files-card">
 
-    </section>
+<div class="files-header">
 
+<div class="files-title">
 
-    <!-- FILES -->
+<h2>
+📂 Fayllar
+</h2>
 
-    <section class="files-card">
+<p
+class="file-count"
+id="fileCount">
+Fayllar yuklanmoqda...
+</p>
 
-        <div class="files-header">
+</div>
 
-            <div class="files-title">
 
-                <h2>
-                    📂 Fayllar
-                </h2>
+<div class="file-tools">
 
-                <p
-                    class="file-count"
-                    id="fileCount">
+<input
+type="text"
+id="fileSearch"
+class="file-search"
+placeholder="🔍 Fayl qidirish...">
 
-                    Fayllar yuklanmoqda...
-                </p>
+<button
+class="create-folder-btn"
+onclick="createFolder()">
+📁 +
+</button>
 
-            </div>
+<button
+class="refresh-btn"
+onclick="loadFiles()"
+title="Yangilash">
+🔄
+</button>
 
+</div>
 
-            <div class="file-tools">
+</div>
 
-                <input
-                    type="text"
-                    id="fileSearch"
-                    class="file-search"
-                    placeholder="🔍 Fayl qidirish...">
 
-                <button
-                    class="refresh-btn"
-                    onclick="loadFiles()"
-                    title="Yangilash">
+<div
+id="breadcrumb"
+class="breadcrumb">
+</div>
 
-                    🔄
-                </button>
 
-            </div>
+<!-- STORAGE -->
 
-        </div>
+<div class="storage-box">
 
+<div class="storage-top">
 
-        <!-- BREADCRUMB -->
+<span>
+☁️ Storage
+</span>
 
-        <div
-            id="breadcrumb"
-            class="breadcrumb">
-        </div>
+<span id="storageText">
+Hisoblanmoqda...
+</span>
 
+</div>
 
-        <!-- STORAGE -->
+<div class="storage-bar">
 
-        <div class="storage-box">
+<div
+id="storageProgress"
+class="storage-progress">
+</div>
 
-            <div class="storage-top">
+</div>
 
-                <span>
-                    ☁️ Storage
-                </span>
+</div>
 
-                <span id="storageText">
-                    Hisoblanmoqda...
-                </span>
 
-            </div>
+<div id="fileList">
 
-            <div class="storage-bar">
+<div class="loading">
 
-                <div
-                    id="storageProgress"
-                    class="storage-progress">
-                </div>
+<div class="spinner"></div>
 
-            </div>
+Fayllar yuklanmoqda...
 
-        </div>
+</div>
 
+</div>
 
-        <!-- FILE LIST -->
-
-        <div id="fileList">
-
-            <div class="loading">
-                <div class="spinner"></div>
-                Fayllar yuklanmoqda...
-            </div>
-
-        </div>
-
-    </section>
+</section>
 
 </main>
 
 </section>
 
 
-<!-- ================= TOAST ================= -->
+<!-- TOAST -->
 
 <div id="toastContainer"></div>
 
 
-<!-- ================= PREVIEW ================= -->
+<!-- PREVIEW -->
 
 <div
-    id="previewModal"
-    onclick="closePreview(event)">
+id="previewModal"
+onclick="closePreview(event)">
 
-    <div class="preview-box">
+<div class="preview-box">
 
-        <div class="preview-header">
+<div class="preview-header">
 
-            <div
-                class="preview-title"
-                id="previewTitle">
-            </div>
+<div
+class="preview-title"
+id="previewTitle">
+</div>
 
-            <button
-                class="close-preview"
-                onclick="closePreview()">
+<button
+class="close-preview"
+onclick="closePreview()">
+✕
+</button>
 
-                ✕
-            </button>
+</div>
 
-        </div>
+<div
+class="preview-content"
+id="previewContent">
+</div>
 
-        <div
-            class="preview-content"
-            id="previewContent">
-        </div>
-
-    </div>
+</div>
 
 </div>
 
@@ -1166,2086 +1360,2525 @@ button {
 <script>
 
 /* =====================================================
-   SUPABASE
+SUPABASE
 ===================================================== */
 
 const SUPABASE_URL =
-    "https://xfhxkdbwvhzdcbzlnnim.supabase.co";
+"https://xfhxkdbwvhzdcbzlnnim.supabase.co";
 
 const SUPABASE_KEY =
-    "sb_publishable_hkxNeCCzHufwArjRe5g0Dg_LgRS6Dlv";
+"sb_publishable_hkxNeCCzHufwArjRe5g0Dg_LgRS6Dlv";
 
 const supabaseClient =
-    window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_KEY
-    );
+window.supabase.createClient(
+SUPABASE_URL,
+SUPABASE_KEY
+);
 
 
 /* =====================================================
-   ELEMENTS
+ELEMENTS
 ===================================================== */
 
 const authPage =
-    document.getElementById("authPage");
+document.getElementById("authPage");
 
 const cloudPage =
-    document.getElementById("cloudPage");
+document.getElementById("cloudPage");
 
 const authTitle =
-    document.getElementById("authTitle");
+document.getElementById("authTitle");
 
 const authButton =
-    document.getElementById("authButton");
+document.getElementById("authButton");
 
 const switchButton =
-    document.getElementById("switchButton");
+document.getElementById("switchButton");
 
 const authMessage =
-    document.getElementById("authMessage");
+document.getElementById("authMessage");
 
 const emailInput =
-    document.getElementById("email");
+document.getElementById("email");
 
 const passwordInput =
-    document.getElementById("password");
+document.getElementById("password");
 
 const fileInput =
-    document.getElementById("fileInput");
+document.getElementById("fileInput");
 
 const folderInput =
-    document.getElementById("folderInput");
+document.getElementById("folderInput");
+
+const profileInput =
+document.getElementById("profileInput");
 
 const fileList =
-    document.getElementById("fileList");
+document.getElementById("fileList");
 
 const userEmail =
-    document.getElementById("userEmail");
+document.getElementById("userEmail");
 
 const uploadStatus =
-    document.getElementById("uploadStatus");
+document.getElementById("uploadStatus");
 
 const uploadBox =
-    document.getElementById("uploadBox");
+document.getElementById("uploadBox");
 
 const fileSearch =
-    document.getElementById("fileSearch");
+document.getElementById("fileSearch");
 
 const breadcrumb =
-    document.getElementById("breadcrumb");
-
+document.getElementById("breadcrumb");
 
 let registerMode = false;
 
-
-/*
- * Current folder inside the user's storage.
- *
- * Empty string = root
- *
- * Example:
- * Photos
- * Photos/2026
- */
-
 let currentFolder = "";
 
+let profileObjectUrl = null;
+
 
 /* =====================================================
-   AUTH MODE
+AUTH MODE
 ===================================================== */
 
-function toggleAuth() {
+function toggleAuth(){
 
-    registerMode = !registerMode;
+registerMode=!registerMode;
 
-    if (registerMode) {
+if(registerMode){
 
-        authTitle.textContent =
-            "Yangi hisob yarating";
+authTitle.textContent=
+"Yangi hisob yarating";
 
-        authButton.textContent =
-            "Ro‘yxatdan o‘tish";
+authButton.textContent=
+"Ro‘yxatdan o‘tish";
 
-        switchButton.textContent =
-            "Hisobingiz bormi? Kirish";
+switchButton.textContent=
+"Hisobingiz bormi? Kirish";
 
-    } else {
+}else{
 
-        authTitle.textContent =
-            "Hisobingizga kiring";
+authTitle.textContent=
+"Hisobingizga kiring";
 
-        authButton.textContent =
-            "Kirish";
+authButton.textContent=
+"Kirish";
 
-        switchButton.textContent =
-            "Hisobingiz yo‘qmi? Ro‘yxatdan o‘ting";
-    }
+switchButton.textContent=
+"Hisobingiz yo‘qmi? Ro‘yxatdan o‘ting";
 
-    authMessage.textContent = "";
+}
+
+authMessage.textContent="";
 }
 
 
 /* =====================================================
-   AUTH
+LOGIN / REGISTER
 ===================================================== */
 
-async function login() {
+async function login(){
 
-    const email =
-        emailInput.value.trim();
+const email=
+emailInput.value.trim();
 
-    const password =
-        passwordInput.value;
+const password=
+passwordInput.value;
 
-    if (!email || !password) {
+if(!email||!password){
 
-        showAuthMessage(
-            "Email va parolni kiriting.",
-            "error"
-        );
+showAuthMessage(
+"Email va parolni kiriting.",
+"error"
+);
 
-        return;
-    }
+return;
+}
 
-    authButton.disabled = true;
+authButton.disabled=true;
 
-    try {
+try{
 
-        if (registerMode) {
+if(registerMode){
 
-            const {
-                data,
-                error
-            } =
-                await supabaseClient.auth.signUp({
-                    email,
-                    password
-                });
+const {
+data,
+error
+}=
+await supabaseClient.auth.signUp({
+email,
+password
+});
 
-            if (error)
-                throw error;
+if(error)throw error;
 
-            showAuthMessage(
-                "Ro‘yxatdan o‘tildi.",
-                "success"
-            );
+showAuthMessage(
+"Ro‘yxatdan o‘tildi.",
+"success"
+);
 
-            if (data.session) {
+if(data.session){
 
-                showCloud(
-                    data.session.user
-                );
-            }
+showCloud(
+data.session.user
+);
 
-        } else {
+}
 
-            const {
-                data,
-                error
-            } =
-                await supabaseClient
-                    .auth
-                    .signInWithPassword({
-                        email,
-                        password
-                    });
+}else{
 
-            if (error)
-                throw error;
+const {
+data,
+error
+}=
+await supabaseClient
+.auth
+.signInWithPassword({
+email,
+password
+});
 
-            showCloud(
-                data.user
-            );
-        }
+if(error)throw error;
 
-    } catch (error) {
+showCloud(data.user);
 
-        showAuthMessage(
-            error.message,
-            "error"
-        );
+}
 
-    } finally {
+}catch(error){
 
-        authButton.disabled = false;
-    }
+showAuthMessage(
+error.message,
+"error"
+);
+
+}finally{
+
+authButton.disabled=false;
+
+}
+
 }
 
 
 /* =====================================================
-   AUTH MESSAGE
+AUTH MESSAGE
 ===================================================== */
 
 function showAuthMessage(
-    message,
-    type
-) {
+message,
+type
+){
 
-    authMessage.textContent =
-        message;
+authMessage.textContent=
+message;
 
-    authMessage.style.color =
-        type === "success"
-            ? "#4ade80"
-            : "#f87171";
+authMessage.style.color=
+type==="success"
+?"#4ade80"
+:"#f87171";
+
 }
 
 
 /* =====================================================
-   SHOW CLOUD
+SHOW CLOUD
 ===================================================== */
 
-function showCloud(user) {
+async function showCloud(user){
 
-    authPage.classList.add("hidden");
+authPage.classList.add("hidden");
 
-    cloudPage.classList.remove("hidden");
+cloudPage.classList.remove("hidden");
 
-    userEmail.textContent =
-        user.email;
+userEmail.textContent=
+user.email;
 
-    currentFolder = "";
+document.getElementById(
+"profileEmail"
+).textContent=
+user.email;
 
-    loadFiles();
+currentFolder="";
+
+await loadProfileImage();
+
+await loadFiles();
+
 }
 
 
 /* =====================================================
-   LOGOUT
+LOGOUT
 ===================================================== */
 
-async function logout() {
+async function logout(){
 
-    await supabaseClient
-        .auth
-        .signOut();
+await supabaseClient
+.auth
+.signOut();
 
-    cloudPage.classList.add("hidden");
+if(profileObjectUrl){
 
-    authPage.classList.remove("hidden");
+URL.revokeObjectURL(
+profileObjectUrl
+);
 
-    emailInput.value = "";
+profileObjectUrl=null;
 
-    passwordInput.value = "";
+}
 
-    fileList.innerHTML = "";
+cloudPage.classList.add("hidden");
 
-    currentFolder = "";
+authPage.classList.remove("hidden");
+
+emailInput.value="";
+
+passwordInput.value="";
+
+fileList.innerHTML="";
+
+currentFolder="";
+
 }
 
 
 /* =====================================================
-   SESSION
+SESSION
 ===================================================== */
 
-async function checkSession() {
+async function checkSession(){
 
-    const {
-        data: {
-            session
-        }
-    } =
-        await supabaseClient
-            .auth
-            .getSession();
+const {
+data:{
+session
+}
+}=
+await supabaseClient
+.auth
+.getSession();
 
-    if (session) {
+if(session){
 
-        showCloud(
-            session.user
-        );
+showCloud(
+session.user
+);
 
-    } else {
+}else{
 
-        authPage.classList.remove("hidden");
+authPage.classList.remove(
+"hidden"
+);
 
-        cloudPage.classList.add("hidden");
-    }
+cloudPage.classList.add(
+"hidden"
+);
+
+}
+
 }
 
 
 /* =====================================================
-   DRAG & DROP
+PROFILE MENU
+===================================================== */
+
+function toggleProfileMenu(){
+
+document
+.getElementById("profileMenu")
+.classList.toggle("active");
+
+}
+
+
+/* =====================================================
+PROFILE IMAGE UPLOAD
+===================================================== */
+
+profileInput.addEventListener(
+"change",
+async function(){
+
+if(!this.files.length)
+return;
+
+const file=this.files[0];
+
+await uploadProfileImage(file);
+
+this.value="";
+
+}
+);
+
+
+/* =====================================================
+UPLOAD PROFILE
+===================================================== */
+
+async function uploadProfileImage(file){
+
+if(!file.type.startsWith("image/")){
+
+showToast(
+"Faqat rasm faylini tanlang.",
+"error"
+);
+
+return;
+
+}
+
+const {
+data:{
+user
+}
+}=
+await supabaseClient
+.auth
+.getUser();
+
+if(!user)return;
+
+
+/* eski profil rasmlarini topish */
+
+const profilePath=
+user.id+"/profile";
+
+
+try{
+
+const {
+data:oldFiles,
+error:listError
+}=
+await supabaseClient
+.storage
+.from("files")
+.list(
+profilePath,
+{
+limit:100
+}
+);
+
+if(listError)
+throw listError;
+
+
+/* eski rasmlarni o‘chirish */
+
+if(oldFiles&&oldFiles.length){
+
+const oldPaths=
+oldFiles
+.filter(x=>x.name)
+.map(
+x=>profilePath+
+"/"+
+x.name
+);
+
+if(oldPaths.length){
+
+await supabaseClient
+.storage
+.from("files")
+.remove(oldPaths);
+
+}
+
+}
+
+
+/* yangi nom */
+
+const extension=
+getExtension(file.name)||"jpg";
+
+const fileName=
+"avatar_"+Date.now()+"."+extension;
+
+const path=
+profilePath+
+"/"+
+fileName;
+
+
+/* upload */
+
+const {
+error
+}=
+await supabaseClient
+.storage
+.from("files")
+.upload(
+path,
+file,
+{
+upsert:false,
+contentType:file.type
+}
+);
+
+if(error)
+throw error;
+
+
+/* metadata */
+
+localStorage.setItem(
+"skydrivex_profile",
+path
+);
+
+await loadProfileImage();
+
+showToast(
+"👤 Profil rasmi yangilandi.",
+"success"
+);
+
+}catch(error){
+
+console.error(error);
+
+showToast(
+"Profil rasmini yuklashda xatolik: "+
+error.message,
+"error"
+);
+
+}
+
+}
+
+
+/* =====================================================
+LOAD PROFILE IMAGE
+===================================================== */
+
+async function loadProfileImage(){
+
+const {
+data:{
+user
+}
+}=
+await supabaseClient
+.auth
+.getUser();
+
+if(!user)return;
+
+
+/* localStorage orqali oxirgi path */
+
+let path=
+localStorage.getItem(
+"skydrivex_profile"
+);
+
+
+/* boshqa qurilmada login bo‘lsa
+storage'dan topamiz */
+
+if(!path){
+
+try{
+
+const {
+data,
+error
+}=
+await supabaseClient
+.storage
+.from("files")
+.list(
+user.id+"/profile",
+{
+limit:100
+}
+);
+
+if(!error&&data&&data.length){
+
+const images=
+data
+.filter(
+x=>x.name &&
+!x.name.startsWith(".")
+)
+.sort(
+(a,b)=>
+new Date(b.created_at||0)-
+new Date(a.created_at||0)
+);
+
+if(images.length){
+
+path=
+user.id+
+"/profile/"+
+images[0].name;
+
+localStorage.setItem(
+"skydrivex_profile",
+path
+);
+
+}
+
+}
+
+}catch(e){
+
+console.log(e);
+
+}
+
+}
+
+
+if(!path){
+
+setDefaultProfile();
+
+return;
+
+}
+
+
+try{
+
+const {
+data,
+error
+}=
+await supabaseClient
+.storage
+.from("files")
+.download(path);
+
+if(error)
+throw error;
+
+if(profileObjectUrl){
+
+URL.revokeObjectURL(
+profileObjectUrl
+);
+
+}
+
+profileObjectUrl=
+URL.createObjectURL(data);
+
+const headerImage=
+document.getElementById(
+"profileHeaderImage"
+);
+
+const bigImage=
+document.getElementById(
+"profileBigImage"
+);
+
+headerImage.src=
+profileObjectUrl;
+
+bigImage.src=
+profileObjectUrl;
+
+headerImage.classList.remove(
+"hidden"
+);
+
+bigImage.classList.remove(
+"hidden"
+);
+
+document
+.getElementById(
+"profileInitial"
+)
+.classList.add("hidden");
+
+document
+.getElementById(
+"profileBigInitial"
+)
+.classList.add("hidden");
+
+}catch(error){
+
+console.log(error);
+
+setDefaultProfile();
+
+}
+
+}
+
+
+/* =====================================================
+DEFAULT PROFILE
+===================================================== */
+
+function setDefaultProfile(){
+
+document
+.getElementById(
+"profileHeaderImage"
+)
+.classList.add("hidden");
+
+document
+.getElementById(
+"profileBigImage"
+)
+.classList.add("hidden");
+
+document
+.getElementById(
+"profileInitial"
+)
+.classList.remove("hidden");
+
+document
+.getElementById(
+"profileBigInitial"
+)
+.classList.remove("hidden");
+
+}
+
+
+/* =====================================================
+DELETE PROFILE IMAGE
+===================================================== */
+
+async function deleteProfileImage(){
+
+const ok=
+confirm(
+"Profil rasmini o‘chirishni xohlaysizmi?"
+);
+
+if(!ok)return;
+
+const {
+data:{
+user
+}
+}=
+await supabaseClient
+.auth
+.getUser();
+
+if(!user)return;
+
+try{
+
+const {
+data,
+error
+}=
+await supabaseClient
+.storage
+.from("files")
+.list(
+user.id+"/profile",
+{
+limit:100
+}
+);
+
+if(error)
+throw error;
+
+if(data&&data.length){
+
+const paths=
+data
+.filter(x=>x.name)
+.map(
+x=>
+user.id+
+"/profile/"+
+x.name
+);
+
+if(paths.length){
+
+const {
+error:removeError
+}=
+await supabaseClient
+.storage
+.from("files")
+.remove(paths);
+
+if(removeError)
+throw removeError;
+
+}
+
+}
+
+localStorage.removeItem(
+"skydrivex_profile"
+);
+
+if(profileObjectUrl){
+
+URL.revokeObjectURL(
+profileObjectUrl
+);
+
+profileObjectUrl=null;
+
+}
+
+setDefaultProfile();
+
+showToast(
+"Profil rasmi o‘chirildi.",
+"success"
+);
+
+}catch(error){
+
+showToast(
+"Profil rasmini o‘chirishda xatolik: "+
+error.message,
+"error"
+);
+
+}
+
+}
+
+
+/* =====================================================
+DRAG DROP
 ===================================================== */
 
 [
-    "dragenter",
-    "dragover"
-].forEach(eventName => {
+"dragenter",
+"dragover"
+].forEach(
+eventName=>{
 
-    uploadBox.addEventListener(
-        eventName,
-        event => {
+uploadBox.addEventListener(
+eventName,
+event=>{
 
-            event.preventDefault();
+event.preventDefault();
 
-            uploadBox.classList.add(
-                "dragging"
-            );
-        }
-    );
-});
+uploadBox.classList.add(
+"dragging"
+);
+
+}
+);
+
+}
+);
 
 
 [
-    "dragleave",
-    "drop"
-].forEach(eventName => {
+"dragleave",
+"drop"
+].forEach(
+eventName=>{
 
-    uploadBox.addEventListener(
-        eventName,
-        event => {
+uploadBox.addEventListener(
+eventName,
+event=>{
 
-            event.preventDefault();
+event.preventDefault();
 
-            uploadBox.classList.remove(
-                "dragging"
-            );
-        }
-    );
-});
+uploadBox.classList.remove(
+"dragging"
+);
+
+}
+);
+
+}
+);
 
 
 uploadBox.addEventListener(
-    "drop",
-    event => {
+"drop",
+event=>{
 
-        const files =
-            event.dataTransfer.files;
+const files=
+event.dataTransfer.files;
 
-        if (files.length) {
+if(files.length){
 
-            uploadFiles(files);
-        }
-    }
+uploadFiles(files);
+
+}
+
+}
 );
 
 
 /* =====================================================
-   FILE INPUT
+FILE INPUT
 ===================================================== */
 
 fileInput.addEventListener(
-    "change",
-    async function () {
+"change",
+async function(){
 
-        if (!this.files.length)
-            return;
+if(!this.files.length)
+return;
 
-        await uploadFiles(
-            this.files
-        );
+await uploadFiles(
+this.files
+);
 
-        this.value = "";
-    }
+this.value="";
+
+}
 );
 
 
 /* =====================================================
-   FOLDER INPUT
+FOLDER INPUT
 ===================================================== */
 
 folderInput.addEventListener(
-    "change",
-    async function () {
+"change",
+async function(){
 
-        if (!this.files.length)
-            return;
+if(!this.files.length)
+return;
 
-        await uploadFolder(
-            this.files
-        );
+await uploadFolder(
+this.files
+);
 
-        this.value = "";
-    }
+this.value="";
+
+}
 );
 
 
 /* =====================================================
-   UPLOAD FILES
+UPLOAD FILES
 ===================================================== */
 
 async function uploadFiles(
-    fileCollection
-) {
+fileCollection
+){
 
-    const {
-        data: {
-            user
-        }
-    } =
-        await supabaseClient
-            .auth
-            .getUser();
+const {
+data:{
+user
+}
+}=
+await supabaseClient
+.auth
+.getUser();
 
-    if (!user) {
+if(!user){
 
-        showToast(
-            "Avval tizimga kiring.",
-            "error"
-        );
+showToast(
+"Avval tizimga kiring.",
+"error"
+);
 
-        return;
-    }
+return;
 
-    const files =
-        Array.from(fileCollection);
+}
 
-    uploadStatus.textContent =
-        `⏳ ${files.length} ta fayl yuklanmoqda...`;
+const files=
+Array.from(fileCollection);
 
-    let successCount = 0;
+uploadStatus.textContent=
+`⏳ ${files.length} ta fayl yuklanmoqda...`;
 
-    for (const file of files) {
+let successCount=0;
 
-        try {
+for(const file of files){
 
-            const safeName =
-                sanitizeName(file.name);
+try{
 
-            const fileName =
-                Date.now() +
-                "_" +
-                Math.random()
-                    .toString(36)
-                    .slice(2, 8) +
-                "_" +
-                safeName;
+const safeName=
+sanitizeName(file.name);
 
-            const filePath =
-                buildUserPath(
-                    user.id,
-                    currentFolder,
-                    fileName
-                );
+const fileName=
+Date.now()+
+"_"+Math.random()
+.toString(36)
+.slice(2,8)+
+"_"+safeName;
 
-            const {
-                error
-            } =
-                await supabaseClient
-                    .storage
-                    .from("files")
-                    .upload(
-                        filePath,
-                        file,
-                        {
-                            upsert: false
-                        }
-                    );
+const filePath=
+buildUserPath(
+user.id,
+currentFolder,
+fileName
+);
 
-            if (error)
-                throw error;
+const {
+error
+}=
+await supabaseClient
+.storage
+.from("files")
+.upload(
+filePath,
+file,
+{
+upsert:false,
+contentType:file.type||undefined
+}
+);
 
-            successCount++;
+if(error)
+throw error;
 
-            uploadStatus.textContent =
-                `⏳ ${successCount}/${files.length} yuklandi...`;
+successCount++;
 
-        } catch (error) {
+uploadStatus.textContent=
+`⏳ ${successCount}/${files.length} yuklandi...`;
 
-            console.error(error);
+}catch(error){
 
-            showToast(
-                `${file.name}: ${error.message}`,
-                "error"
-            );
-        }
-    }
+console.error(error);
 
-    uploadStatus.textContent =
-        `✅ ${successCount} ta fayl yuklandi`;
+showToast(
+`${file.name}: ${error.message}`,
+"error"
+);
 
-    if (successCount > 0) {
+}
 
-        showToast(
-            `${successCount} ta fayl yuklandi`,
-            "success"
-        );
-    }
+}
 
-    await loadFiles();
+uploadStatus.textContent=
+`✅ ${successCount} ta fayl yuklandi`;
+
+if(successCount>0){
+
+showToast(
+`${successCount} ta fayl yuklandi`,
+"success"
+);
+
+}
+
+await loadFiles();
+
 }
 
 
 /* =====================================================
-   UPLOAD FOLDER
+UPLOAD FOLDER
 ===================================================== */
 
 async function uploadFolder(
-    fileCollection
-) {
+fileCollection
+){
 
-    const {
-        data: {
-            user
-        }
-    } =
-        await supabaseClient
-            .auth
-            .getUser();
+const {
+data:{
+user
+}
+}=
+await supabaseClient
+.auth
+.getUser();
 
-    if (!user) {
+if(!user)return;
 
-        showToast(
-            "Avval tizimga kiring.",
-            "error"
-        );
+const files=
+Array.from(fileCollection);
 
-        return;
-    }
+let successCount=0;
 
-    const files =
-        Array.from(fileCollection);
+uploadStatus.textContent=
+`⏳ Papka: 0/${files.length}`;
 
-    let successCount = 0;
+for(const file of files){
 
-    uploadStatus.textContent =
-        `⏳ Papka: 0/${files.length}`;
+try{
 
-    for (const file of files) {
+const relativePath=
+file.webkitRelativePath||
+file.name;
 
-        try {
+const parts=
+relativePath
+.split("/")
+.map(
+sanitizeName
+);
 
-            /*
-             * Masalan:
-             *
-             * Photos/2026/image.jpg
-             */
+const safeRelativePath=
+parts.join("/");
 
-            const relativePath =
-                file.webkitRelativePath ||
-                file.name;
+const filePath=
+buildUserPath(
+user.id,
+currentFolder,
+safeRelativePath
+);
 
-            const parts =
-                relativePath
-                    .split("/")
-                    .map(
-                        sanitizeName
-                    );
+const {
+error
+}=
+await supabaseClient
+.storage
+.from("files")
+.upload(
+filePath,
+file,
+{
+upsert:false,
+contentType:file.type||undefined
+}
+);
 
-            const safeRelativePath =
-                parts.join("/");
+if(error)
+throw error;
 
-            const filePath =
-                buildUserPath(
-                    user.id,
-                    currentFolder,
-                    safeRelativePath
-                );
+successCount++;
 
-            const {
-                error
-            } =
-                await supabaseClient
-                    .storage
-                    .from("files")
-                    .upload(
-                        filePath,
-                        file,
-                        {
-                            upsert: false
-                        }
-                    );
+uploadStatus.textContent=
+`⏳ Papka: ${successCount}/${files.length}`;
 
-            if (error)
-                throw error;
+}catch(error){
 
-            successCount++;
+console.error(error);
 
-            uploadStatus.textContent =
-                `⏳ Papka: ${successCount}/${files.length}`;
+showToast(
+`${file.name}: ${error.message}`,
+"error"
+);
 
-        } catch (error) {
+}
 
-            console.error(error);
+}
 
-            showToast(
-                `${file.name}: ${error.message}`,
-                "error"
-            );
-        }
-    }
+uploadStatus.textContent=
+`✅ ${successCount} ta fayl papkadan yuklandi`;
 
-    uploadStatus.textContent =
-        `✅ ${successCount} ta fayl papkadan yuklandi`;
+showToast(
+`📁 ${successCount} ta fayl yuklandi`,
+"success"
+);
 
-    showToast(
-        `📁 ${successCount} ta fayl yuklandi`,
-        "success"
-    );
+await loadFiles();
 
-    await loadFiles();
 }
 
 
 /* =====================================================
-   LOAD CURRENT FOLDER
+CREATE FOLDER
 ===================================================== */
 
-async function loadFiles() {
+async function createFolder(){
 
-    const {
-        data: {
-            user
-        }
-    } =
-        await supabaseClient
-            .auth
-            .getUser();
+const name=
+prompt(
+"Yangi papka nomini kiriting:"
+);
 
-    if (!user)
-        return;
+if(!name)
+return;
 
-    fileList.innerHTML = `
-        <div class="loading">
-            <div class="spinner"></div>
-            Yuklanmoqda...
-        </div>
-    `;
+const safeName=
+sanitizeName(name.trim());
 
-    try {
+if(!safeName){
 
-        const {
-            data,
-            error
-        } =
-            await supabaseClient
-                .storage
-                .from("files")
-                .list(
-                    user.id +
-                    (
-                        currentFolder
-                            ? "/" + currentFolder
-                            : ""
-                    ),
-                    {
-                        limit: 1000,
-                        offset: 0,
-                        sortBy: {
-                            column: "name",
-                            order: "asc"
-                        }
-                    }
-                );
+showToast(
+"Papka nomi noto‘g‘ri.",
+"error"
+);
 
-        if (error)
-            throw error;
+return;
 
-        const entries =
-            data || [];
+}
 
-        updateBreadcrumb();
+const {
+data:{
+user
+}
+}=
+await supabaseClient
+.auth
+.getUser();
 
-        updateFolderView(
-            entries,
-            user
-        );
+if(!user)return;
 
-    } catch (error) {
 
-        console.error(error);
+/*
+Storage'da bo‘sh papka mavjud bo‘la olmaydi.
+Shuning uchun .folder fayli yaratiladi.
+*/
 
-        fileList.innerHTML = `
-            <div class="empty">
-                ❌ Fayllarni yuklashda xatolik.
-                <br>
-                ${escapeHtml(error.message)}
-            </div>
-        `;
+const path=
+buildUserPath(
+user.id,
+currentFolder,
+safeName+"/.folder"
+);
 
-        showToast(
-            error.message,
-            "error"
-        );
-    }
+const blob=
+new Blob(
+["SkyDriveX folder"],
+{
+type:"text/plain"
+}
+);
+
+try{
+
+const {
+error
+}=
+await supabaseClient
+.storage
+.from("files")
+.upload(
+path,
+blob,
+{
+upsert:false,
+contentType:"text/plain"
+}
+);
+
+if(error)
+throw error;
+
+showToast(
+`📁 "${safeName}" papkasi yaratildi`,
+"success"
+);
+
+await loadFiles();
+
+}catch(error){
+
+showToast(
+"Papka yaratishda xatolik: "+
+error.message,
+"error"
+);
+
+}
+
 }
 
 
 /* =====================================================
-   FOLDER VIEW
+LOAD FILES
+===================================================== */
+
+async function loadFiles(){
+
+const {
+data:{
+user
+}
+}=
+await supabaseClient
+.auth
+.getUser();
+
+if(!user)return;
+
+fileList.innerHTML=`
+<div class="loading">
+<div class="spinner"></div>
+Yuklanmoqda...
+</div>
+`;
+
+try{
+
+const {
+data,
+error
+}=
+await supabaseClient
+.storage
+.from("files")
+.list(
+user.id+
+(
+currentFolder
+?"/"+currentFolder
+:""
+),
+{
+limit:1000,
+offset:0,
+sortBy:{
+column:"name",
+order:"asc"
+}
+}
+);
+
+if(error)
+throw error;
+
+const entries=
+data||[];
+
+updateBreadcrumb();
+
+updateFolderView(
+entries,
+user
+);
+
+}catch(error){
+
+console.error(error);
+
+fileList.innerHTML=`
+<div class="empty">
+❌ Fayllarni yuklashda xatolik.
+<br><br>
+${escapeHtml(error.message)}
+</div>
+`;
+
+showToast(
+error.message,
+"error"
+);
+
+}
+
+}
+
+
+/* =====================================================
+FOLDER VIEW
 ===================================================== */
 
 function updateFolderView(
-    entries,
-    user
-) {
+entries,
+user
+){
 
-    /*
-     * Supabase Storage list()
-     * folderlarni metadata'siz qaytaradi.
-     */
-
-    const folders =
-        entries.filter(
-            entry =>
-                !entry.metadata
-        );
-
-    const files =
-        entries.filter(
-            entry =>
-                entry.metadata
-        );
+const folders=
+entries.filter(
+entry=>
+!entry.metadata
+);
 
 
-    let totalSize = 0;
-
-    files.forEach(file => {
-
-        totalSize +=
-            Number(
-                file.metadata?.size || 0
-            );
-    });
+const files=
+entries.filter(
+entry=>
+entry.metadata &&
+entry.name!==".folder"
+);
 
 
-    updateStats(
-        files.length,
-        totalSize
-    );
+const visibleFiles=
+files.filter(
+file=>
+!file.name.startsWith("avatar_")
+);
 
 
-    /*
-     * Storage progress root bo'yicha
-     * alohida hisoblanadi.
-     */
+let totalSize=0;
 
-    updateStorage(
-        totalSize
-    );
+visibleFiles.forEach(
+file=>{
 
+totalSize+=
+Number(
+file.metadata?.size||0
+);
 
-    if (
-        !folders.length &&
-        !files.length
-    ) {
+}
+);
 
-        fileList.innerHTML = `
-            <div class="empty">
-
-                <div class="empty-icon">
-                    📂
-                </div>
-
-                <div>
-                    Bu papka bo‘sh.
-                </div>
-
-            </div>
-        `;
-
-        return;
-    }
+updateStats(
+visibleFiles.length,
+totalSize
+);
 
 
-    fileList.innerHTML = "";
+/* storage */
+
+updateStorage(
+totalSize
+);
 
 
-    /* FOLDERS */
+if(
+!folders.length &&
+!visibleFiles.length
+){
 
-    folders.forEach(
-        folder => {
+fileList.innerHTML=`
+<div class="empty">
 
-            createFolderElement(
-                folder.name
-            );
-        }
-    );
+<div class="empty-icon">
+📂
+</div>
 
+<div>
+Bu papka bo‘sh.
+</div>
 
-    /* FILES */
+</div>
+`;
 
-    files.forEach(
-        file => {
+return;
 
-            createFileElement(
-                file,
-                user
-            );
-        }
-    );
+}
 
 
-    applySearch();
+fileList.innerHTML="";
+
+
+folders.forEach(
+folder=>{
+
+createFolderElement(
+folder.name
+);
+
+}
+);
+
+
+visibleFiles.forEach(
+file=>{
+
+createFileElement(
+file,
+user
+);
+
+}
+);
+
+
+applySearch();
+
 }
 
 
 /* =====================================================
-   CREATE FOLDER
+CREATE FOLDER ELEMENT
 ===================================================== */
 
 function createFolderElement(
-    folderName
-) {
+folderName
+){
 
-    const div =
-        document.createElement(
-            "div"
-        );
+const div=
+document.createElement("div");
 
-    div.className =
-        "file";
+div.className="file";
 
-    div.dataset.fileName =
-        folderName.toLowerCase();
+div.dataset.fileName=
+folderName.toLowerCase();
 
-    div.innerHTML = `
+div.innerHTML=`
 
-        <div
-            class="file-main"
-            style="cursor:pointer;">
+<div
+class="file-main"
+style="cursor:pointer;">
 
-            <div class="file-icon">
-                📁
-            </div>
+<div class="file-icon">
+📁
+</div>
 
-            <div class="file-info">
+<div class="file-info">
 
-                <div class="file-name">
-                    ${escapeHtml(folderName)}
-                </div>
+<div class="file-name">
+${escapeHtml(folderName)}
+</div>
 
-                <div class="file-size">
-                    Papka
-                </div>
+<div class="file-size">
+Papka
+</div>
 
-            </div>
+</div>
 
-        </div>
+</div>
 
-        <div class="file-actions">
+<div class="file-actions">
 
-            <button
-                class="btn"
-                title="Papkani ochish">
+<button
+class="btn open-folder-btn">
+📂 Ochish
+</button>
 
-                📂 Ochish
-            </button>
+</div>
+`;
 
-        </div>
-    `;
+div
+.querySelector(".file-main")
+.addEventListener(
+"click",
+()=>openFolder(folderName)
+);
 
+div
+.querySelector(".open-folder-btn")
+.addEventListener(
+"click",
+()=>openFolder(folderName)
+);
 
-    div
-        .querySelector(".file-main")
-        .addEventListener(
-            "click",
-            () => {
+fileList.appendChild(div);
 
-                openFolder(
-                    folderName
-                );
-            }
-        );
-
-
-    div
-        .querySelector(".btn")
-        .addEventListener(
-            "click",
-            () => {
-
-                openFolder(
-                    folderName
-                );
-            }
-        );
-
-
-    fileList.appendChild(
-        div
-    );
 }
 
 
 /* =====================================================
-   OPEN FOLDER
+OPEN FOLDER
 ===================================================== */
 
 function openFolder(
-    folderName
-) {
+folderName
+){
 
-    currentFolder =
-        currentFolder
-            ? currentFolder +
-              "/" +
-              folderName
-            : folderName;
+currentFolder=
+currentFolder
+?currentFolder+
+"/"+
+folderName
+:folderName;
 
-    fileSearch.value = "";
+fileSearch.value="";
 
-    loadFiles();
+loadFiles();
+
 }
 
 
 /* =====================================================
-   GO BACK
+BACK
 ===================================================== */
 
-function goBack() {
+function goBack(){
 
-    if (!currentFolder)
-        return;
+if(!currentFolder)
+return;
 
-    const parts =
-        currentFolder.split("/");
+const parts=
+currentFolder.split("/");
 
-    parts.pop();
+parts.pop();
 
-    currentFolder =
-        parts.join("/");
+currentFolder=
+parts.join("/");
 
-    fileSearch.value = "";
+fileSearch.value="";
 
-    loadFiles();
+loadFiles();
+
 }
 
 
 /* =====================================================
-   BREADCRUMB
+BREADCRUMB
 ===================================================== */
 
-function updateBreadcrumb() {
+function updateBreadcrumb(){
 
-    breadcrumb.innerHTML = "";
-
-
-    const home =
-        document.createElement(
-            "button"
-        );
-
-    home.textContent =
-        "☁️ Bosh sahifa";
-
-    home.onclick =
-        () => {
-
-            currentFolder = "";
-
-            fileSearch.value = "";
-
-            loadFiles();
-        };
-
-    breadcrumb.appendChild(
-        home
-    );
+breadcrumb.innerHTML="";
 
 
-    if (!currentFolder)
-        return;
+const home=
+document.createElement("button");
+
+home.textContent=
+"☁️ Bosh sahifa";
+
+home.onclick=()=>{
+
+currentFolder="";
+
+fileSearch.value="";
+
+loadFiles();
+
+};
+
+breadcrumb.appendChild(home);
 
 
-    const parts =
-        currentFolder.split("/");
-
-    let accumulated = "";
+if(!currentFolder)
+return;
 
 
-    parts.forEach(
-        (part, index) => {
+const parts=
+currentFolder.split("/");
 
-            const separator =
-                document.createElement(
-                    "span"
-                );
-
-            separator.textContent =
-                "›";
-
-            breadcrumb.appendChild(
-                separator
-            );
+let accumulated="";
 
 
-            accumulated =
-                accumulated
-                    ? accumulated +
-                      "/" +
-                      part
-                    : part;
+parts.forEach(
+(part,index)=>{
+
+const separator=
+document.createElement("span");
+
+separator.textContent="›";
+
+breadcrumb.appendChild(
+separator
+);
+
+accumulated=
+accumulated
+?accumulated+"/"+part
+:part;
+
+const button=
+document.createElement("button");
+
+button.textContent=part;
+
+const target=
+accumulated;
+
+button.onclick=()=>{
+
+currentFolder=target;
+
+fileSearch.value="";
+
+loadFiles();
+
+};
+
+breadcrumb.appendChild(
+button
+);
+
+}
+);
 
 
-            const button =
-                document.createElement(
-                    "button"
-                );
+const back=
+document.createElement("button");
 
-            button.textContent =
-                part;
+back.textContent=
+"⬅️ Orqaga";
 
+back.onclick=goBack;
 
-            const target =
-                accumulated;
+breadcrumb.appendChild(back);
 
-
-            button.onclick =
-                () => {
-
-                    currentFolder =
-                        target;
-
-                    fileSearch.value = "";
-
-                    loadFiles();
-                };
-
-
-            breadcrumb.appendChild(
-                button
-            );
-        }
-    );
-
-
-    const back =
-        document.createElement(
-            "button"
-        );
-
-    back.textContent =
-        "⬅️ Orqaga";
-
-    back.onclick =
-        goBack;
-
-    breadcrumb.appendChild(
-        back
-    );
 }
 
 
 /* =====================================================
-   CREATE FILE
+CREATE FILE
 ===================================================== */
 
 function createFileElement(
-    file,
-    user
-) {
+file,
+user
+){
 
-    const fullPath =
-        buildUserPath(
-            user.id,
-            currentFolder,
-            file.name
-        );
+const fullPath=
+buildUserPath(
+user.id,
+currentFolder,
+file.name
+);
 
+const div=
+document.createElement("div");
 
-    const div =
-        document.createElement(
-            "div"
-        );
+div.className="file";
 
-    div.className =
-        "file";
+div.dataset.fileName=
+file.name.toLowerCase();
 
-    div.dataset.fileName =
-        file.name.toLowerCase();
+const icon=
+getFileIcon(file.name);
 
+const size=
+formatSize(
+file.metadata?.size||0
+);
 
-    const icon =
-        getFileIcon(
-            file.name
-        );
+const previewable=
+isPreviewable(file.name);
 
+div.innerHTML=`
 
-    const size =
-        formatSize(
-            file.metadata?.size || 0
-        );
+<div class="file-main">
 
+<div class="file-icon">
+${icon}
+</div>
 
-    const previewable =
-        isPreviewable(
-            file.name
-        );
+<div class="file-info">
 
+<div
+class="file-name"
+title="${escapeHtml(file.name)}">
 
-    div.innerHTML = `
+${escapeHtml(file.name)}
 
-        <div class="file-main">
+</div>
 
-            <div class="file-icon">
-                ${icon}
-            </div>
+<div class="file-size">
+${size}
+</div>
 
-            <div class="file-info">
+</div>
 
-                <div
-                    class="file-name"
-                    title="${escapeHtml(file.name)}">
+</div>
 
-                    ${escapeHtml(file.name)}
+<div class="file-actions">
 
-                </div>
+${
+previewable
+?
+`
+<button
+class="btn preview-button">
+👁️ Ko‘rish
+</button>
+`
+:""
+}
 
-                <div class="file-size">
-                    ${size}
-                </div>
+<button
+class="btn download-button">
+⬇️
+</button>
 
-            </div>
+<button
+class="btn delete delete-button">
+🗑️
+</button>
 
-        </div>
-
-
-        <div class="file-actions">
-
-            ${
-                previewable
-                ?
-                `
-                <button
-                    class="btn preview-button">
-
-                    👁️ Ko‘rish
-                </button>
-                `
-                :
-                ""
-            }
+</div>
+`;
 
 
-            <button
-                class="btn download-button">
+if(previewable){
 
-                ⬇️
-            </button>
+div
+.querySelector(
+".preview-button"
+)
+.addEventListener(
+"click",
+()=>previewFile(
+fullPath,
+file.name
+)
+);
 
-
-            <button
-                class="btn delete delete-button">
-
-                🗑️
-            </button>
-
-        </div>
-    `;
-
-
-    if (previewable) {
-
-        div
-            .querySelector(
-                ".preview-button"
-            )
-            .addEventListener(
-                "click",
-                () => {
-
-                    previewFile(
-                        fullPath,
-                        file.name
-                    );
-                }
-            );
-    }
+}
 
 
-    div
-        .querySelector(
-            ".download-button"
-        )
-        .addEventListener(
-            "click",
-            () => {
-
-                downloadFile(
-                    fullPath,
-                    file.name
-                );
-            }
-        );
+div
+.querySelector(
+".download-button"
+)
+.addEventListener(
+"click",
+()=>downloadFile(
+fullPath,
+file.name
+)
+);
 
 
-    div
-        .querySelector(
-            ".delete-button"
-        )
-        .addEventListener(
-            "click",
-            () => {
-
-                deleteFile(
-                    fullPath,
-                    file.name
-                );
-            }
-        );
+div
+.querySelector(
+".delete-button"
+)
+.addEventListener(
+"click",
+()=>deleteFile(
+fullPath,
+file.name
+)
+);
 
 
-    fileList.appendChild(
-        div
-    );
+fileList.appendChild(div);
+
 }
 
 
 /* =====================================================
-   SEARCH
+SEARCH
 ===================================================== */
 
 fileSearch.addEventListener(
-    "input",
-    applySearch
+"input",
+applySearch
 );
 
 
-function applySearch() {
+function applySearch(){
 
-    const query =
-        fileSearch.value
-            .toLowerCase()
-            .trim();
+const query=
+fileSearch.value
+.toLowerCase()
+.trim();
 
+const files=
+document.querySelectorAll(
+"#fileList .file"
+);
 
-    const files =
-        document.querySelectorAll(
-            "#fileList .file"
-        );
+files.forEach(
+file=>{
 
+const name=
+file.dataset.fileName||"";
 
-    files.forEach(
-        file => {
+file.style.display=
+name.includes(query)
+?"flex"
+:"none";
 
-            const name =
-                file.dataset.fileName ||
-                "";
+}
+);
 
-            file.style.display =
-                name.includes(query)
-                    ? "flex"
-                    : "none";
-        }
-    );
 }
 
 
 /* =====================================================
-   DOWNLOAD
+DOWNLOAD
 ===================================================== */
 
 async function downloadFile(
-    path,
-    name
-) {
+path,
+name
+){
 
-    try {
+try{
 
-        showToast(
-            "Yuklab olinmoqda...",
-            "success"
-        );
+showToast(
+"Yuklab olinmoqda...",
+"success"
+);
 
+const {
+data,
+error
+}=
+await supabaseClient
+.storage
+.from("files")
+.download(path);
 
-        const {
-            data,
-            error
-        } =
-            await supabaseClient
-                .storage
-                .from("files")
-                .download(path);
+if(error)
+throw error;
 
+const url=
+URL.createObjectURL(data);
 
-        if (error)
-            throw error;
+const a=
+document.createElement("a");
 
+a.href=url;
 
-        const url =
-            URL.createObjectURL(
-                data
-            );
+a.download=
+name||
+path.split("/").pop();
 
+document.body.appendChild(a);
 
-        const a =
-            document.createElement(
-                "a"
-            );
+a.click();
 
-        a.href = url;
+a.remove();
 
-        a.download =
-            name ||
-            path.split("/").pop();
+setTimeout(
+()=>URL.revokeObjectURL(url),
+1000
+);
 
+}catch(error){
 
-        document.body.appendChild(a);
+showToast(
+"Yuklab olishda xatolik: "+
+error.message,
+"error"
+);
 
-        a.click();
+}
 
-        a.remove();
-
-
-        setTimeout(
-            () => URL.revokeObjectURL(url),
-            1000
-        );
-
-    } catch (error) {
-
-        showToast(
-            "Yuklab olishda xatolik: " +
-            error.message,
-            "error"
-        );
-    }
 }
 
 
 /* =====================================================
-   DELETE
+DELETE FILE
 ===================================================== */
 
 async function deleteFile(
-    path,
-    name
-) {
+path,
+name
+){
 
-    const ok =
-        confirm(
-            `"${name}" faylini o‘chirishni xohlaysizmi?`
-        );
+const ok=
+confirm(
+`"${name}" faylini o‘chirishni xohlaysizmi?`
+);
 
+if(!ok)return;
 
-    if (!ok)
-        return;
+try{
 
+const {
+error
+}=
+await supabaseClient
+.storage
+.from("files")
+.remove([path]);
 
-    try {
+if(error)
+throw error;
 
-        const {
-            error
-        } =
-            await supabaseClient
-                .storage
-                .from("files")
-                .remove([
-                    path
-                ]);
+showToast(
+"Fayl o‘chirildi",
+"success"
+);
 
+await loadFiles();
 
-        if (error)
-            throw error;
+}catch(error){
 
+showToast(
+"O‘chirishda xatolik: "+
+error.message,
+"error"
+);
 
-        showToast(
-            "Fayl o‘chirildi",
-            "success"
-        );
+}
 
-
-        await loadFiles();
-
-    } catch (error) {
-
-        showToast(
-            "O‘chirishda xatolik: " +
-            error.message,
-            "error"
-        );
-    }
 }
 
 
 /* =====================================================
-   PREVIEW
+PREVIEW
 ===================================================== */
 
 async function previewFile(
-    path,
-    name
-) {
+path,
+name
+){
 
-    try {
+try{
 
-        const extension =
-            getExtension(name);
+const extension=
+getExtension(name);
 
+const {
+data,
+error
+}=
+await supabaseClient
+.storage
+.from("files")
+.download(path);
 
-        const {
-            data,
-            error
-        } =
-            await supabaseClient
-                .storage
-                .from("files")
-                .download(path);
+if(error)
+throw error;
 
+const url=
+URL.createObjectURL(data);
 
-        if (error)
-            throw error;
+const modal=
+document.getElementById(
+"previewModal"
+);
 
+const title=
+document.getElementById(
+"previewTitle"
+);
 
-        const url =
-            URL.createObjectURL(
-                data
-            );
+const content=
+document.getElementById(
+"previewContent"
+);
 
+title.textContent=name;
 
-        const modal =
-            document.getElementById(
-                "previewModal"
-            );
-
-        const title =
-            document.getElementById(
-                "previewTitle"
-            );
-
-        const content =
-            document.getElementById(
-                "previewContent"
-            );
+content.innerHTML="";
 
 
-        title.textContent =
-            name;
+/* IMAGE */
 
-        content.innerHTML = "";
+if([
+"jpg",
+"jpeg",
+"png",
+"gif",
+"webp",
+"bmp",
+"svg"
+].includes(extension)){
 
+const img=
+document.createElement("img");
 
-        /* IMAGE */
+img.src=url;
 
-        if (
-            [
-                "jpg",
-                "jpeg",
-                "png",
-                "gif",
-                "webp",
-                "bmp",
-                "svg"
-            ].includes(extension)
-        ) {
+img.alt=name;
 
-            const img =
-                document.createElement(
-                    "img"
-                );
+content.appendChild(img);
 
-            img.src = url;
-
-            img.alt = name;
-
-            content.appendChild(
-                img
-            );
-        }
+}
 
 
-        /* VIDEO */
+/* VIDEO */
 
-        else if (
-            [
-                "mp4",
-                "webm",
-                "ogg",
-                "mov",
-                "m4v"
-            ].includes(extension)
-        ) {
+else if([
+"mp4",
+"webm",
+"ogg",
+"mov",
+"m4v"
+].includes(extension)){
 
-            const video =
-                document.createElement(
-                    "video"
-                );
+const video=
+document.createElement("video");
 
-            video.src = url;
+video.src=url;
 
-            video.controls = true;
+video.controls=true;
 
-            video.autoplay = true;
+video.autoplay=true;
 
-            video.playsInline = true;
+video.playsInline=true;
 
-            content.appendChild(
-                video
-            );
-        }
+content.appendChild(video);
+
+}
 
 
-        /* AUDIO */
+/* AUDIO */
 
-        else if (
-            [
-                "mp3",
-                "wav",
-                "ogg",
-                "m4a",
-                "aac",
-                "flac"
-            ].includes(extension)
-        ) {
+else if([
+"mp3",
+"wav",
+"ogg",
+"m4a",
+"aac",
+"flac"
+].includes(extension)){
 
-            const audio =
-                document.createElement(
-                    "audio"
-                );
+const audio=
+document.createElement("audio");
 
-            audio.src = url;
+audio.src=url;
 
-            audio.controls = true;
+audio.controls=true;
 
-            content.appendChild(
-                audio
-            );
-        }
+content.appendChild(audio);
+
+}
 
 
-        else {
+else{
 
-            content.innerHTML = `
-                <div class="preview-message">
-                    Bu fayl turini preview qilib bo‘lmaydi.
-                    <br><br>
-                    ⬇️ Yuklab olish tugmasidan foydalaning.
-                </div>
-            `;
-        }
+content.innerHTML=`
+<div class="preview-message">
 
+Bu fayl turini preview qilib bo‘lmaydi.
 
-        modal.classList.add(
-            "active"
-        );
+<br><br>
 
+⬇️ Yuklab olish tugmasidan foydalaning.
 
-        modal.dataset.objectUrl =
-            url;
+</div>
+`;
 
+}
 
-    } catch (error) {
+modal.classList.add("active");
 
-        showToast(
-            "Preview xatosi: " +
-            error.message,
-            "error"
-        );
-    }
+modal.dataset.objectUrl=url;
+
+}catch(error){
+
+showToast(
+"Preview xatosi: "+
+error.message,
+"error"
+);
+
+}
+
 }
 
 
 /* =====================================================
-   CLOSE PREVIEW
+CLOSE PREVIEW
 ===================================================== */
 
-function closePreview(
-    event
-) {
+function closePreview(event){
 
-    const modal =
-        document.getElementById(
-            "previewModal"
-        );
+const modal=
+document.getElementById(
+"previewModal"
+);
 
+if(
+event &&
+event.target!==modal
+){
 
-    if (
-        event &&
-        event.target !== modal
-    ) {
+return;
 
-        return;
-    }
+}
 
+const video=
+modal.querySelector("video");
 
-    const video =
-        modal.querySelector(
-            "video"
-        );
+if(video){
 
+video.pause();
 
-    if (video) {
+video.removeAttribute("src");
 
-        video.pause();
+}
 
-        video.removeAttribute(
-            "src"
-        );
-    }
+const audio=
+modal.querySelector("audio");
 
+if(audio){
 
-    const audio =
-        modal.querySelector(
-            "audio"
-        );
+audio.pause();
 
+audio.removeAttribute("src");
 
-    if (audio) {
+}
 
-        audio.pause();
+modal.classList.remove("active");
 
-        audio.removeAttribute(
-            "src"
-        );
-    }
+const url=
+modal.dataset.objectUrl;
 
+if(url){
 
-    modal.classList.remove(
-        "active"
-    );
+URL.revokeObjectURL(url);
 
+}
 
-    const url =
-        modal.dataset.objectUrl;
+modal.dataset.objectUrl="";
 
-
-    if (url) {
-
-        URL.revokeObjectURL(
-            url
-        );
-    }
-
-
-    modal.dataset.objectUrl =
-        "";
 }
 
 
 /* =====================================================
-   FILE ICON
+FILE ICON
 ===================================================== */
 
-function getFileIcon(
-    name
-) {
+function getFileIcon(name){
 
-    const ext =
-        getExtension(name);
+const ext=
+getExtension(name);
 
+if([
+"jpg","jpeg","png","gif",
+"webp","bmp","svg"
+].includes(ext))
+return "🖼️";
 
-    if (
-        [
-            "jpg",
-            "jpeg",
-            "png",
-            "gif",
-            "webp",
-            "bmp",
-            "svg"
-        ].includes(ext)
-    )
-        return "🖼️";
+if([
+"mp4","mov","avi","mkv",
+"webm","m4v"
+].includes(ext))
+return "🎬";
 
+if([
+"mp3","wav","ogg","m4a",
+"aac","flac"
+].includes(ext))
+return "🎵";
 
-    if (
-        [
-            "mp4",
-            "mov",
-            "avi",
-            "mkv",
-            "webm",
-            "m4v"
-        ].includes(ext)
-    )
-        return "🎬";
+if(ext==="pdf")
+return "📕";
 
+if([
+"doc","docx"
+].includes(ext))
+return "📝";
 
-    if (
-        [
-            "mp3",
-            "wav",
-            "ogg",
-            "m4a",
-            "aac",
-            "flac"
-        ].includes(ext)
-    )
-        return "🎵";
+if([
+"xls","xlsx","csv"
+].includes(ext))
+return "📊";
 
+if([
+"zip","rar","7z"
+].includes(ext))
+return "📦";
 
-    if (
-        ext === "pdf"
-    )
-        return "📕";
+if([
+"js","html","css","py",
+"php","json"
+].includes(ext))
+return "💻";
 
+return "📄";
 
-    if (
-        [
-            "doc",
-            "docx"
-        ].includes(ext)
-    )
-        return "📝";
-
-
-    if (
-        [
-            "xls",
-            "xlsx",
-            "csv"
-        ].includes(ext)
-    )
-        return "📊";
-
-
-    if (
-        [
-            "zip",
-            "rar",
-            "7z"
-        ].includes(ext)
-    )
-        return "📦";
-
-
-    if (
-        [
-            "js",
-            "html",
-            "css",
-            "py",
-            "php",
-            "json"
-        ].includes(ext)
-    )
-        return "💻";
-
-
-    return "📄";
 }
 
 
 /* =====================================================
-   PREVIEWABLE
+PREVIEWABLE
 ===================================================== */
 
-function isPreviewable(
-    name
-) {
+function isPreviewable(name){
 
-    const ext =
-        getExtension(name);
+const ext=
+getExtension(name);
 
+return [
 
-    return [
+"jpg",
+"jpeg",
+"png",
+"gif",
+"webp",
+"bmp",
+"svg",
 
-        /* images */
-        "jpg",
-        "jpeg",
-        "png",
-        "gif",
-        "webp",
-        "bmp",
-        "svg",
+"mp4",
+"webm",
+"ogg",
+"mov",
+"m4v",
 
-        /* videos */
-        "mp4",
-        "webm",
-        "ogg",
-        "mov",
-        "m4v",
+"mp3",
+"wav",
+"m4a",
+"aac",
+"flac"
 
-        /* audio */
-        "mp3",
-        "wav",
-        "m4a",
-        "aac",
-        "flac"
+].includes(ext);
 
-    ].includes(ext);
 }
 
 
 /* =====================================================
-   EXTENSION
+EXTENSION
 ===================================================== */
 
-function getExtension(
-    name
-) {
+function getExtension(name){
 
-    return String(name)
-        .split(".")
-        .pop()
-        .toLowerCase();
+return String(name)
+.split(".")
+.pop()
+.toLowerCase();
+
 }
 
 
 /* =====================================================
-   STATS
+STATS
 ===================================================== */
 
 function updateStats(
-    count,
-    size
-) {
+count,
+size
+){
 
-    document.getElementById(
-        "statFiles"
-    ).textContent =
-        count;
+document.getElementById(
+"statFiles"
+).textContent=count;
 
+document.getElementById(
+"statSize"
+).textContent=
+formatSize(size);
 
-    document.getElementById(
-        "statSize"
-    ).textContent =
-        formatSize(size);
+document.getElementById(
+"fileCount"
+).textContent=
+`${count} ta fayl`;
 
-
-    document.getElementById(
-        "fileCount"
-    ).textContent =
-        `${count} ta fayl`;
 }
 
 
 /* =====================================================
-   STORAGE
+STORAGE
 ===================================================== */
 
 function updateStorage(
-    totalSize
-) {
+totalSize
+){
 
-    const storageLimit =
-        1024 *
-        1024 *
-        1024;
+const storageLimit=
+1024*1024*1024;
 
+const percentage=
+Math.min(
+(totalSize/storageLimit)*100,
+100
+);
 
-    const percentage =
-        Math.min(
-            (
-                totalSize /
-                storageLimit
-            ) * 100,
-            100
-        );
+document.getElementById(
+"storageText"
+).textContent=
+`${formatSize(totalSize)} / 1 GB`;
 
+document.getElementById(
+"storageProgress"
+).style.width=
+percentage+"%";
 
-    document.getElementById(
-        "storageText"
-    ).textContent =
-        `${formatSize(totalSize)} / 1 GB`;
-
-
-    document.getElementById(
-        "storageProgress"
-    ).style.width =
-        percentage + "%";
 }
 
 
 /* =====================================================
-   FORMAT SIZE
+FORMAT SIZE
 ===================================================== */
 
-function formatSize(
-    bytes
-) {
+function formatSize(bytes){
 
-    bytes =
-        Number(bytes) || 0;
+bytes=Number(bytes)||0;
 
+if(bytes===0)
+return "0 B";
 
-    if (bytes === 0)
-        return "0 B";
+const units=[
+"B",
+"KB",
+"MB",
+"GB",
+"TB"
+];
 
+const i=
+Math.floor(
+Math.log(bytes)/
+Math.log(1024)
+);
 
-    const units = [
-        "B",
-        "KB",
-        "MB",
-        "GB",
-        "TB"
-    ];
+return(
+parseFloat(
+(
+bytes/
+Math.pow(1024,i)
+).toFixed(2)
+)
++" "+
+units[i]
+);
 
-
-    const i =
-        Math.floor(
-            Math.log(bytes) /
-            Math.log(1024)
-        );
-
-
-    return (
-        parseFloat(
-            (
-                bytes /
-                Math.pow(
-                    1024,
-                    i
-                )
-            ).toFixed(2)
-        )
-        +
-        " " +
-        units[i]
-    );
 }
 
 
 /* =====================================================
-   PATH
+PATH
 ===================================================== */
 
 function buildUserPath(
-    userId,
-    folder,
-    fileName
-) {
+userId,
+folder,
+fileName
+){
 
-    const parts = [
-        userId
-    ];
+const parts=[
+userId
+];
 
+if(folder){
 
-    if (folder) {
+parts.push(folder);
 
-        parts.push(
-            folder
-        );
-    }
+}
 
+parts.push(fileName);
 
-    parts.push(
-        fileName
-    );
+return parts.join("/");
 
-
-    return parts.join("/");
 }
 
 
 /* =====================================================
-   SAFE NAME
+SAFE NAME
 ===================================================== */
 
-function sanitizeName(
-    name
-) {
+function sanitizeName(name){
 
-    return String(name)
-        .normalize("NFKD")
-        .replace(
-            /[^\x00-\x7F]/g,
-            ""
-        )
-        .replace(
-            /[^a-zA-Z0-9._ -]/g,
-            "_"
-        );
+return String(name)
+.normalize("NFKD")
+.replace(
+/[^\x00-\x7F]/g,
+""
+)
+.replace(
+/[^a-zA-Z0-9._ -]/g,
+"_"
+);
+
 }
 
 
 /* =====================================================
-   ESCAPE HTML
+ESCAPE HTML
 ===================================================== */
 
-function escapeHtml(
-    text
-) {
+function escapeHtml(text){
 
-    return String(text)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+return String(text)
+.replace(/&/g,"&amp;")
+.replace(/</g,"&lt;")
+.replace(/>/g,"&gt;")
+.replace(/"/g,"&quot;")
+.replace(/'/g,"&#039;");
+
 }
 
 
 /* =====================================================
-   SEARCH / ESC
+ESC
 ===================================================== */
 
 document.addEventListener(
-    "keydown",
-    event => {
+"keydown",
+event=>{
 
-        if (
-            event.key === "Escape"
-        ) {
+if(event.key==="Escape"){
 
-            closePreview();
-        }
-    }
+closePreview();
+
+document
+.getElementById("profileMenu")
+.classList.remove("active");
+
+}
+
+}
 );
 
 
 /* =====================================================
-   ENTER LOGIN
+ENTER LOGIN
 ===================================================== */
 
 [
-    emailInput,
-    passwordInput
+emailInput,
+passwordInput
 ].forEach(
-    input => {
+input=>{
 
-        input.addEventListener(
-            "keydown",
-            event => {
+input.addEventListener(
+"keydown",
+event=>{
 
-                if (
-                    event.key === "Enter"
-                ) {
+if(event.key==="Enter"){
 
-                    login();
-                }
-            }
-        );
-    }
+login();
+
+}
+
+}
+);
+
+}
 );
 
 
 /* =====================================================
-   TOAST
+CLICK OUTSIDE PROFILE
+===================================================== */
+
+document.addEventListener(
+"click",
+event=>{
+
+const profile=
+document.querySelector(".profile");
+
+const menu=
+document.getElementById(
+"profileMenu"
+);
+
+if(
+profile &&
+!profile.contains(event.target)
+){
+
+menu.classList.remove(
+"active"
+);
+
+}
+
+}
+);
+
+
+/* =====================================================
+TOAST
 ===================================================== */
 
 function showToast(
-    message,
-    type = "success"
-) {
+message,
+type="success"
+){
 
-    const container =
-        document.getElementById(
-            "toastContainer"
-        );
+const container=
+document.getElementById(
+"toastContainer"
+);
 
+const toast=
+document.createElement("div");
 
-    const toast =
-        document.createElement(
-            "div"
-        );
+toast.className=
+`toast ${type}`;
 
+toast.textContent=
+message;
 
-    toast.className =
-        `toast ${type}`;
+container.appendChild(toast);
 
+setTimeout(
+()=>{
 
-    toast.textContent =
-        message;
+toast.style.opacity="0";
 
+setTimeout(
+()=>toast.remove(),
+250
+);
 
-    container.appendChild(
-        toast
-    );
+},
+3000
+);
 
-
-    setTimeout(
-        () => {
-
-            toast.style.opacity =
-                "0";
-
-            setTimeout(
-                () => toast.remove(),
-                250
-            );
-
-        },
-        3000
-    );
 }
 
 
 /* =====================================================
-   START
+START
 ===================================================== */
 
 checkSession();
