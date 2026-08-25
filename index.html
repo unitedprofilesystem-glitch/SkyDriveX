@@ -2487,50 +2487,46 @@ async function deleteOldAvatars(
 
 async function loadAvatar(){
 
-    const user =
-        await getUser();
+    const user = await getUser();
 
-    if(!user){
-        return;
-    }
+    if(!user) return;
 
-    const {data,error} =
-        await supabaseClient
-            .storage
-            .from(BUCKET)
-            .list(
-                user.id +
-                "/profile",
-                {
-                    limit:100
-                }
-            );
+    const { data, error } = await supabaseClient
+        .storage
+        .from(BUCKET)
+        .list(
+            user.id + "/profile",
+            {
+                limit:100
+            }
+        );
 
     if(error){
 
-        avatarContainer.innerHTML =
-            `<div class="avatar-placeholder">
+        console.error("Avatar list xatosi:", error);
+
+        avatarContainer.innerHTML = `
+            <div class="avatar-placeholder">
                 👤
-             </div>`;
+            </div>
+        `;
 
         return;
     }
 
-    const avatar =
-        (data || []).find(
-            x =>
-                x.name &&
-                x.name.startsWith(
-                    "avatar."
-                )
-        );
+    const avatar = (data || []).find(
+        x =>
+        x.name &&
+        x.name.startsWith("avatar.")
+    );
 
     if(!avatar){
 
-        avatarContainer.innerHTML =
-            `<div class="avatar-placeholder">
+        avatarContainer.innerHTML = `
+            <div class="avatar-placeholder">
                 👤
-             </div>`;
+            </div>
+        `;
 
         return;
     }
@@ -2540,30 +2536,47 @@ async function loadAvatar(){
         "/profile/" +
         avatar.name;
 
-    const {
-        data:urlData
-    } =
+    const { data: urlData } =
         supabaseClient
             .storage
             .from(BUCKET)
-            .getPublicUrl(
-                path
-            );
+            .getPublicUrl(path);
 
-    if(
-        urlData?.publicUrl
-    ){
+    if(!urlData || !urlData.publicUrl){
 
-        avatarContainer.innerHTML =
-            `
-            <img
-                class="avatar"
-                src="${urlData.publicUrl}?t=${Date.now()}"
-                alt="Profil rasmi">
-            `;
+        console.error("Avatar URL topilmadi");
+
+        return;
     }
-}
 
+    const img = document.createElement("img");
+
+    img.className = "avatar";
+
+    img.src =
+        urlData.publicUrl +
+        "?t=" +
+        Date.now();
+
+    img.alt = "";
+
+    img.onerror = function(){
+
+        console.error(
+            "Profil rasmi ochilmadi"
+        );
+
+        avatarContainer.innerHTML = `
+            <div class="avatar-placeholder">
+                👤
+            </div>
+        `;
+    };
+
+    avatarContainer.innerHTML = "";
+
+    avatarContainer.appendChild(img);
+}
 
 /* =====================================================
    CHANGE AVATAR
