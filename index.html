@@ -2489,81 +2489,114 @@ async function loadAvatar(){
 
     const user = await getUser();
 
-    if(!user) return;
+    if(!user){
+        return;
+    }
 
-    const { data, error } = await supabaseClient
-        .storage
-        .from(BUCKET)
-        .list(
-            user.id + "/profile",
-            {
-                limit:100
-            }
+    try{
+
+        const {data, error} =
+            await supabaseClient
+                .storage
+                .from(BUCKET)
+                .list(
+                    user.id + "/profile",
+                    {
+                        limit:100
+                    }
+                );
+
+        if(error){
+            throw error;
+        }
+
+        const avatar = (data || []).find(
+            x =>
+                x.name &&
+                x.name.startsWith("avatar.")
         );
 
-    if(error){
+        if(!avatar){
 
-        console.error("Avatar list xatosi:", error);
+            avatarContainer.innerHTML = `
+                <div class="avatar-placeholder">
+                    👤
+                </div>
+            `;
 
-        avatarContainer.innerHTML = `
-            <div class="avatar-placeholder">
-                👤
-            </div>
-        `;
+            return;
+        }
 
-        return;
-    }
+        const path =
+            user.id +
+            "/profile/" +
+            avatar.name;
 
-    const avatar = (data || []).find(
-        x =>
-        x.name &&
-        x.name.startsWith("avatar.")
-    );
+        /* Private bucketdan rasmni yuklaymiz */
+        const {
+            data: blob,
+            error: downloadError
+        } =
+            await supabaseClient
+                .storage
+                .from(BUCKET)
+                .download(path);
 
-    if(!avatar){
+        if(downloadError){
+            throw downloadError;
+        }
 
-        avatarContainer.innerHTML = `
-            <div class="avatar-placeholder">
-                👤
-            </div>
-        `;
+        if(!blob){
+            throw new Error(
+                "Profil rasmi topilmadi."
+            );
+        }
 
-        return;
-    }
+        /* Blob uchun vaqtinchalik URL */
+        const imageUrl =
+            URL.createObjectURL(blob);
 
-    const path =
-        user.id +
-        "/profile/" +
-        avatar.name;
+        const img =
+            document.createElement("img");
 
-    const { data: urlData } =
-        supabaseClient
-            .storage
-            .from(BUCKET)
-            .getPublicUrl(path);
+        img.className = "avatar";
 
-    if(!urlData || !urlData.publicUrl){
+        img.src = imageUrl;
 
-        console.error("Avatar URL topilmadi");
+        img.alt = "Profil rasmi";
 
-        return;
-    }
+        img.onload = function(){
 
-    const img = document.createElement("img");
+            /* Eski URLni keyin tozalash mumkin */
+            setTimeout(() => {
+                URL.revokeObjectURL(imageUrl);
+            }, 1000);
 
-    img.className = "avatar";
+        };
 
-    img.src =
-        urlData.publicUrl +
-        "?t=" +
-        Date.now();
+        img.onerror = function(){
 
-    img.alt = "";
+            console.error(
+                "Profil rasmi ochilmadi"
+            );
 
-    img.onerror = function(){
+            avatarContainer.innerHTML = `
+                <div class="avatar-placeholder">
+                    👤
+                </div>
+            `;
+
+        };
+
+        avatarContainer.innerHTML = "";
+
+        avatarContainer.appendChild(img);
+
+    }catch(error){
 
         console.error(
-            "Profil rasmi ochilmadi"
+            "Avatar yuklash xatosi:",
+            error
         );
 
         avatarContainer.innerHTML = `
@@ -2571,13 +2604,8 @@ async function loadAvatar(){
                 👤
             </div>
         `;
-    };
-
-    avatarContainer.innerHTML = "";
-
-    avatarContainer.appendChild(img);
+    }
 }
-
 /* =====================================================
    CHANGE AVATAR
 ===================================================== */
