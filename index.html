@@ -341,9 +341,15 @@ button{
     padding:13px 20px;
     border-radius:11px;
     font-weight:700;
+    margin:4px;
 }
 
-#fileInput{
+.upload-btn.folder-btn{
+    background:#1e293b;
+}
+
+#fileInput,
+#folderInput{
     display:none;
 }
 
@@ -617,11 +623,8 @@ button{
     }
 
     .profile-card{
-        align-items:flex-start;
-    }
-
-    .profile-card{
         flex-direction:column;
+        align-items:flex-start;
     }
 
     .avatar,
@@ -675,13 +678,18 @@ button{
     .files-header{
         align-items:flex-start;
     }
+
+    .upload-btn{
+        display:block;
+        width:100%;
+        margin:6px 0;
+    }
 }
 
 </style>
 </head>
 
 <body>
-
 
 <!-- =====================================================
      AUTH
@@ -764,7 +772,6 @@ button{
 
 <main class="container">
 
-
 <!-- WELCOME -->
 
 <section class="welcome">
@@ -786,9 +793,11 @@ button{
 <section class="profile-card">
 
     <div id="avatarContainer">
+
         <div class="avatar-placeholder">
             👤
         </div>
+
     </div>
 
     <div class="profile-info">
@@ -880,6 +889,8 @@ button{
         Telefon yoki kompyuterdan fayl tanlang
     </p>
 
+    <!-- BITTA FAYL -->
+
     <label
         class="upload-btn"
         for="fileInput">
@@ -889,6 +900,23 @@ button{
     <input
         type="file"
         id="fileInput">
+
+
+    <!-- BUTUN PAPKA -->
+
+    <label
+        class="upload-btn folder-btn"
+        for="folderInput">
+        📁 Papka tanlash
+    </label>
+
+    <input
+        type="file"
+        id="folderInput"
+        webkitdirectory
+        directory
+        multiple>
+
 
     <div id="uploadStatus"></div>
 
@@ -1054,6 +1082,9 @@ const passwordInput =
 const fileInput =
     document.getElementById("fileInput");
 
+const folderInput =
+    document.getElementById("folderInput");
+
 const avatarInput =
     document.getElementById("avatarInput");
 
@@ -1101,14 +1132,6 @@ const previewTitle =
 
 
 let registerMode = false;
-
-
-/*
-   currentFolder:
-   "" = user root
-   "movies" = user/movies
-   "movies/2026" = user/movies/2026
-*/
 
 let currentFolder = "";
 
@@ -1249,6 +1272,8 @@ function showAuthMessage(
 
 async function showCloud(user){
 
+    window.currentUser = user;
+
     authPage.classList.add("hidden");
 
     cloudPage.classList.remove("hidden");
@@ -1280,11 +1305,14 @@ async function logout(){
 
     await supabaseClient.auth.signOut();
 
+    window.currentUser = null;
+
     cloudPage.classList.add("hidden");
 
     authPage.classList.remove("hidden");
 
     emailInput.value = "";
+
     passwordInput.value = "";
 
     fileList.innerHTML = "";
@@ -1308,7 +1336,12 @@ async function checkSession(){
 
     if(session){
 
-        await showCloud(session.user);
+        window.currentUser =
+            session.user;
+
+        await showCloud(
+            session.user
+        );
 
     }else{
 
@@ -1320,7 +1353,7 @@ async function checkSession(){
 
 
 /* =====================================================
-   USER ROOT
+   USER
 ===================================================== */
 
 async function getUser(){
@@ -1336,20 +1369,18 @@ async function getUser(){
 }
 
 
-function rootPath(){
-
-    return currentFolder
-        ? currentFolder
-        : "";
-}
-
+/* =====================================================
+   FULL USER PATH
+===================================================== */
 
 function fullUserPath(path){
 
     const user =
         window.currentUser;
 
-    if(!user) return path;
+    if(!user){
+        return path;
+    }
 
     return user.id +
         (path ? "/" + path : "");
@@ -1357,7 +1388,20 @@ function fullUserPath(path){
 
 
 /* =====================================================
-   FILE UPLOAD
+   SAFE NAME
+===================================================== */
+
+function safeFileName(name){
+
+    return name
+        .normalize("NFKD")
+        .replace(/[^\x00-\x7F]/g,"")
+        .replace(/[^a-zA-Z0-9._-]/g,"_");
+}
+
+
+/* =====================================================
+   SINGLE FILE UPLOAD
 ===================================================== */
 
 fileInput.addEventListener(
@@ -1367,14 +1411,18 @@ fileInput.addEventListener(
         const file =
             this.files[0];
 
-        if(!file) return;
+        if(!file){
+            return;
+        }
 
         const user =
             await getUser();
 
         if(!user){
 
-            alert("Avval tizimga kiring.");
+            alert(
+                "Avval tizimga kiring."
+            );
 
             return;
         }
@@ -1384,28 +1432,26 @@ fileInput.addEventListener(
 
         try{
 
-            const originalName =
-                file.name;
-
             const safeName =
-                originalName
-                    .normalize("NFKD")
-                    .replace(/[^\x00-\x7F]/g,"")
-                    .replace(/[^a-zA-Z0-9._-]/g,"_");
+                safeFileName(
+                    file.name
+                );
 
             const fileName =
                 Date.now() +
                 "_" +
                 safeName;
 
-            const path =
-                user.id +
-                "/" +
-                (
-                    currentFolder
-                    ? currentFolder + "/"
-                    : ""
-                ) +
+            let path =
+                user.id + "/";
+
+            if(currentFolder){
+
+                path +=
+                    currentFolder + "/";
+            }
+
+            path +=
                 fileName;
 
             const {error} =
@@ -1416,7 +1462,9 @@ fileInput.addEventListener(
                         path,
                         file,
                         {
-                            upsert:false
+                            upsert:false,
+                            contentType:
+                                file.type
                         }
                     );
 
@@ -1446,6 +1494,250 @@ fileInput.addEventListener(
 
 
 /* =====================================================
+   FOLDER UPLOAD
+===================================================== */
+
+folderInput.addEventListener(
+    "change",
+    async function(){
+
+        const files =
+            Array.from(this.files);
+
+        if(!files.length){
+            return;
+        }
+
+        const user =
+            await getUser();
+
+        if(!user){
+
+            alert(
+                "Avval tizimga kiring."
+            );
+
+            this.value = "";
+
+            return;
+        }
+
+        uploadStatus.textContent =
+            "⏳ " +
+            files.length +
+            " ta fayl tayyorlanmoqda...";
+
+        let success = 0;
+
+        let failed = 0;
+
+        try{
+
+            for(
+                const file of files
+            ){
+
+                try{
+
+                    const relativePath =
+                        file.webkitRelativePath;
+
+                    if(!relativePath){
+                        failed++;
+                        continue;
+                    }
+
+                    const parts =
+                        relativePath
+                        .split("/")
+                        .filter(Boolean);
+
+                    if(parts.length < 2){
+
+                        failed++;
+
+                        continue;
+                    }
+
+                    /*
+                      Masalan:
+
+                      MyFolder/
+                      MyFolder/video.mp4
+                      MyFolder/2026/test.mp4
+
+                      parts:
+
+                      [
+                        "MyFolder",
+                        "2026",
+                        "test.mp4"
+                      ]
+                    */
+
+                    const rootFolder =
+                        safeFileName(
+                            parts[0]
+                        );
+
+                    const folders =
+                        parts.slice(
+                            1,
+                            -1
+                        );
+
+                    const safeFolders =
+                        folders.map(
+                            folder =>
+                                safeFileName(
+                                    folder
+                                )
+                        );
+
+                    const safeName =
+                        safeFileName(
+                            parts[
+                                parts.length - 1
+                            ]
+                        );
+
+                    let uploadPath =
+                        user.id + "/";
+
+                    /*
+                      Agar hozir biror papka
+                      ichida turgan bo‘lsak
+                    */
+
+                    if(currentFolder){
+
+                        uploadPath +=
+                            currentFolder +
+                            "/";
+                    }
+
+                    /*
+                      Tanlangan asosiy papka
+                    */
+
+                    uploadPath +=
+                        rootFolder + "/";
+
+                    /*
+                      Ichki papkalar
+                    */
+
+                    if(
+                        safeFolders.length
+                    ){
+
+                        uploadPath +=
+                            safeFolders.join(
+                                "/"
+                            ) +
+                            "/";
+                    }
+
+                    /*
+                      Bir xil nomdagi fayllar
+                      ustma-ust tushmasligi uchun
+                      timestamp
+                    */
+
+                    const uniqueName =
+                        Date.now() +
+                        "_" +
+                        Math.random()
+                            .toString(36)
+                            .substring(2,8) +
+                        "_" +
+                        safeName;
+
+                    uploadPath +=
+                        uniqueName;
+
+                    const {error} =
+                        await supabaseClient
+                            .storage
+                            .from(BUCKET)
+                            .upload(
+                                uploadPath,
+                                file,
+                                {
+                                    upsert:false,
+                                    contentType:
+                                        file.type
+                                }
+                            );
+
+                    if(error){
+
+                        console.error(
+                            "Fayl:",
+                            file.name,
+                            error
+                        );
+
+                        failed++;
+
+                    }else{
+
+                        success++;
+                    }
+
+                }catch(fileError){
+
+                    console.error(
+                        "Fayl xatosi:",
+                        file.name,
+                        fileError
+                    );
+
+                    failed++;
+                }
+
+                uploadStatus.textContent =
+                    "⏳ Yuklanmoqda: " +
+                    (success + failed) +
+                    " / " +
+                    files.length;
+            }
+
+            uploadStatus.textContent =
+                "✅ " +
+                success +
+                " ta fayl yuklandi." +
+                (
+                    failed > 0
+                    ?
+                    " ❌ " +
+                    failed +
+                    " ta fayl yuklanmadi."
+                    :
+                    ""
+                );
+
+            this.value = "";
+
+            await loadCurrentFolder();
+
+            await calculateStorage();
+
+        }catch(error){
+
+            console.error(error);
+
+            uploadStatus.textContent =
+                "❌ " +
+                error.message;
+
+            this.value = "";
+        }
+    }
+);
+
+
+/* =====================================================
    LOAD CURRENT FOLDER
 ===================================================== */
 
@@ -1454,30 +1746,40 @@ async function loadCurrentFolder(){
     const user =
         await getUser();
 
-    if(!user) return;
+    if(!user){
+        return;
+    }
 
     fileList.innerHTML =
         `<div class="empty">
             ⏳ Yuklanmoqda...
-        </div>`;
+         </div>`;
 
     const folderPath =
         user.id +
         (
             currentFolder
-            ? "/" + currentFolder
+            ? "/" +
+              currentFolder
             : ""
         );
 
     currentTitle.textContent =
         currentFolder
-        ? currentFolder.split("/").pop()
-        : "Fayllar";
+        ?
+        currentFolder
+            .split("/")
+            .pop()
+        :
+        "Fayllar";
 
     currentPath.textContent =
         currentFolder
-        ? "📁 " + currentFolder
-        : "🏠 Bosh papka";
+        ?
+        "📁 " +
+        currentFolder
+        :
+        "🏠 Bosh papka";
 
     try{
 
@@ -1491,8 +1793,10 @@ async function loadCurrentFolder(){
                         limit:1000,
                         offset:0,
                         sortBy:{
-                            column:"created_at",
-                            order:"desc"
+                            column:
+                                "created_at",
+                            order:
+                                "desc"
                         }
                     }
                 );
@@ -1504,7 +1808,24 @@ async function loadCurrentFolder(){
         allItems =
             data || [];
 
-        renderItems(allItems);
+        /*
+          profile papkasini asosiy
+          fayllar ro‘yxatida ko‘rsatmaymiz.
+        */
+
+        if(!currentFolder){
+
+            allItems =
+                allItems.filter(
+                    item =>
+                        item.name !==
+                        "profile"
+                );
+        }
+
+        renderItems(
+            allItems
+        );
 
     }catch(error){
 
@@ -1526,7 +1847,10 @@ function renderItems(items){
 
     fileList.innerHTML = "";
 
-    if(!items || items.length === 0){
+    if(
+        !items ||
+        items.length === 0
+    ){
 
         fileList.innerHTML =
             `<div class="empty">
@@ -1536,143 +1860,160 @@ function renderItems(items){
         return;
     }
 
-    items.forEach(item => {
+    items.forEach(
+        item => {
 
-        if(!item.name) return;
+            if(!item.name){
+                return;
+            }
 
-        /*
-          Supabase folderlarda metadata odatda null.
-          Shu sababli metadata bo‘lsa fayl,
-          bo‘lmasa papka deb tekshiramiz.
-        */
+            const isFolder =
+                !item.metadata;
 
-        const isFolder =
-            !item.metadata;
-
-        const div =
-            document.createElement("div");
-
-        div.className =
-            "file " +
-            (isFolder ? "folder" : "");
-
-        if(isFolder){
-
-            div.innerHTML = `
-
-                <div
-                    class="file-left"
-                    onclick="openFolder('${escapeJs(item.name)}')"
-                    style="cursor:pointer;">
-
-                    <div class="file-icon">
-                        📁
-                    </div>
-
-                    <div class="file-info">
-
-                        <div class="file-name folder-name">
-                            ${escapeHtml(item.name)}
-                        </div>
-
-                        <div class="file-size">
-                            Papka
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <div class="file-actions">
-
-                    <button
-                        class="btn"
-                        onclick="openFolder('${escapeJs(item.name)}')">
-                        📂 Kirish
-                    </button>
-
-                    <button
-                        class="btn delete"
-                        onclick="deleteFolder('${escapeJs(item.name)}')">
-                        🗑️ O‘chirish
-                    </button>
-
-                </div>
-            `;
-
-        }else{
-
-            const fullPath =
-                fullUserPath(
-                    currentFolder
-                    ? currentFolder + "/" + item.name
-                    : item.name
+            const div =
+                document.createElement(
+                    "div"
                 );
 
-            const size =
-                formatSize(
-                    item.metadata?.size || 0
+            div.className =
+                "file " +
+                (
+                    isFolder
+                    ? "folder"
+                    : ""
                 );
 
-            const type =
-                getFileType(item.name);
+            if(isFolder){
 
-            div.innerHTML = `
+                div.innerHTML = `
 
-                <div class="file-left">
+                    <div
+                        class="file-left"
+                        onclick="openFolder('${escapeJs(item.name)}')"
+                        style="cursor:pointer;">
 
-                    <div class="file-icon">
-                        ${getFileIcon(type)}
-                    </div>
-
-                    <div class="file-info">
-
-                        <div class="file-name">
-                            ${escapeHtml(item.name)}
+                        <div class="file-icon">
+                            📁
                         </div>
 
-                        <div class="file-size">
-                            ${size}
+                        <div class="file-info">
+
+                            <div
+                                class="file-name folder-name">
+                                ${escapeHtml(item.name)}
+                            </div>
+
+                            <div class="file-size">
+                                Papka
+                            </div>
+
                         </div>
 
                     </div>
 
-                </div>
+                    <div class="file-actions">
 
-                <div class="file-actions">
-
-                    ${
-                        isPreviewable(type)
-                        ?
-                        `
                         <button
-                            class="btn preview"
-                            onclick="previewFile('${escapeJs(fullPath)}','${type}','${escapeJs(item.name)}')">
-                            👁️ Ko‘rish
+                            class="btn"
+                            onclick="openFolder('${escapeJs(item.name)}')">
+                            📂 Kirish
                         </button>
-                        `
-                        :
-                        ""
-                    }
 
-                    <button
-                        class="btn"
-                        onclick="downloadFile('${escapeJs(fullPath)}')">
-                        ⬇️
-                    </button>
+                        <button
+                            class="btn delete"
+                            onclick="deleteFolder('${escapeJs(item.name)}')">
+                            🗑️ O‘chirish
+                        </button>
 
-                    <button
-                        class="btn delete"
-                        onclick="deleteFile('${escapeJs(fullPath)}')">
-                        🗑️
-                    </button>
+                    </div>
+                `;
 
-                </div>
-            `;
+            }else{
+
+                const relativePath =
+                    currentFolder
+                    ?
+                    currentFolder +
+                    "/" +
+                    item.name
+                    :
+                    item.name;
+
+                const fullPath =
+                    fullUserPath(
+                        relativePath
+                    );
+
+                const size =
+                    formatSize(
+                        item.metadata?.size ||
+                        0
+                    );
+
+                const type =
+                    getFileType(
+                        item.name
+                    );
+
+                div.innerHTML = `
+
+                    <div class="file-left">
+
+                        <div class="file-icon">
+                            ${getFileIcon(type)}
+                        </div>
+
+                        <div class="file-info">
+
+                            <div class="file-name">
+                                ${escapeHtml(item.name)}
+                            </div>
+
+                            <div class="file-size">
+                                ${size}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="file-actions">
+
+                        ${
+                            isPreviewable(type)
+                            ?
+                            `
+                            <button
+                                class="btn preview"
+                                onclick="previewFile('${escapeJs(fullPath)}','${type}','${escapeJs(item.name)}')">
+                                👁️ Ko‘rish
+                            </button>
+                            `
+                            :
+                            ""
+                        }
+
+                        <button
+                            class="btn"
+                            onclick="downloadFile('${escapeJs(fullPath)}')">
+                            ⬇️
+                        </button>
+
+                        <button
+                            class="btn delete"
+                            onclick="deleteFile('${escapeJs(fullPath)}')">
+                            🗑️
+                        </button>
+
+                    </div>
+                `;
+            }
+
+            fileList.appendChild(
+                div
+            );
         }
-
-        fileList.appendChild(div);
-    });
+    );
 }
 
 
@@ -1684,8 +2025,12 @@ function openFolder(name){
 
     currentFolder =
         currentFolder
-        ? currentFolder + "/" + name
-        : name;
+        ?
+        currentFolder +
+        "/" +
+        name
+        :
+        name;
 
     searchInput.value = "";
 
@@ -1700,7 +2045,6 @@ function openFolder(name){
 function goBack(){
 
     if(!currentFolder){
-
         return;
     }
 
@@ -1729,7 +2073,9 @@ async function createFolder(){
             "Yangi papka nomini kiriting:"
         );
 
-    if(!name) return;
+    if(!name){
+        return;
+    }
 
     const cleanName =
         name
@@ -1738,7 +2084,9 @@ async function createFolder(){
 
     if(!cleanName){
 
-        alert("Papka nomi noto‘g‘ri.");
+        alert(
+            "Papka nomi noto‘g‘ri."
+        );
 
         return;
     }
@@ -1746,23 +2094,22 @@ async function createFolder(){
     const user =
         await getUser();
 
-    if(!user) return;
+    if(!user){
+        return;
+    }
 
     try{
-
-        /*
-          Supabase Storage'da bo‘sh papka
-          alohida obyekt sifatida saqlanmaydi.
-          Shuning uchun .keep fayl yaratamiz.
-        */
 
         const path =
             user.id +
             "/" +
             (
                 currentFolder
-                ? currentFolder + "/"
-                : ""
+                ?
+                currentFolder +
+                "/"
+                :
+                ""
             ) +
             cleanName +
             "/.keep";
@@ -1771,7 +2118,8 @@ async function createFolder(){
             new Blob(
                 ["SkyDriveX"],
                 {
-                    type:"text/plain"
+                    type:
+                        "text/plain"
                 }
             );
 
@@ -1814,7 +2162,9 @@ async function deleteFile(path){
             "Bu faylni o‘chirishni xohlaysizmi?"
         );
 
-    if(!ok) return;
+    if(!ok){
+        return;
+    }
 
     try{
 
@@ -1848,7 +2198,9 @@ async function deleteFile(path){
    DELETE FOLDER
 ===================================================== */
 
-async function deleteFolder(folderName){
+async function deleteFolder(
+    folderName
+){
 
     const ok =
         confirm(
@@ -1857,20 +2209,27 @@ async function deleteFolder(folderName){
             "' papkasini va ichidagi fayllarni o‘chirishni xohlaysizmi?"
         );
 
-    if(!ok) return;
+    if(!ok){
+        return;
+    }
 
     const user =
         await getUser();
 
-    if(!user) return;
+    if(!user){
+        return;
+    }
 
     const folderPath =
         user.id +
         "/" +
         (
             currentFolder
-            ? currentFolder + "/"
-            : ""
+            ?
+            currentFolder +
+            "/"
+            :
+            ""
         ) +
         folderName;
 
@@ -1919,15 +2278,23 @@ async function deleteFolderRecursive(
         throw error;
     }
 
-    if(!data || data.length === 0){
+    if(
+        !data ||
+        data.length === 0
+    ){
+
         return;
     }
 
     const filesToDelete = [];
 
-    for(const item of data){
+    for(
+        const item of data
+    ){
 
-        if(!item.name) continue;
+        if(!item.name){
+            continue;
+        }
 
         const childPath =
             folderPath +
@@ -1948,9 +2315,13 @@ async function deleteFolderRecursive(
         }
     }
 
-    if(filesToDelete.length){
+    if(
+        filesToDelete.length
+    ){
 
-        const {error:removeError} =
+        const {
+            error:removeError
+        } =
             await supabaseClient
                 .storage
                 .from(BUCKET)
@@ -1976,13 +2347,21 @@ avatarInput.addEventListener(
         const file =
             this.files[0];
 
-        if(!file) return;
+        if(!file){
+            return;
+        }
 
-        if(!file.type.startsWith("image/")){
+        if(
+            !file.type.startsWith(
+                "image/"
+            )
+        ){
 
             alert(
                 "Faqat rasm faylini tanlang."
             );
+
+            this.value = "";
 
             return;
         }
@@ -1990,14 +2369,11 @@ avatarInput.addEventListener(
         const user =
             await getUser();
 
-        if(!user) return;
+        if(!user){
+            return;
+        }
 
         try{
-
-            /*
-              Har bir user:
-              user.id/profile/avatar.ext
-            */
 
             const extension =
                 file.name
@@ -2009,10 +2385,6 @@ avatarInput.addEventListener(
                 user.id +
                 "/profile/avatar." +
                 extension;
-
-            /*
-              Avval eski avatarlarni o‘chiramiz
-            */
 
             await deleteOldAvatars(
                 user.id
@@ -2027,7 +2399,8 @@ avatarInput.addEventListener(
                         file,
                         {
                             upsert:true,
-                            contentType:file.type
+                            contentType:
+                                file.type
                         }
                     );
 
@@ -2063,24 +2436,35 @@ async function deleteOldAvatars(
             .storage
             .from(BUCKET)
             .list(
-                userId + "/profile",
+                userId +
+                "/profile",
                 {
                     limit:100
                 }
             );
 
-    if(error) return;
+    if(error){
+        return;
+    }
 
-    if(!data || !data.length) return;
+    if(
+        !data ||
+        !data.length
+    ){
+        return;
+    }
 
     const paths =
         data
-            .filter(x => x.name)
+            .filter(
+                x =>
+                    x.name
+            )
             .map(
                 x =>
-                userId +
-                "/profile/" +
-                x.name
+                    userId +
+                    "/profile/" +
+                    x.name
             );
 
     if(paths.length){
@@ -2088,7 +2472,9 @@ async function deleteOldAvatars(
         await supabaseClient
             .storage
             .from(BUCKET)
-            .remove(paths);
+            .remove(
+                paths
+            );
     }
 }
 
@@ -2102,14 +2488,17 @@ async function loadAvatar(){
     const user =
         await getUser();
 
-    if(!user) return;
+    if(!user){
+        return;
+    }
 
     const {data,error} =
         await supabaseClient
             .storage
             .from(BUCKET)
             .list(
-                user.id + "/profile",
+                user.id +
+                "/profile",
                 {
                     limit:100
                 }
@@ -2128,8 +2517,10 @@ async function loadAvatar(){
     const avatar =
         (data || []).find(
             x =>
-            x.name &&
-            x.name.startsWith("avatar.")
+                x.name &&
+                x.name.startsWith(
+                    "avatar."
+                )
         );
 
     if(!avatar){
@@ -2147,13 +2538,19 @@ async function loadAvatar(){
         "/profile/" +
         avatar.name;
 
-    const {data:urlData} =
+    const {
+        data:urlData
+    } =
         supabaseClient
             .storage
             .from(BUCKET)
-            .getPublicUrl(path);
+            .getPublicUrl(
+                path
+            );
 
-    if(urlData?.publicUrl){
+    if(
+        urlData?.publicUrl
+    ){
 
         avatarContainer.innerHTML =
             `
@@ -2187,12 +2584,16 @@ async function deleteAvatar(){
             "Profil rasmini o‘chirishni xohlaysizmi?"
         );
 
-    if(!ok) return;
+    if(!ok){
+        return;
+    }
 
     const user =
         await getUser();
 
-    if(!user) return;
+    if(!user){
+        return;
+    }
 
     try{
 
@@ -2225,7 +2626,9 @@ function filterItems(){
 
     if(!query){
 
-        renderItems(allItems);
+        renderItems(
+            allItems
+        );
 
         return;
     }
@@ -2233,13 +2636,15 @@ function filterItems(){
     const filtered =
         allItems.filter(
             item =>
-            item.name &&
-            item.name
-                .toLowerCase()
-                .includes(query)
+                item.name &&
+                item.name
+                    .toLowerCase()
+                    .includes(query)
         );
 
-    renderItems(filtered);
+    renderItems(
+        filtered
+    );
 }
 
 
@@ -2264,6 +2669,7 @@ function getFileType(name){
         "bmp",
         "svg"
     ].includes(ext)){
+
         return "image";
     }
 
@@ -2274,6 +2680,7 @@ function getFileType(name){
         "mkv",
         "avi"
     ].includes(ext)){
+
         return "video";
     }
 
@@ -2285,12 +2692,14 @@ function getFileType(name){
         "aac",
         "flac"
     ].includes(ext)){
+
         return "audio";
     }
 
     if([
         "pdf"
     ].includes(ext)){
+
         return "pdf";
     }
 
@@ -2298,19 +2707,43 @@ function getFileType(name){
 }
 
 
+/* =====================================================
+   FILE ICON
+===================================================== */
+
 function getFileIcon(type){
 
-    if(type === "image") return "🖼️";
+    if(
+        type === "image"
+    ){
+        return "🖼️";
+    }
 
-    if(type === "video") return "🎬";
+    if(
+        type === "video"
+    ){
+        return "🎬";
+    }
 
-    if(type === "audio") return "🎵";
+    if(
+        type === "audio"
+    ){
+        return "🎵";
+    }
 
-    if(type === "pdf") return "📕";
+    if(
+        type === "pdf"
+    ){
+        return "📕";
+    }
 
     return "📄";
 }
 
+
+/* =====================================================
+   PREVIEWABLE
+===================================================== */
 
 function isPreviewable(type){
 
@@ -2338,19 +2771,25 @@ async function previewFile(
             await supabaseClient
                 .storage
                 .from(BUCKET)
-                .download(path);
+                .download(
+                    path
+                );
 
         if(error){
             throw error;
         }
 
         const url =
-            URL.createObjectURL(data);
+            URL.createObjectURL(
+                data
+            );
 
         previewTitle.textContent =
             name;
 
-        if(type === "image"){
+        if(
+            type === "image"
+        ){
 
             previewContent.innerHTML =
                 `
@@ -2361,7 +2800,9 @@ async function previewFile(
                 `;
         }
 
-        if(type === "video"){
+        if(
+            type === "video"
+        ){
 
             previewContent.innerHTML =
                 `
@@ -2369,13 +2810,20 @@ async function previewFile(
                     class="preview-video"
                     controls
                     autoplay>
-                    <source src="${url}">
-                    Brauzeringiz videoni qo‘llab-quvvatlamaydi.
+
+                    <source
+                        src="${url}">
+
+                    Brauzeringiz videoni
+                    qo‘llab-quvvatlamaydi.
+
                 </video>
                 `;
         }
 
-        if(type === "audio"){
+        if(
+            type === "audio"
+        ){
 
             previewContent.innerHTML =
                 `
@@ -2383,7 +2831,10 @@ async function previewFile(
                     class="preview-audio"
                     controls
                     autoplay>
-                    <source src="${url}">
+
+                    <source
+                        src="${url}">
+
                 </audio>
                 `;
         }
@@ -2410,12 +2861,15 @@ function closePreview(event){
 
     if(
         event &&
-        event.target !== previewModal
+        event.target !==
+        previewModal
     ){
+
         return;
     }
 
-    previewContent.innerHTML = "";
+    previewContent.innerHTML =
+        "";
 
     previewModal.classList.add(
         "hidden"
@@ -2427,7 +2881,9 @@ function closePreview(event){
    DOWNLOAD
 ===================================================== */
 
-async function downloadFile(path){
+async function downloadFile(
+    path
+){
 
     try{
 
@@ -2435,31 +2891,44 @@ async function downloadFile(path){
             await supabaseClient
                 .storage
                 .from(BUCKET)
-                .download(path);
+                .download(
+                    path
+                );
 
         if(error){
             throw error;
         }
 
         const url =
-            URL.createObjectURL(data);
+            URL.createObjectURL(
+                data
+            );
 
         const a =
-            document.createElement("a");
+            document.createElement(
+                "a"
+            );
 
         a.href = url;
 
         a.download =
-            path.split("/").pop();
+            path
+                .split("/")
+                .pop();
 
-        document.body.appendChild(a);
+        document.body.appendChild(
+            a
+        );
 
         a.click();
 
         a.remove();
 
         setTimeout(
-            () => URL.revokeObjectURL(url),
+            () =>
+                URL.revokeObjectURL(
+                    url
+                ),
             1000
         );
 
@@ -2482,10 +2951,11 @@ async function calculateStorage(){
     const user =
         await getUser();
 
-    if(!user) return;
+    if(!user){
+        return;
+    }
 
-    let total =
-        0;
+    let total = 0;
 
     try{
 
@@ -2497,12 +2967,17 @@ async function calculateStorage(){
         );
 
         const limit =
-            1024 * 1024 * 1024;
+            1024 *
+            1024 *
+            1024;
 
         const percent =
             Math.min(
                 100,
-                (total / limit) * 100
+                (
+                    total /
+                    limit
+                ) * 100
             );
 
         storageText.textContent =
@@ -2510,7 +2985,8 @@ async function calculateStorage(){
             " / 1 GB";
 
         storageBar.style.width =
-            percent + "%";
+            percent +
+            "%";
 
     }catch(error){
 
@@ -2522,10 +2998,9 @@ async function calculateStorage(){
 }
 
 
-/*
-  Storage hisoblagich uchun
-  recursive traversal.
-*/
+/* =====================================================
+   CALCULATE FOLDER SIZE
+===================================================== */
 
 async function calculateFolderSize(
     folder,
@@ -2549,13 +3024,19 @@ async function calculateFolderSize(
     }
 
     if(!data){
+
         callback(total);
+
         return total;
     }
 
-    for(const item of data){
+    for(
+        const item of data
+    ){
 
-        if(!item.name) continue;
+        if(!item.name){
+            continue;
+        }
 
         const path =
             folder +
@@ -2564,10 +3045,23 @@ async function calculateFolderSize(
 
         if(item.metadata){
 
-            total +=
-                Number(
-                    item.metadata.size || 0
-                );
+            /*
+              .keep faylini storage
+              hisobiga qo‘shmaymiz
+            */
+
+            if(
+                item.name !==
+                ".keep"
+            ){
+
+                total +=
+                    Number(
+                        item.metadata
+                            ?.size ||
+                        0
+                    );
+            }
 
         }else{
 
@@ -2615,7 +3109,10 @@ function formatSize(bytes){
         parseFloat(
             (
                 bytes /
-                Math.pow(1024,i)
+                Math.pow(
+                    1024,
+                    i
+                )
             ).toFixed(2)
         )
         +
@@ -2632,31 +3129,56 @@ function formatSize(bytes){
 function escapeHtml(text){
 
     return String(text)
-        .replace(/&/g,"&amp;")
-        .replace(/</g,"&lt;")
-        .replace(/>/g,"&gt;")
-        .replace(/"/g,"&quot;")
-        .replace(/'/g,"&#039;");
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
 }
 
 
 function escapeJs(text){
 
     return String(text)
-        .replace(/\\/g,"\\\\")
-        .replace(/'/g,"\\'");
+        .replace(
+            /\\/g,
+            "\\\\"
+        )
+        .replace(
+            /'/g,
+            "\\'"
+        );
 }
 
 
 /* =====================================================
-   GLOBAL USER
+   AUTH STATE
 ===================================================== */
 
 supabaseClient.auth.onAuthStateChange(
-    async (event,session) => {
+    async (
+        event,
+        session
+    ) => {
 
         if(
-            event === "SIGNED_IN" &&
+            event ===
+            "SIGNED_IN" &&
             session
         ){
 
@@ -2664,7 +3186,10 @@ supabaseClient.auth.onAuthStateChange(
                 session.user;
         }
 
-        if(event === "SIGNED_OUT"){
+        if(
+            event ===
+            "SIGNED_OUT"
+        ){
 
             window.currentUser =
                 null;
