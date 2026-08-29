@@ -6,7 +6,51 @@
 
 <title>SkyDriveX</title>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+/* ===== SKYDRIVEX ULTRA MODULES ===== */
+const SDX_KEY=p=>'sdx_'+p;
+function sdxGet(k,d=[]){try{return JSON.parse(localStorage.getItem(SDX_KEY(k)))??d}catch(e){return d}}
+function sdxSet(k,v){localStorage.setItem(SDX_KEY(k),JSON.stringify(v))}
+function sdxToast(t){const w=document.getElementById('sdxToastWrap');if(!w)return;const x=document.createElement('div');x.className='sdx-toast';x.textContent=t;w.appendChild(x);setTimeout(()=>x.remove(),2800);let a=sdxGet('activity',[]);a.unshift({t,at:new Date().toLocaleString()});sdxSet('activity',a.slice(0,60))}
+setInterval(()=>{let d=new Date(),c=document.getElementById('sdxClock'),dt=document.getElementById('sdxDate');if(c)c.textContent=d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});if(dt)dt.textContent=d.toLocaleDateString()},1000);
+function closeUltra(e){if(e&&e.target!==e.currentTarget)return;document.getElementById('ultraModal').classList.add('hidden')}
+function openUltra(type){const m=document.getElementById('ultraModal'),t=document.getElementById('ultraTitle'),c=document.getElementById('ultraContent');m.classList.remove('hidden');const H={command:'🚀 Command Center',assistant:'🤖 SkyDriveX Assistant',notes:'📝 Notes',tasks:'✅ Vazifalar',calendar:'📅 Kalendar',bookmarks:'🔖 Saved Links',gallery:'🖼️ Gallery',media:'🎬 Media Center',documents:'📄 Documents',storage:'📊 Storage Map',favorites:'⭐ Sevimlilar',recent:'🕒 Recent Activity',security:'🛡️ Security Center',cleanup:'🧹 Cleanup Center',cloud:'🔄 Cloud Transfer',customize:'🎨 Customize'};t.textContent=H[type]||'SkyDriveX';renderUltra(type,c)}
+function renderUltra(type,c){
+ if(type==='notes'){let a=sdxGet('notes',[]);c.innerHTML=`<div class="ultra-toolbar"><input id="uNoteTitle" class="input" placeholder="Sarlavha"><button class="action-btn blue" onclick="addNote()">＋ Note</button></div><textarea id="uNoteText" class="input ultra-textarea" placeholder="Yozing..."></textarea><div class="ultra-list">${a.map((x,i)=>`<div class="ultra-item"><div><b>${escapeHtml(x.title)}</b><div class="muted">${escapeHtml(x.text)}</div></div><button class="btn delete" onclick="delLocal('notes',${i},'notes')">🗑️</button></div>`).join('')||'<div class="empty">Note yo‘q</div>'}</div>`;return}
+ if(type==='tasks'){let a=sdxGet('tasks',[]);c.innerHTML=`<div class="ultra-toolbar"><input id="uTask" class="input" placeholder="Yangi vazifa"><button class="action-btn blue" onclick="addTask()">＋ Qo‘shish</button></div><div class="ultra-list">${a.map((x,i)=>`<div class="ultra-item"><label><input type="checkbox" ${x.done?'checked':''} onchange="toggleTask(${i})"> ${escapeHtml(x.text)}</label><button class="btn delete" onclick="delLocal('tasks',${i},'tasks')">🗑️</button></div>`).join('')||'<div class="empty">Vazifa yo‘q</div>'}</div>`;return}
+ if(type==='calendar'){let a=sdxGet('events',[]);c.innerHTML=`<div class="ultra-toolbar"><input id="uEventDate" type="date" class="input"><input id="uEventText" class="input" placeholder="Eslatma"><button class="action-btn blue" onclick="addEventU()">＋</button></div><div class="ultra-list">${a.sort((x,y)=>x.date.localeCompare(y.date)).map((x,i)=>`<div class="ultra-item"><div><b>${x.date}</b> — ${escapeHtml(x.text)}</div><button class="btn delete" onclick="delLocal('events',${i},'calendar')">🗑️</button></div>`).join('')||'<div class="empty">Eslatma yo‘q</div>'}</div>`;return}
+ if(type==='bookmarks'){let a=sdxGet('bookmarks',[]);c.innerHTML=`<div class="ultra-toolbar"><input id="uBmName" class="input" placeholder="Nomi"><input id="uBmUrl" class="input" placeholder="https://..."><button class="action-btn blue" onclick="addBookmarkU()">＋</button></div><div class="ultra-list">${a.map((x,i)=>`<div class="ultra-item"><a href="${escapeHtml(x.url)}" target="_blank" rel="noopener" style="color:#9dcbff">🔗 ${escapeHtml(x.name)}</a><button class="btn delete" onclick="delLocal('bookmarks',${i},'bookmarks')">🗑️</button></div>`).join('')||'<div class="empty">Link yo‘q</div>'}</div>`;return}
+ if(['gallery','media','documents','cleanup'].includes(type)){renderSmartFiles(type,c);return}
+ if(type==='storage'){renderStorageMap(c);return}
+ if(type==='recent'){let a=sdxGet('activity',[]);c.innerHTML=`<div class="ultra-list">${a.map(x=>`<div class="ultra-item"><span>${escapeHtml(x.t)}</span><span class="muted">${escapeHtml(x.at)}</span></div>`).join('')||'<div class="empty">Faoliyat hali yo‘q</div>'}</div>`;return}
+ if(type==='favorites'){let a=sdxGet('favorites',[]);c.innerHTML=`<div class="ultra-toolbar"><input id="uFav" class="input" placeholder="Muhim fayl/link nomi"><button class="action-btn blue" onclick="addFavU()">⭐ Qo‘shish</button></div><div class="ultra-list">${a.map((x,i)=>`<div class="ultra-item"><span>⭐ ${escapeHtml(x)}</span><button class="btn delete" onclick="delLocal('favorites',${i},'favorites')">🗑️</button></div>`).join('')||'<div class="empty">Sevimli yo‘q</div>'}</div>`;return}
+ if(type==='security'){let pin=!!localStorage.getItem(SDX_KEY('pin'));c.innerHTML=`<div class="settings-section"><h3>🔐 App Lock PIN</h3><p>SkyDriveX ichidagi maxfiy bo‘limlar uchun mahalliy PIN.</p><input id="uPin" class="input" type="password" inputmode="numeric" maxlength="8" placeholder="4–8 raqam"><button class="action-btn blue" onclick="savePinU()">${pin?'PINni almashtirish':'PIN o‘rnatish'}</button> ${pin?'<button class="action-btn" onclick="removePinU()">PINni o‘chirish</button>':''}</div><div class="settings-section" style="margin-top:10px"><h3>🔑 Akkaunt xavfsizligi</h3><p>Parolni o‘zgartirish uchun Sozlamalar → Xavfsizlik bo‘limidan foydalaning. Tashqi servislarning parolini SkyDriveX saqlamaydi.</p></div>`;return}
+ if(type==='cloud'){c.innerHTML=`<div class="settings-section"><h3>☁️ SkyDriveX ↔ Google Drive</h3><p>Google Drive ulanib bo‘lsa, Drive bo‘limidan fayllarni ko‘rish/yuklash ishlaydi. To‘liq server-side avtomatik ikki tomonlama sync uchun alohida backend kerak.</p><button class="action-btn blue" onclick="closeUltra();document.querySelector('.gdrive-card')?.scrollIntoView({behavior:'smooth'})">Google Drive bo‘limiga o‘tish</button></div>`;return}
+ if(type==='customize'){c.innerHTML=`<div class="settings-grid"><section class="settings-section"><h3>🎨 Theme</h3><div class="ultra-toolbar"><button class="action-btn" onclick="setThemeU('dark')">Dark Blue</button><button class="action-btn" onclick="setThemeU('amoled')">AMOLED</button><button class="action-btn" onclick="setThemeU('light')">Light</button></div></section><section class="settings-section"><h3>🖼️ Wallpaper</h3><input id="uWallpaper" class="input" placeholder="Rasm URL"><button class="action-btn blue" onclick="setWallpaperU()">Qo‘llash</button> <button class="action-btn" onclick="clearWallpaperU()">Tozalash</button></section><section class="settings-section"><h3>🌐 Til</h3><select id="uLang" class="lang-select" onchange="setLangU(this.value)"><option value="uz">O‘zbek</option><option value="ru">Русский</option><option value="en">English</option></select><p class="settings-note">Asosiy interfeys tarjimasi keyingi bosqichda kengaytirilishi mumkin.</p></section><section class="settings-section"><h3>🧩 Widgetlar</h3><p>Soat, sana va Cloud widgetlari Dashboard’da faol.</p></section></div>`;document.getElementById('uLang').value=localStorage.getItem(SDX_KEY('lang'))||'uz';return}
+ if(type==='command'){c.innerHTML=`<input id="uCommand" class="input command-input" placeholder="Fayl, ilova yoki buyruq yozing..." oninput="runCommandU(this.value)"><div id="uCommandResults" class="ultra-list"></div>`;setTimeout(()=>document.getElementById('uCommand')?.focus(),50);return}
+ if(type==='assistant'){c.innerHTML=`<div id="uAssistantChat" style="min-height:220px;max-height:48vh;overflow:auto"><div class="assistant-msg bot">Salom! “fayllar”, “storage”, “google drive”, “notes”, “ilovalar” kabi buyruqlarni yozishingiz mumkin.</div></div><div class="ultra-toolbar" style="margin-top:12px"><input id="uAssistantInput" class="input" placeholder="Savol yoki buyruq..." onkeydown="if(event.key==='Enter')assistantSendU()"><button class="action-btn blue" onclick="assistantSendU()">Yuborish</button></div>`;return}
+}
+function addNote(){let a=sdxGet('notes',[]),title=document.getElementById('uNoteTitle').value.trim()||'Note',text=document.getElementById('uNoteText').value.trim();if(!text)return;a.unshift({title,text});sdxSet('notes',a);sdxToast('Note saqlandi');renderUltra('notes',document.getElementById('ultraContent'))}
+function addTask(){let e=document.getElementById('uTask'),a=sdxGet('tasks',[]);if(!e.value.trim())return;a.push({text:e.value.trim(),done:false});sdxSet('tasks',a);renderUltra('tasks',document.getElementById('ultraContent'))}
+function toggleTask(i){let a=sdxGet('tasks',[]);if(a[i])a[i].done=!a[i].done;sdxSet('tasks',a)}
+function addEventU(){let d=document.getElementById('uEventDate').value,t=document.getElementById('uEventText').value.trim();if(!d||!t)return;let a=sdxGet('events',[]);a.push({date:d,text:t});sdxSet('events',a);renderUltra('calendar',document.getElementById('ultraContent'))}
+function addBookmarkU(){let n=document.getElementById('uBmName').value.trim(),u=document.getElementById('uBmUrl').value.trim();if(!n||!/^https?:\/\//i.test(u))return sdxToast('To‘g‘ri https:// link kiriting');let a=sdxGet('bookmarks',[]);a.push({name:n,url:u});sdxSet('bookmarks',a);renderUltra('bookmarks',document.getElementById('ultraContent'))}
+function addFavU(){let e=document.getElementById('uFav');if(!e.value.trim())return;let a=sdxGet('favorites',[]);a.push(e.value.trim());sdxSet('favorites',a);renderUltra('favorites',document.getElementById('ultraContent'))}
+function delLocal(k,i,v){let a=sdxGet(k,[]);a.splice(i,1);sdxSet(k,a);renderUltra(v,document.getElementById('ultraContent'))}
+function renderSmartFiles(type,c){let a=(window.allItems||allItems||[]).filter(x=>x&&x.metadata);let ok=x=>{let t=getFileType(x.name);if(type==='gallery')return t==='image';if(type==='media')return t==='video'||t==='audio';if(type==='documents')return ['pdf','document','text'].includes(t)||/\.(pdf|docx?|xlsx?|pptx?|txt|csv)$/i.test(x.name);return true};a=a.filter(ok);if(type==='cleanup')a.sort((x,y)=>(y.metadata?.size||0)-(x.metadata?.size||0));c.innerHTML=`<div class="ultra-list">${a.slice(0,100).map(x=>`<div class="ultra-item"><div>${getFileIcon(getFileType(x.name))} <b>${escapeHtml(x.name)}</b><div class="muted">${formatSize(x.metadata?.size||0)}</div></div><span class="ultra-badge">${type==='cleanup'?'SIZE':'FILE'}</span></div>`).join('')||'<div class="empty">Joriy papkada mos fayl yo‘q</div>'}</div>`}
+function renderStorageMap(c){let a=(window.allItems||allItems||[]).filter(x=>x&&x.metadata),m={},total=0;a.forEach(x=>{let t=getFileType(x.name)||'other',z=x.metadata?.size||0;m[t]=(m[t]||0)+z;total+=z});c.innerHTML=`<div class="ultra-list"><div class="ultra-item"><b>Joriy papka jami</b><b>${formatSize(total)}</b></div>${Object.entries(m).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="ultra-item"><span>${getFileIcon(k)} ${escapeHtml(k)}</span><b>${formatSize(v)}</b></div>`).join('')}</div>`}
+function savePinU(){let p=document.getElementById('uPin').value;if(!/^\d{4,8}$/.test(p))return sdxToast('PIN 4–8 ta raqam bo‘lsin');localStorage.setItem(SDX_KEY('pin'),btoa(p));sdxToast('PIN saqlandi');renderUltra('security',document.getElementById('ultraContent'))}
+function removePinU(){localStorage.removeItem(SDX_KEY('pin'));sdxToast('PIN o‘chirildi');renderUltra('security',document.getElementById('ultraContent'))}
+function setThemeU(v){document.body.classList.remove('sdx-amoled','sdx-light');if(v==='amoled')document.body.classList.add('sdx-amoled');if(v==='light')document.body.classList.add('sdx-light');localStorage.setItem(SDX_KEY('theme'),v);sdxToast('Theme saqlandi')}
+function setWallpaperU(){let u=document.getElementById('uWallpaper').value.trim();if(!/^https?:\/\//i.test(u))return sdxToast('Rasm URL kiriting');document.body.style.setProperty('--sdx-wallpaper',`url("${u.replace(/"/g,'')}")`);document.body.classList.add('sdx-wallpaper');localStorage.setItem(SDX_KEY('wallpaper'),u)}
+function clearWallpaperU(){document.body.classList.remove('sdx-wallpaper');localStorage.removeItem(SDX_KEY('wallpaper'))}
+function setLangU(v){localStorage.setItem(SDX_KEY('lang'),v);sdxToast('Til tanlovi saqlandi')}
+function runCommandU(q){q=q.toLowerCase().trim();let r=[];const cmds=[['files','Fayllar','files-card'],['drive','Google Drive','gdrive-card'],['apps','Ilovalar','apps-launcher'],['settings','Sozlamalar','settings'],['notes','Notes','notes'],['tasks','Vazifalar','tasks'],['gallery','Gallery','gallery'],['storage','Storage','storage']];cmds.filter(x=>x[0].includes(q)||x[1].toLowerCase().includes(q)).forEach(x=>r.push(`<button class="ultra-item" style="width:100%;color:#fff" onclick="commandOpenU('${x[2]}')">${x[1]}</button>`));(allItems||[]).filter(x=>x.name?.toLowerCase().includes(q)).slice(0,12).forEach(x=>r.push(`<div class="ultra-item">📄 ${escapeHtml(x.name)}</div>`));document.getElementById('uCommandResults').innerHTML=q?r.join(''):'<div class="empty">Buyruq yozing</div>'}
+function commandOpenU(x){closeUltra();if(x==='settings')return openSettings();if(['notes','tasks','gallery','storage'].includes(x))return openUltra(x);let el=document.querySelector('.'+x)||document.getElementById(x);el?.scrollIntoView({behavior:'smooth'})}
+function assistantSendU(){let i=document.getElementById('uAssistantInput'),q=i.value.trim();if(!q)return;let ch=document.getElementById('uAssistantChat');ch.innerHTML+=`<div class="assistant-msg me">${escapeHtml(q)}</div>`;let l=q.toLowerCase(),a='Men SkyDriveX ichidagi bo‘limlarni ochish va topishga yordam beraman.';if(l.includes('drive'))a='Google Drive bo‘limini Command Center orqali ochishingiz mumkin.';else if(l.includes('storage')||l.includes('joy'))a='Storage Map joriy papkadagi fayl turlari va hajmini ko‘rsatadi.';else if(l.includes('note'))a='Notes bo‘limida yozuv yaratib, shu brauzerda saqlashingiz mumkin.';else if(l.includes('fayl'))a=`Joriy papkada ${(allItems||[]).length} ta element ko‘rinmoqda.`;else if(l.includes('ilova'))a='Apps Launcher orqali ilovalarni ochish yoki yangi ilova qo‘shish mumkin.';ch.innerHTML+=`<div class="assistant-msg bot">${a}</div>`;i.value='';ch.scrollTop=ch.scrollHeight}
+(function initUltra(){let th=localStorage.getItem(SDX_KEY('theme'));if(th)setThemeU(th);let w=localStorage.getItem(SDX_KEY('wallpaper'));if(w){document.body.style.setProperty('--sdx-wallpaper',`url("${w}")`);document.body.classList.add('sdx-wallpaper')}document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openUltra('command')}})})();
+
+</script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 
 <style>
@@ -702,7 +746,78 @@ button{
 #gdriveFileInput{display:none}
 @media(max-width:650px){.gdrive-actions{width:100%}.gdrive-btn{flex:1}}
 
+
+
+/* ========================= DARK BLUE GLASS ========================= */
+body{background:radial-gradient(circle at 85% 8%,rgba(37,99,235,.22),transparent 32%),radial-gradient(circle at 10% 90%,rgba(14,165,233,.12),transparent 28%),#050914;background-attachment:fixed}
+.header,.profile-card,.storage-card,.upload-box,.toolbar,.files-card,.gdrive-card,.apps-card{background:rgba(13,23,42,.72)!important;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid rgba(96,165,250,.18)!important;box-shadow:0 18px 50px rgba(0,0,0,.22)}
+.header{background:rgba(5,9,20,.78)!important}.auth-card{background:rgba(13,23,42,.82);backdrop-filter:blur(20px);border:1px solid rgba(96,165,250,.2)}
+.upload-box{border:1px dashed rgba(96,165,250,.42)!important}.btn,.small-btn,.action-btn,.gdrive-btn{transition:.2s transform,.2s background}.btn:hover,.small-btn:hover,.action-btn:hover,.gdrive-btn:hover{transform:translateY(-1px)}
+.apps-card{border-radius:22px;padding:20px;margin-bottom:20px}.apps-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}.apps-head p{color:var(--muted);font-size:13px;margin-top:4px}.apps-add{border:0;border-radius:11px;padding:10px 14px;background:linear-gradient(135deg,#2563eb,#0ea5e9);color:#fff;font-weight:800}.apps-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:12px}.app-tile{position:relative;min-height:112px;border:1px solid rgba(96,165,250,.16);background:rgba(15,31,57,.62);border-radius:18px;padding:16px 10px 12px;text-align:center;color:#fff;transition:.2s;overflow:hidden}.app-tile:hover{transform:translateY(-3px);background:rgba(24,48,83,.78);border-color:rgba(96,165,250,.38)}.app-icon{font-size:34px;line-height:1;margin-bottom:10px}.app-name{font-size:13px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.app-custom-actions{position:absolute;right:5px;top:5px;display:flex;gap:3px}.app-mini{border:0;background:rgba(3,7,18,.68);color:#cbd5e1;border-radius:7px;width:25px;height:25px;font-size:11px}.apps-modal-box{max-width:460px}.apps-form-label{display:block;color:#9fb0c8;font-size:13px;margin:11px 0 6px}.apps-form-actions{display:flex;gap:8px;margin-top:14px}.apps-form-actions button{flex:1}.apps-hint{color:#7f91aa;font-size:12px;margin-top:8px;line-height:1.45}
+@media(max-width:650px){.apps-grid{grid-template-columns:repeat(3,1fr);gap:8px}.app-tile{min-height:100px;padding:14px 7px 10px}.apps-head{align-items:flex-start;flex-direction:column}.apps-add{width:100%}}
+
+
+/* ===== SkyDriveX Variant 5 — Dark Blue Glass dashboard ===== */
+:root{--sdx-bg:#050b18;--sdx-panel:rgba(10,25,49,.66);--sdx-line:rgba(117,171,255,.14);--sdx-glow:#2684ff;--sdx-text:#f4f8ff;--sdx-muted:#8094b5}
+html{scroll-behavior:smooth} body{background:#050b18!important;background-image:radial-gradient(900px 520px at 76% -4%,rgba(23,113,255,.28),transparent 62%),radial-gradient(700px 500px at 58% 36%,rgba(0,183,255,.10),transparent 70%),linear-gradient(135deg,#040916 0%,#071326 55%,#050a16 100%)!important;color:var(--sdx-text);font-family:Inter,Segoe UI,Arial,sans-serif}
+#cloudPage{min-height:100vh}.sdx-sidebar{position:fixed;left:0;top:0;bottom:0;width:248px;padding:26px 18px 22px;background:linear-gradient(180deg,rgba(5,14,31,.94),rgba(5,12,27,.82));border-right:1px solid var(--sdx-line);backdrop-filter:blur(24px);z-index:50;display:flex;flex-direction:column}.sdx-brand{display:flex;align-items:center;gap:11px;font-size:21px;font-weight:850;letter-spacing:-.5px;padding:0 8px 27px}.sdx-brand span{color:#55a5ff}.sdx-brand-icon{width:37px;height:37px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(145deg,#1677ff,#39b8ff);box-shadow:0 0 28px rgba(37,132,255,.35)}.sdx-nav{display:flex;flex-direction:column;gap:7px}.sdx-nav a{display:flex;align-items:center;gap:13px;padding:12px 14px;border-radius:12px;color:#8195b5;text-decoration:none;font-size:14px;font-weight:650;transition:.2s}.sdx-nav a:hover,.sdx-nav a.active{color:#fff;background:linear-gradient(90deg,rgba(37,128,255,.20),rgba(37,128,255,.06));box-shadow:inset 3px 0 #3b96ff}.sdx-side-storage{margin-top:auto;padding:16px;border:1px solid var(--sdx-line);border-radius:16px;background:rgba(14,32,60,.48)}.side-storage-head{display:flex;justify-content:space-between;font-size:12px;font-weight:700;margin-bottom:10px}.side-progress{height:6px;border-radius:10px;background:#15243b;overflow:hidden}.side-progress div{height:100%;width:0;background:linear-gradient(90deg,#247dff,#43c2ff);border-radius:10px}.sdx-side-storage small{display:block;color:#667b9d;margin-top:9px;font-size:10px}
+.header{left:248px!important;width:calc(100% - 248px)!important;height:72px!important;padding:0 34px!important;background:rgba(5,12,26,.48)!important;border-bottom:1px solid var(--sdx-line)!important;backdrop-filter:blur(18px);position:sticky!important}.header .logo{display:none}.header-right{margin-left:auto}.user{color:#9eb0ca!important}.logout{border:1px solid rgba(255,100,120,.18)!important;background:rgba(120,30,50,.18)!important}
+.container{max-width:none!important;margin:0 0 0 248px!important;padding:28px 34px 70px!important}.welcome{display:none}.sdx-overview{position:relative;min-height:210px;border:1px solid var(--sdx-line);border-radius:26px;padding:34px 36px;overflow:hidden;background:linear-gradient(115deg,rgba(12,29,56,.78),rgba(8,25,51,.48));box-shadow:0 25px 80px rgba(0,0,0,.24);display:flex;align-items:center}.sdx-overview:before{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 35%,rgba(52,144,255,.08),transparent 70%);pointer-events:none}.sdx-overview-copy{position:relative;z-index:2;max-width:620px}.eyebrow{font-size:11px;letter-spacing:2.2px;color:#62b2ff;font-weight:800;margin-bottom:12px}.sdx-overview h1{font-size:36px;line-height:1.1;letter-spacing:-1.4px;margin:0 0 12px}.sdx-overview h1 span{background:linear-gradient(90deg,#6db7ff,#3e8fff);-webkit-background-clip:text;color:transparent}.sdx-overview p{color:#8fa3c2;max-width:520px;line-height:1.6}.sdx-overview-glow{position:absolute;right:3%;top:-15%;width:330px;height:260px}.orb{position:absolute;border-radius:50%;filter:blur(1px)}.orb1{width:220px;height:220px;right:20px;top:0;background:radial-gradient(circle at 35% 35%,rgba(76,177,255,.42),rgba(21,91,224,.12) 55%,transparent 72%);box-shadow:0 0 80px rgba(31,126,255,.22)}.orb2{width:150px;height:150px;right:130px;top:100px;background:radial-gradient(circle,rgba(31,179,255,.20),transparent 70%)}.cloud-mark{position:absolute;right:92px;top:78px;font-size:76px;opacity:.82;filter:drop-shadow(0 0 28px rgba(67,166,255,.35))}
+.sdx-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:16px 0 22px}.stat-glass{min-height:96px;padding:18px;border-radius:18px;border:1px solid var(--sdx-line);background:linear-gradient(145deg,rgba(13,31,59,.72),rgba(8,22,44,.48));display:flex;align-items:center;gap:14px;box-shadow:0 12px 40px rgba(0,0,0,.14)}.stat-icon{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:rgba(38,128,255,.12);border:1px solid rgba(83,157,255,.18);font-size:19px}.stat-glass small{display:block;color:#7287a8;font-size:11px;margin-bottom:5px}.stat-glass strong{font-size:18px;letter-spacing:-.3px}
+.profile-card,.storage-card,.upload-box,.toolbar,.files-card,.gdrive-card,.apps-card{background:linear-gradient(145deg,rgba(12,29,55,.70),rgba(7,20,41,.52))!important;border:1px solid var(--sdx-line)!important;box-shadow:0 18px 55px rgba(0,0,0,.16)!important;backdrop-filter:blur(22px)!important}.profile-card,.storage-card{display:none!important}.upload-box{padding:24px!important;border-radius:20px!important}.toolbar{border-radius:16px!important}.files-card,.apps-card,.gdrive-card{border-radius:22px!important}.apps-card{margin-top:20px}.apps-head h2,.files-header h2,.gdrive-head h2{font-size:18px!important}.apps-grid{grid-template-columns:repeat(auto-fill,minmax(126px,1fr))!important;gap:12px!important}.app-tile{min-height:120px!important;border-radius:18px!important;background:linear-gradient(145deg,rgba(17,42,77,.72),rgba(8,25,51,.52))!important;border:1px solid rgba(92,158,255,.14)!important;box-shadow:inset 0 1px rgba(255,255,255,.025)}.app-tile:hover{transform:translateY(-4px)!important;border-color:rgba(80,160,255,.38)!important;box-shadow:0 15px 34px rgba(0,72,180,.18)}.app-icon{font-size:36px!important}.apps-add,.action-btn.blue,.upload-btn,.gdrive-btn.blue,.small-btn.blue{background:linear-gradient(135deg,#237cff,#259ce8)!important;box-shadow:0 8px 24px rgba(29,120,255,.18)}.search,.input{background:rgba(4,13,29,.72)!important;border-color:rgba(112,164,240,.15)!important}.file{border-bottom-color:rgba(111,157,220,.10)!important}.file-icon{background:rgba(34,110,225,.12)!important}
+@media(max-width:900px){.sdx-sidebar{width:78px;padding:22px 11px}.sdx-brand{padding:0 9px 25px}.sdx-brand>div:last-child,.sdx-nav span,.sdx-side-storage{display:none}.sdx-nav a{justify-content:center;font-size:18px;padding:13px}.header{left:78px!important;width:calc(100% - 78px)!important}.container{margin-left:78px!important}.sdx-stats{grid-template-columns:repeat(2,1fr)}.sdx-overview-glow{opacity:.55}}
+@media(max-width:650px){.sdx-sidebar{left:0;right:0;top:auto;width:100%;height:68px;bottom:0;flex-direction:row;padding:8px 10px;border-right:0;border-top:1px solid var(--sdx-line);z-index:80}.sdx-brand,.sdx-side-storage{display:none}.sdx-nav{width:100%;flex-direction:row;justify-content:space-around;gap:2px}.sdx-nav a{flex:1;padding:9px 5px;font-size:18px}.sdx-nav a span{display:none}.sdx-nav a:hover,.sdx-nav a.active{box-shadow:none;background:rgba(37,128,255,.12)}.header{left:0!important;width:100%!important;padding:0 14px!important;height:60px!important}.container{margin-left:0!important;padding:16px 12px 90px!important}.sdx-overview{min-height:180px;padding:24px 20px}.sdx-overview h1{font-size:28px}.sdx-overview p{font-size:13px;max-width:72%}.sdx-overview-glow{right:-80px}.sdx-stats{gap:9px;margin-top:10px}.stat-glass{min-height:82px;padding:13px;gap:9px}.stat-icon{width:36px;height:36px}.stat-glass strong{font-size:15px}.apps-grid{grid-template-columns:repeat(3,1fr)!important}.upload-box{padding:20px 14px!important}}
+
+
+/* ===== EXACT VARIANT 5 SCREEN MATCH ===== */
+:root{--xbg:#020a17;--xpanel:rgba(6,24,49,.76);--xpanel2:rgba(10,34,67,.72);--xline:rgba(69,139,222,.24);--xtext:#f3f8ff;--xmuted:#7f95b6;--xblue:#1486ff;--xblue2:#0870e8}
+#cloudPage{background:
+ radial-gradient(900px 420px at 88% 8%,rgba(0,102,255,.16),transparent 58%),
+ radial-gradient(720px 360px at 62% 34%,rgba(0,127,255,.08),transparent 62%),
+ linear-gradient(135deg,#020914 0%,#031126 48%,#020a18 100%);color:var(--xtext);min-height:100vh;position:relative;overflow-x:hidden}
+#cloudPage:before,#cloudPage:after{content:"";position:fixed;pointer-events:none;z-index:0;filter:blur(.2px)}
+#cloudPage:before{right:-6%;top:35px;width:62vw;height:260px;border-radius:48% 52% 60% 40%;background:radial-gradient(ellipse at center,rgba(19,119,255,.24),rgba(0,84,212,.06) 36%,transparent 68%);transform:rotate(-8deg);box-shadow:-80px 55px 90px rgba(18,105,255,.10)}
+#cloudPage:after{right:2%;top:150px;width:52vw;height:160px;border-radius:50%;border-top:2px solid rgba(41,139,255,.20);transform:rotate(-10deg);box-shadow:0 -16px 35px rgba(0,105,255,.11)}
+.sdx-sidebar{width:215px;padding:26px 18px 18px;background:linear-gradient(180deg,rgba(3,18,38,.94),rgba(3,14,31,.90));border-right:1px solid rgba(70,133,205,.20);box-shadow:18px 0 60px rgba(0,0,0,.16);z-index:60}
+.sdx-brand{font-size:19px;padding:0 8px 24px;gap:9px}.sdx-brand-icon{width:34px;height:34px;border-radius:11px;background:linear-gradient(145deg,#1788ff,#3ca8ff);box-shadow:0 0 24px rgba(26,132,255,.35)}
+.sdx-nav{gap:5px}.sdx-nav a{padding:11px 12px;border-radius:8px;font-size:12px;color:#9ab0cf;gap:11px}.sdx-nav a.active{background:linear-gradient(90deg,#147ef3,#0d69d5);box-shadow:0 8px 24px rgba(11,105,221,.28);color:#fff}.sdx-nav a:hover{background:rgba(20,126,243,.14);box-shadow:none}
+.sdx-side-storage{padding:14px 12px;border-radius:10px;background:rgba(9,34,67,.72);border:1px solid rgba(54,124,207,.22)}
+.header{left:215px!important;width:calc(100% - 215px)!important;height:66px!important;background:rgba(1,11,25,.36)!important;border-bottom:0!important;backdrop-filter:blur(10px);padding:0 26px!important;z-index:45!important}
+.logo{display:none}.header-right{width:100%;justify-content:flex-end;gap:10px}.user{display:none}.logout{display:none}
+.x-top-search{width:235px;height:36px;border:1px solid rgba(53,119,198,.18);background:rgba(2,13,29,.46);border-radius:14px;color:#b7c8df;padding:0 13px;outline:none;font-size:12px}.x-top-icon,.x-user-chip{height:36px;min-width:36px;border-radius:50%;border:1px solid rgba(58,131,213,.22);background:rgba(3,20,43,.62);display:grid;place-items:center;color:#b9cbe3}.x-user-chip{border-color:#2998ff;color:#fff;font-size:11px;font-weight:800}
+.container{max-width:none!important;margin:0!important;margin-left:215px!important;padding:24px 26px 60px!important;position:relative;z-index:2}
+.x-greeting{display:flex;justify-content:space-between;align-items:flex-start;margin:4px 0 15px;padding:0 2px}.x-greeting h1{font-size:17px;margin:0 0 7px;font-weight:760}.x-greeting p{font-size:11px;color:var(--xmuted);margin:0}.x-badge{font-size:10px;letter-spacing:.3px;background:linear-gradient(180deg,#1a79eb,#0c59ba);border:1px solid rgba(70,158,255,.35);padding:7px 11px;border-radius:7px;font-weight:800;box-shadow:0 8px 24px rgba(0,97,255,.18)}
+.sdx-overview{display:none!important}.sdx-stats{grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin:0 0 10px}.stat-glass{min-height:88px;padding:14px 16px;border-radius:8px;border:1px solid rgba(64,130,209,.28);background:linear-gradient(145deg,rgba(9,35,68,.82),rgba(5,25,52,.72));box-shadow:inset 0 1px 0 rgba(255,255,255,.025),0 10px 30px rgba(0,0,0,.11);display:block}.stat-icon{display:none}.stat-glass small{font-size:10px;color:#9db0cb;margin-bottom:9px}.stat-glass strong{font-size:18px;display:block;color:#fff}.stat-sub{font-size:9px;color:#42d982;margin-top:7px}.stat-sub.muted{color:#8da2bd}
+.x-dashboard-grid{display:grid;grid-template-columns:minmax(0,1.75fr) minmax(210px,.75fr);gap:9px;margin-top:9px}.x-glass-card{border:1px solid rgba(64,130,209,.27);background:linear-gradient(145deg,rgba(7,31,61,.82),rgba(4,22,47,.76));border-radius:8px;padding:13px;box-shadow:0 12px 30px rgba(0,0,0,.12)}.x-card-title{font-size:12px;font-weight:760;margin-bottom:10px}.x-apps-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.apps-card.x-top-apps{padding:13px;border-radius:8px;margin:0;background:linear-gradient(145deg,rgba(7,31,61,.82),rgba(4,22,47,.76));border:1px solid rgba(64,130,209,.27)}.apps-card.x-top-apps .apps-head{margin-bottom:10px}.apps-card.x-top-apps .apps-head h2{font-size:12px}.apps-card.x-top-apps .apps-head p{display:none}.apps-card.x-top-apps .apps-add{font-size:10px;padding:7px 9px}.apps-card.x-top-apps .apps-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:8px}.app-tile{min-height:82px!important;padding:10px 7px!important;border-radius:8px!important;background:linear-gradient(145deg,rgba(11,42,81,.83),rgba(6,28,58,.76))!important;border-color:rgba(63,132,216,.26)!important}.app-icon{font-size:24px!important;margin-bottom:6px!important}.app-name{font-size:9px!important}.app-actions{opacity:0}.app-tile:hover .app-actions{opacity:1}
+.x-bottom-grid{display:grid;grid-template-columns:minmax(0,1.75fr) minmax(210px,.75fr);gap:9px;margin-top:9px}.x-recent-table{width:100%;border-collapse:collapse;font-size:10px}.x-recent-table th{text-align:left;color:#8da2bd;font-size:9px;font-weight:600;padding:4px 5px 7px}.x-recent-table td{padding:7px 5px;border-top:1px solid rgba(73,127,190,.12);color:#dce8f7}.x-recent-name{display:flex;align-items:center;gap:7px}.x-mini-file-icon{width:19px;height:19px;border-radius:5px;background:rgba(37,117,220,.18);display:grid;place-items:center;font-size:10px}.x-quick{display:flex;flex-direction:column;gap:7px}.x-quick button,.x-quick label{width:100%;border:1px solid rgba(61,128,211,.22);background:rgba(8,33,66,.78);color:#d8e7f9;border-radius:7px;padding:10px 11px;text-align:left;font-size:10px;cursor:pointer}.x-quick .primary{background:linear-gradient(90deg,#137ff5,#0966d3);color:#fff;border-color:#238fff}.x-quick label{display:block}
+.welcome{display:none}.profile-card,.storage-card,.upload-box,.toolbar,.files-card,.gdrive-card{border-radius:10px!important;background:rgba(6,27,54,.74)!important;border-color:rgba(60,129,210,.22)!important}.profile-card{margin-top:18px}.storage-card{margin-top:0}.files-card{margin-top:12px}.gdrive-card{margin-top:12px}.upload-box{margin-top:12px}
+#profileArea,#filesArea,#gdriveArea{scroll-margin-top:82px}
+@media(max-width:900px){.sdx-sidebar{width:78px}.header{left:78px!important;width:calc(100% - 78px)!important}.container{margin-left:78px!important}.x-dashboard-grid,.x-bottom-grid{grid-template-columns:1fr}.sdx-stats{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:650px){.header{left:0!important;width:100%!important}.container{margin-left:0!important;padding:14px 12px 90px!important}.x-top-search{width:155px}.sdx-stats{grid-template-columns:repeat(2,1fr)}.apps-card.x-top-apps .apps-grid{grid-template-columns:repeat(2,1fr)!important}.x-greeting h1{font-size:15px}.x-badge{display:none}}
+
+
+
+/* SETTINGS MODAL */
+.settings-modal-box{max-width:760px;background:linear-gradient(145deg,rgba(6,24,50,.98),rgba(4,17,38,.98));border:1px solid rgba(77,145,230,.28);box-shadow:0 30px 90px rgba(0,0,0,.48)}
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.settings-section{border:1px solid rgba(85,150,230,.18);background:rgba(8,30,59,.52);border-radius:16px;padding:16px}
+.settings-section.full{grid-column:1/-1}.settings-section h3{font-size:14px;margin-bottom:5px}.settings-section p{font-size:12px;color:#7f96b6;line-height:1.5;margin-bottom:13px}
+.settings-label{display:block;color:#9fb2cd;font-size:12px;margin:10px 0 6px}.settings-row{display:flex;gap:8px;align-items:center}.settings-row>*{flex:1}
+.settings-switch{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid rgba(110,160,220,.08)}.settings-switch:last-child{border-bottom:0}.settings-switch span{font-size:13px;color:#c7d5e8}.settings-check{width:18px;height:18px;accent-color:#2687ff}
+.settings-note{font-size:11px;color:#6f86a5;margin-top:8px}.settings-danger{background:rgba(80,18,28,.30)!important;border-color:rgba(239,68,68,.20)!important}.settings-danger .action-btn{background:#401b24}.settings-status{min-height:18px;margin-top:10px;font-size:12px;color:#7dd3fc}
+body.sdx-compact .x-greeting{padding-top:8px;padding-bottom:8px}body.sdx-compact .stat-glass{min-height:72px!important;padding:10px!important}body.sdx-compact .app-tile{min-height:72px!important;padding:8px 6px!important}body.sdx-no-anim *,body.sdx-no-anim *:before,body.sdx-no-anim *:after{transition:none!important;animation:none!important;scroll-behavior:auto!important}
+@media(max-width:700px){.settings-grid{grid-template-columns:1fr}.settings-section.full{grid-column:auto}.settings-row{flex-direction:column}.settings-row>*{width:100%}}
+
+
+/* ===== SKYDRIVEX ULTRA MODULES ===== */
+.ultra-section{margin:18px 0;padding:18px;border:1px solid rgba(79,145,225,.18);border-radius:18px;background:linear-gradient(145deg,rgba(8,30,60,.64),rgba(5,20,43,.54));backdrop-filter:blur(18px)}
+.ultra-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}.ultra-head h2{font-size:17px}.ultra-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.ultra-tile{border:1px solid rgba(93,154,229,.16);background:rgba(12,38,72,.56);color:#dbeafe;border-radius:14px;padding:14px;text-align:left;min-height:84px;transition:.2s}.ultra-tile:hover{transform:translateY(-2px);background:rgba(18,53,96,.72);border-color:rgba(88,166,255,.35)}.ultra-tile b{display:block;margin-top:7px;font-size:12px}.ultra-tile small{color:#7892b5;font-size:10px}.ultra-modal{max-width:920px}.ultra-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.ultra-list{display:grid;gap:8px;max-height:52vh;overflow:auto}.ultra-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px;border:1px solid rgba(80,145,220,.14);border-radius:12px;background:rgba(8,27,54,.55)}.ultra-item .muted{font-size:11px;color:#7892b5}.ultra-textarea{width:100%;min-height:130px;resize:vertical}.ultra-badge{padding:4px 8px;border-radius:20px;background:rgba(35,129,255,.16);color:#8ec5ff;font-size:10px}.command-input{font-size:16px;padding:15px!important}.assistant-msg{padding:10px 12px;border-radius:12px;margin:7px 0;max-width:85%}.assistant-msg.me{margin-left:auto;background:#1c67c8}.assistant-msg.bot{background:#102b50}.widget-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.mini-widget{padding:14px;border-radius:14px;background:rgba(9,31,61,.58);border:1px solid rgba(80,145,220,.14)}.mini-widget strong{font-size:20px;display:block;margin-top:4px}.sdx-toast-wrap{position:fixed;right:18px;top:78px;z-index:9999;display:grid;gap:8px}.sdx-toast{padding:11px 14px;border-radius:12px;background:rgba(8,28,55,.96);border:1px solid rgba(74,153,255,.3);box-shadow:0 14px 40px rgba(0,0,0,.35);font-size:12px;animation:toastIn .25s ease}@keyframes toastIn{from{transform:translateX(20px);opacity:0}}
+body.sdx-amoled{--bg:#000!important;background:#000!important}body.sdx-light{--bg:#eaf3ff!important;--text:#0b1b31!important;--muted:#55708f!important;background:#eaf3ff!important;color:#0b1b31!important}body.sdx-wallpaper{background-image:var(--sdx-wallpaper)!important;background-size:cover!important;background-attachment:fixed!important}.lang-select{background:#0b1e39;color:#fff;border:1px solid rgba(90,150,220,.25);border-radius:10px;padding:9px}
+@media(max-width:900px){.ultra-grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:650px){.ultra-grid,.widget-row{grid-template-columns:1fr 1fr}.ultra-section{padding:13px}.ultra-modal{max-height:92vh}}
+
 </style>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0a2b52">
 </head>
 
 <body>
@@ -762,31 +877,76 @@ button{
 
 <section id="cloudPage" class="hidden">
 
+<aside class="sdx-sidebar">
+  <div class="sdx-brand"><div class="sdx-brand-icon">☁</div><div>Sky<span>DriveX</span></div></div>
+  <nav class="sdx-nav">
+    <a class="active" href="#dashboardTop">⌂ <span>Dashboard</span></a>
+    <a href="#filesArea">▢ <span>Fayllarim</span></a>
+    <a href="#filesArea">▱ <span>Papkalar</span></a>
+    <a href="#gdriveArea">△ <span>Google Drive</span></a>
+    <a href="#appsArea">◈ <span>Ilovalar</span></a>
+    <a href="#filesArea">☆ <span>Sevimlilar</span></a>
+    <a href="javascript:void(0)" onclick="openSettings()">⚙ <span>Sozlamalar</span></a>
+    <a href="javascript:void(0)" onclick="logout()">◉ <span>Chiqish</span></a>
+  </nav>
+  <div class="sdx-side-storage">
+    <div class="side-storage-head"><span>Storage</span><span id="sideStorageText">0%</span></div>
+    <div class="side-progress"><div id="sideStorageBar"></div></div>
+    <small>SkyDriveX Cloud</small>
+  </div>
+</aside>
+
 <header class="header">
-
-    <div class="logo">
-        Sky<span>DriveX</span>
-    </div>
-
-    <div class="header-right">
-
-        <div
-            class="user"
-            id="userEmail">
-        </div>
-
-        <button
-            class="logout"
-            onclick="logout()">
-            Chiqish
-        </button>
-
-    </div>
-
+  <div class="header-right">
+    <input class="x-top-search" placeholder="⌕  Qidirish..." oninput="document.getElementById('searchInput').value=this.value;filterItems()">
+    <div class="x-top-icon">♧</div>
+    <div class="x-user-chip">US</div>
+    <div class="user" id="userEmail"></div>
+  </div>
 </header>
 
 
-<main class="container">
+<main class="container" id="dashboardTop">
+
+<section class="x-greeting">
+  <div><h1>Xush kelibsiz, United System! 👋</h1><p>Fayllaringiz xavfsiz va bir joyda.</p></div>
+  <div class="x-badge">VARIANT 5 · DARK BLUE GLASS</div>
+</section>
+<section class="sdx-stats">
+  <div class="stat-glass"><div class="stat-icon">▤</div><div><small>Fayllar</small><strong id="statFiles">—</strong><div class="stat-sub">+ faol fayllar</div></div></div>
+  <div class="stat-glass"><div class="stat-icon">📁</div><div><small>Papkalar</small><strong id="statFolders">—</strong><div class="stat-sub">papkalar soni</div></div></div>
+  <div class="stat-glass"><div class="stat-icon">☁</div><div><small>Storage</small><strong id="statStorage">0 B</strong><div class="stat-sub muted">ishlatilgan xotira</div></div></div>
+  <div class="stat-glass"><div class="stat-icon">△</div><div><small>Google Drive</small><strong id="statDrive">Ulanmagan</strong><div class="stat-sub muted">hisob holati</div></div></div>
+</section>
+<section class="x-dashboard-grid">
+<section class="apps-card x-top-apps" id="appsArea">
+  <div class="apps-head">
+    <div><h2>🚀 Ilovalar</h2><p>Kerakli servisni tez oching yoki o‘zingiz yangi ilova qo‘shing.</p></div>
+    <button class="apps-add" onclick="openAppEditor()">＋ Ilova qo‘shish</button>
+  </div>
+  <div id="appsGrid" class="apps-grid"></div>
+</section>
+  <section class="x-glass-card">
+    <div class="x-card-title">Tezkor Amallar</div>
+    <div class="x-quick">
+      <label for="fileInput" class="primary">⬆ &nbsp; Fayl Yuklash</label>
+      <button onclick="createFolder()">▢ &nbsp; Papka Yaratish</button>
+      <button onclick="document.getElementById('gdriveArea').scrollIntoView({behavior:'smooth'})">△ &nbsp; Google Drive Ochish</button>
+    </div>
+  </section>
+</section>
+<section class="x-bottom-grid">
+  <section class="x-glass-card">
+    <div class="x-card-title">So‘nggi Fayllar</div>
+    <table class="x-recent-table"><thead><tr><th>Nomi</th><th>O‘lchami</th><th>Holati</th></tr></thead><tbody id="xRecentBody"><tr><td colspan="3" style="color:#7187a7">Fayllar yuklanmoqda...</td></tr></tbody></table>
+  </section>
+  <section class="x-glass-card">
+    <div class="x-card-title">Hisob</div>
+    <div style="font-size:10px;color:#8da2bd;line-height:1.7">SkyDriveX profilingiz va cloud sozlamalaringiz shu yerda boshqariladi.</div>
+    <button class="action-btn blue" style="width:100%;margin-top:12px" onclick="document.getElementById('profileArea').scrollIntoView({behavior:'smooth'})">👤 Profilni ochish</button>
+  </section>
+</section>
+
 
 <!-- WELCOME -->
 
@@ -806,7 +966,7 @@ button{
      PROFILE
 ===================================================== -->
 
-<section class="profile-card">
+<section class="profile-card" id="profileArea">
 
     <div id="avatarContainer">
 
@@ -977,7 +1137,7 @@ button{
      FILE LIST
 ===================================================== -->
 
-<section class="files-card">
+<section class="files-card" id="filesArea">
 
     <div class="files-header">
 
@@ -1010,7 +1170,11 @@ button{
 </section>
 
 
-<section class="gdrive-card">
+
+
+
+
+<section class="gdrive-card" id="gdriveArea">
   <div class="gdrive-head">
     <div><h2>🔺 Google Drive</h2><div id="gdriveStatus" class="gdrive-status">⚫ Ulanmagan</div></div>
     <div class="gdrive-actions">
@@ -1025,6 +1189,36 @@ button{
   <div id="gdrivePath" class="gdrive-path">🏠 My Drive</div>
   <div id="gdriveList"><div class="empty">Google Drive’ni ulang.</div></div>
 </section>
+
+
+<section class="ultra-section" id="ultraCenter">
+ <div class="ultra-head"><h2>⚡ SkyDriveX Center</h2><span class="ultra-badge">ULTRA</span></div>
+ <div class="widget-row" id="sdxWidgets">
+  <div class="mini-widget">🕐 <small>Vaqt</small><strong id="sdxClock">--:--</strong></div>
+  <div class="mini-widget">📅 <small>Bugun</small><strong id="sdxDate" style="font-size:14px">--</strong></div>
+  <div class="mini-widget">☁️ <small>Cloud</small><strong style="font-size:14px">SkyDriveX + Drive</strong></div>
+ </div>
+ <div class="ultra-grid" style="margin-top:12px">
+  <button class="ultra-tile" onclick="openUltra('command')">🚀<b>Command Center</b><small>Hamma joydan qidirish</small></button>
+  <button class="ultra-tile" onclick="openUltra('assistant')">🤖<b>Assistant</b><small>SkyDriveX yordamchi</small></button>
+  <button class="ultra-tile" onclick="openUltra('notes')">📝<b>Notes</b><small>Tezkor yozuvlar</small></button>
+  <button class="ultra-tile" onclick="openUltra('tasks')">✅<b>Vazifalar</b><small>To-do ro‘yxati</small></button>
+  <button class="ultra-tile" onclick="openUltra('calendar')">📅<b>Kalendar</b><small>Eslatmalar</small></button>
+  <button class="ultra-tile" onclick="openUltra('bookmarks')">🔖<b>Saved Links</b><small>Bookmarklar</small></button>
+  <button class="ultra-tile" onclick="openUltra('gallery')">🖼️<b>Gallery</b><small>Rasmlar</small></button>
+  <button class="ultra-tile" onclick="openUltra('media')">🎬<b>Media Center</b><small>Video va audio</small></button>
+  <button class="ultra-tile" onclick="openUltra('documents')">📄<b>Documents</b><small>Hujjatlar</small></button>
+  <button class="ultra-tile" onclick="openUltra('storage')">📊<b>Storage Map</b><small>Fayl turlari statistikasi</small></button>
+  <button class="ultra-tile" onclick="openUltra('favorites')">⭐<b>Sevimlilar</b><small>Muhim elementlar</small></button>
+  <button class="ultra-tile" onclick="openUltra('recent')">🕒<b>Recent Activity</b><small>Oxirgi faoliyat</small></button>
+  <button class="ultra-tile" onclick="openUltra('security')">🛡️<b>Security Center</b><small>PIN va xavfsizlik</small></button>
+  <button class="ultra-tile" onclick="openUltra('cleanup')">🧹<b>Cleanup Center</b><small>Katta fayllarni topish</small></button>
+  <button class="ultra-tile" onclick="openUltra('cloud')">🔄<b>Cloud Transfer</b><small>SkyDriveX ↔ Drive</small></button>
+  <button class="ultra-tile" onclick="openUltra('customize')">🎨<b>Customize</b><small>Theme va wallpaper</small></button>
+ </div>
+</section>
+<div id="ultraModal" class="modal hidden" onclick="closeUltra(event)"><div class="modal-box ultra-modal" onclick="event.stopPropagation()"><div class="modal-header"><strong id="ultraTitle">SkyDriveX</strong><button class="close-btn" onclick="closeUltra()">✕</button></div><div id="ultraContent"></div></div></div>
+<div id="sdxToastWrap" class="sdx-toast-wrap"></div>
 
 </main>
 
@@ -1062,6 +1256,75 @@ button{
 
 </div>
 
+
+
+
+<!-- APP EDITOR MODAL -->
+<div id="appEditorModal" class="modal hidden" onclick="closeAppEditor(event)">
+  <div class="modal-box apps-modal-box" onclick="event.stopPropagation()">
+    <div class="modal-header"><strong id="appEditorTitle">Ilova qo‘shish</strong><button class="close-btn" onclick="closeAppEditor()">✕</button></div>
+    <label class="apps-form-label">Ilova nomi</label><input id="appNameInput" class="input" placeholder="Masalan: Pinterest">
+    <label class="apps-form-label">Link</label><input id="appUrlInput" class="input" placeholder="https://...">
+    <label class="apps-form-label">Ikonka</label><input id="appIconInput" class="input" placeholder="Masalan: 📌">
+    <div class="apps-hint">Ikonka sifatida emoji ishlatishingiz mumkin. Qo‘shgan ilovalaringiz shu brauzerda saqlanadi.</div>
+    <div class="apps-form-actions"><button class="action-btn" onclick="closeAppEditor()">Bekor qilish</button><button class="action-btn blue" onclick="saveCustomApp()">Saqlash</button></div>
+  </div>
+</div>
+
+
+<!-- SETTINGS MODAL -->
+<div id="settingsModal" class="modal hidden" onclick="closeSettings(event)">
+  <div class="modal-box settings-modal-box" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div><strong>⚙ Sozlamalar</strong><div class="apps-hint">SkyDriveX hisobingiz va interfeysini boshqaring.</div></div>
+      <button class="close-btn" onclick="closeSettings()">✕</button>
+    </div>
+
+    <div class="settings-grid">
+      <section class="settings-section">
+        <h3>👤 Profil</h3><p>Ko‘rinadigan nomingizni o‘zgartiring.</p>
+        <label class="settings-label">Profil nomi</label>
+        <input id="settingsName" class="input" placeholder="Ismingiz">
+        <label class="settings-label">Email</label>
+        <input id="settingsEmail" class="input" readonly>
+        <button class="action-btn blue" style="width:100%" onclick="saveProfileSettings()">Saqlash</button>
+      </section>
+
+      <section class="settings-section">
+        <h3>🔐 Parol</h3><p>SkyDriveX hisobingiz uchun yangi parol o‘rnating.</p>
+        <label class="settings-label">Yangi parol</label>
+        <input id="settingsPassword" class="input" type="password" placeholder="Kamida 6 ta belgi">
+        <label class="settings-label">Parolni takrorlang</label>
+        <input id="settingsPassword2" class="input" type="password" placeholder="Yangi parolni qayta kiriting">
+        <button class="action-btn blue" style="width:100%" onclick="changeAccountPassword()">Parolni yangilash</button>
+      </section>
+
+      <section class="settings-section">
+        <h3>🎨 Ko‘rinish</h3><p>Dark Blue Glass interfeysini o‘zingizga moslang.</p>
+        <label class="settings-switch"><span>Ixcham rejim</span><input id="compactModeCheck" class="settings-check" type="checkbox" onchange="saveVisualSettings()"></label>
+        <label class="settings-switch"><span>Animatsiyalar</span><input id="animationsCheck" class="settings-check" type="checkbox" checked onchange="saveVisualSettings()"></label>
+        <div class="settings-note">Sozlamalar shu brauzerda saqlanadi.</div>
+      </section>
+
+      <section class="settings-section">
+        <h3>🚀 Ilovalar</h3><p>Launcher’ga yangi servis qo‘shing yoki o‘zingiz qo‘shganlarini boshqaring.</p>
+        <div class="settings-row">
+          <button class="action-btn blue" onclick="closeSettings();openAppEditor()">＋ Ilova qo‘shish</button>
+          <button class="action-btn" onclick="resetCustomApps()">Custom ilovalarni tozalash</button>
+        </div>
+      </section>
+
+      <section class="settings-section full settings-danger">
+        <h3>⚠ Hisob amallari</h3><p>Mahalliy sozlamalarni tozalash yoki hisobdan chiqish.</p>
+        <div class="settings-row">
+          <button class="action-btn" onclick="resetLocalSettings()">Mahalliy sozlamalarni tiklash</button>
+          <button class="action-btn" onclick="logout()">Hisobdan chiqish</button>
+        </div>
+      </section>
+    </div>
+    <div id="settingsStatus" class="settings-status"></div>
+  </div>
+</div>
 
 <script>
 
@@ -1327,7 +1590,7 @@ async function showCloud(user){
         user.email;
 
     profileName.textContent =
-        "SkyDriveX foydalanuvchisi";
+        user.user_metadata?.display_name || "SkyDriveX foydalanuvchisi";
 
     currentFolder = "";
 
@@ -3256,6 +3519,96 @@ function escapeJs(text){
 }
 
 
+
+
+/* =====================================================
+   APPS LAUNCHER
+===================================================== */
+const SDX_DEFAULT_APPS = [
+  {name:"Instagram",icon:"📸",url:"https://www.instagram.com/"},
+  {name:"Telegram",icon:"✈️",url:"https://web.telegram.org/"},
+  {name:"YouTube",icon:"▶️",url:"https://www.youtube.com/"},
+  {name:"CLICK",icon:"💳",url:"https://click.uz/"},
+  {name:"Facebook",icon:"📘",url:"https://www.facebook.com/"},
+  {name:"HeadHunter",icon:"💼",url:"https://hh.uz/"},
+  {name:"iCloud",icon:"☁️",url:"https://www.icloud.com/"},
+  {name:"Gmail",icon:"✉️",url:"https://mail.google.com/"},
+  {name:"Google Photos",icon:"🌈",url:"https://photos.google.com/"},
+  {name:"AliExpress",icon:"🛍️",url:"https://www.aliexpress.com/"},
+  {name:"eBay",icon:"🛒",url:"https://www.ebay.com/"},
+  {name:"Yandex Go",icon:"🚕",url:"https://go.yandex/"},
+  {name:"OLX",icon:"🟢",url:"https://www.olx.uz/"},
+  {name:"ChatGPT",icon:"🤖",url:"https://chatgpt.com/"},
+  {name:"my.gov.uz",icon:"🇺🇿",url:"https://my.gov.uz/"},
+  {name:"OneID",icon:"🪪",url:"https://id.egov.uz/"},
+  {name:"Uzmobile",icon:"📱",url:"https://uztelecom.uz/"},
+  {name:"iCSee",icon:"📹",url:"https://www.icsee.com/"},
+  {name:"Soliq",icon:"🧾",url:"https://my.soliq.uz/"},
+  {name:"Yandex Maps",icon:"🗺️",url:"https://yandex.com/maps/"},
+  {name:"WhatsApp",icon:"💬",url:"https://web.whatsapp.com/"},
+  {name:"Messenger",icon:"💭",url:"https://www.messenger.com/"}
+];
+let sdxEditingAppIndex = -1;
+function getCustomApps(){try{return JSON.parse(localStorage.getItem("sdx_custom_apps")||"[]")}catch(e){return []}}
+function setCustomApps(v){localStorage.setItem("sdx_custom_apps",JSON.stringify(v));renderApps()}
+function renderApps(){
+  const grid=document.getElementById("appsGrid"); if(!grid)return;
+  const custom=getCustomApps(); const apps=[...SDX_DEFAULT_APPS,...custom.map((x,i)=>({...x,custom:true,customIndex:i}))];
+  grid.innerHTML="";
+  apps.forEach(app=>{
+    const tile=document.createElement("div"); tile.className="app-tile";
+    tile.innerHTML=`<div class="app-icon">${escapeHtml(app.icon||"🔗")}</div><div class="app-name">${escapeHtml(app.name||"Ilova")}</div>`;
+    tile.onclick=()=>window.open(app.url,"_blank","noopener,noreferrer");
+    if(app.custom){
+      const actions=document.createElement("div"); actions.className="app-custom-actions app-actions";
+      const edit=document.createElement("button"); edit.className="app-mini"; edit.textContent="✎"; edit.title="Tahrirlash"; edit.onclick=e=>{e.stopPropagation();openAppEditor(app.customIndex)};
+      const del=document.createElement("button"); del.className="app-mini"; del.textContent="✕"; del.title="O‘chirish"; del.onclick=e=>{e.stopPropagation();deleteCustomApp(app.customIndex)};
+      actions.append(edit,del); tile.appendChild(actions);
+    }
+    grid.appendChild(tile);
+  });
+}
+function openAppEditor(index=-1){
+  sdxEditingAppIndex=index; const modal=document.getElementById("appEditorModal"); if(!modal)return;
+  const custom=getCustomApps(); const app=index>=0?custom[index]:null;
+  document.getElementById("appEditorTitle").textContent=app?"Ilovani tahrirlash":"Ilova qo‘shish";
+  document.getElementById("appNameInput").value=app?.name||"";
+  document.getElementById("appUrlInput").value=app?.url||"";
+  document.getElementById("appIconInput").value=app?.icon||"";
+  modal.classList.remove("hidden");
+}
+function closeAppEditor(event){if(event&&event.target!==event.currentTarget)return;document.getElementById("appEditorModal")?.classList.add("hidden")}
+function saveCustomApp(){
+  const name=document.getElementById("appNameInput").value.trim(); let url=document.getElementById("appUrlInput").value.trim(); const icon=document.getElementById("appIconInput").value.trim()||"🔗";
+  if(!name||!url){alert("Ilova nomi va linkini kiriting.");return} if(!/^https?:\/\//i.test(url))url="https://"+url;
+  try{new URL(url)}catch(e){alert("Link noto‘g‘ri.");return}
+  const custom=getCustomApps(); const obj={name,url,icon}; if(sdxEditingAppIndex>=0)custom[sdxEditingAppIndex]=obj;else custom.push(obj); setCustomApps(custom); closeAppEditor();
+}
+function deleteCustomApp(index){const custom=getCustomApps();if(!custom[index])return;if(!confirm("Bu ilovani launcher’dan o‘chirasizmi?"))return;custom.splice(index,1);setCustomApps(custom)}
+function resetCustomApps(){if(!confirm("O‘zingiz qo‘shgan barcha ilovalar o‘chirilsinmi?"))return;localStorage.removeItem("sdx_custom_apps");renderApps();showSettingsStatus("Custom ilovalar tozalandi.")}
+renderApps();
+
+/* =====================================================
+   SETTINGS
+===================================================== */
+function showSettingsStatus(text,error=false){const el=document.getElementById("settingsStatus");if(!el)return;el.textContent=text;el.style.color=error?"#fca5a5":"#7dd3fc";setTimeout(()=>{if(el.textContent===text)el.textContent=""},3500)}
+function getVisualSettings(){try{return JSON.parse(localStorage.getItem("sdx_visual_settings")||"{}")||{}}catch(e){return {}}}
+function applyVisualSettings(){const s=getVisualSettings();document.body.classList.toggle("sdx-compact",!!s.compact);document.body.classList.toggle("sdx-no-anim",s.animations===false);const c=document.getElementById("compactModeCheck"),a=document.getElementById("animationsCheck");if(c)c.checked=!!s.compact;if(a)a.checked=s.animations!==false}
+function saveVisualSettings(){const s={compact:!!document.getElementById("compactModeCheck")?.checked,animations:!!document.getElementById("animationsCheck")?.checked};localStorage.setItem("sdx_visual_settings",JSON.stringify(s));applyVisualSettings();showSettingsStatus("Ko‘rinish sozlamalari saqlandi.")}
+function openSettings(){const u=window.currentUser;document.getElementById("settingsName").value=u?.user_metadata?.display_name||"";document.getElementById("settingsEmail").value=u?.email||"";document.getElementById("settingsPassword").value="";document.getElementById("settingsPassword2").value="";applyVisualSettings();document.getElementById("settingsModal")?.classList.remove("hidden")}
+function closeSettings(event){if(event&&event.target!==event.currentTarget)return;document.getElementById("settingsModal")?.classList.add("hidden")}
+async function saveProfileSettings(){
+  const name=document.getElementById("settingsName").value.trim(); if(!name){showSettingsStatus("Profil nomini kiriting.",true);return}
+  try{const {data,error}=await supabaseClient.auth.updateUser({data:{display_name:name}});if(error)throw error;window.currentUser=data.user||window.currentUser;profileName.textContent=name;showSettingsStatus("Profil nomi saqlandi.")}catch(e){showSettingsStatus(e.message||"Saqlashda xatolik.",true)}
+}
+async function changeAccountPassword(){
+  const p1=document.getElementById("settingsPassword").value,p2=document.getElementById("settingsPassword2").value;if(p1.length<6){showSettingsStatus("Parol kamida 6 ta belgi bo‘lsin.",true);return}if(p1!==p2){showSettingsStatus("Parollar bir xil emas.",true);return}
+  try{const {error}=await supabaseClient.auth.updateUser({password:p1});if(error)throw error;document.getElementById("settingsPassword").value="";document.getElementById("settingsPassword2").value="";showSettingsStatus("Parol yangilandi.")}catch(e){showSettingsStatus(e.message||"Parolni yangilashda xatolik.",true)}
+}
+function resetLocalSettings(){if(!confirm("Mahalliy ko‘rinish sozlamalari tiklansinmi?"))return;localStorage.removeItem("sdx_visual_settings");applyVisualSettings();showSettingsStatus("Mahalliy sozlamalar tiklandi.")}
+applyVisualSettings();
+
+
 /* =====================================================
    AUTH STATE
 ===================================================== */
@@ -3438,7 +3791,38 @@ document.getElementById("gdriveFileInput")?.addEventListener("change",async func
 
 updateGoogleDriveStatus();
 
+
+/* Dashboard visual sync */
+function syncDashboardStats(){
+  try{
+    const files=(allItems||[]).filter(x=>x&&x.metadata).length;
+    const folders=(allItems||[]).filter(x=>x&&!x.metadata).length;
+    const a=document.getElementById('statFiles'),b=document.getElementById('statFolders');
+    if(a)a.textContent=files; if(b)b.textContent=folders;
+    const st=document.getElementById('storageText'), ss=document.getElementById('statStorage'); if(st&&ss)ss.textContent=st.textContent||'0 B';
+    const gs=document.getElementById('gdriveStatus'), gd=document.getElementById('statDrive'); if(gs&&gd)gd.textContent=(gs.textContent||'').includes('Ulanmagan')?'Ulanmagan':'Ulangan';
+    const bar=document.getElementById('storageBar'), side=document.getElementById('sideStorageBar'), sideText=document.getElementById('sideStorageText');
+    if(bar&&side){side.style.width=bar.style.width||'0%'; if(sideText)sideText.textContent=bar.style.width||'0%';}
+  }catch(e){}
+}
+setInterval(syncDashboardStats,1000);
+document.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('.sdx-nav a');if(a){document.querySelectorAll('.sdx-nav a').forEach(x=>x.classList.remove('active'));a.classList.add('active')}});
+
+
+
+function syncExactDashboardRecent(){
+  const body=document.getElementById('xRecentBody');
+  if(!body) return;
+  const items=(allItems||[]).filter(x=>x&&x.name&&x.metadata).slice(0,4);
+  if(!items.length){body.innerHTML='<tr><td colspan="3" style="color:#7187a7">Hozircha fayl yo‘q</td></tr>';return;}
+  body.innerHTML=items.map(item=>{
+    const type=getFileType(item.name); const icon=getFileIcon(type); const size=formatSize(item.metadata?.size||0);
+    return `<tr><td><div class="x-recent-name"><span class="x-mini-file-icon">${icon}</span><span>${escapeHtml(item.name)}</span></div></td><td>${size}</td><td style="color:#8fa6c3">Cloud</td></tr>`;
+  }).join('');
+}
+setInterval(syncExactDashboardRecent,900);
 </script>
 
+<script>if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('./sw.js').catch(()=>{});</script>
 </body>
 </html>
