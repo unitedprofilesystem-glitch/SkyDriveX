@@ -983,6 +983,20 @@ body.ct-video-active #authPage{
 .video-volume input{flex:1;accent-color:#8b5cf6}
 .video-volume span{min-width:38px;text-align:right;color:#c4b5fd}
 @media(max-width:650px){.video-audio-settings{grid-template-columns:1fr}.video-audio-toggle{justify-content:space-between}}
+.video-play-settings{display:flex;gap:16px;align-items:center;flex-wrap:wrap;width:100%;padding-top:2px}
+.video-play-settings .music-toggle{color:#c4d4ea}
+
+/* Quick video sound button — sayt ichida doimiy boshqaruv */
+.sdx-video-sound-float{
+  position:fixed;right:20px;top:82px;z-index:205;display:none;align-items:center;gap:8px;
+  border:1px solid rgba(139,92,246,.35);background:linear-gradient(145deg,rgba(22,18,55,.94),rgba(12,29,60,.90));
+  color:#f5f3ff;border-radius:999px;padding:9px 13px;box-shadow:0 14px 38px rgba(0,0,0,.28);
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);font-size:11px;font-weight:800;cursor:pointer
+}
+body.ct-video-active .sdx-video-sound-float{display:flex}
+.sdx-video-sound-float:hover{transform:translateY(-1px)}
+.sdx-video-sound-float .sdx-vs-state{color:#c4b5fd;font-size:10px}
+@media(max-width:650px){.sdx-video-sound-float{right:10px;top:70px;padding:8px 11px}}
 
 /* Background music */
 .music-wallpaper-box{
@@ -1613,7 +1627,11 @@ body.ct-video-active #authPage{
               <span id="ctVideoVolumeValue">50%</span>
             </label>
           </div>
-          <div class="video-wallpaper-help">MP4 yoki WebM tanlang. Video avtomatik va takroriy ijro etiladi. Video ovozini yoqib/o‘chirishingiz va balandligini sozlashingiz mumkin. Video ovozi yoqilsa fon musiqasi avtomatik pauza bo‘ladi; fon musiqasini yoqsangiz video ovozi avtomatik o‘chadi.</div>
+          <div class="video-play-settings">
+            <label class="music-toggle">▶ Kirganda ijro <input id="ctVideoAutoplay" type="checkbox" checked onchange="ctVideoOptionChanged()"></label>
+            <label class="music-toggle">🔁 Takrorlash <input id="ctVideoLoop" type="checkbox" checked onchange="ctVideoOptionChanged()"></label>
+          </div>
+          <div class="video-wallpaper-help">MP4 yoki WebM tanlang. “Kirganda ijro” va “Takrorlash”ni o‘zingiz yoqasiz/o‘chirasiz. Saytning o‘zida alohida 🔊/🔇 tugma ham bor. Sayt ichidagi video yoki audio preview ochilganda fon video ovozi va fon musiqasi avtomatik vaqtincha to‘xtatiladi, shuning uchun ovozlar qo‘shilib ketmaydi.</div>
         </div>
 
 
@@ -4596,8 +4614,8 @@ const CT_VIDEO_AUDIO_SETTINGS_KEY="sdx_video_audio_settings_v1";
 
 function ctGetVideoAudioSettings(){
   try{
-    return {...{sound:false,volume:50},...(JSON.parse(localStorage.getItem(CT_VIDEO_AUDIO_SETTINGS_KEY)||"{}")||{})};
-  }catch(_){return {sound:false,volume:50}}
+    return {...{sound:false,volume:50,autoplay:true,loop:true},...(JSON.parse(localStorage.getItem(CT_VIDEO_AUDIO_SETTINGS_KEY)||"{}")||{})};
+  }catch(_){return {sound:false,volume:50,autoplay:true,loop:true}}
 }
 function ctSaveVideoAudioSettings(settings){
   localStorage.setItem(CT_VIDEO_AUDIO_SETTINGS_KEY,JSON.stringify(settings));
@@ -4607,15 +4625,22 @@ function ctSyncVideoAudioControls(){
   const sound=document.getElementById("ctVideoSoundEnabled");
   const volume=document.getElementById("ctVideoVolume");
   const value=document.getElementById("ctVideoVolumeValue");
+  const autoplay=document.getElementById("ctVideoAutoplay");
+  const loop=document.getElementById("ctVideoLoop");
   if(sound)sound.checked=!!settings.sound;
   if(volume)volume.value=String(settings.volume??50);
   if(value)value.textContent=`${settings.volume??50}%`;
+  if(autoplay)autoplay.checked=settings.autoplay!==false;
+  if(loop)loop.checked=settings.loop!==false;
   const v=document.getElementById("ctVideoWallpaper");
   if(v){
     v.volume=Math.max(0,Math.min(1,(settings.volume??50)/100));
     v.muted=!settings.sound;
     v.defaultMuted=!settings.sound;
+    v.autoplay=settings.autoplay!==false;
+    v.loop=settings.loop!==false;
   }
+  ctUpdateQuickVideoSoundButton?.();
 }
 function ctPauseBackgroundMusicForVideo(){
   const a=document.getElementById("ctBackgroundMusic");
@@ -4659,6 +4684,22 @@ function ctVideoVolumeChanged(value){
   if(v)v.volume=settings.volume/100;
   const out=document.getElementById("ctVideoVolumeValue");
   if(out)out.textContent=`${settings.volume}%`;
+}
+function ctVideoOptionChanged(){
+  const settings=ctGetVideoAudioSettings();
+  const ap=document.getElementById("ctVideoAutoplay");
+  const lp=document.getElementById("ctVideoLoop");
+  settings.autoplay=ap?ap.checked:true;
+  settings.loop=lp?lp.checked:true;
+  ctSaveVideoAudioSettings(settings);
+  const v=document.getElementById("ctVideoWallpaper");
+  if(v){
+    v.autoplay=settings.autoplay!==false;
+    v.loop=settings.loop!==false;
+    if(settings.autoplay!==false && v.src && v.paused && !window.sdxMediaFocusActive){v.play().catch(()=>{});}
+    if(settings.autoplay===false && v.src){v.pause();}
+  }
+  ctSyncVideoAudioControls();
 }
 
 function ctVideoDb(){
@@ -4706,8 +4747,10 @@ function ctEnsureVideoWallpaper(){
     v=document.createElement("video");
     v.id="ctVideoWallpaper";
     const settings=ctGetVideoAudioSettings();
-    v.muted=!settings.sound;v.defaultMuted=!settings.sound;v.volume=Math.max(0,Math.min(1,(settings.volume??50)/100));v.autoplay=true;v.loop=true;v.playsInline=true;
-    v.setAttribute("autoplay","");v.setAttribute("loop","");v.setAttribute("playsinline","");
+    v.muted=!settings.sound;v.defaultMuted=!settings.sound;v.volume=Math.max(0,Math.min(1,(settings.volume??50)/100));v.autoplay=settings.autoplay!==false;v.loop=settings.loop!==false;v.playsInline=true;
+    if(settings.autoplay!==false)v.setAttribute("autoplay","");else v.removeAttribute("autoplay");
+    if(settings.loop!==false)v.setAttribute("loop","");else v.removeAttribute("loop");
+    v.setAttribute("playsinline","");
     document.body.prepend(v);
   }
   ctSyncVideoAudioControls();
@@ -4732,10 +4775,28 @@ async function ctApplyVideoBlob(blob,name="Video wallpaper"){
   const settings=ctGetVideoAudioSettings();
   v.volume=Math.max(0,Math.min(1,(settings.volume??50)/100));
   v.muted=!settings.sound;v.defaultMuted=!settings.sound;
+  v.autoplay=settings.autoplay!==false;v.loop=settings.loop!==false;
+  if(settings.autoplay!==false)v.setAttribute("autoplay","");else v.removeAttribute("autoplay");
+  if(settings.loop!==false)v.setAttribute("loop","");else v.removeAttribute("loop");
   if(settings.sound)ctPauseBackgroundMusicForVideo();
   ctSetVideoStatus(`✅ ${name}`);
   ctSyncVideoAudioControls();
-  try{await v.play()}catch(_){/* ovozli autoplay ayrim brauzerlarda birinchi bosishni kutishi mumkin */}
+  if(settings.autoplay!==false){
+    try{
+      await v.play();
+    }catch(_){
+      /* Brauzer ovozli autoplayni bloklasa, wallpaper baribir jim holatda ishga tushadi. */
+      if(settings.sound){
+        settings.sound=false;
+        ctSaveVideoAudioSettings(settings);
+        v.muted=true;v.defaultMuted=true;
+        try{await v.play()}catch(__){}
+        ctSyncVideoAudioControls();
+      }
+    }
+  }else{
+    v.pause();
+  }
 }
 async function ctVideoWallpaperPicked(ev){
   const file=ev.target.files?.[0];if(!file)return;
@@ -5009,8 +5070,90 @@ async function ctRemoveBackgroundMusic(ask=true){
   if(ask)showSettingsStatus?.("Fon musiqasi olib tashlandi.");
 }
 
-document.addEventListener("DOMContentLoaded",async()=>{ctSyncVideoAudioControls();await ctLoadVideoWallpaper();ctSyncVideoAudioControls();});
-document.addEventListener("DOMContentLoaded",async()=>{await ctLoadBackgroundMusic();ctUpdateMiniMusicPlayer();});
+
+/* ===== QUICK VIDEO SOUND + PREVIEW AUDIO FOCUS ===== */
+window.sdxMediaFocusActive=false;
+let sdxMediaFocusState=null;
+
+function ctUpdateQuickVideoSoundButton(){
+  const btn=document.getElementById("sdxVideoSoundFloat");
+  const icon=document.getElementById("sdxVideoSoundIcon");
+  const state=document.getElementById("sdxVideoSoundState");
+  if(!btn)return;
+  const v=document.getElementById("ctVideoWallpaper");
+  const active=!!(v&&v.src&&localStorage.getItem("sdx_video_wallpaper_enabled")==="1");
+  btn.style.display=active?"flex":"none";
+  const settings=ctGetVideoAudioSettings();
+  const audible=!!settings.sound && !window.sdxMediaFocusActive;
+  if(icon)icon.textContent=audible?"🔊":"🔇";
+  if(state)state.textContent=window.sdxMediaFocusActive?"Preview payti mute":(audible?"Ovoz ON":"Ovoz OFF");
+  btn.title=audible?"Video wallpaper ovozini o‘chirish":"Video wallpaper ovozini yoqish";
+}
+async function ctQuickToggleVideoSound(){
+  if(window.sdxMediaFocusActive)return;
+  const v=document.getElementById("ctVideoWallpaper");
+  if(!v?.src)return alert("Avval video wallpaper tanlang.");
+  const settings=ctGetVideoAudioSettings();
+  await ctVideoSoundChanged(!settings.sound);
+  ctUpdateQuickVideoSoundButton();
+}
+
+function sdxEnterMediaFocus(){
+  if(window.sdxMediaFocusActive)return;
+  window.sdxMediaFocusActive=true;
+  const a=document.getElementById("ctBackgroundMusic");
+  const v=document.getElementById("ctVideoWallpaper");
+  const vs=ctGetVideoAudioSettings();
+  sdxMediaFocusState={
+    musicWasPlaying:!!(a?.src&&!a.paused),
+    videoWasPlaying:!!(v?.src&&!v.paused),
+    videoSoundWasOn:!!vs.sound
+  };
+  if(a?.src&&!a.paused)a.pause();
+  if(v?.src){v.muted=true;v.defaultMuted=true;if(!v.paused)v.pause();}
+  ctUpdateMiniMusicPlayer?.();
+  ctUpdateQuickVideoSoundButton();
+}
+async function sdxExitMediaFocus(){
+  if(!window.sdxMediaFocusActive)return;
+  const st=sdxMediaFocusState||{};
+  window.sdxMediaFocusActive=false;
+  sdxMediaFocusState=null;
+  const a=document.getElementById("ctBackgroundMusic");
+  const v=document.getElementById("ctVideoWallpaper");
+  const vs=ctGetVideoAudioSettings();
+  if(v?.src){
+    v.muted=!vs.sound;v.defaultMuted=!vs.sound;
+    if(st.videoWasPlaying || vs.autoplay!==false){try{await v.play()}catch(_){}}
+  }
+  if(st.videoSoundWasOn){
+    if(a?.src&&!a.paused)a.pause();
+  }else if(st.musicWasPlaying && a?.src){
+    try{await a.play()}catch(_){ctBindMusicUnlock?.();}
+  }
+  ctSyncVideoAudioControls?.();
+  ctUpdateMiniMusicPlayer?.();
+  ctUpdateQuickVideoSoundButton();
+}
+function sdxSyncPreviewMediaFocus(){
+  const modal=document.getElementById("previewModal");
+  if(!modal)return;
+  const mediaActive=!modal.classList.contains("hidden") && !!modal.querySelector("video,audio");
+  if(mediaActive)sdxEnterMediaFocus();
+  else if(window.sdxMediaFocusActive)sdxExitMediaFocus();
+}
+function sdxInstallPreviewFocusWatcher(){
+  const modal=document.getElementById("previewModal");
+  if(!modal||modal.dataset.sdxFocusWatch==="1")return;
+  modal.dataset.sdxFocusWatch="1";
+  const obs=new MutationObserver(()=>sdxSyncPreviewMediaFocus());
+  obs.observe(modal,{attributes:true,attributeFilter:["class"],childList:true,subtree:true});
+  modal.addEventListener("play",e=>{if(e.target?.matches?.("video,audio"))sdxEnterMediaFocus();},true);
+  modal.addEventListener("pause",()=>{setTimeout(sdxSyncPreviewMediaFocus,0);},true);
+}
+
+document.addEventListener("DOMContentLoaded",async()=>{ctSyncVideoAudioControls();await ctLoadVideoWallpaper();ctSyncVideoAudioControls();ctUpdateQuickVideoSoundButton();sdxInstallPreviewFocusWatcher();});
+document.addEventListener("DOMContentLoaded",async()=>{await ctLoadBackgroundMusic();ctUpdateMiniMusicPlayer();ctUpdateQuickVideoSoundButton();});
 
 const ctOldOpenSettings=window.openSettings;
 window.openSettings=function(){
@@ -5021,6 +5164,13 @@ document.addEventListener("DOMContentLoaded",ctLoad);
 
 </script>
 
+
+<!-- SKYDRIVEX QUICK VIDEO SOUND -->
+<button id="sdxVideoSoundFloat" class="sdx-video-sound-float" onclick="ctQuickToggleVideoSound()" type="button">
+  <span id="sdxVideoSoundIcon">🔇</span>
+  <span>Video</span>
+  <span id="sdxVideoSoundState" class="sdx-vs-state">Ovoz OFF</span>
+</button>
 
 <!-- SKYDRIVEX FLOATING MUSIC PLAYER -->
 <div id="sdxMusicPlayer" class="sdx-music-player" aria-label="Fon musiqasi boshqaruvi">
