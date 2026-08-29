@@ -1958,6 +1958,9 @@ async function showCloud(user){
 
     currentFolder = "";
 
+    // Boshqa PC / telefon / TV'da ham shu akkaunt wallpaperini tiklaymiz.
+    await sdxLoadWallpaperFromCloud?.();
+
     await loadAvatar();
 
     await loadCurrentFolder();
@@ -4547,6 +4550,164 @@ function ctApplyTheme(s){
   document.body.classList.add("sdx-custom-theme");
   document.body.classList.toggle("ct-no-decor",s.decor===false);
 }
+
+/* ===== CLOUD WALLPAPER SYNC — SAME SKYDRIVEX ACCOUNT ON OTHER DEVICES ===== */
+const SDX_CLOUD_WALLPAPER_META = {
+  type: "sdx_wallpaper_type",
+  path: "sdx_wallpaper_path",
+  name: "sdx_wallpaper_name",
+  updated: "sdx_wallpaper_updated_at",
+  videoSettings: "sdx_video_audio_settings"
+};
+let sdxCloudWallpaperSyncTimer = null;
+
+function sdxWallpaperCloudPath(kind, userId){
+  return `${userId}/.skydrivex/${kind}-wallpaper`;
+}
+
+async function sdxFreshUser(){
+  try{
+    const {data,error}=await supabaseClient.auth.getUser();
+    if(error) throw error;
+    if(data?.user){
+      window.currentUser=data.user;
+      return data.user;
+    }
+  }catch(e){
+    console.warn("SkyDriveX cloud wallpaper user:",e);
+  }
+  return window.currentUser||null;
+}
+
+async function sdxUpdateUserMetadata(patch){
+  const user=await sdxFreshUser();
+  if(!user) return null;
+  const current={...(user.user_metadata||{})};
+  const next={...current,...patch};
+  const {data,error}=await supabaseClient.auth.updateUser({data:next});
+  if(error) throw error;
+  if(data?.user) window.currentUser=data.user;
+  return data?.user||user;
+}
+
+async function sdxUploadWallpaperToCloud(file,kind,displayName=""){
+  const user=await sdxFreshUser();
+  if(!user) throw new Error("SkyDriveX hisobiga kiring.");
+  const path=sdxWallpaperCloudPath(kind,user.id);
+
+  const {error}=await supabaseClient.storage
+    .from(BUCKET)
+    .upload(path,file,{
+      upsert:true,
+      contentType:file.type || (kind==="video"?"video/mp4":"image/jpeg"),
+      cacheControl:"3600"
+    });
+  if(error) throw error;
+
+  const patch={
+    [SDX_CLOUD_WALLPAPER_META.type]:kind,
+    [SDX_CLOUD_WALLPAPER_META.path]:path,
+    [SDX_CLOUD_WALLPAPER_META.name]:displayName||file.name||`${kind} wallpaper`,
+    [SDX_CLOUD_WALLPAPER_META.updated]:Date.now()
+  };
+  if(kind==="video"){
+    patch[SDX_CLOUD_WALLPAPER_META.videoSettings]=ctGetVideoAudioSettings?.()||{};
+  }
+  await sdxUpdateUserMetadata(patch);
+  return path;
+}
+
+async function sdxSignedWallpaperUrl(path){
+  const {data,error}=await supabaseClient.storage
+    .from(BUCKET)
+    .createSignedUrl(path,86400);
+  if(error) throw error;
+  return data?.signedUrl||"";
+}
+
+async function sdxLoadWallpaperFromCloud(){
+  const user=await sdxFreshUser();
+  if(!user) return false;
+
+  const meta=user.user_metadata||{};
+  const kind=meta[SDX_CLOUD_WALLPAPER_META.type];
+  const path=meta[SDX_CLOUD_WALLPAPER_META.path];
+  const name=meta[SDX_CLOUD_WALLPAPER_META.name]||"Cloud wallpaper";
+
+  if(!kind || !path) return false;
+
+  try{
+    const signed=await sdxSignedWallpaperUrl(path);
+    if(!signed) return false;
+
+    if(kind==="video"){
+      const cloudSettings=meta[SDX_CLOUD_WALLPAPER_META.videoSettings];
+      if(cloudSettings && typeof cloudSettings==="object"){
+        localStorage.setItem(CT_VIDEO_AUDIO_SETTINGS_KEY,JSON.stringify(cloudSettings));
+      }
+      localStorage.setItem("sdx_video_wallpaper_enabled","1");
+      await ctApplyVideoUrl(signed,name);
+      return true;
+    }
+
+    if(kind==="image"){
+      ctDeactivateVideoWallpaper?.();
+      ctWallpaperData=signed;
+      let s=null;
+      try{s=JSON.parse(localStorage.getItem(CT_KEY)||"null")}catch(_){}
+      if(!s)s={...CT_PRESETS.darkblue,preset:"darkblue",wallpaper:signed};
+      s={...s,wallpaper:signed};
+      ctApplyTheme(s);
+      if(document.getElementById("ctWallpaperName")){
+        document.getElementById("ctWallpaperName").textContent=`☁️ ${name}`;
+      }
+      return true;
+    }
+  }catch(e){
+    console.warn("Cloud wallpaper yuklanmadi:",e);
+  }
+  return false;
+}
+
+async function sdxRemoveCloudWallpaper(kind=null){
+  try{
+    const user=await sdxFreshUser();
+    if(!user) return;
+    const meta=user.user_metadata||{};
+    const currentKind=kind||meta[SDX_CLOUD_WALLPAPER_META.type];
+    const path=meta[SDX_CLOUD_WALLPAPER_META.path];
+    if(path && (!kind || currentKind===kind)){
+      await supabaseClient.storage.from(BUCKET).remove([path]);
+      await sdxUpdateUserMetadata({
+        [SDX_CLOUD_WALLPAPER_META.type]:null,
+        [SDX_CLOUD_WALLPAPER_META.path]:null,
+        [SDX_CLOUD_WALLPAPER_META.name]:null,
+        [SDX_CLOUD_WALLPAPER_META.updated]:null,
+        [SDX_CLOUD_WALLPAPER_META.videoSettings]:null
+      });
+    }
+  }catch(e){
+    console.warn("Cloud wallpaper remove:",e);
+  }
+}
+
+function sdxScheduleCloudVideoSettingsSync(settings){
+  clearTimeout(sdxCloudWallpaperSyncTimer);
+  sdxCloudWallpaperSyncTimer=setTimeout(async()=>{
+    try{
+      const user=await sdxFreshUser();
+      if(!user) return;
+      const meta=user.user_metadata||{};
+      if(meta[SDX_CLOUD_WALLPAPER_META.type]!=="video") return;
+      await sdxUpdateUserMetadata({
+        [SDX_CLOUD_WALLPAPER_META.videoSettings]:settings
+      });
+    }catch(e){
+      console.warn("Video settings cloud sync:",e);
+    }
+  },500);
+}
+
 function ctRangeLabels(){
   const vals=[["ctBlur","ctBlurVal","px"],["ctOpacity","ctOpacityVal","%"],["ctOverlay","ctOverlayVal","%"],["ctRadius","ctRadiusVal","px"],["ctFont","ctFontVal","%"]];
   vals.forEach(([i,o,s])=>{const a=document.getElementById(i),b=document.getElementById(o);if(a&&b)b.textContent=a.value+s});
@@ -4575,25 +4736,33 @@ async function ctReset(){
   const s={...CT_PRESETS.darkblue,preset:"darkblue",wallpaper:""};
   ctWriteControls(s);ctApplyTheme(s);showSettingsStatus?.("Standart dizayn tiklandi.");
 }
-function ctRemoveWallpaper(){
+async function ctRemoveWallpaper(){
   ctWallpaperData="";
   const f=document.getElementById("ctWallpaperFile");if(f)f.value="";
   const n=document.getElementById("ctWallpaperName");if(n)n.textContent="Fon rasmi tanlanmagan";
   ctLive();
+  try{await sdxRemoveCloudWallpaper("image")}catch(_){}
 }
 async function ctWallpaperPicked(ev){
   const file=ev.target.files?.[0];if(!file)return;
   if(!file.type.startsWith("image/"))return alert("Rasm faylini tanlang.");
   ctDeactivateVideoWallpaper();
-  const name=document.getElementById("ctWallpaperName");if(name)name.textContent="Rasm tayyorlanmoqda...";
+  const name=document.getElementById("ctWallpaperName");if(name)name.textContent="☁️ Rasm tayyorlanmoqda...";
   try{
     const data=await ctCompressImage(file,1920,1080,.82);
     ctWallpaperData=data;
     if(name)name.textContent=`✅ ${file.name}`;
     ctLive();
+
+    const blob=await (await fetch(data)).blob();
+    const cloudFile=new File([blob],"wallpaper.jpg",{type:"image/jpeg"});
+    await sdxUploadWallpaperToCloud(cloudFile,"image",file.name);
+    if(name)name.textContent=`☁️ ${file.name}`;
+    showSettingsStatus?.("✅ Fon rasmi Cloud'ga saqlandi. Boshqa qurilmada ham chiqadi.");
   }catch(e){
-    if(name)name.textContent="Fon rasmi olinmadi";
-    alert("Rasmni o‘qib bo‘lmadi.");
+    console.error(e);
+    if(name)name.textContent="Fon rasmi olindi, Cloud sync xato";
+    alert("Fon rasmi shu qurilmada ishlaydi, lekin Cloud'ga yuklashda xato: "+(e?.message||e));
   }
 }
 function ctCompressImage(file,maxW,maxH,quality){
@@ -4660,6 +4829,7 @@ function ctGetVideoAudioSettings(){
 }
 function ctSaveVideoAudioSettings(settings){
   localStorage.setItem(CT_VIDEO_AUDIO_SETTINGS_KEY,JSON.stringify(settings));
+  sdxScheduleCloudVideoSettingsSync?.(settings);
 }
 function ctSyncVideoAudioControls(){
   const settings=ctGetVideoAudioSettings();
@@ -4839,22 +5009,67 @@ async function ctApplyVideoBlob(blob,name="Video wallpaper"){
     v.pause();
   }
 }
+
+async function ctApplyVideoUrl(url,name="Cloud video wallpaper"){
+  const v=ctEnsureVideoWallpaper();
+  if(ctVideoObjectUrl){try{URL.revokeObjectURL(ctVideoObjectUrl)}catch(_){}ctVideoObjectUrl="";}
+  v.src=url;
+  v.style.display="block";
+  document.body.classList.add("ct-video-active");
+  const settings=ctGetVideoAudioSettings();
+  v.volume=Math.max(0,Math.min(1,(settings.volume??50)/100));
+  v.muted=!settings.sound;v.defaultMuted=!settings.sound;
+  v.autoplay=settings.autoplay!==false;v.loop=settings.loop!==false;
+  if(settings.autoplay!==false)v.setAttribute("autoplay","");else v.removeAttribute("autoplay");
+  if(settings.loop!==false)v.setAttribute("loop","");else v.removeAttribute("loop");
+  if(settings.sound)ctPauseBackgroundMusicForVideo();
+  ctSetVideoStatus(`☁️ ${name}`);
+  ctSyncVideoAudioControls();
+  if(settings.autoplay!==false){
+    try{
+      await v.play();
+    }catch(_){
+      // Ovozli autoplay bloklansa, video jim holatda davom etadi.
+      if(settings.sound){
+        settings.sound=false;
+        ctSaveVideoAudioSettings(settings);
+        v.muted=true;v.defaultMuted=true;
+        try{await v.play()}catch(__){}
+        ctSyncVideoAudioControls();
+      }
+    }
+  }else{
+    v.pause();
+  }
+}
+
 async function ctVideoWallpaperPicked(ev){
   const file=ev.target.files?.[0];if(!file)return;
   if(!file.type.startsWith("video/"))return alert("Video faylini tanlang (MP4 yoki WebM).");
-  ctSetVideoStatus("Video saqlanmoqda...");
+  ctSetVideoStatus("☁️ Video cloud'ga saqlanmoqda...");
   try{
     if(file.size>180*1024*1024){
-      const ok=confirm("Video 180 MB dan katta. Telefonda sekin ishlashi mumkin. Baribir qo‘yilsinmi?");
+      const ok=confirm("Video 180 MB dan katta. Yuklash sekin bo‘lishi mumkin. Baribir qo‘yilsinmi?");
       if(!ok){ev.target.value="";ctSetVideoStatus("Video tanlanmagan");return;}
     }
-    await ctVideoDbPut({blob:file,name:file.name,type:file.type,size:file.size,updatedAt:Date.now()});
+
+    // Shu qurilmada login ekranida ham tez ko‘rinishi uchun lokal nusxa saqlanadi.
+    try{
+      await ctVideoDbPut({blob:file,name:file.name,type:file.type,size:file.size,updatedAt:Date.now()});
+    }catch(_){}
+
     localStorage.setItem("sdx_video_wallpaper_enabled","1");
     await ctApplyVideoBlob(file,file.name);
-    showSettingsStatus?.("✅ Video wallpaper saqlandi.");
+
+    // Asosiy nusxa Supabase Storage + SkyDriveX user metadata'da.
+    await sdxUploadWallpaperToCloud(file,"video",file.name);
+
+    showSettingsStatus?.("✅ Video wallpaper Cloud'ga saqlandi. Boshqa qurilmada login qilganda ham chiqadi.");
+    ctSetVideoStatus(`☁️ ${file.name}`);
   }catch(e){
-    console.error(e);ctSetVideoStatus("Video saqlanmadi");
-    alert("Video wallpaper saqlanmadi. Brauzer xotirasi yetarli bo‘lmasligi mumkin.");
+    console.error(e);
+    ctSetVideoStatus("⚠️ Cloud'ga saqlanmadi");
+    alert("Video shu qurilmada ishlaydi, lekin Cloud'ga yuklanmadi: "+(e?.message||e));
   }
 }
 async function ctLoadVideoWallpaper(){
@@ -4862,18 +5077,19 @@ async function ctLoadVideoWallpaper(){
   try{
     const rec=await ctVideoDbGet();
     if(rec?.blob)await ctApplyVideoBlob(rec.blob,rec.name||"Video wallpaper");
-  }catch(e){console.warn("Video wallpaper yuklanmadi",e)}
+  }catch(e){console.warn("Video wallpaper lokal yuklanmadi",e)}
 }
 async function ctRemoveVideoWallpaper(ask=true){
-  if(ask&&!confirm("Video wallpaper olib tashlansinmi?"))return;
+  if(ask&&!confirm("Video wallpaper barcha qurilmalardan olib tashlansinmi?"))return;
   ctDeactivateVideoWallpaper();
   localStorage.removeItem("sdx_video_wallpaper_enabled");
   try{await ctVideoDbDelete()}catch(_){}
+  try{await sdxRemoveCloudWallpaper("video")}catch(_){}
   if(ctVideoObjectUrl){URL.revokeObjectURL(ctVideoObjectUrl);ctVideoObjectUrl="";}
   const v=document.getElementById("ctVideoWallpaper");if(v){v.removeAttribute("src");v.load();}
   const f=document.getElementById("ctVideoWallpaperFile");if(f)f.value="";
   ctSetVideoStatus("Video tanlanmagan");
-  if(ask)showSettingsStatus?.("Video wallpaper olib tashlandi.");
+  if(ask)showSettingsStatus?.("Video wallpaper barcha qurilmalardan olib tashlandi.");
 }
 function ctToggleVideoWallpaper(){
   const v=document.getElementById("ctVideoWallpaper");
@@ -5202,6 +5418,7 @@ window.openSettings=function(){
   setTimeout(()=>{ctLoad();ctSyncMusicControls();ctSyncVideoAudioControls();},0);
 };
 document.addEventListener("DOMContentLoaded",ctLoad);
+document.addEventListener("DOMContentLoaded",()=>setTimeout(()=>sdxLoadWallpaperFromCloud?.(),600));
 
 
 /* ===== MOVABLE VIDEO SOUND BUTTON ===== */
