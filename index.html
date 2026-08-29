@@ -6,6 +6,8 @@
 
 <title>SkyDriveX</title>
 
+<link rel="preconnect" href="https://xfhxkdbwvhzdcbzlnnim.supabase.co" crossorigin>
+<link rel="dns-prefetch" href="//xfhxkdbwvhzdcbzlnnim.supabase.co">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 
@@ -1314,7 +1316,7 @@ body.ct-video-active .sdx-video-sound-float{display:flex}
     <h2>⬆️ Fayl yuklash</h2>
 
     <p>
-        Telefon yoki kompyuterdan fayl tanlang
+        Telefon yoki kompyuterdan istalgan faylni tanlang — EXE, MSI, APK, ZIP, RAR, 7Z va boshqa fayllar ham qo‘llanadi
     </p>
 
     <!-- BITTA FAYL -->
@@ -1327,7 +1329,8 @@ body.ct-video-active .sdx-video-sound-float{display:flex}
 
     <input
         type="file"
-        id="fileInput">
+        id="fileInput"
+        accept="*/*">
 
 
     <!-- BUTUN PAPKA -->
@@ -1943,6 +1946,11 @@ async function showCloud(user){
 
     window.currentUser = user;
 
+    // Wallpaper va launcher Cloud sync'ni eng boshida parallel boshlaymiz.
+    // Shu sabab dashboard ochilishini kutmasdan fon yuklana boshlaydi.
+    const sdxFastWallpaperTask = Promise.resolve(sdxLoadWallpaperFromCloud?.()).catch(()=>false);
+    const sdxFastAppsTask = Promise.resolve(sdxLoadAppsFromCloud?.()).catch(()=>false);
+
     authPage.classList.add("hidden");
 
     cloudPage.classList.remove("hidden");
@@ -1958,14 +1966,14 @@ async function showCloud(user){
 
     currentFolder = "";
 
-    // Boshqa PC / telefon / TV'da ham shu akkaunt wallpaperini tiklaymiz.
-    await sdxLoadWallpaperFromCloud?.();
-
     await loadAvatar();
 
     await loadCurrentFolder();
 
     await calculateStorage();
+
+    // Fon/ilovalar yuklanishi dashboard ishlarini to‘xtatib turmaydi.
+    Promise.allSettled([sdxFastWallpaperTask,sdxFastAppsTask]);
 
     // Sahifa refresh bo'lsa Google Drive holatini qayta tiklaymiz.
     setTimeout(() => restoreGoogleDriveAfterReload(), 150);
@@ -2076,6 +2084,35 @@ function safeFileName(name){
         .replace(/[^a-zA-Z0-9._-]/g,"_");
 }
 
+/* =====================================================
+   ANY FILE / APP FILE MIME SUPPORT
+   EXE, MSI, APK, ZIP, RAR, 7Z, ISO va boshqa binary fayllar
+===================================================== */
+function getUploadContentType(file){
+    if(file && file.type && String(file.type).trim()){
+        return file.type;
+    }
+
+    const name = String(file?.name || "").toLowerCase();
+    const ext = name.includes(".") ? name.split(".").pop() : "";
+
+    const mime = {
+        exe: "application/vnd.microsoft.portable-executable",
+        msi: "application/x-msi",
+        apk: "application/vnd.android.package-archive",
+        zip: "application/zip",
+        rar: "application/vnd.rar",
+        "7z": "application/x-7z-compressed",
+        iso: "application/x-iso9660-image",
+        dmg: "application/x-apple-diskimage",
+        deb: "application/vnd.debian.binary-package",
+        rpm: "application/x-rpm",
+        bin: "application/octet-stream"
+    };
+
+    return mime[ext] || "application/octet-stream";
+}
+
 
 /* =====================================================
    SINGLE FILE UPLOAD
@@ -2141,7 +2178,7 @@ fileInput.addEventListener(
                         {
                             upsert:false,
                             contentType:
-                                file.type
+                                getUploadContentType(file)
                         }
                     );
 
@@ -2343,7 +2380,7 @@ folderInput.addEventListener(
                                 {
                                     upsert:false,
                                     contentType:
-                                        file.type
+                                        getUploadContentType(file)
                                 }
                             );
 
@@ -3077,7 +3114,7 @@ avatarInput.addEventListener(
                         {
                             upsert:true,
                             contentType:
-                                file.type
+                                getUploadContentType(file)
                         }
                     );
 
@@ -3916,10 +3953,69 @@ const SDX_DEFAULT_APPS = [
   {name:"Messenger",icon:"💭",url:"https://www.messenger.com/"}
 ];
 let sdxEditingAppIndex = -1;
+const SDX_APPS_META_HIDDEN = "sdx_hidden_default_apps_cloud";
+const SDX_APPS_META_CUSTOM = "sdx_custom_apps_cloud";
+let sdxAppsCloudLoading = false;
+
 function getCustomApps(){try{return JSON.parse(localStorage.getItem("sdx_custom_apps")||"[]")}catch(e){return []}}
-function setCustomApps(v){localStorage.setItem("sdx_custom_apps",JSON.stringify(v));renderApps()}
 function getHiddenDefaultApps(){try{return JSON.parse(localStorage.getItem("sdx_hidden_default_apps")||"[]")}catch(e){return []}}
-function setHiddenDefaultApps(v){localStorage.setItem("sdx_hidden_default_apps",JSON.stringify(v));renderApps()}
+
+async function sdxSaveAppsToCloud(){
+  try{
+    const user=await sdxFreshUser?.();
+    if(!user)return;
+    await sdxUpdateUserMetadata?.({
+      [SDX_APPS_META_HIDDEN]:getHiddenDefaultApps(),
+      [SDX_APPS_META_CUSTOM]:getCustomApps()
+    });
+  }catch(e){
+    console.warn("Apps cloud sync saqlash:",e);
+  }
+}
+
+async function sdxLoadAppsFromCloud(){
+  if(sdxAppsCloudLoading)return;
+  sdxAppsCloudLoading=true;
+  try{
+    const user=await sdxFreshUser?.();
+    if(!user)return;
+    const meta=user.user_metadata||{};
+    const cloudHidden=meta[SDX_APPS_META_HIDDEN];
+    const cloudCustom=meta[SDX_APPS_META_CUSTOM];
+    let found=false;
+
+    if(Array.isArray(cloudHidden)){
+      localStorage.setItem("sdx_hidden_default_apps",JSON.stringify(cloudHidden));
+      found=true;
+    }
+    if(Array.isArray(cloudCustom)){
+      localStorage.setItem("sdx_custom_apps",JSON.stringify(cloudCustom));
+      found=true;
+    }
+
+    if(found){
+      renderApps();
+    }else{
+      // Birinchi marta: shu qurilmadagi hozirgi launcher holatini Cloud'ga yozamiz.
+      await sdxSaveAppsToCloud();
+    }
+  }catch(e){
+    console.warn("Apps cloud sync yuklash:",e);
+  }finally{
+    sdxAppsCloudLoading=false;
+  }
+}
+
+function setCustomApps(v){
+  localStorage.setItem("sdx_custom_apps",JSON.stringify(v));
+  renderApps();
+  sdxSaveAppsToCloud();
+}
+function setHiddenDefaultApps(v){
+  localStorage.setItem("sdx_hidden_default_apps",JSON.stringify(v));
+  renderApps();
+  sdxSaveAppsToCloud();
+}
 function hideDefaultApp(name){
   if(!confirm(`“${name}” ilovasini launcher'dan olib tashlaysizmi?`))return;
   const hidden=getHiddenDefaultApps();
@@ -3930,9 +4026,8 @@ function restoreDefaultApps(){
   const hidden=getHiddenDefaultApps();
   if(!hidden.length){alert("O‘chirilgan standart ilova yo‘q.");return;}
   if(!confirm("O‘chirilgan standart ilovalarni qaytarasizmi?"))return;
-  localStorage.removeItem("sdx_hidden_default_apps");
-  renderApps();
-  if(typeof showSettingsStatus==="function")showSettingsStatus("Standart ilovalar qaytarildi.");
+  setHiddenDefaultApps([]);
+  if(typeof showSettingsStatus==="function")showSettingsStatus("Standart ilovalar qaytarildi va Cloud'ga saqlandi.");
 }
 function renderApps(){
   const grid=document.getElementById("appsGrid"); if(!grid)return;
@@ -3974,7 +4069,7 @@ function saveCustomApp(){
   const custom=getCustomApps(); const obj={name,url,icon}; if(sdxEditingAppIndex>=0)custom[sdxEditingAppIndex]=obj;else custom.push(obj); setCustomApps(custom); closeAppEditor();
 }
 function deleteCustomApp(index){const custom=getCustomApps();if(!custom[index])return;if(!confirm("Bu ilovani launcher’dan o‘chirasizmi?"))return;custom.splice(index,1);setCustomApps(custom)}
-function resetCustomApps(){if(!confirm("O‘zingiz qo‘shgan barcha ilovalar o‘chirilsinmi?"))return;localStorage.removeItem("sdx_custom_apps");renderApps();showSettingsStatus("Custom ilovalar tozalandi.")}
+function resetCustomApps(){if(!confirm("O‘zingiz qo‘shgan barcha ilovalar o‘chirilsinmi?"))return;setCustomApps([]);showSettingsStatus("Custom ilovalar tozalandi va Cloud'ga saqlandi.")}
 renderApps();
 
 /* =====================================================
@@ -3995,7 +4090,7 @@ async function changeAccountPassword(){
   try{const {error}=await supabaseClient.auth.updateUser({password:p1});if(error)throw error;document.getElementById("settingsPassword").value="";document.getElementById("settingsPassword2").value="";showSettingsStatus("Parol yangilandi.")}catch(e){showSettingsStatus(e.message||"Parolni yangilashda xatolik.",true)}
 }
 function resetLocalSettings(){if(!confirm("Mahalliy ko‘rinish sozlamalari tiklansinmi?"))return;localStorage.removeItem("sdx_visual_settings");
-  localStorage.removeItem("sdx_hidden_default_apps");applyVisualSettings();showSettingsStatus("Mahalliy sozlamalar tiklandi.")}
+  applyVisualSettings();showSettingsStatus("Mahalliy ko‘rinish sozlamalari tiklandi.")}
 applyVisualSettings();
 
 
@@ -4957,6 +5052,8 @@ function ctEnsureVideoWallpaper(){
   if(!v){
     v=document.createElement("video");
     v.id="ctVideoWallpaper";
+    v.preload="auto";
+    v.setAttribute("preload","auto");
     const settings=ctGetVideoAudioSettings();
     v.muted=!settings.sound;v.defaultMuted=!settings.sound;v.volume=Math.max(0,Math.min(1,(settings.volume??50)/100));v.autoplay=settings.autoplay!==false;v.loop=settings.loop!==false;v.playsInline=true;
     if(settings.autoplay!==false)v.setAttribute("autoplay","");else v.removeAttribute("autoplay");
@@ -4980,7 +5077,9 @@ async function ctApplyVideoBlob(blob,name="Video wallpaper"){
   const v=ctEnsureVideoWallpaper();
   if(ctVideoObjectUrl)URL.revokeObjectURL(ctVideoObjectUrl);
   ctVideoObjectUrl=URL.createObjectURL(blob);
+  v.preload="auto";
   v.src=ctVideoObjectUrl;
+  v.load();
   v.style.display="block";
   document.body.classList.add("ct-video-active");
   const settings=ctGetVideoAudioSettings();
@@ -5013,7 +5112,9 @@ async function ctApplyVideoBlob(blob,name="Video wallpaper"){
 async function ctApplyVideoUrl(url,name="Cloud video wallpaper"){
   const v=ctEnsureVideoWallpaper();
   if(ctVideoObjectUrl){try{URL.revokeObjectURL(ctVideoObjectUrl)}catch(_){}ctVideoObjectUrl="";}
+  v.preload="auto";
   v.src=url;
+  v.load();
   v.style.display="block";
   document.body.classList.add("ct-video-active");
   const settings=ctGetVideoAudioSettings();
@@ -5418,7 +5519,12 @@ window.openSettings=function(){
   setTimeout(()=>{ctLoad();ctSyncMusicControls();ctSyncVideoAudioControls();},0);
 };
 document.addEventListener("DOMContentLoaded",ctLoad);
-document.addEventListener("DOMContentLoaded",()=>setTimeout(()=>sdxLoadWallpaperFromCloud?.(),600));
+document.addEventListener("DOMContentLoaded",()=>{
+  // Video elementi oldindan tayyor: wallpaper URL kelishi bilan darhol buffer/play boshlaydi.
+  try{ctEnsureVideoWallpaper?.()}catch(_){}
+  // Oldingi 600ms kechikish olib tashlandi.
+  sdxLoadWallpaperFromCloud?.();
+});
 
 
 /* ===== MOVABLE VIDEO SOUND BUTTON ===== */
