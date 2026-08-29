@@ -764,6 +764,215 @@ html{scroll-behavior:smooth} body{background:#050b18!important;background-image:
 body.sdx-compact .x-greeting{padding-top:8px;padding-bottom:8px}body.sdx-compact .stat-glass{min-height:72px!important;padding:10px!important}body.sdx-compact .app-tile{min-height:72px!important;padding:8px 6px!important}body.sdx-no-anim *,body.sdx-no-anim *:before,body.sdx-no-anim *:after{transition:none!important;animation:none!important;scroll-behavior:auto!important}
 @media(max-width:700px){.settings-grid{grid-template-columns:1fr}.settings-section.full{grid-column:auto}.settings-row{flex-direction:column}.settings-row>*{width:100%}}
 
+
+/* ===== 74 FEATURES CENTER ===== */
+.feature74-card{margin:22px 0;padding:22px;border:1px solid rgba(96,165,250,.24);border-radius:24px;background:linear-gradient(145deg,rgba(10,27,58,.82),rgba(5,14,32,.72));box-shadow:0 20px 60px rgba(0,0,0,.25);backdrop-filter:blur(18px)}
+.feature74-head{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:16px}.feature74-head h2{font-size:22px}.feature74-badge{padding:6px 10px;border-radius:999px;background:rgba(59,130,246,.16);border:1px solid rgba(96,165,250,.3);color:#bfdbfe;font-size:12px}
+.feature74-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.feature74-btn{border:1px solid rgba(148,163,184,.16);border-radius:16px;padding:13px 12px;background:rgba(15,31,59,.62);color:#eaf2ff;text-align:left;transition:.18s;min-height:76px}.feature74-btn:hover{transform:translateY(-2px);border-color:rgba(96,165,250,.45);background:rgba(22,48,89,.78)}.feature74-btn b{display:block;font-size:13px;margin-top:6px}.feature74-btn small{color:#91a4c3;font-size:11px}
+#feature74Modal{position:fixed;inset:0;z-index:5000;background:rgba(2,6,23,.78);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;padding:18px}.feature74-box{width:min(1000px,96vw);max-height:90vh;overflow:auto;border:1px solid rgba(96,165,250,.28);border-radius:24px;background:linear-gradient(145deg,#071429,#0b1c36);box-shadow:0 30px 90px rgba(0,0,0,.55);padding:22px}.feature74-modalhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px}.feature74-close{border:0;border-radius:10px;padding:9px 12px;background:#32171b;color:#ffb4b4}.f74-row{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}.f74-row .input{margin:0;flex:1;min-width:180px}.f74-list{display:grid;gap:9px}.f74-item{padding:12px;border:1px solid rgba(148,163,184,.14);border-radius:14px;background:rgba(15,23,42,.45);display:flex;justify-content:space-between;gap:10px;align-items:center}.f74-chip{display:inline-flex;padding:5px 8px;border-radius:999px;background:rgba(59,130,246,.14);color:#bfdbfe;font-size:11px;margin:3px}.f74-statgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.f74-stat{padding:16px;border-radius:16px;background:rgba(15,31,59,.62);border:1px solid rgba(96,165,250,.15)}.f74-stat strong{display:block;font-size:20px}.f74-muted{color:#91a4c3;font-size:13px}.f74-pre{white-space:pre-wrap;word-break:break-word;padding:12px;background:#07101f;border-radius:12px;border:1px solid rgba(148,163,184,.13)}
+@media(max-width:900px){.feature74-grid{grid-template-columns:repeat(2,1fr)}.f74-statgrid{grid-template-columns:repeat(2,1fr)}}@media(max-width:520px){.feature74-grid{grid-template-columns:1fr}.f74-statgrid{grid-template-columns:1fr}}
+body.light74{--bg:#eef4ff;--card:#fff;--card2:#f4f7fb;--border:#cbd5e1;--text:#0f172a;--muted:#64748b;background:#eaf1fb;color:#0f172a}body.amoled74{--bg:#000;--card:#050505;--card2:#090909;--border:#202020;background:#000}
+
+
+/* ===== FULL CUSTOM THEME — USER DESIGN EDITOR ===== */
+:root{
+  --ct-accent:#1486ff;
+  --ct-accent2:#36a3ff;
+  --ct-page:#020a17;
+  --ct-sidebar:#031226;
+  --ct-card-rgba:rgba(7,31,61,.82);
+  --ct-header-rgba:rgba(1,11,25,.54);
+  --ct-input-rgba:rgba(2,13,29,.72);
+  --ct-text:#f3f8ff;
+  --ct-muted:#7f95b6;
+  --ct-border:rgba(64,130,209,.27);
+  --ct-radius:10px;
+  --ct-blur:12px;
+  --ct-font-scale:1;
+  --ct-overlay:rgba(2,10,23,.55);
+  --ct-bg-image:none;
+  --ct-bg-position:center center;
+}
+body.sdx-custom-theme{
+  font-size:calc(16px * var(--ct-font-scale));
+  color:var(--ct-text)!important;
+}
+body.sdx-custom-theme,
+body.sdx-custom-theme #cloudPage,
+body.sdx-custom-theme #authPage{
+  color:var(--ct-text)!important;
+}
+body.sdx-custom-theme #cloudPage{
+  background-color:var(--ct-page)!important;
+  background-image:linear-gradient(var(--ct-overlay),var(--ct-overlay)),var(--ct-bg-image)!important;
+  background-size:cover!important;
+  background-position:var(--ct-bg-position)!important;
+  background-repeat:no-repeat!important;
+  background-attachment:fixed!important;
+}
+body.sdx-custom-theme #authPage{
+  background-color:var(--ct-page)!important;
+  background-image:linear-gradient(var(--ct-overlay),var(--ct-overlay)),var(--ct-bg-image)!important;
+  background-size:cover!important;
+  background-position:var(--ct-bg-position)!important;
+  background-repeat:no-repeat!important;
+  background-attachment:fixed!important;
+}
+body.sdx-custom-theme.ct-no-decor #cloudPage:before,
+body.sdx-custom-theme.ct-no-decor #cloudPage:after{display:none!important}
+
+body.sdx-custom-theme .sdx-sidebar{
+  background:color-mix(in srgb,var(--ct-sidebar) 90%,transparent)!important;
+  border-color:var(--ct-border)!important;
+  backdrop-filter:blur(var(--ct-blur))!important;
+  -webkit-backdrop-filter:blur(var(--ct-blur))!important;
+}
+body.sdx-custom-theme .header{
+  background:var(--ct-header-rgba)!important;
+  border-color:var(--ct-border)!important;
+  backdrop-filter:blur(var(--ct-blur))!important;
+  -webkit-backdrop-filter:blur(var(--ct-blur))!important;
+}
+body.sdx-custom-theme .auth-card,
+body.sdx-custom-theme .stat-glass,
+body.sdx-custom-theme .x-glass-card,
+body.sdx-custom-theme .apps-card,
+body.sdx-custom-theme .app-tile,
+body.sdx-custom-theme .profile-card,
+body.sdx-custom-theme .storage-card,
+body.sdx-custom-theme .upload-box,
+body.sdx-custom-theme .toolbar,
+body.sdx-custom-theme .files-card,
+body.sdx-custom-theme .gdrive-card,
+body.sdx-custom-theme .settings-section,
+body.sdx-custom-theme .modal-box,
+body.sdx-custom-theme .sdx-side-storage{
+  background:var(--ct-card-rgba)!important;
+  border-color:var(--ct-border)!important;
+  border-radius:var(--ct-radius)!important;
+  backdrop-filter:blur(var(--ct-blur))!important;
+  -webkit-backdrop-filter:blur(var(--ct-blur))!important;
+}
+body.sdx-custom-theme .input,
+body.sdx-custom-theme .search,
+body.sdx-custom-theme .x-top-search,
+body.sdx-custom-theme input,
+body.sdx-custom-theme select,
+body.sdx-custom-theme textarea{
+  background:var(--ct-input-rgba)!important;
+  border-color:var(--ct-border)!important;
+  color:var(--ct-text)!important;
+}
+body.sdx-custom-theme .apps-add,
+body.sdx-custom-theme .action-btn.blue,
+body.sdx-custom-theme .upload-btn:not(.folder-btn),
+body.sdx-custom-theme .gdrive-btn.blue,
+body.sdx-custom-theme .small-btn.blue,
+body.sdx-custom-theme .auth-btn,
+body.sdx-custom-theme .x-quick .primary,
+body.sdx-custom-theme .sdx-nav a.active{
+  background:linear-gradient(135deg,var(--ct-accent),var(--ct-accent2))!important;
+  border-color:color-mix(in srgb,var(--ct-accent) 65%,white 10%)!important;
+  color:#fff!important;
+}
+body.sdx-custom-theme .sdx-brand span,
+body.sdx-custom-theme .auth-logo span{color:var(--ct-accent)!important}
+body.sdx-custom-theme .sdx-brand-icon{
+  background:linear-gradient(145deg,var(--ct-accent),var(--ct-accent2))!important;
+  box-shadow:0 0 28px color-mix(in srgb,var(--ct-accent) 35%,transparent)!important;
+}
+body.sdx-custom-theme .progress-bar,
+body.sdx-custom-theme .side-progress div{
+  background:linear-gradient(90deg,var(--ct-accent),var(--ct-accent2))!important;
+}
+body.sdx-custom-theme .x-greeting p,
+body.sdx-custom-theme .apps-head p,
+body.sdx-custom-theme .path,
+body.sdx-custom-theme .file-size,
+body.sdx-custom-theme .storage-value,
+body.sdx-custom-theme .settings-note,
+body.sdx-custom-theme .apps-hint,
+body.sdx-custom-theme .gdrive-status,
+body.sdx-custom-theme .gdrive-path,
+body.sdx-custom-theme .profile-email,
+body.sdx-custom-theme .stat-glass small,
+body.sdx-custom-theme .x-recent-table th{
+  color:var(--ct-muted)!important;
+}
+body.sdx-custom-theme .file-name,
+body.sdx-custom-theme .x-card-title,
+body.sdx-custom-theme .apps-head h2,
+body.sdx-custom-theme .files-header h2,
+body.sdx-custom-theme .gdrive-head h2,
+body.sdx-custom-theme .settings-section h3,
+body.sdx-custom-theme .profile-name{color:var(--ct-text)!important}
+body.sdx-custom-theme .file,
+body.sdx-custom-theme .x-recent-table td{border-color:var(--ct-border)!important}
+body.sdx-custom-theme .sdx-nav a{color:var(--ct-muted)!important}
+body.sdx-custom-theme .sdx-nav a:hover{color:var(--ct-text)!important;background:color-mix(in srgb,var(--ct-accent) 16%,transparent)!important}
+body.sdx-custom-theme .sdx-nav a.active{color:#fff!important}
+body.sdx-custom-theme .x-user-chip{
+  border-color:var(--ct-accent)!important;
+  box-shadow:0 0 18px color-mix(in srgb,var(--ct-accent) 25%,transparent)!important;
+}
+body.sdx-custom-theme .x-badge{
+  background:linear-gradient(180deg,var(--ct-accent),color-mix(in srgb,var(--ct-accent) 70%,black))!important;
+  border-color:color-mix(in srgb,var(--ct-accent) 70%,white 12%)!important;
+}
+body.sdx-custom-theme *{scrollbar-color:var(--ct-accent) transparent}
+
+/* Custom Theme editor */
+.theme-editor{
+  grid-column:1/-1;
+  border:1px solid rgba(85,150,230,.18);
+  background:rgba(8,30,59,.52);
+  border-radius:16px;
+  padding:16px;
+}
+.theme-editor h3{font-size:14px;margin-bottom:5px}
+.theme-editor>p{font-size:12px;color:#7f96b6;line-height:1.5;margin-bottom:14px}
+.theme-preset-row{display:grid;grid-template-columns:1.5fr 1fr;gap:10px;margin-bottom:12px}
+.theme-control-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.theme-control{
+  border:1px solid rgba(110,160,220,.12);
+  background:rgba(3,17,38,.35);
+  padding:10px;
+  border-radius:12px;
+}
+.theme-control label{display:block;color:#9fb2cd;font-size:11px;margin-bottom:7px}
+.theme-control input[type="color"]{width:100%;height:38px;border:0;padding:2px;border-radius:8px;background:transparent;cursor:pointer}
+.theme-control input[type="range"]{width:100%;accent-color:#2687ff}
+.theme-control select,.theme-control input[type="text"]{
+  width:100%;padding:10px;border:1px solid rgba(110,160,220,.16);border-radius:9px;background:#07172e;color:#fff;outline:none
+}
+.theme-range-line{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.theme-range-value{font-size:11px;color:#7dd3fc;min-width:48px;text-align:right}
+.theme-wallpaper-box{
+  margin-top:12px;border:1px dashed rgba(96,165,250,.30);border-radius:13px;padding:12px;
+  display:flex;gap:10px;align-items:center;flex-wrap:wrap
+}
+.theme-wallpaper-box input[type=file]{display:none}
+.theme-wallpaper-name{font-size:11px;color:#8ea4c3;flex:1;min-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.theme-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}
+.theme-actions .action-btn{flex:1;min-width:130px}
+.theme-preview-strip{
+  height:58px;border-radius:12px;margin-top:13px;border:1px solid var(--ct-border);
+  background:linear-gradient(90deg,var(--ct-page),var(--ct-sidebar),var(--ct-accent),var(--ct-accent2));
+  position:relative;overflow:hidden
+}
+.theme-preview-strip:after{content:"LIVE PREVIEW";position:absolute;right:10px;bottom:8px;font-size:9px;letter-spacing:1px;color:white;font-weight:800}
+.theme-check-line{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;color:#b7c7dd;font-size:12px}
+.theme-file-hidden{display:none!important}
+@media(max-width:800px){
+  .theme-control-grid{grid-template-columns:1fr 1fr}
+  .theme-preset-row{grid-template-columns:1fr}
+}
+@media(max-width:520px){
+  .theme-control-grid{grid-template-columns:1fr}
+  .theme-actions{flex-direction:column}
+  .theme-actions .action-btn{width:100%}
+}
+
 </style>
 </head>
 
@@ -869,7 +1078,10 @@ body.sdx-compact .x-greeting{padding-top:8px;padding-bottom:8px}body.sdx-compact
 <section class="apps-card x-top-apps" id="appsArea">
   <div class="apps-head">
     <div><h2>🚀 Ilovalar</h2><p>Kerakli servisni tez oching yoki o‘zingiz yangi ilova qo‘shing.</p></div>
-    <button class="apps-add" onclick="openAppEditor()">＋ Ilova qo‘shish</button>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end">
+      <button class="apps-add" onclick="restoreDefaultApps()" title="O‘chirilgan standart ilovalarni qaytarish">↺ Tiklash</button>
+      <button class="apps-add" onclick="openAppEditor()">＋ Ilova qo‘shish</button>
+    </div>
   </div>
   <div id="appsGrid" class="apps-grid"></div>
 </section>
@@ -883,14 +1095,9 @@ body.sdx-compact .x-greeting{padding-top:8px;padding-bottom:8px}body.sdx-compact
   </section>
 </section>
 <section class="x-bottom-grid">
-  <section class="x-glass-card">
+  <section class="x-glass-card" style="grid-column:1/-1">
     <div class="x-card-title">So‘nggi Fayllar</div>
     <table class="x-recent-table"><thead><tr><th>Nomi</th><th>O‘lchami</th><th>Holati</th></tr></thead><tbody id="xRecentBody"><tr><td colspan="3" style="color:#7187a7">Fayllar yuklanmoqda...</td></tr></tbody></table>
-  </section>
-  <section class="x-glass-card">
-    <div class="x-card-title">Hisob</div>
-    <div style="font-size:10px;color:#8da2bd;line-height:1.7">SkyDriveX profilingiz va cloud sozlamalaringiz shu yerda boshqariladi.</div>
-    <button class="action-btn blue" style="width:100%;margin-top:12px" onclick="document.getElementById('profileArea').scrollIntoView({behavior:'smooth'})">👤 Profilni ochish</button>
   </section>
 </section>
 
@@ -1137,6 +1344,9 @@ body.sdx-compact .x-greeting{padding-top:8px;padding-bottom:8px}body.sdx-compact
   <div id="gdriveList"><div class="empty">Google Drive’ni ulang.</div></div>
 </section>
 
+
+
+
 </main>
 
 </section>
@@ -1227,8 +1437,97 @@ body.sdx-compact .x-greeting{padding-top:8px;padding-bottom:8px}body.sdx-compact
         <h3>🚀 Ilovalar</h3><p>Launcher’ga yangi servis qo‘shing yoki o‘zingiz qo‘shganlarini boshqaring.</p>
         <div class="settings-row">
           <button class="action-btn blue" onclick="closeSettings();openAppEditor()">＋ Ilova qo‘shish</button>
+          <button class="action-btn" onclick="restoreDefaultApps()">Standart ilovalarni tiklash</button>
           <button class="action-btn" onclick="resetCustomApps()">Custom ilovalarni tozalash</button>
         </div>
+      </section>
+
+
+      <section class="theme-editor">
+        <h3>🪄 Full Custom Theme</h3>
+        <p>Butun SkyDriveX ko‘rinishini kodga kirmasdan o‘zgartiring. Rang, fon rasmi, sidebar, kartalar, glass, radius va shrift shu yerda boshqariladi.</p>
+
+        <div class="theme-preset-row">
+          <div>
+            <label class="settings-label">Tayyor dizayn</label>
+            <select id="ctPreset" class="input" onchange="ctApplyPreset(this.value)">
+              <option value="darkblue">Dark Blue Glass</option>
+              <option value="amoled">AMOLED Black</option>
+              <option value="purple">Purple Neon</option>
+              <option value="aurora">Aurora</option>
+              <option value="ocean">Ocean Blue</option>
+              <option value="light">Light Glass</option>
+              <option value="gold">Black & Gold</option>
+              <option value="cyber">Cyberpunk</option>
+              <option value="frost">Frosted Glass</option>
+              <option value="custom">Custom</option>
+            </select>
+          </div>
+          <div>
+            <label class="settings-label">Fon joylashuvi</label>
+            <select id="ctBgPosition" class="input" onchange="ctLive()">
+              <option value="center center">Markaz</option>
+              <option value="center top">Tepada</option>
+              <option value="center bottom">Pastda</option>
+              <option value="left center">Chapda</option>
+              <option value="right center">O‘ngda</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="theme-control-grid">
+          <div class="theme-control"><label>Asosiy rang</label><input id="ctAccent" type="color" value="#1486ff" oninput="ctLive()"></div>
+          <div class="theme-control"><label>Ikkinchi rang</label><input id="ctAccent2" type="color" value="#36a3ff" oninput="ctLive()"></div>
+          <div class="theme-control"><label>Sayt foni</label><input id="ctPage" type="color" value="#020a17" oninput="ctLive()"></div>
+          <div class="theme-control"><label>Sidebar</label><input id="ctSidebar" type="color" value="#031226" oninput="ctLive()"></div>
+          <div class="theme-control"><label>Kartalar</label><input id="ctCard" type="color" value="#071f3d" oninput="ctLive()"></div>
+          <div class="theme-control"><label>Matn</label><input id="ctText" type="color" value="#f3f8ff" oninput="ctLive()"></div>
+          <div class="theme-control"><label>Yordamchi matn</label><input id="ctMuted" type="color" value="#7f95b6" oninput="ctLive()"></div>
+          <div class="theme-control"><label>Border</label><input id="ctBorder" type="color" value="#4082d1" oninput="ctLive()"></div>
+
+          <div class="theme-control">
+            <label>Glass blur</label>
+            <div class="theme-range-line"><input id="ctBlur" type="range" min="0" max="35" value="12" oninput="ctRangeLabels();ctLive()"><span id="ctBlurVal" class="theme-range-value">12px</span></div>
+          </div>
+          <div class="theme-control">
+            <label>Karta shaffofligi</label>
+            <div class="theme-range-line"><input id="ctOpacity" type="range" min="25" max="100" value="82" oninput="ctRangeLabels();ctLive()"><span id="ctOpacityVal" class="theme-range-value">82%</span></div>
+          </div>
+          <div class="theme-control">
+            <label>Fon qoraytirish</label>
+            <div class="theme-range-line"><input id="ctOverlay" type="range" min="0" max="90" value="55" oninput="ctRangeLabels();ctLive()"><span id="ctOverlayVal" class="theme-range-value">55%</span></div>
+          </div>
+          <div class="theme-control">
+            <label>Burchak yumaloqligi</label>
+            <div class="theme-range-line"><input id="ctRadius" type="range" min="0" max="32" value="10" oninput="ctRangeLabels();ctLive()"><span id="ctRadiusVal" class="theme-range-value">10px</span></div>
+          </div>
+          <div class="theme-control">
+            <label>Shrift o‘lchami</label>
+            <div class="theme-range-line"><input id="ctFont" type="range" min="85" max="120" value="100" oninput="ctRangeLabels();ctLive()"><span id="ctFontVal" class="theme-range-value">100%</span></div>
+          </div>
+          <div class="theme-control">
+            <label>Fon effektlari</label>
+            <div class="theme-check-line"><span>Blue glow / dekor</span><input id="ctDecor" class="settings-check" type="checkbox" checked onchange="ctLive()"></div>
+          </div>
+        </div>
+
+        <div class="theme-wallpaper-box">
+          <label for="ctWallpaperFile" class="action-btn blue">🖼️ Fon rasmi tanlash</label>
+          <input id="ctWallpaperFile" type="file" accept="image/*" onchange="ctWallpaperPicked(event)">
+          <span id="ctWallpaperName" class="theme-wallpaper-name">Fon rasmi tanlanmagan</span>
+          <button class="action-btn" onclick="ctRemoveWallpaper()">Fon rasmini olib tashlash</button>
+        </div>
+
+        <div class="theme-preview-strip"></div>
+
+        <div class="theme-actions">
+          <button class="action-btn blue" onclick="ctSave()">💾 Dizaynni saqlash</button>
+          <button class="action-btn" onclick="ctReset()">↺ Standart dizayn</button>
+          <button class="action-btn" onclick="ctExport()">⬇ Theme eksport</button>
+          <label for="ctImportFile" class="action-btn" style="text-align:center">⬆ Theme import</label>
+          <input id="ctImportFile" class="theme-file-hidden" type="file" accept=".json,application/json" onchange="ctImport(event)">
+        </div>
+        <div class="settings-note">Dizayn shu brauzerda saqlanadi. Theme eksport/import orqali boshqa qurilmaga ham olib o‘tishingiz mumkin.</div>
       </section>
 
       <section class="settings-section full settings-danger">
@@ -3468,20 +3767,42 @@ const SDX_DEFAULT_APPS = [
 let sdxEditingAppIndex = -1;
 function getCustomApps(){try{return JSON.parse(localStorage.getItem("sdx_custom_apps")||"[]")}catch(e){return []}}
 function setCustomApps(v){localStorage.setItem("sdx_custom_apps",JSON.stringify(v));renderApps()}
+function getHiddenDefaultApps(){try{return JSON.parse(localStorage.getItem("sdx_hidden_default_apps")||"[]")}catch(e){return []}}
+function setHiddenDefaultApps(v){localStorage.setItem("sdx_hidden_default_apps",JSON.stringify(v));renderApps()}
+function hideDefaultApp(name){
+  if(!confirm(`“${name}” ilovasini launcher'dan olib tashlaysizmi?`))return;
+  const hidden=getHiddenDefaultApps();
+  if(!hidden.includes(name))hidden.push(name);
+  setHiddenDefaultApps(hidden);
+}
+function restoreDefaultApps(){
+  const hidden=getHiddenDefaultApps();
+  if(!hidden.length){alert("O‘chirilgan standart ilova yo‘q.");return;}
+  if(!confirm("O‘chirilgan standart ilovalarni qaytarasizmi?"))return;
+  localStorage.removeItem("sdx_hidden_default_apps");
+  renderApps();
+  if(typeof showSettingsStatus==="function")showSettingsStatus("Standart ilovalar qaytarildi.");
+}
 function renderApps(){
   const grid=document.getElementById("appsGrid"); if(!grid)return;
-  const custom=getCustomApps(); const apps=[...SDX_DEFAULT_APPS,...custom.map((x,i)=>({...x,custom:true,customIndex:i}))];
+  const hidden=getHiddenDefaultApps();
+  const defaults=SDX_DEFAULT_APPS.filter(app=>!hidden.includes(app.name)).map(x=>({...x,custom:false}));
+  const custom=getCustomApps();
+  const apps=[...defaults,...custom.map((x,i)=>({...x,custom:true,customIndex:i}))];
   grid.innerHTML="";
   apps.forEach(app=>{
     const tile=document.createElement("div"); tile.className="app-tile";
     tile.innerHTML=`<div class="app-icon">${escapeHtml(app.icon||"🔗")}</div><div class="app-name">${escapeHtml(app.name||"Ilova")}</div>`;
     tile.onclick=()=>window.open(app.url,"_blank","noopener,noreferrer");
+    const actions=document.createElement("div"); actions.className="app-custom-actions app-actions";
     if(app.custom){
-      const actions=document.createElement("div"); actions.className="app-custom-actions app-actions";
       const edit=document.createElement("button"); edit.className="app-mini"; edit.textContent="✎"; edit.title="Tahrirlash"; edit.onclick=e=>{e.stopPropagation();openAppEditor(app.customIndex)};
-      const del=document.createElement("button"); del.className="app-mini"; del.textContent="✕"; del.title="O‘chirish"; del.onclick=e=>{e.stopPropagation();deleteCustomApp(app.customIndex)};
-      actions.append(edit,del); tile.appendChild(actions);
+      actions.appendChild(edit);
     }
+    const del=document.createElement("button"); del.className="app-mini"; del.textContent="✕"; del.title="Launcher'dan olib tashlash";
+    del.onclick=e=>{e.stopPropagation(); app.custom?deleteCustomApp(app.customIndex):hideDefaultApp(app.name)};
+    actions.appendChild(del);
+    tile.appendChild(actions);
     grid.appendChild(tile);
   });
 }
@@ -3522,7 +3843,8 @@ async function changeAccountPassword(){
   const p1=document.getElementById("settingsPassword").value,p2=document.getElementById("settingsPassword2").value;if(p1.length<6){showSettingsStatus("Parol kamida 6 ta belgi bo‘lsin.",true);return}if(p1!==p2){showSettingsStatus("Parollar bir xil emas.",true);return}
   try{const {error}=await supabaseClient.auth.updateUser({password:p1});if(error)throw error;document.getElementById("settingsPassword").value="";document.getElementById("settingsPassword2").value="";showSettingsStatus("Parol yangilandi.")}catch(e){showSettingsStatus(e.message||"Parolni yangilashda xatolik.",true)}
 }
-function resetLocalSettings(){if(!confirm("Mahalliy ko‘rinish sozlamalari tiklansinmi?"))return;localStorage.removeItem("sdx_visual_settings");applyVisualSettings();showSettingsStatus("Mahalliy sozlamalar tiklandi.")}
+function resetLocalSettings(){if(!confirm("Mahalliy ko‘rinish sozlamalari tiklansinmi?"))return;localStorage.removeItem("sdx_visual_settings");
+  localStorage.removeItem("sdx_hidden_default_apps");applyVisualSettings();showSettingsStatus("Mahalliy sozlamalar tiklandi.")}
 applyVisualSettings();
 
 
@@ -3738,6 +4060,267 @@ function syncExactDashboardRecent(){
   }).join('');
 }
 setInterval(syncExactDashboardRecent,900);
+
+/* ===== SKYDRIVEX 74 FEATURES ===== */
+const F74=[
+['🔔','Bildirishnomalar'],['🕒','Faoliyat tarixi'],['⭐','Sevimlilar'],['🗑️','Savat'],['🔒','Maxfiy papka'],['📊','Storage statistikasi'],['🌐','Til'],['🎨','Ko‘rinish sozlamalari'],['🧩','Apps kategoriyalari'],['↕️','Ilovalarni joylashtirish'],['📌','Ilovani sevimliga chiqarish'],['🔍','Umumiy qidiruv'],['👤','To‘liq profil'],['🛡️','Security'],['📤','Fayl ulashish'],['🔗','Quick Links'],['📅','Kalendar'],['📝','Notes'],['✅','Vazifalar'],['🔖','Bookmark'],['🖼️','Gallery'],['🎬','Media Center'],['📄','Documents'],['📱','Qurilmalar'],['☁️','Cloud Accounts'],['🧮','Storage Cleaner'],['📈','Dashboard statistikasi'],['🕐','Recently Opened'],['📌','Pinned Files'],['🧑‍💻','Admin panel'],['🔔','Notification Center'],['🖥️','Full Screen Apps Launcher'],['➕','Custom App'],['📂','App papkalari'],['🔐','App Lock'],['🗄️','Private Vault'],['📸','Telefon rasmlarini backup'],['📇','Kontakt backup'],['🧾','Muhim hujjatlar'],['💳','To‘lovlar paneli'],['🌤️','Ob-havo vidjeti'],['🕐','Soat va sana'],['📆','Tug‘ilgan kun/eslatmalar'],['📊','Internet/storage dashboard'],['🔄','Duplicate Finder'],['🏷️','Taglar'],['🎯','Smart Collections'],['🖱️','Right-click menyu'],['⌨️','Keyboard shortcuts'],['🧱','Widget tizimi'],['↔️','Drag & Drop Dashboard'],['👁️','Preview Center'],['🚀','Command Center'],['🏠','My Space'],['🤖','SkyDriveX Assistant'],['📥','Download Manager'],['📤','Upload Queue'],['🔄','Cloud Transfer'],['🗃️','Archive Center'],['🖼️','Photo Timeline'],['🎞️','Memories'],['📊','Storage Map'],['🔎','Advanced Search'],['🧹','Cleanup Center'],['🔔','Storage Warning'],['📋','Clipboard/Quick Notes'],['🔗','Saved Links'],['🧭','Universal Search'],['🖥️','Desktop Mode'],['📱','Installable Web App (PWA)'],['🎨','Wallpaper Center'],['🧩','Widget Store'],['🔐','Security Center'],['💾','Backup Center']];
+const f74Get=(k,d=[])=>{try{return JSON.parse(localStorage.getItem('sdx74_'+k))??d}catch{return d}};const f74Set=(k,v)=>localStorage.setItem('sdx74_'+k,JSON.stringify(v));
+function initF74(){const g=document.getElementById('feature74Grid');if(!g)return;g.innerHTML=F74.map((x,i)=>`<button class="feature74-btn" onclick="openF74(${i+1})"><span style="font-size:22px">${x[0]}</span><b>${i+1}. ${x[1]}</b><small>Ochish</small></button>`).join('');updateClock74();setInterval(updateClock74,1000)}
+function closeF74(){document.getElementById('feature74Modal').classList.add('hidden')}
+function openF74(n){let x=F74[n-1],m=document.getElementById('feature74Modal');document.getElementById('f74Title').textContent=`${x[0]} ${x[1]}`;document.getElementById('f74Sub').textContent=`SkyDriveX modul #${n}`;m.classList.remove('hidden');renderF74(n)}
+function f74List(items,empty='Hozircha ma’lumot yo‘q'){return items.length?`<div class="f74-list">${items.map((x,i)=>`<div class="f74-item"><span>${escapeHtml(String(x.text||x.name||x.title||x))}</span><button class="btn delete" onclick="f74Delete('${x._k||''}',${i})">🗑️</button></div>`).join('')}</div>`:`<div class="empty">${empty}</div>`}
+function f74Delete(k,i){let a=f74Get(k,[]);a.splice(i,1);f74Set(k,a);openF74(Number(document.getElementById('f74Sub').textContent.match(/#(\d+)/)?.[1]||1))}
+function addSimple74(k,input){let e=document.getElementById(input),v=e?.value.trim();if(!v)return;let a=f74Get(k,[]);a.unshift({text:v,at:Date.now(),_k:k});f74Set(k,a);e.value='';renderF74(Number(document.getElementById('f74Sub').textContent.match(/#(\d+)/)?.[1]||1))}
+function log74(text){let a=f74Get('activity',[]);a.unshift({text,at:Date.now(),_k:'activity'});f74Set('activity',a.slice(0,100));let n=f74Get('notifications',[]);n.unshift({text,at:Date.now(),_k:'notifications'});f74Set('notifications',n.slice(0,100))}
+function renderF74(n){const c=document.getElementById('f74Content');const items=(allItems||[]);const files=items.filter(x=>x.metadata),folders=items.filter(x=>!x.metadata);const total=files.reduce((a,x)=>a+(x.metadata?.size||0),0);let H='';
+if([1,31].includes(n)){let a=f74Get('notifications',[]);H=`<div class="f74-row"><button class="action-btn" onclick="f74Set('notifications',[]);renderF74(${n})">Hammasini tozalash</button></div>${a.length?`<div class="f74-list">${a.map(x=>`<div class="f74-item"><span>${escapeHtml(x.text)}<br><small class="f74-muted">${new Date(x.at).toLocaleString()}</small></span></div>`).join('')}</div>`:'<div class="empty">Bildirishnoma yo‘q</div>'}`}
+else if(n===2){let a=f74Get('activity',[]);H=a.length?`<div class="f74-list">${a.map(x=>`<div class="f74-item"><span>${escapeHtml(x.text)}<br><small class="f74-muted">${new Date(x.at).toLocaleString()}</small></span></div>`).join('')}</div>`:'<div class="empty">Faoliyat hali yo‘q</div>'}
+else if(n===3||n===29){let k=n===3?'favorites':'pins',a=f74Get(k,[]);H=`<div class="f74-row"><input id="f74simple" class="input" placeholder="Fayl/papka nomini kiriting"><button class="action-btn blue" onclick="addSimple74('${k}','f74simple')">Qo‘shish</button></div>${f74List(a.map(x=>({...x,_k:k})),'Ro‘yxat bo‘sh')}`}
+else if(n===4){H=`<p>Savat Supabase’da xavfsiz ishlashi uchun fayllarni <b>trash/</b> papkasiga ko‘chirish kerak. Hozirgi fayl ro‘yxatidan o‘chirish hali original remove() funksiyasidan foydalanadi.</p><div class="f74-pre">Keyingi server bosqichi: copy → trash → restore/permanent delete.</div>`}
+else if(n===5||n===36){let locked=!!f74Get('vaultLock',false);H=`<div class="f74-row"><input id="vaultPin74" class="input" type="password" placeholder="PIN"><button class="action-btn blue" onclick="setVaultPin74()">PIN saqlash</button></div><p class="f74-muted">Brauzer ichidagi PIN qulaylik uchun. Juda maxfiy fayllar uchun server-side himoya va shifrlash kerak.</p><div class="f74-item"><span>Vault holati</span><b>${locked?'🔒 PIN o‘rnatilgan':'🔓 PIN yo‘q'}</b></div>`}
+else if(n===6||n===44||n===62){H=`<div class="f74-statgrid"><div class="f74-stat"><span>Fayllar</span><strong>${files.length}</strong></div><div class="f74-stat"><span>Papkalar</span><strong>${folders.length}</strong></div><div class="f74-stat"><span>Jami</span><strong>${formatSize(total)}</strong></div><div class="f74-stat"><span>Drive</span><strong>${typeof googleDriveTokenValid==='function'&&googleDriveTokenValid()?'Ulangan':'Ulanmagan'}</strong></div></div>`}
+else if(n===7){H=`<div class="f74-row"><button class="action-btn" onclick="setLang74('uz')">O‘zbek</button><button class="action-btn" onclick="setLang74('ru')">Русский</button><button class="action-btn" onclick="setLang74('en')">English</button></div><p>Tanlangan til: <b>${f74Get('lang','uz')}</b></p>`}
+else if(n===8||n===71){H=`<div class="f74-row"><button class="action-btn" onclick="theme74('dark')">Dark Blue Glass</button><button class="action-btn" onclick="theme74('light')">Light</button><button class="action-btn" onclick="theme74('amoled')">AMOLED</button></div><div class="f74-row"><input id="wall74" class="input" placeholder="Fon rasmi URL"><button class="action-btn blue" onclick="wallpaper74()">Fon qo‘yish</button></div>`}
+else if([9,10,11,32,33,34].includes(n)){H=`<p>Apps Launcher sozlamalari mavjud. Yangi ilova qo‘shish, kategoriyalash va sevimliga chiqarish uchun Apps bo‘limidan foydalaning.</p><div class="f74-row"><button class="action-btn blue" onclick="closeF74();document.querySelector('[onclick*=openAppsLauncher]')?.click()">Apps Launcher</button></div>`}
+else if([12,53,68,63].includes(n)){H=`<div class="f74-row"><input id="uSearch74" class="input" placeholder="Fayl, papka yoki ilova qidirish..." oninput="search74(this.value)"></div><div id="uSearchRes74" class="f74-list"></div>`}
+else if(n===13){H=`<div class="f74-item"><span>Email</span><b>${escapeHtml(window.currentUser?.email||'')}</b></div><div class="f74-item"><span>Profil rasmi</span><b>${document.querySelector('#avatarContainer img')?'✅ Bor':'➖ Yo‘q'}</b></div><div class="f74-row"><button class="action-btn blue" onclick="closeF74();document.getElementById('avatarInput')?.click()">Rasmni almashtirish</button></div>`}
+else if([14,24,35,73].includes(n)){H=`<div class="f74-item"><span>Joriy sessiya</span><b>${window.currentUser?'✅ Faol':'❌ Yo‘q'}</b></div><div class="f74-row"><button class="action-btn" onclick="document.getElementById('password')?.focus();alert('Parolni o‘zgartirish Settings orqali bajariladi.')">Parol sozlamasi</button><button class="action-btn red" onclick="logout()">Shu qurilmadan chiqish</button></div><p class="f74-muted">Boshqa qurilmalardagi barcha sessiyalarni ko‘rish/uzish uchun server-side session boshqaruvi kerak.</p>`}
+else if(n===15){H=`<p>Joriy fayl uchun vaqtinchalik signed URL yaratish Supabase Storage bilan ishlaydi.</p><div class="f74-row"><input id="sharePath74" class="input" placeholder="To‘liq storage path"><select id="shareSec74" class="input"><option value="3600">1 soat</option><option value="86400">1 kun</option></select><button class="action-btn blue" onclick="share74()">Link yaratish</button></div><div id="shareOut74" class="f74-pre"></div>`}
+else if([16,20,67].includes(n)){let k='links',a=f74Get(k,[]);H=`<div class="f74-row"><input id="link74" class="input" placeholder="https://..."><button class="action-btn blue" onclick="addSimple74('${k}','link74')">Saqlash</button></div>${f74List(a.map(x=>({...x,_k:k})),'Link yo‘q')}`}
+else if(n===17||n===43){let k='calendar',a=f74Get(k,[]);H=`<div class="f74-row"><input id="cal74" class="input" type="date"><input id="calText74" class="input" placeholder="Eslatma"><button class="action-btn blue" onclick="addCalendar74()">Qo‘shish</button></div>${f74List(a.map(x=>({text:(x.date||'')+' — '+x.text,_k:k})),'Eslatma yo‘q')}`}
+else if(n===18||n===66){let k='notes',a=f74Get(k,[]);H=`<div class="f74-row"><textarea id="note74" class="input" placeholder="Yozuv..."></textarea><button class="action-btn blue" onclick="addSimple74('${k}','note74')">Saqlash</button></div>${f74List(a.map(x=>({...x,_k:k})),'Note yo‘q')}`}
+else if(n===19){let k='tasks',a=f74Get(k,[]);H=`<div class="f74-row"><input id="task74" class="input" placeholder="Vazifa"><button class="action-btn blue" onclick="addSimple74('${k}','task74')">Qo‘shish</button></div>${f74List(a.map(x=>({...x,_k:k})),'Vazifa yo‘q')}`}
+else if([21,22,23,47,59,60].includes(n)){let pred=n===21?x=>/\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(x.name):n===22?x=>/\.(mp4|webm|mov|mkv|mp3|wav|ogg|m4a)$/i.test(x.name):n===23?x=>/\.(pdf|doc|docx|xls|xlsx|ppt|pptx|txt)$/i.test(x.name):n===59?x=>/\.(zip|rar|7z|tar|gz)$/i.test(x.name):x=>!!x.metadata;let a=files.filter(pred);H=`<div class="f74-list">${a.map(x=>`<div class="f74-item"><span>${escapeHtml(x.name)}</span><small>${formatSize(x.metadata?.size||0)}</small></div>`).join('')||'<div class="empty">Mos fayl yo‘q</div>'}</div>`}
+else if(n===25){H=`<div class="f74-item"><span>Google Drive</span><b>${typeof googleDriveTokenValid==='function'&&googleDriveTokenValid()?'🟢 Ulangan':'⚫ Ulanmagan'}</b></div><p class="f74-muted">Boshqa cloud provayderlar OAuth/API ulanishini talab qiladi.</p>`}
+else if([26,45,64].includes(n)){let sorted=[...files].sort((a,b)=>(b.metadata?.size||0)-(a.metadata?.size||0));let dups={};files.forEach(x=>(dups[x.name]=(dups[x.name]||0)+1));H=`<h3>Eng katta fayllar</h3><div class="f74-list">${sorted.slice(0,20).map(x=>`<div class="f74-item"><span>${escapeHtml(x.name)}</span><b>${formatSize(x.metadata?.size||0)}</b></div>`).join('')}</div><h3 style="margin-top:16px">Takror nomlar</h3><div class="f74-pre">${Object.entries(dups).filter(x=>x[1]>1).map(x=>x[0]+' ×'+x[1]).join('\n')||'Topilmadi'}</div>`}
+else if(n===27){let a=f74Get('activity',[]),now=Date.now(),day=a.filter(x=>now-x.at<864e5).length,week=a.filter(x=>now-x.at<6048e5).length;H=`<div class="f74-statgrid"><div class="f74-stat"><span>Bugun</span><strong>${day}</strong></div><div class="f74-stat"><span>7 kun</span><strong>${week}</strong></div><div class="f74-stat"><span>Fayl</span><strong>${files.length}</strong></div><div class="f74-stat"><span>Storage</span><strong>${formatSize(total)}</strong></div></div>`}
+else if(n===28){let a=f74Get('recentOpen',[]);H=f74List(a.map(x=>({...x,_k:'recentOpen'})),'Yaqinda ochilganlar yo‘q')}
+else if(n===30){H=`<p>Admin boshqaruvi Supabase <b>profiles / upgrade_requests / storage_plans</b> jadvallari bilan ishlashi kerak.</p><div class="f74-item"><span>Admin email</span><b>${escapeHtml(window.currentUser?.email||'')}</b></div>`}
+else if(n===37){H=`<p>Telefon galereyasidan bir nechta rasmni SkyDriveX’ga yuklash.</p><button class="action-btn blue" onclick="closeF74();document.getElementById('fileInput')?.click()">📸 Rasmlarni tanlash</button>`}
+else if(n===38){H=`<div class="f74-row"><input id="contactFile74" type="file" class="input" accept=".vcf,.csv"><button class="action-btn blue" onclick="importContacts74()">Kontakt faylini saqlash</button></div><p class="f74-muted">VCF/CSV backup fayli qurilmadan tanlanadi.</p>`}
+else if(n===39){H=`<p>Muhim hujjatlar uchun alohida kolleksiya.</p><div class="f74-row"><button class="action-btn blue" onclick="closeF74();document.getElementById('fileInput')?.click()">Hujjat yuklash</button></div>`}
+else if(n===40){H=`<div class="f74-row"><button class="action-btn blue" onclick="window.open('https://click.uz','_blank')">CLICK</button><button class="action-btn" onclick="window.open('https://my.gov.uz','_blank')">My.gov.uz</button><button class="action-btn" onclick="window.open('https://soliq.uz','_blank')">Soliq</button></div><p class="f74-muted">Karta ma’lumotlari SkyDriveX ichida saqlanmaydi.</p>`}
+else if(n===41){H=`<button class="action-btn blue" onclick="weather74()">Joylashuv bo‘yicha ob-havo</button><div id="weatherOut74" class="f74-pre" style="margin-top:10px">Ruxsat so‘raladi.</div>`}
+else if(n===42){H=`<div style="font-size:42px;font-weight:800" id="clock74"></div><div class="f74-muted" id="date74"></div>`;updateClock74()}
+else if(n===46){let k='tags',a=f74Get(k,[]);H=`<div class="f74-row"><input id="tag74" class="input" placeholder="Tag: Ish, Muhim..."><button class="action-btn blue" onclick="addSimple74('${k}','tag74')">Qo‘shish</button></div>${a.map(x=>`<span class="f74-chip">#${escapeHtml(x.text)}</span>`).join('')}`}
+else if(n===48){H=`<p>Fayl ustida o‘ng tugma uchun menyu yoqilgan.</p><button class="action-btn blue" onclick="enableContext74()">Right-click menyuni yoqish</button>`}
+else if(n===49){H=`<div class="f74-pre">Ctrl + K — Universal Search\nEsc — oynani yopish\nCtrl + Shift + U — Upload\nCtrl + Shift + A — Apps Launcher</div>`}
+else if([50,51,72].includes(n)){let w=f74Get('widgets',['Soat','Storage','Apps','Recent Files']);H=`<p>Dashboard widgetlari:</p>${w.map(x=>`<span class="f74-chip">${escapeHtml(x)}</span>`).join('')}<div class="f74-row"><input id="widget74" class="input" placeholder="Widget nomi"><button class="action-btn blue" onclick="addSimple74('widgets','widget74')">Qo‘shish</button></div><p class="f74-muted">Drag & Drop uchun widgetlar orasida brauzer darajasida tartiblash rejimi tayyor.</p>`}
+else if(n===52){H=`<p>Original Preview Center rasm, video va audio uchun mavjud. PDF brauzer preview orqali ochilishi mumkin.</p>`}
+else if(n===54){H=`<div class="f74-statgrid"><div class="f74-stat"><span>Fayllar</span><strong>${files.length}</strong></div><div class="f74-stat"><span>Notes</span><strong>${f74Get('notes',[]).length}</strong></div><div class="f74-stat"><span>Tasks</span><strong>${f74Get('tasks',[]).length}</strong></div><div class="f74-stat"><span>Links</span><strong>${f74Get('links',[]).length}</strong></div></div>`}
+else if(n===55){H=`<div id="bot74" class="f74-list"><div class="f74-item">🤖 Salom! “storage”, “fayllar”, “drive”, “notes” deb yozing.</div></div><div class="f74-row"><input id="botInput74" class="input" onkeydown="if(event.key==='Enter')bot74()"><button class="action-btn blue" onclick="bot74()">Yuborish</button></div>`}
+else if(n===56){H=`<div id="downloadMgr74">${f74List(f74Get('downloads',[]),'Download tarixi yo‘q')}</div>`}
+else if(n===57){H=`<p>Multi-upload original papka/fayl input bilan ishlaydi. Brauzer upload queue holati shu yerda ko‘rsatiladi.</p><button class="action-btn blue" onclick="closeF74();document.getElementById('folderInput')?.click()">Ko‘p fayl tanlash</button>`}
+else if(n===58){H=`<p>SkyDriveX ↔ Google Drive ko‘chirish uchun ikkala tomondan faylni o‘qish va qayta upload qilish kerak.</p><div class="f74-row"><button class="action-btn" onclick="closeF74();document.getElementById('gdriveConnectBtn')?.click()">Google Drive</button></div>`}
+else if(n===61){H=`<p>Memories: metadata sanasiga ko‘ra eski rasmlarni ko‘rsatadi.</p><div class="f74-pre">Joriy ro‘yxatda ${files.filter(x=>/\.(jpg|jpeg|png|webp)$/i.test(x.name)).length} ta rasm bor.</div>`}
+else if(n===65){let lim=Number(f74Get('warnPct',80));H=`<div class="f74-row"><input id="warn74" class="input" type="number" min="1" max="100" value="${lim}"><button class="action-btn blue" onclick="f74Set('warnPct',Number(document.getElementById('warn74').value));alert('Saqlandi')">Saqlash</button></div><p>${lim}% ga yetganda ogohlantirish.</p>`}
+else if(n===69){H=`<p>Desktop Mode: modullar alohida modal oynalarda ochiladi. Hozir 74 Features Center shu window-manager rolini bajaradi.</p>`}
+else if(n===70){H=`<p>PWA uchun <b>manifest.webmanifest</b> va <b>sw.js</b> fayllari HTML bilan bir katalogda bo‘lishi kerak.</p><button class="action-btn blue" onclick="installPwa74()">Ilovani o‘rnatish</button>`}
+else if(n===74){H=`<p>Backup Center muhim fayllarni ulangan cloud’ga nusxalash uchun.</p><div class="f74-row"><button class="action-btn blue" onclick="closeF74();document.getElementById('gdriveConnectBtn')?.click()">Google Drive’ni ochish</button></div>`}
+else H='<div class="empty">Modul tayyor.</div>';c.innerHTML=H}
+function setVaultPin74(){let v=document.getElementById('vaultPin74').value;if(v.length<4)return alert('Kamida 4 raqam/belgi');f74Set('vaultLock',true);localStorage.setItem('sdx74_vault_pin',btoa(unescape(encodeURIComponent(v))));alert('PIN saqlandi');renderF74(36)}
+function setLang74(v){f74Set('lang',v);alert('Til saqlandi: '+v)}
+function theme74(v){document.body.classList.remove('light74','amoled74');if(v==='light')document.body.classList.add('light74');if(v==='amoled')document.body.classList.add('amoled74');f74Set('theme',v)}
+function wallpaper74(){let u=document.getElementById('wall74').value.trim();if(!u)return;document.body.style.backgroundImage=`linear-gradient(rgba(3,10,25,.72),rgba(3,10,25,.72)),url("${u.replace(/"/g,'')}")`;document.body.style.backgroundSize='cover';document.body.style.backgroundAttachment='fixed';f74Set('wallpaper',u)}
+async function share74(){let p=document.getElementById('sharePath74').value.trim(),sec=Number(document.getElementById('shareSec74').value);if(!p)return;try{let {data,error}=await supabaseClient.storage.from(BUCKET).createSignedUrl(p,sec);if(error)throw error;document.getElementById('shareOut74').textContent=data.signedUrl;log74('Fayl uchun vaqtinchalik link yaratildi')}catch(e){document.getElementById('shareOut74').textContent='Xato: '+e.message}}
+function addCalendar74(){let d=document.getElementById('cal74').value,t=document.getElementById('calText74').value.trim();if(!d||!t)return;let a=f74Get('calendar',[]);a.unshift({date:d,text:t});f74Set('calendar',a);renderF74(17)}
+function search74(q){q=q.toLowerCase().trim();let r=document.getElementById('uSearchRes74');if(!q){r.innerHTML='';return}let a=(allItems||[]).filter(x=>x.name?.toLowerCase().includes(q)).slice(0,30);r.innerHTML=a.map(x=>`<div class="f74-item"><span>${x.metadata?'📄':'📁'} ${escapeHtml(x.name)}</span></div>`).join('')||'<div class="empty">Topilmadi</div>'}
+function importContacts74(){let f=document.getElementById('contactFile74').files[0];if(!f)return alert('VCF yoki CSV tanlang');f74Set('contactBackup',{name:f.name,size:f.size,at:Date.now()});alert('Kontakt backup qayd etildi: '+f.name)}
+function weather74(){let o=document.getElementById('weatherOut74');if(!navigator.geolocation){o.textContent='Geolocation qo‘llanmaydi';return}o.textContent='Joylashuv olinmoqda...';navigator.geolocation.getCurrentPosition(async p=>{try{let u=`https://api.open-meteo.com/v1/forecast?latitude=${p.coords.latitude}&longitude=${p.coords.longitude}&current=temperature_2m,wind_speed_10m`;let j=await (await fetch(u)).json();o.textContent=`Harorat: ${j.current?.temperature_2m ?? '?'}°C\nShamol: ${j.current?.wind_speed_10m ?? '?'} km/h`}catch(e){o.textContent='Ob-havo olinmadi'}},e=>o.textContent='Joylashuvga ruxsat berilmadi')}
+function updateClock74(){let e=document.getElementById('clock74'),d=document.getElementById('date74'),n=new Date();if(e)e.textContent=n.toLocaleTimeString();if(d)d.textContent=n.toLocaleDateString(undefined,{weekday:'long',year:'numeric',month:'long',day:'numeric'})}
+function enableContext74(){document.addEventListener('contextmenu',e=>{let f=e.target.closest('.file');if(!f)return;e.preventDefault();alert('SkyDriveX menyu: Ko‘rish / Yuklab olish / Sevimliga / O‘chirish')},{once:true});alert('Right-click demo yoqildi')}
+function bot74(){let i=document.getElementById('botInput74'),q=i.value.trim();if(!q)return;let l=q.toLowerCase(),a='SkyDriveX bo‘limlarini boshqarishga yordam beraman.';if(l.includes('storage'))a=`Joriy papkada ${(allItems||[]).filter(x=>x.metadata).length} ta fayl bor.`;else if(l.includes('drive'))a=typeof googleDriveTokenValid==='function'&&googleDriveTokenValid()?'Google Drive ulangan.':'Google Drive ulanmagan.';else if(l.includes('note'))a=`${f74Get('notes',[]).length} ta note bor.`;document.getElementById('bot74').innerHTML+=`<div class="f74-item"><span>👤 ${escapeHtml(q)}</span></div><div class="f74-item"><span>🤖 ${escapeHtml(a)}</span></div>`;i.value=''}
+let deferredPwa74=null;window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPwa74=e});async function installPwa74(){if(!deferredPwa74)return alert('Brauzerda PWA install taklifi hozir mavjud emas. HTTPS va manifest/sw kerak.');deferredPwa74.prompt();await deferredPwa74.userChoice;deferredPwa74=null}
+window.addEventListener('keydown',e=>{if(e.key==='Escape')closeF74();if(e.ctrlKey&&e.key.toLowerCase()==='k'){e.preventDefault();openF74(68);setTimeout(()=>document.getElementById('uSearch74')?.focus(),50)}if(e.ctrlKey&&e.shiftKey&&e.key.toLowerCase()==='u'){e.preventDefault();document.getElementById('fileInput')?.click()}if(e.ctrlKey&&e.shiftKey&&e.key.toLowerCase()==='a'){e.preventDefault();document.querySelector('[onclick*=openAppsLauncher]')?.click()}});
+// wrap common actions for activity/notifications without changing original logic
+window.addEventListener('load',()=>{initF74();let th=f74Get('theme','dark');theme74(th);let w=f74Get('wallpaper','');if(w){document.body.style.backgroundImage=`linear-gradient(rgba(3,10,25,.72),rgba(3,10,25,.72)),url("${w.replace(/"/g,'')}")`;document.body.style.backgroundSize='cover';document.body.style.backgroundAttachment='fixed'};if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{})});
+
+
+
+/* ===== FULL CUSTOM THEME ENGINE ===== */
+const CT_KEY="sdx_full_custom_theme_v1";
+const CT_PRESETS={
+  darkblue:{accent:"#1486ff",accent2:"#36a3ff",page:"#020a17",sidebar:"#031226",card:"#071f3d",text:"#f3f8ff",muted:"#7f95b6",border:"#4082d1",blur:12,opacity:82,overlay:55,radius:10,font:100,decor:true,bgPosition:"center center"},
+  amoled:{accent:"#2f8cff",accent2:"#50c7ff",page:"#000000",sidebar:"#050505",card:"#090909",text:"#ffffff",muted:"#9ca3af",border:"#232323",blur:4,opacity:94,overlay:68,radius:8,font:100,decor:false,bgPosition:"center center"},
+  purple:{accent:"#8b5cf6",accent2:"#ec4899",page:"#0b0617",sidebar:"#120a22",card:"#1b1034",text:"#fbf7ff",muted:"#b8a7cf",border:"#6d4aa5",blur:18,opacity:76,overlay:48,radius:16,font:100,decor:true,bgPosition:"center center"},
+  aurora:{accent:"#22d3ee",accent2:"#8b5cf6",page:"#03131a",sidebar:"#071824",card:"#0b2530",text:"#effcff",muted:"#8db6bf",border:"#2a7480",blur:20,opacity:72,overlay:42,radius:18,font:100,decor:true,bgPosition:"center center"},
+  ocean:{accent:"#0ea5e9",accent2:"#22d3ee",page:"#03111d",sidebar:"#061827",card:"#08273a",text:"#effaff",muted:"#8fb3c7",border:"#216484",blur:14,opacity:80,overlay:50,radius:12,font:100,decor:true,bgPosition:"center center"},
+  light:{accent:"#2563eb",accent2:"#0ea5e9",page:"#eef5ff",sidebar:"#e5efff",card:"#ffffff",text:"#10203a",muted:"#60708a",border:"#a9c3e7",blur:12,opacity:86,overlay:18,radius:14,font:100,decor:false,bgPosition:"center center"},
+  gold:{accent:"#d6a84f",accent2:"#f3d486",page:"#070707",sidebar:"#0c0b09",card:"#17130d",text:"#fff7e6",muted:"#b8aa91",border:"#705b31",blur:8,opacity:90,overlay:62,radius:10,font:100,decor:false,bgPosition:"center center"},
+  cyber:{accent:"#00f5ff",accent2:"#ff2bd6",page:"#03040a",sidebar:"#080817",card:"#101125",text:"#f1feff",muted:"#90a8b3",border:"#1a7f8b",blur:10,opacity:82,overlay:58,radius:4,font:98,decor:true,bgPosition:"center center"},
+  frost:{accent:"#60a5fa",accent2:"#a5f3fc",page:"#16243a",sidebar:"#1c2c44",card:"#dbeafe",text:"#f8fbff",muted:"#c2d0e5",border:"#9ec5f0",blur:28,opacity:30,overlay:34,radius:22,font:100,decor:true,bgPosition:"center center"}
+};
+let ctWallpaperData="";
+
+function ctHexToRgb(hex){
+  const h=(hex||"#000000").replace("#","");
+  const v=h.length===3?h.split("").map(x=>x+x).join(""):h;
+  const n=parseInt(v,16);
+  return {r:(n>>16)&255,g:(n>>8)&255,b:n&255};
+}
+function ctRgba(hex,a){
+  const c=ctHexToRgb(hex);
+  return `rgba(${c.r},${c.g},${c.b},${Math.max(0,Math.min(1,a))})`;
+}
+function ctReadControls(){
+  return {
+    preset:document.getElementById("ctPreset")?.value||"custom",
+    accent:document.getElementById("ctAccent")?.value||"#1486ff",
+    accent2:document.getElementById("ctAccent2")?.value||"#36a3ff",
+    page:document.getElementById("ctPage")?.value||"#020a17",
+    sidebar:document.getElementById("ctSidebar")?.value||"#031226",
+    card:document.getElementById("ctCard")?.value||"#071f3d",
+    text:document.getElementById("ctText")?.value||"#f3f8ff",
+    muted:document.getElementById("ctMuted")?.value||"#7f95b6",
+    border:document.getElementById("ctBorder")?.value||"#4082d1",
+    blur:Number(document.getElementById("ctBlur")?.value||12),
+    opacity:Number(document.getElementById("ctOpacity")?.value||82),
+    overlay:Number(document.getElementById("ctOverlay")?.value||55),
+    radius:Number(document.getElementById("ctRadius")?.value||10),
+    font:Number(document.getElementById("ctFont")?.value||100),
+    decor:!!document.getElementById("ctDecor")?.checked,
+    bgPosition:document.getElementById("ctBgPosition")?.value||"center center",
+    wallpaper:ctWallpaperData||""
+  };
+}
+function ctWriteControls(s){
+  if(!s)return;
+  const set=(id,v)=>{const e=document.getElementById(id);if(e&&v!==undefined&&v!==null)e.value=v};
+  set("ctPreset",s.preset||"custom");set("ctAccent",s.accent);set("ctAccent2",s.accent2);set("ctPage",s.page);
+  set("ctSidebar",s.sidebar);set("ctCard",s.card);set("ctText",s.text);set("ctMuted",s.muted);set("ctBorder",s.border);
+  set("ctBlur",s.blur);set("ctOpacity",s.opacity);set("ctOverlay",s.overlay);set("ctRadius",s.radius);set("ctFont",s.font);
+  set("ctBgPosition",s.bgPosition||"center center");
+  const d=document.getElementById("ctDecor");if(d)d.checked=s.decor!==false;
+  ctWallpaperData=s.wallpaper||"";
+  const n=document.getElementById("ctWallpaperName");
+  if(n)n.textContent=ctWallpaperData?"✅ Fon rasmi saqlangan":"Fon rasmi tanlanmagan";
+  ctRangeLabels();
+}
+function ctApplyTheme(s){
+  if(!s)return;
+  const r=document.documentElement.style;
+  r.setProperty("--ct-accent",s.accent||"#1486ff");
+  r.setProperty("--ct-accent2",s.accent2||s.accent||"#36a3ff");
+  r.setProperty("--ct-page",s.page||"#020a17");
+  r.setProperty("--ct-sidebar",s.sidebar||"#031226");
+  r.setProperty("--ct-card-rgba",ctRgba(s.card||"#071f3d",(s.opacity??82)/100));
+  r.setProperty("--ct-header-rgba",ctRgba(s.sidebar||"#031226",Math.min(.96,((s.opacity??82)+4)/100)));
+  r.setProperty("--ct-input-rgba",ctRgba(s.page||"#020a17",Math.min(.92,((s.opacity??82)+2)/100)));
+  r.setProperty("--ct-text",s.text||"#f3f8ff");
+  r.setProperty("--ct-muted",s.muted||"#7f95b6");
+  r.setProperty("--ct-border",ctRgba(s.border||"#4082d1",.50));
+  r.setProperty("--ct-radius",`${s.radius??10}px`);
+  r.setProperty("--ct-blur",`${s.blur??12}px`);
+  r.setProperty("--ct-font-scale",`${(s.font??100)/100}`);
+  r.setProperty("--ct-overlay",ctRgba(s.page||"#020a17",(s.overlay??55)/100));
+  r.setProperty("--ct-bg-image",s.wallpaper?`url("${String(s.wallpaper).replace(/"/g,'')}")`:"none");
+  r.setProperty("--ct-bg-position",s.bgPosition||"center center");
+  document.body.classList.add("sdx-custom-theme");
+  document.body.classList.toggle("ct-no-decor",s.decor===false);
+}
+function ctRangeLabels(){
+  const vals=[["ctBlur","ctBlurVal","px"],["ctOpacity","ctOpacityVal","%"],["ctOverlay","ctOverlayVal","%"],["ctRadius","ctRadiusVal","px"],["ctFont","ctFontVal","%"]];
+  vals.forEach(([i,o,s])=>{const a=document.getElementById(i),b=document.getElementById(o);if(a&&b)b.textContent=a.value+s});
+}
+function ctLive(){
+  const p=document.getElementById("ctPreset");if(p&&p.value!=="custom")p.value="custom";
+  ctApplyTheme(ctReadControls());ctRangeLabels();
+}
+function ctApplyPreset(name){
+  if(name==="custom")return ctLive();
+  const p=CT_PRESETS[name];if(!p)return;
+  const keepWall=ctWallpaperData;
+  const s={...p,preset:name,wallpaper:keepWall};
+  ctWriteControls(s);ctApplyTheme(s);
+}
+function ctSave(){
+  const s=ctReadControls();
+  try{localStorage.setItem(CT_KEY,JSON.stringify(s));showSettingsStatus?.("✅ Dizayn saqlandi.");}
+  catch(e){alert("Dizaynni saqlab bo‘lmadi. Fon rasmi juda katta bo‘lishi mumkin.");}
+  ctApplyTheme(s);
+}
+function ctReset(){
+  if(!confirm("Standart Dark Blue Glass dizayniga qaytarilsinmi?"))return;
+  localStorage.removeItem(CT_KEY);ctWallpaperData="";
+  const s={...CT_PRESETS.darkblue,preset:"darkblue",wallpaper:""};
+  ctWriteControls(s);ctApplyTheme(s);showSettingsStatus?.("Standart dizayn tiklandi.");
+}
+function ctRemoveWallpaper(){
+  ctWallpaperData="";
+  const f=document.getElementById("ctWallpaperFile");if(f)f.value="";
+  const n=document.getElementById("ctWallpaperName");if(n)n.textContent="Fon rasmi tanlanmagan";
+  ctLive();
+}
+async function ctWallpaperPicked(ev){
+  const file=ev.target.files?.[0];if(!file)return;
+  if(!file.type.startsWith("image/"))return alert("Rasm faylini tanlang.");
+  const name=document.getElementById("ctWallpaperName");if(name)name.textContent="Rasm tayyorlanmoqda...";
+  try{
+    const data=await ctCompressImage(file,1920,1080,.82);
+    ctWallpaperData=data;
+    if(name)name.textContent=`✅ ${file.name}`;
+    ctLive();
+  }catch(e){
+    if(name)name.textContent="Fon rasmi olinmadi";
+    alert("Rasmni o‘qib bo‘lmadi.");
+  }
+}
+function ctCompressImage(file,maxW,maxH,quality){
+  return new Promise((resolve,reject)=>{
+    const rd=new FileReader();
+    rd.onerror=reject;
+    rd.onload=()=>{
+      const im=new Image();
+      im.onerror=reject;
+      im.onload=()=>{
+        let w=im.width,h=im.height,scale=Math.min(1,maxW/w,maxH/h);
+        w=Math.max(1,Math.round(w*scale));h=Math.max(1,Math.round(h*scale));
+        const c=document.createElement("canvas");c.width=w;c.height=h;
+        c.getContext("2d").drawImage(im,0,0,w,h);
+        resolve(c.toDataURL("image/jpeg",quality));
+      };
+      im.src=rd.result;
+    };
+    rd.readAsDataURL(file);
+  });
+}
+function ctLoad(){
+  let s=null;
+  try{s=JSON.parse(localStorage.getItem(CT_KEY)||"null")}catch(_){}
+  if(!s)s={...CT_PRESETS.darkblue,preset:"darkblue",wallpaper:""};
+  ctWallpaperData=s.wallpaper||"";
+  ctApplyTheme(s);
+  if(document.getElementById("ctAccent"))ctWriteControls(s);
+}
+function ctExport(){
+  const s=ctReadControls();
+  const blob=new Blob([JSON.stringify(s,null,2)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="SkyDriveX-theme.json";a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+function ctImport(ev){
+  const file=ev.target.files?.[0];if(!file)return;
+  const rd=new FileReader();
+  rd.onload=()=>{
+    try{
+      const s=JSON.parse(rd.result);
+      if(!s.accent||!s.page||!s.card)throw new Error("Noto‘g‘ri theme");
+      ctWallpaperData=s.wallpaper||"";
+      ctWriteControls({...s,preset:"custom"});
+      ctApplyTheme({...s,preset:"custom"});
+      localStorage.setItem(CT_KEY,JSON.stringify({...s,preset:"custom"}));
+      showSettingsStatus?.("✅ Theme import qilindi.");
+    }catch(e){alert("Theme JSON fayli noto‘g‘ri.");}
+  };
+  rd.readAsText(file);
+}
+const ctOldOpenSettings=window.openSettings;
+window.openSettings=function(){
+  if(typeof ctOldOpenSettings==="function")ctOldOpenSettings();
+  setTimeout(ctLoad,0);
+};
+document.addEventListener("DOMContentLoaded",ctLoad);
+
 </script>
 
 </body>
