@@ -973,6 +973,11 @@ body.sdx-custom-theme *{scrollbar-color:var(--ct-accent) transparent}
   .theme-actions .action-btn{width:100%}
 }
 
+
+/* Google Drive ichki preview */
+.gdrive-preview-wrap{width:100%;height:min(72vh,720px);background:#020713;border-radius:14px;overflow:hidden;border:1px solid rgba(96,165,250,.18)}
+.gdrive-preview-frame{display:block;width:100%;height:100%;border:0;background:#020713}
+@media(max-width:650px){.gdrive-preview-wrap{height:68vh}}
 </style>
 </head>
 
@@ -1565,8 +1570,12 @@ const BUCKET = "files";
 const GOOGLE_CLIENT_ID = "419686708374-o4jgjn6r3ickb33ritmafcga51sekdaq.apps.googleusercontent.com";
 const GOOGLE_DRIVE_SCOPE = "https://www.googleapis.com/auth/drive";
 let googleTokenClient = null;
-let googleDriveToken = sessionStorage.getItem("sdx_google_token") || "";
-let googleDriveTokenExpiresAt = Number(sessionStorage.getItem("sdx_google_exp")) || 0;
+// Google Drive tokenini brauzer yopilib ochilganda ham saqlab turamiz.
+// Eslatma: Google access token odatda taxminan 1 soat amal qiladi.
+let googleDriveToken = localStorage.getItem("sdx_google_token") || sessionStorage.getItem("sdx_google_token") || "";
+let googleDriveTokenExpiresAt = Number(localStorage.getItem("sdx_google_exp") || sessionStorage.getItem("sdx_google_exp")) || 0;
+if (googleDriveToken) localStorage.setItem("sdx_google_token", googleDriveToken);
+if (googleDriveTokenExpiresAt) localStorage.setItem("sdx_google_exp", String(googleDriveTokenExpiresAt));
 let googleDriveFolderId = "root";
 let googleDriveFolderStack = [];
 
@@ -1828,6 +1837,8 @@ async function logout(){
     googleDriveTokenExpiresAt = 0;
     googleDriveFolderId = "root";
     googleDriveFolderStack = [];
+    localStorage.removeItem("sdx_google_token");
+    localStorage.removeItem("sdx_google_exp");
     sessionStorage.removeItem("sdx_google_token");
     sessionStorage.removeItem("sdx_google_exp");
 
@@ -3925,6 +3936,9 @@ async function connectGoogleDrive(){
         if(response.error){ alert("Google Drive ulanish xatosi: "+response.error); return; }
         googleDriveToken=response.access_token;
         googleDriveTokenExpiresAt=Date.now()+Number(response.expires_in||3600)*1000;
+        localStorage.setItem("sdx_google_token",googleDriveToken);
+        localStorage.setItem("sdx_google_exp",String(googleDriveTokenExpiresAt));
+        localStorage.setItem("sdx_google_consent_granted","1");
         sessionStorage.setItem("sdx_google_token",googleDriveToken);
         sessionStorage.setItem("sdx_google_exp",String(googleDriveTokenExpiresAt));
         googleDriveFolderId="root"; googleDriveFolderStack=[];
@@ -3933,12 +3947,16 @@ async function connectGoogleDrive(){
       }
     });
   }
-  googleTokenClient.requestAccessToken({prompt:"consent"});
+  // Birinchi ulanishda consent ko‘rinadi; keyingi ulanishlarda imkon qadar qayta so‘ramaydi.
+  const alreadyGranted = localStorage.getItem("sdx_google_consent_granted") === "1";
+  googleTokenClient.requestAccessToken({prompt: alreadyGranted ? "" : "consent"});
 }
 
 function disconnectGoogleDrive(){
   const token=googleDriveToken;
   googleDriveToken=""; googleDriveTokenExpiresAt=0; googleDriveFolderId="root"; googleDriveFolderStack=[];
+  localStorage.removeItem("sdx_google_token"); localStorage.removeItem("sdx_google_exp");
+  localStorage.removeItem("sdx_google_consent_granted");
   sessionStorage.removeItem("sdx_google_token"); sessionStorage.removeItem("sdx_google_exp");
   if(token && window.google?.accounts?.oauth2) google.accounts.oauth2.revoke(token,()=>{});
   updateGoogleDriveStatus();
@@ -3951,7 +3969,9 @@ async function gdriveFetch(url,options={}){
   const headers=new Headers(options.headers||{}); headers.set("Authorization","Bearer "+googleDriveToken);
   const response=await fetch(url,{...options,headers});
   if(response.status===401){
-    googleDriveToken=""; googleDriveTokenExpiresAt=0; sessionStorage.removeItem("sdx_google_token"); sessionStorage.removeItem("sdx_google_exp"); updateGoogleDriveStatus();
+    googleDriveToken=""; googleDriveTokenExpiresAt=0;
+    localStorage.removeItem("sdx_google_token"); localStorage.removeItem("sdx_google_exp");
+    sessionStorage.removeItem("sdx_google_token"); sessionStorage.removeItem("sdx_google_exp"); updateGoogleDriveStatus();
     throw new Error("Google Drive sessiyasi tugadi. Qayta ulang.");
   }
   return response;
@@ -3987,11 +4007,51 @@ function renderGoogleDriveFiles(files){
     if(isFolder){
       const b=document.createElement("button"); b.className="btn"; b.textContent="📂 Kirish"; b.onclick=()=>{googleDriveFolderStack.push({id:file.id,name:file.name});loadGoogleDriveFiles(file.id)}; actions.appendChild(b);
     }else{
-      const o=document.createElement("button"); o.className="btn preview"; o.textContent="👁️ Ochish"; o.onclick=()=>window.open(file.webViewLink||`https://drive.google.com/open?id=${encodeURIComponent(file.id)}`,"_blank","noopener,noreferrer"); actions.appendChild(o);
+      const o=document.createElement("button");
+      o.className="btn preview";
+      o.textContent="👁️ Ochish";
+      o.onclick=()=>openGoogleDriveFile(file);
+      actions.appendChild(o);
       if(!nativeGoogle){ const d=document.createElement("button"); d.className="btn"; d.textContent="⬇️"; d.onclick=()=>downloadGoogleDriveFile(file); actions.appendChild(d); }
     }
     list.appendChild(row);
   });
+}
+
+function openGoogleDriveFile(file){
+  const mime = String(file?.mimeType || "").toLowerCase();
+  const isPreviewable = mime.startsWith("video/") || mime.startsWith("image/") || mime.startsWith("audio/") || mime === "application/pdf";
+
+  // Video/rasm/audio/PDF endi SkyDriveX ichidagi modalda ochiladi,
+  // yangi tabga chiqarib yubormaydi.
+  if(isPreviewable){
+    const modal = document.getElementById("previewModal");
+    const title = document.getElementById("previewTitle");
+    const content = document.getElementById("previewContent");
+    if(!modal || !title || !content) return;
+
+    title.textContent = file.name || "Google Drive Preview";
+    const id = encodeURIComponent(file.id || "");
+    content.innerHTML = `
+      <div class="gdrive-preview-wrap">
+        <iframe
+          class="gdrive-preview-frame"
+          src="https://drive.google.com/file/d/${id}/preview"
+          allow="autoplay; fullscreen"
+          allowfullscreen
+          referrerpolicy="strict-origin-when-cross-origin">
+        </iframe>
+      </div>`;
+    modal.classList.remove("hidden");
+    return;
+  }
+
+  // Google Docs/Sheets/Slides kabi fayllar Drive'ning o‘z sahifasida ochiladi.
+  window.open(
+    file.webViewLink || `https://drive.google.com/open?id=${encodeURIComponent(file.id)}`,
+    "_blank",
+    "noopener,noreferrer"
+  );
 }
 
 async function googleDriveBack(){
