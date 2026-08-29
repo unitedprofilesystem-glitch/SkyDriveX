@@ -6,51 +6,7 @@
 
 <title>SkyDriveX</title>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
-/* ===== SKYDRIVEX ULTRA MODULES ===== */
-const SDX_KEY=p=>'sdx_'+p;
-function sdxGet(k,d=[]){try{return JSON.parse(localStorage.getItem(SDX_KEY(k)))??d}catch(e){return d}}
-function sdxSet(k,v){localStorage.setItem(SDX_KEY(k),JSON.stringify(v))}
-function sdxToast(t){const w=document.getElementById('sdxToastWrap');if(!w)return;const x=document.createElement('div');x.className='sdx-toast';x.textContent=t;w.appendChild(x);setTimeout(()=>x.remove(),2800);let a=sdxGet('activity',[]);a.unshift({t,at:new Date().toLocaleString()});sdxSet('activity',a.slice(0,60))}
-setInterval(()=>{let d=new Date(),c=document.getElementById('sdxClock'),dt=document.getElementById('sdxDate');if(c)c.textContent=d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});if(dt)dt.textContent=d.toLocaleDateString()},1000);
-function closeUltra(e){if(e&&e.target!==e.currentTarget)return;document.getElementById('ultraModal').classList.add('hidden')}
-function openUltra(type){const m=document.getElementById('ultraModal'),t=document.getElementById('ultraTitle'),c=document.getElementById('ultraContent');m.classList.remove('hidden');const H={command:'🚀 Command Center',assistant:'🤖 SkyDriveX Assistant',notes:'📝 Notes',tasks:'✅ Vazifalar',calendar:'📅 Kalendar',bookmarks:'🔖 Saved Links',gallery:'🖼️ Gallery',media:'🎬 Media Center',documents:'📄 Documents',storage:'📊 Storage Map',favorites:'⭐ Sevimlilar',recent:'🕒 Recent Activity',security:'🛡️ Security Center',cleanup:'🧹 Cleanup Center',cloud:'🔄 Cloud Transfer',customize:'🎨 Customize'};t.textContent=H[type]||'SkyDriveX';renderUltra(type,c)}
-function renderUltra(type,c){
- if(type==='notes'){let a=sdxGet('notes',[]);c.innerHTML=`<div class="ultra-toolbar"><input id="uNoteTitle" class="input" placeholder="Sarlavha"><button class="action-btn blue" onclick="addNote()">＋ Note</button></div><textarea id="uNoteText" class="input ultra-textarea" placeholder="Yozing..."></textarea><div class="ultra-list">${a.map((x,i)=>`<div class="ultra-item"><div><b>${escapeHtml(x.title)}</b><div class="muted">${escapeHtml(x.text)}</div></div><button class="btn delete" onclick="delLocal('notes',${i},'notes')">🗑️</button></div>`).join('')||'<div class="empty">Note yo‘q</div>'}</div>`;return}
- if(type==='tasks'){let a=sdxGet('tasks',[]);c.innerHTML=`<div class="ultra-toolbar"><input id="uTask" class="input" placeholder="Yangi vazifa"><button class="action-btn blue" onclick="addTask()">＋ Qo‘shish</button></div><div class="ultra-list">${a.map((x,i)=>`<div class="ultra-item"><label><input type="checkbox" ${x.done?'checked':''} onchange="toggleTask(${i})"> ${escapeHtml(x.text)}</label><button class="btn delete" onclick="delLocal('tasks',${i},'tasks')">🗑️</button></div>`).join('')||'<div class="empty">Vazifa yo‘q</div>'}</div>`;return}
- if(type==='calendar'){let a=sdxGet('events',[]);c.innerHTML=`<div class="ultra-toolbar"><input id="uEventDate" type="date" class="input"><input id="uEventText" class="input" placeholder="Eslatma"><button class="action-btn blue" onclick="addEventU()">＋</button></div><div class="ultra-list">${a.sort((x,y)=>x.date.localeCompare(y.date)).map((x,i)=>`<div class="ultra-item"><div><b>${x.date}</b> — ${escapeHtml(x.text)}</div><button class="btn delete" onclick="delLocal('events',${i},'calendar')">🗑️</button></div>`).join('')||'<div class="empty">Eslatma yo‘q</div>'}</div>`;return}
- if(type==='bookmarks'){let a=sdxGet('bookmarks',[]);c.innerHTML=`<div class="ultra-toolbar"><input id="uBmName" class="input" placeholder="Nomi"><input id="uBmUrl" class="input" placeholder="https://..."><button class="action-btn blue" onclick="addBookmarkU()">＋</button></div><div class="ultra-list">${a.map((x,i)=>`<div class="ultra-item"><a href="${escapeHtml(x.url)}" target="_blank" rel="noopener" style="color:#9dcbff">🔗 ${escapeHtml(x.name)}</a><button class="btn delete" onclick="delLocal('bookmarks',${i},'bookmarks')">🗑️</button></div>`).join('')||'<div class="empty">Link yo‘q</div>'}</div>`;return}
- if(['gallery','media','documents','cleanup'].includes(type)){renderSmartFiles(type,c);return}
- if(type==='storage'){renderStorageMap(c);return}
- if(type==='recent'){let a=sdxGet('activity',[]);c.innerHTML=`<div class="ultra-list">${a.map(x=>`<div class="ultra-item"><span>${escapeHtml(x.t)}</span><span class="muted">${escapeHtml(x.at)}</span></div>`).join('')||'<div class="empty">Faoliyat hali yo‘q</div>'}</div>`;return}
- if(type==='favorites'){let a=sdxGet('favorites',[]);c.innerHTML=`<div class="ultra-toolbar"><input id="uFav" class="input" placeholder="Muhim fayl/link nomi"><button class="action-btn blue" onclick="addFavU()">⭐ Qo‘shish</button></div><div class="ultra-list">${a.map((x,i)=>`<div class="ultra-item"><span>⭐ ${escapeHtml(x)}</span><button class="btn delete" onclick="delLocal('favorites',${i},'favorites')">🗑️</button></div>`).join('')||'<div class="empty">Sevimli yo‘q</div>'}</div>`;return}
- if(type==='security'){let pin=!!localStorage.getItem(SDX_KEY('pin'));c.innerHTML=`<div class="settings-section"><h3>🔐 App Lock PIN</h3><p>SkyDriveX ichidagi maxfiy bo‘limlar uchun mahalliy PIN.</p><input id="uPin" class="input" type="password" inputmode="numeric" maxlength="8" placeholder="4–8 raqam"><button class="action-btn blue" onclick="savePinU()">${pin?'PINni almashtirish':'PIN o‘rnatish'}</button> ${pin?'<button class="action-btn" onclick="removePinU()">PINni o‘chirish</button>':''}</div><div class="settings-section" style="margin-top:10px"><h3>🔑 Akkaunt xavfsizligi</h3><p>Parolni o‘zgartirish uchun Sozlamalar → Xavfsizlik bo‘limidan foydalaning. Tashqi servislarning parolini SkyDriveX saqlamaydi.</p></div>`;return}
- if(type==='cloud'){c.innerHTML=`<div class="settings-section"><h3>☁️ SkyDriveX ↔ Google Drive</h3><p>Google Drive ulanib bo‘lsa, Drive bo‘limidan fayllarni ko‘rish/yuklash ishlaydi. To‘liq server-side avtomatik ikki tomonlama sync uchun alohida backend kerak.</p><button class="action-btn blue" onclick="closeUltra();document.querySelector('.gdrive-card')?.scrollIntoView({behavior:'smooth'})">Google Drive bo‘limiga o‘tish</button></div>`;return}
- if(type==='customize'){c.innerHTML=`<div class="settings-grid"><section class="settings-section"><h3>🎨 Theme</h3><div class="ultra-toolbar"><button class="action-btn" onclick="setThemeU('dark')">Dark Blue</button><button class="action-btn" onclick="setThemeU('amoled')">AMOLED</button><button class="action-btn" onclick="setThemeU('light')">Light</button></div></section><section class="settings-section"><h3>🖼️ Wallpaper</h3><input id="uWallpaper" class="input" placeholder="Rasm URL"><button class="action-btn blue" onclick="setWallpaperU()">Qo‘llash</button> <button class="action-btn" onclick="clearWallpaperU()">Tozalash</button></section><section class="settings-section"><h3>🌐 Til</h3><select id="uLang" class="lang-select" onchange="setLangU(this.value)"><option value="uz">O‘zbek</option><option value="ru">Русский</option><option value="en">English</option></select><p class="settings-note">Asosiy interfeys tarjimasi keyingi bosqichda kengaytirilishi mumkin.</p></section><section class="settings-section"><h3>🧩 Widgetlar</h3><p>Soat, sana va Cloud widgetlari Dashboard’da faol.</p></section></div>`;document.getElementById('uLang').value=localStorage.getItem(SDX_KEY('lang'))||'uz';return}
- if(type==='command'){c.innerHTML=`<input id="uCommand" class="input command-input" placeholder="Fayl, ilova yoki buyruq yozing..." oninput="runCommandU(this.value)"><div id="uCommandResults" class="ultra-list"></div>`;setTimeout(()=>document.getElementById('uCommand')?.focus(),50);return}
- if(type==='assistant'){c.innerHTML=`<div id="uAssistantChat" style="min-height:220px;max-height:48vh;overflow:auto"><div class="assistant-msg bot">Salom! “fayllar”, “storage”, “google drive”, “notes”, “ilovalar” kabi buyruqlarni yozishingiz mumkin.</div></div><div class="ultra-toolbar" style="margin-top:12px"><input id="uAssistantInput" class="input" placeholder="Savol yoki buyruq..." onkeydown="if(event.key==='Enter')assistantSendU()"><button class="action-btn blue" onclick="assistantSendU()">Yuborish</button></div>`;return}
-}
-function addNote(){let a=sdxGet('notes',[]),title=document.getElementById('uNoteTitle').value.trim()||'Note',text=document.getElementById('uNoteText').value.trim();if(!text)return;a.unshift({title,text});sdxSet('notes',a);sdxToast('Note saqlandi');renderUltra('notes',document.getElementById('ultraContent'))}
-function addTask(){let e=document.getElementById('uTask'),a=sdxGet('tasks',[]);if(!e.value.trim())return;a.push({text:e.value.trim(),done:false});sdxSet('tasks',a);renderUltra('tasks',document.getElementById('ultraContent'))}
-function toggleTask(i){let a=sdxGet('tasks',[]);if(a[i])a[i].done=!a[i].done;sdxSet('tasks',a)}
-function addEventU(){let d=document.getElementById('uEventDate').value,t=document.getElementById('uEventText').value.trim();if(!d||!t)return;let a=sdxGet('events',[]);a.push({date:d,text:t});sdxSet('events',a);renderUltra('calendar',document.getElementById('ultraContent'))}
-function addBookmarkU(){let n=document.getElementById('uBmName').value.trim(),u=document.getElementById('uBmUrl').value.trim();if(!n||!/^https?:\/\//i.test(u))return sdxToast('To‘g‘ri https:// link kiriting');let a=sdxGet('bookmarks',[]);a.push({name:n,url:u});sdxSet('bookmarks',a);renderUltra('bookmarks',document.getElementById('ultraContent'))}
-function addFavU(){let e=document.getElementById('uFav');if(!e.value.trim())return;let a=sdxGet('favorites',[]);a.push(e.value.trim());sdxSet('favorites',a);renderUltra('favorites',document.getElementById('ultraContent'))}
-function delLocal(k,i,v){let a=sdxGet(k,[]);a.splice(i,1);sdxSet(k,a);renderUltra(v,document.getElementById('ultraContent'))}
-function renderSmartFiles(type,c){let a=(window.allItems||allItems||[]).filter(x=>x&&x.metadata);let ok=x=>{let t=getFileType(x.name);if(type==='gallery')return t==='image';if(type==='media')return t==='video'||t==='audio';if(type==='documents')return ['pdf','document','text'].includes(t)||/\.(pdf|docx?|xlsx?|pptx?|txt|csv)$/i.test(x.name);return true};a=a.filter(ok);if(type==='cleanup')a.sort((x,y)=>(y.metadata?.size||0)-(x.metadata?.size||0));c.innerHTML=`<div class="ultra-list">${a.slice(0,100).map(x=>`<div class="ultra-item"><div>${getFileIcon(getFileType(x.name))} <b>${escapeHtml(x.name)}</b><div class="muted">${formatSize(x.metadata?.size||0)}</div></div><span class="ultra-badge">${type==='cleanup'?'SIZE':'FILE'}</span></div>`).join('')||'<div class="empty">Joriy papkada mos fayl yo‘q</div>'}</div>`}
-function renderStorageMap(c){let a=(window.allItems||allItems||[]).filter(x=>x&&x.metadata),m={},total=0;a.forEach(x=>{let t=getFileType(x.name)||'other',z=x.metadata?.size||0;m[t]=(m[t]||0)+z;total+=z});c.innerHTML=`<div class="ultra-list"><div class="ultra-item"><b>Joriy papka jami</b><b>${formatSize(total)}</b></div>${Object.entries(m).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="ultra-item"><span>${getFileIcon(k)} ${escapeHtml(k)}</span><b>${formatSize(v)}</b></div>`).join('')}</div>`}
-function savePinU(){let p=document.getElementById('uPin').value;if(!/^\d{4,8}$/.test(p))return sdxToast('PIN 4–8 ta raqam bo‘lsin');localStorage.setItem(SDX_KEY('pin'),btoa(p));sdxToast('PIN saqlandi');renderUltra('security',document.getElementById('ultraContent'))}
-function removePinU(){localStorage.removeItem(SDX_KEY('pin'));sdxToast('PIN o‘chirildi');renderUltra('security',document.getElementById('ultraContent'))}
-function setThemeU(v){document.body.classList.remove('sdx-amoled','sdx-light');if(v==='amoled')document.body.classList.add('sdx-amoled');if(v==='light')document.body.classList.add('sdx-light');localStorage.setItem(SDX_KEY('theme'),v);sdxToast('Theme saqlandi')}
-function setWallpaperU(){let u=document.getElementById('uWallpaper').value.trim();if(!/^https?:\/\//i.test(u))return sdxToast('Rasm URL kiriting');document.body.style.setProperty('--sdx-wallpaper',`url("${u.replace(/"/g,'')}")`);document.body.classList.add('sdx-wallpaper');localStorage.setItem(SDX_KEY('wallpaper'),u)}
-function clearWallpaperU(){document.body.classList.remove('sdx-wallpaper');localStorage.removeItem(SDX_KEY('wallpaper'))}
-function setLangU(v){localStorage.setItem(SDX_KEY('lang'),v);sdxToast('Til tanlovi saqlandi')}
-function runCommandU(q){q=q.toLowerCase().trim();let r=[];const cmds=[['files','Fayllar','files-card'],['drive','Google Drive','gdrive-card'],['apps','Ilovalar','apps-launcher'],['settings','Sozlamalar','settings'],['notes','Notes','notes'],['tasks','Vazifalar','tasks'],['gallery','Gallery','gallery'],['storage','Storage','storage']];cmds.filter(x=>x[0].includes(q)||x[1].toLowerCase().includes(q)).forEach(x=>r.push(`<button class="ultra-item" style="width:100%;color:#fff" onclick="commandOpenU('${x[2]}')">${x[1]}</button>`));(allItems||[]).filter(x=>x.name?.toLowerCase().includes(q)).slice(0,12).forEach(x=>r.push(`<div class="ultra-item">📄 ${escapeHtml(x.name)}</div>`));document.getElementById('uCommandResults').innerHTML=q?r.join(''):'<div class="empty">Buyruq yozing</div>'}
-function commandOpenU(x){closeUltra();if(x==='settings')return openSettings();if(['notes','tasks','gallery','storage'].includes(x))return openUltra(x);let el=document.querySelector('.'+x)||document.getElementById(x);el?.scrollIntoView({behavior:'smooth'})}
-function assistantSendU(){let i=document.getElementById('uAssistantInput'),q=i.value.trim();if(!q)return;let ch=document.getElementById('uAssistantChat');ch.innerHTML+=`<div class="assistant-msg me">${escapeHtml(q)}</div>`;let l=q.toLowerCase(),a='Men SkyDriveX ichidagi bo‘limlarni ochish va topishga yordam beraman.';if(l.includes('drive'))a='Google Drive bo‘limini Command Center orqali ochishingiz mumkin.';else if(l.includes('storage')||l.includes('joy'))a='Storage Map joriy papkadagi fayl turlari va hajmini ko‘rsatadi.';else if(l.includes('note'))a='Notes bo‘limida yozuv yaratib, shu brauzerda saqlashingiz mumkin.';else if(l.includes('fayl'))a=`Joriy papkada ${(allItems||[]).length} ta element ko‘rinmoqda.`;else if(l.includes('ilova'))a='Apps Launcher orqali ilovalarni ochish yoki yangi ilova qo‘shish mumkin.';ch.innerHTML+=`<div class="assistant-msg bot">${a}</div>`;i.value='';ch.scrollTop=ch.scrollHeight}
-(function initUltra(){let th=localStorage.getItem(SDX_KEY('theme'));if(th)setThemeU(th);let w=localStorage.getItem(SDX_KEY('wallpaper'));if(w){document.body.style.setProperty('--sdx-wallpaper',`url("${w}")`);document.body.classList.add('sdx-wallpaper')}document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openUltra('command')}})})();
-
-</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 
 <style>
@@ -808,16 +764,7 @@ html{scroll-behavior:smooth} body{background:#050b18!important;background-image:
 body.sdx-compact .x-greeting{padding-top:8px;padding-bottom:8px}body.sdx-compact .stat-glass{min-height:72px!important;padding:10px!important}body.sdx-compact .app-tile{min-height:72px!important;padding:8px 6px!important}body.sdx-no-anim *,body.sdx-no-anim *:before,body.sdx-no-anim *:after{transition:none!important;animation:none!important;scroll-behavior:auto!important}
 @media(max-width:700px){.settings-grid{grid-template-columns:1fr}.settings-section.full{grid-column:auto}.settings-row{flex-direction:column}.settings-row>*{width:100%}}
 
-
-/* ===== SKYDRIVEX ULTRA MODULES ===== */
-.ultra-section{margin:18px 0;padding:18px;border:1px solid rgba(79,145,225,.18);border-radius:18px;background:linear-gradient(145deg,rgba(8,30,60,.64),rgba(5,20,43,.54));backdrop-filter:blur(18px)}
-.ultra-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}.ultra-head h2{font-size:17px}.ultra-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.ultra-tile{border:1px solid rgba(93,154,229,.16);background:rgba(12,38,72,.56);color:#dbeafe;border-radius:14px;padding:14px;text-align:left;min-height:84px;transition:.2s}.ultra-tile:hover{transform:translateY(-2px);background:rgba(18,53,96,.72);border-color:rgba(88,166,255,.35)}.ultra-tile b{display:block;margin-top:7px;font-size:12px}.ultra-tile small{color:#7892b5;font-size:10px}.ultra-modal{max-width:920px}.ultra-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.ultra-list{display:grid;gap:8px;max-height:52vh;overflow:auto}.ultra-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px;border:1px solid rgba(80,145,220,.14);border-radius:12px;background:rgba(8,27,54,.55)}.ultra-item .muted{font-size:11px;color:#7892b5}.ultra-textarea{width:100%;min-height:130px;resize:vertical}.ultra-badge{padding:4px 8px;border-radius:20px;background:rgba(35,129,255,.16);color:#8ec5ff;font-size:10px}.command-input{font-size:16px;padding:15px!important}.assistant-msg{padding:10px 12px;border-radius:12px;margin:7px 0;max-width:85%}.assistant-msg.me{margin-left:auto;background:#1c67c8}.assistant-msg.bot{background:#102b50}.widget-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.mini-widget{padding:14px;border-radius:14px;background:rgba(9,31,61,.58);border:1px solid rgba(80,145,220,.14)}.mini-widget strong{font-size:20px;display:block;margin-top:4px}.sdx-toast-wrap{position:fixed;right:18px;top:78px;z-index:9999;display:grid;gap:8px}.sdx-toast{padding:11px 14px;border-radius:12px;background:rgba(8,28,55,.96);border:1px solid rgba(74,153,255,.3);box-shadow:0 14px 40px rgba(0,0,0,.35);font-size:12px;animation:toastIn .25s ease}@keyframes toastIn{from{transform:translateX(20px);opacity:0}}
-body.sdx-amoled{--bg:#000!important;background:#000!important}body.sdx-light{--bg:#eaf3ff!important;--text:#0b1b31!important;--muted:#55708f!important;background:#eaf3ff!important;color:#0b1b31!important}body.sdx-wallpaper{background-image:var(--sdx-wallpaper)!important;background-size:cover!important;background-attachment:fixed!important}.lang-select{background:#0b1e39;color:#fff;border:1px solid rgba(90,150,220,.25);border-radius:10px;padding:9px}
-@media(max-width:900px){.ultra-grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:650px){.ultra-grid,.widget-row{grid-template-columns:1fr 1fr}.ultra-section{padding:13px}.ultra-modal{max-height:92vh}}
-
 </style>
-<link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#0a2b52">
 </head>
 
 <body>
@@ -1189,36 +1136,6 @@ body.sdx-amoled{--bg:#000!important;background:#000!important}body.sdx-light{--b
   <div id="gdrivePath" class="gdrive-path">🏠 My Drive</div>
   <div id="gdriveList"><div class="empty">Google Drive’ni ulang.</div></div>
 </section>
-
-
-<section class="ultra-section" id="ultraCenter">
- <div class="ultra-head"><h2>⚡ SkyDriveX Center</h2><span class="ultra-badge">ULTRA</span></div>
- <div class="widget-row" id="sdxWidgets">
-  <div class="mini-widget">🕐 <small>Vaqt</small><strong id="sdxClock">--:--</strong></div>
-  <div class="mini-widget">📅 <small>Bugun</small><strong id="sdxDate" style="font-size:14px">--</strong></div>
-  <div class="mini-widget">☁️ <small>Cloud</small><strong style="font-size:14px">SkyDriveX + Drive</strong></div>
- </div>
- <div class="ultra-grid" style="margin-top:12px">
-  <button class="ultra-tile" onclick="openUltra('command')">🚀<b>Command Center</b><small>Hamma joydan qidirish</small></button>
-  <button class="ultra-tile" onclick="openUltra('assistant')">🤖<b>Assistant</b><small>SkyDriveX yordamchi</small></button>
-  <button class="ultra-tile" onclick="openUltra('notes')">📝<b>Notes</b><small>Tezkor yozuvlar</small></button>
-  <button class="ultra-tile" onclick="openUltra('tasks')">✅<b>Vazifalar</b><small>To-do ro‘yxati</small></button>
-  <button class="ultra-tile" onclick="openUltra('calendar')">📅<b>Kalendar</b><small>Eslatmalar</small></button>
-  <button class="ultra-tile" onclick="openUltra('bookmarks')">🔖<b>Saved Links</b><small>Bookmarklar</small></button>
-  <button class="ultra-tile" onclick="openUltra('gallery')">🖼️<b>Gallery</b><small>Rasmlar</small></button>
-  <button class="ultra-tile" onclick="openUltra('media')">🎬<b>Media Center</b><small>Video va audio</small></button>
-  <button class="ultra-tile" onclick="openUltra('documents')">📄<b>Documents</b><small>Hujjatlar</small></button>
-  <button class="ultra-tile" onclick="openUltra('storage')">📊<b>Storage Map</b><small>Fayl turlari statistikasi</small></button>
-  <button class="ultra-tile" onclick="openUltra('favorites')">⭐<b>Sevimlilar</b><small>Muhim elementlar</small></button>
-  <button class="ultra-tile" onclick="openUltra('recent')">🕒<b>Recent Activity</b><small>Oxirgi faoliyat</small></button>
-  <button class="ultra-tile" onclick="openUltra('security')">🛡️<b>Security Center</b><small>PIN va xavfsizlik</small></button>
-  <button class="ultra-tile" onclick="openUltra('cleanup')">🧹<b>Cleanup Center</b><small>Katta fayllarni topish</small></button>
-  <button class="ultra-tile" onclick="openUltra('cloud')">🔄<b>Cloud Transfer</b><small>SkyDriveX ↔ Drive</small></button>
-  <button class="ultra-tile" onclick="openUltra('customize')">🎨<b>Customize</b><small>Theme va wallpaper</small></button>
- </div>
-</section>
-<div id="ultraModal" class="modal hidden" onclick="closeUltra(event)"><div class="modal-box ultra-modal" onclick="event.stopPropagation()"><div class="modal-header"><strong id="ultraTitle">SkyDriveX</strong><button class="close-btn" onclick="closeUltra()">✕</button></div><div id="ultraContent"></div></div></div>
-<div id="sdxToastWrap" class="sdx-toast-wrap"></div>
 
 </main>
 
@@ -3823,6 +3740,5 @@ function syncExactDashboardRecent(){
 setInterval(syncExactDashboardRecent,900);
 </script>
 
-<script>if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('./sw.js').catch(()=>{});</script>
 </body>
 </html>
