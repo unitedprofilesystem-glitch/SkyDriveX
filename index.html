@@ -988,15 +988,20 @@ body.ct-video-active #authPage{
 
 /* Quick video sound button — sayt ichida doimiy boshqaruv */
 .sdx-video-sound-float{
-  position:fixed;right:20px;top:82px;z-index:205;display:none;align-items:center;gap:8px;
-  border:1px solid rgba(139,92,246,.35);background:linear-gradient(145deg,rgba(22,18,55,.94),rgba(12,29,60,.90));
-  color:#f5f3ff;border-radius:999px;padding:9px 13px;box-shadow:0 14px 38px rgba(0,0,0,.28);
-  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);font-size:11px;font-weight:800;cursor:pointer
+  position:fixed;right:10px;top:74px;z-index:205;display:none;
+  align-items:center;justify-content:center;
+  width:28px;height:28px;padding:0;
+  border:1px solid rgba(139,92,246,.32);
+  background:rgba(10,20,42,.78);
+  color:#f5f3ff;border-radius:50%;
+  box-shadow:0 5px 14px rgba(0,0,0,.24);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  font-size:13px;line-height:1;cursor:grab;touch-action:none;user-select:none
 }
 body.ct-video-active .sdx-video-sound-float{display:flex}
-.sdx-video-sound-float:hover{transform:translateY(-1px)}
-.sdx-video-sound-float .sdx-vs-state{color:#c4b5fd;font-size:10px}
-@media(max-width:650px){.sdx-video-sound-float{right:10px;top:70px;padding:8px 11px}}
+.sdx-video-sound-float:hover{transform:translateY(-1px)}.sdx-video-sound-float.sdx-dragging{cursor:grabbing;transform:none!important}
+.sdx-video-sound-float .sdx-vs-state{display:none!important}.sdx-video-sound-float .sdx-vs-label{display:none!important}
+@media(max-width:650px){.sdx-video-sound-float{right:7px;top:66px;width:26px;height:26px;padding:0;font-size:12px}}
 
 /* Background music */
 .music-wallpaper-box{
@@ -1702,12 +1707,14 @@ const BUCKET = "files";
 
 const GOOGLE_CLIENT_ID = "419686708374-o4jgjn6r3ickb33ritmafcga51sekdaq.apps.googleusercontent.com";
 const GOOGLE_DRIVE_SCOPE = "https://www.googleapis.com/auth/drive";
-let googleTokenClient = null;
-let googleDriveToken = localStorage.getItem("sdx_google_token") || sessionStorage.getItem("sdx_google_token") || "";
-let googleDriveTokenExpiresAt = Number(localStorage.getItem("sdx_google_exp") || sessionStorage.getItem("sdx_google_exp")) || 0;
+const GOOGLE_DRIVE_EDGE_URL = SUPABASE_URL + "/functions/v1/google-drive-auth";
+
+// Access token faqat RAM ichida turadi. Doimiy Google refresh token brauzerda emas,
+// Supabase Edge Function serverida saqlanadi. Shu sabab bir SkyDriveX hisobidan
+// boshqa PC / telefon / TV ga kirilganda Drive avtomatik tiklanadi.
+let googleDriveToken = "";
+let googleDriveTokenExpiresAt = 0;
 let googleDrivePreviewObjectUrl = "";
-if(googleDriveToken) localStorage.setItem("sdx_google_token", googleDriveToken);
-if(googleDriveTokenExpiresAt) localStorage.setItem("sdx_google_exp", String(googleDriveTokenExpiresAt));
 let googleDriveFolderId = "root";
 let googleDriveFolderStack = [];
 
@@ -4033,29 +4040,23 @@ checkSession();
    GOOGLE DRIVE
 ===================================================== */
 function googleDriveTokenValid(){
-  return !!googleDriveToken && Date.now() < googleDriveTokenExpiresAt - 15000;
+  return !!googleDriveToken && Date.now() < googleDriveTokenExpiresAt - 30000;
 }
 
 function saveGoogleDriveToken(token, expiresIn){
   googleDriveToken = token || "";
   googleDriveTokenExpiresAt = googleDriveToken ? Date.now() + Number(expiresIn || 3600) * 1000 : 0;
-  if(googleDriveToken){
-    localStorage.setItem("sdx_google_token", googleDriveToken);
-    localStorage.setItem("sdx_google_exp", String(googleDriveTokenExpiresAt));
-    sessionStorage.setItem("sdx_google_token", googleDriveToken);
-    sessionStorage.setItem("sdx_google_exp", String(googleDriveTokenExpiresAt));
-    localStorage.setItem("sdx_google_consent_granted", "1");
-  }
 }
 
-function clearGoogleDriveToken(keepConsent=false){
+function clearGoogleDriveToken(){
   googleDriveToken = "";
   googleDriveTokenExpiresAt = 0;
+  // Eski versiyadan qolgan browser tokenlarini ham tozalaymiz.
   localStorage.removeItem("sdx_google_token");
   localStorage.removeItem("sdx_google_exp");
+  localStorage.removeItem("sdx_google_consent_granted");
   sessionStorage.removeItem("sdx_google_token");
   sessionStorage.removeItem("sdx_google_exp");
-  if(!keepConsent) localStorage.removeItem("sdx_google_consent_granted");
 }
 
 function updateGoogleDriveStatus(message=""){
@@ -4068,80 +4069,90 @@ function updateGoogleDriveStatus(message=""){
   if(d) d.classList.toggle("hidden",!connected);
 }
 
-async function waitForGoogleOAuth(){
-  for(let i=0;i<80;i++){
-    if(window.google?.accounts?.oauth2) return true;
-    await new Promise(r=>setTimeout(r,100));
-  }
-  return false;
+async function getSkyDriveXAccessToken(){
+  const {data:{session}}=await supabaseClient.auth.getSession();
+  if(!session?.access_token) throw new Error("SkyDriveX hisobiga qayta kiring.");
+  return session.access_token;
 }
 
-async function ensureGoogleTokenClient(){
-  if(googleTokenClient) return true;
-  const ready=await waitForGoogleOAuth();
-  if(!ready) return false;
-  googleTokenClient=google.accounts.oauth2.initTokenClient({
-    client_id:GOOGLE_CLIENT_ID,
-    scope:GOOGLE_DRIVE_SCOPE,
-    callback:async response=>{
-      if(response?.error){
-        updateGoogleDriveStatus("⚠ Google Drive qayta ulanishi kerak");
-        return;
-      }
-      saveGoogleDriveToken(response.access_token, response.expires_in);
-      googleDriveFolderId="root";
-      googleDriveFolderStack=[];
-      updateGoogleDriveStatus();
-      await loadGoogleDriveFiles("root");
-    }
+async function googleDriveEdge(action,{method="GET",body=null}={}){
+  const accessToken=await getSkyDriveXAccessToken();
+  const headers={"Authorization":"Bearer "+accessToken};
+  if(body!==null) headers["Content-Type"]="application/json";
+  const response=await fetch(GOOGLE_DRIVE_EDGE_URL+"?action="+encodeURIComponent(action),{
+    method,
+    headers,
+    body:body===null?undefined:JSON.stringify(body)
   });
-  return true;
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok) throw new Error(data?.error||data?.message||"Google Drive server xatosi.");
+  return data;
+}
+
+async function refreshGoogleDriveTokenFromServer(silent=false){
+  try{
+    const data=await googleDriveEdge("token");
+    if(!data?.access_token) throw new Error("Google Drive ulanmagan.");
+    saveGoogleDriveToken(data.access_token,data.expires_in);
+    updateGoogleDriveStatus();
+    return true;
+  }catch(error){
+    clearGoogleDriveToken();
+    if(!silent) updateGoogleDriveStatus("⚠ "+error.message);
+    else updateGoogleDriveStatus();
+    return false;
+  }
 }
 
 async function restoreGoogleDriveAfterReload(){
-  if(googleDriveTokenValid()){
-    updateGoogleDriveStatus();
-    await loadGoogleDriveFiles(googleDriveFolderId || "root");
-    return;
-  }
-
-  // Old/expired tokenni olib tashlaymiz, ammo oldingi ruxsatni eslab qolamiz.
-  clearGoogleDriveToken(true);
-  updateGoogleDriveStatus();
-
-  // Oldin ruxsat berilgan bo'lsa, Google sessiyasi mavjud paytda prompt'siz token olishga urinadi.
-  if(localStorage.getItem("sdx_google_consent_granted") === "1"){
-    const ready=await ensureGoogleTokenClient();
-    if(ready){
-      try{
-        googleTokenClient.requestAccessToken({prompt:""});
-      }catch(e){
-        updateGoogleDriveStatus("⚠ Google Drive qayta ulanishi kerak");
-      }
+  try{
+    const status=await googleDriveEdge("status");
+    if(!status?.connected){
+      clearGoogleDriveToken();
+      updateGoogleDriveStatus();
+      return;
     }
+    updateGoogleDriveStatus("⏳ Google Drive ulanmoqda...");
+    const ok=await refreshGoogleDriveTokenFromServer(true);
+    if(ok) await loadGoogleDriveFiles(googleDriveFolderId || "root");
+  }catch(error){
+    clearGoogleDriveToken();
+    updateGoogleDriveStatus();
   }
 }
 
 async function connectGoogleDrive(){
-  if(googleDriveTokenValid()){
-    updateGoogleDriveStatus();
-    return loadGoogleDriveFiles();
+  try{
+    // Agar bu SkyDriveX akkauntida Drive oldindan serverga bog'langan bo'lsa,
+    // yangi qurilmada Google oynasini ochmasdan tokenni olamiz.
+    try{
+      const status=await googleDriveEdge("status");
+      if(status?.connected){
+        const ok=await refreshGoogleDriveTokenFromServer(false);
+        if(ok) return loadGoogleDriveFiles("root");
+      }
+    }catch(_){ }
+
+    const data=await googleDriveEdge("start");
+    if(!data?.auth_url) throw new Error("Google ulash manzili olinmadi.");
+    const popup=window.open(data.auth_url,"sdxGoogleDriveOAuth","width=560,height=720,resizable=yes,scrollbars=yes");
+    if(!popup){
+      alert("Google oynasi bloklandi. Brauzerda pop-upga ruxsat bering va yana bosing.");
+      return;
+    }
+    updateGoogleDriveStatus("⏳ Google ruxsatini kutyapman...");
+  }catch(error){
+    updateGoogleDriveStatus("⚠ "+error.message);
+    alert("Google Drive: "+error.message);
   }
-  const ready=await ensureGoogleTokenClient();
-  if(!ready){
-    alert("Google login tizimi yuklanmadi. Sahifani yangilang.");
-    return;
-  }
-  const alreadyGranted = localStorage.getItem("sdx_google_consent_granted") === "1";
-  googleTokenClient.requestAccessToken({prompt: alreadyGranted ? "" : "consent"});
 }
 
-function disconnectGoogleDrive(){
-  const token=googleDriveToken;
-  clearGoogleDriveToken(false);
+async function disconnectGoogleDrive(){
+  if(!confirm("Google Drive'ni SkyDriveX hisobidan uzmoqchimisiz?")) return;
+  try{ await googleDriveEdge("disconnect",{method:"POST"}); }catch(_){ }
+  clearGoogleDriveToken();
   googleDriveFolderId="root";
   googleDriveFolderStack=[];
-  if(token && window.google?.accounts?.oauth2) google.accounts.oauth2.revoke(token,()=>{});
   updateGoogleDriveStatus();
   const list=document.getElementById("gdriveList");
   if(list) list.innerHTML='<div class="empty">Google Drive’ni ulang.</div>';
@@ -4149,15 +4160,35 @@ function disconnectGoogleDrive(){
   if(path) path.textContent="🏠 My Drive";
 }
 
+window.addEventListener("message",async event=>{
+  if(event?.data?.type!=="sdx-google-drive-connected") return;
+  updateGoogleDriveStatus("⏳ Google Drive tiklanmoqda...");
+  const ok=await refreshGoogleDriveTokenFromServer(false);
+  if(ok){
+    googleDriveFolderId="root";
+    googleDriveFolderStack=[];
+    await loadGoogleDriveFiles("root");
+  }
+});
+
 async function gdriveFetch(url,options={}){
-  if(!googleDriveTokenValid()) throw new Error("Google Drive’ni ulang.");
-  const headers=new Headers(options.headers||{});
-  headers.set("Authorization","Bearer "+googleDriveToken);
-  const response=await fetch(url,{...options,headers});
+  if(!googleDriveTokenValid()){
+    const ok=await refreshGoogleDriveTokenFromServer(true);
+    if(!ok) throw new Error("Google Drive ulanmagan. Asosiy qurilmada bir marta ulang.");
+  }
+
+  async function doFetch(){
+    const headers=new Headers(options.headers||{});
+    headers.set("Authorization","Bearer "+googleDriveToken);
+    return fetch(url,{...options,headers});
+  }
+
+  let response=await doFetch();
   if(response.status===401){
-    clearGoogleDriveToken(true);
-    updateGoogleDriveStatus("⚠ Google Drive sessiyasini yangilash kerak");
-    throw new Error("Google Drive sessiyasi tugadi. Ulanish tugmasini bir marta bosing.");
+    clearGoogleDriveToken();
+    const ok=await refreshGoogleDriveTokenFromServer(true);
+    if(!ok) throw new Error("Google Drive ruxsati bekor qilingan yoki yangilash imkoni bo‘lmadi.");
+    response=await doFetch();
   }
   return response;
 }
@@ -4167,8 +4198,11 @@ async function loadGoogleDriveFiles(folderId=googleDriveFolderId){
   if(!list) return;
   updateGoogleDriveStatus();
   if(!googleDriveTokenValid()){
-    list.innerHTML='<div class="empty">Google Drive’ni ulang.</div>';
-    return;
+    const restored=await refreshGoogleDriveTokenFromServer(true);
+    if(!restored){
+      list.innerHTML='<div class="empty">Google Drive ulanmagan. Asosiy qurilmada bir marta ulang.</div>';
+      return;
+    }
   }
   list.innerHTML='<div class="empty">⏳ Google Drive yuklanmoqda...</div>';
   try{
@@ -4283,7 +4317,7 @@ async function openGoogleDriveFile(file){
 }
 
 async function googleDriveBack(){
-  if(!googleDriveTokenValid()) return;
+  if(!googleDriveTokenValid() && !(await refreshGoogleDriveTokenFromServer(true))) return;
   if(googleDriveFolderStack.length) googleDriveFolderStack.pop();
   const parent=googleDriveFolderStack.length?googleDriveFolderStack[googleDriveFolderStack.length-1].id:"root";
   await loadGoogleDriveFiles(parent);
@@ -4310,13 +4344,20 @@ async function uploadGoogleDriveFile(file){
 
 document.getElementById("gdriveFileInput")?.addEventListener("change",async function(){
   const files=Array.from(this.files||[]); if(!files.length) return;
-  if(!googleDriveTokenValid()){ this.value=""; alert("Avval Google Drive’ni ulang."); return; }
+  if(!googleDriveTokenValid() && !(await refreshGoogleDriveTokenFromServer(true))){ this.value=""; alert("Google Drive ulanmagan. Asosiy qurilmada bir marta ulang."); return; }
   let success=0;
   for(const file of files){ try{ await uploadGoogleDriveFile(file); success++; }catch(error){ alert(file.name+": "+error.message); } }
   this.value=""; alert(success+" ta fayl Google Drive’ga yuklandi."); await loadGoogleDriveFiles();
 });
 
 updateGoogleDriveStatus();
+
+// Tab yana ochilganda serverdagi bog'lanishni tekshiradi va tokenni jim yangilaydi.
+document.addEventListener("visibilitychange",()=>{
+  if(!document.hidden && window.currentUser){
+    if(!googleDriveTokenValid()) refreshGoogleDriveTokenFromServer(true);
+  }
+});
 
 
 /* Dashboard visual sync */
@@ -5162,14 +5203,113 @@ window.openSettings=function(){
 };
 document.addEventListener("DOMContentLoaded",ctLoad);
 
+
+/* ===== MOVABLE VIDEO SOUND BUTTON ===== */
+(function(){
+  const KEY="sdx_video_sound_button_pos_v1";
+
+  function clamp(v,min,max){ return Math.max(min,Math.min(max,v)); }
+
+  function initMovableVideoSoundButton(){
+    const btn=document.getElementById("sdxVideoSoundFloat");
+    if(!btn || btn.dataset.dragReady==="1") return;
+    btn.dataset.dragReady="1";
+
+    // Restore previous position on this browser/device.
+    try{
+      const saved=JSON.parse(localStorage.getItem(KEY)||"null");
+      if(saved && Number.isFinite(saved.x) && Number.isFinite(saved.y)){
+        btn.style.left=saved.x+"px";
+        btn.style.top=saved.y+"px";
+        btn.style.right="auto";
+        btn.style.bottom="auto";
+      }
+    }catch(_){}
+
+    let dragging=false, moved=false;
+    let offsetX=0, offsetY=0;
+
+    btn.addEventListener("pointerdown",e=>{
+      if(e.button!==undefined && e.button!==0) return;
+      const r=btn.getBoundingClientRect();
+      dragging=true;
+      moved=false;
+      offsetX=e.clientX-r.left;
+      offsetY=e.clientY-r.top;
+      btn.classList.add("sdx-dragging");
+      try{btn.setPointerCapture(e.pointerId)}catch(_){}
+      e.preventDefault();
+    });
+
+    btn.addEventListener("pointermove",e=>{
+      if(!dragging) return;
+      const w=btn.offsetWidth||28, h=btn.offsetHeight||28;
+      const x=clamp(e.clientX-offsetX,4,window.innerWidth-w-4);
+      const y=clamp(e.clientY-offsetY,4,window.innerHeight-h-4);
+
+      if(Math.abs(x-btn.getBoundingClientRect().left)>2 ||
+         Math.abs(y-btn.getBoundingClientRect().top)>2){
+        moved=true;
+      }
+
+      btn.style.left=x+"px";
+      btn.style.top=y+"px";
+      btn.style.right="auto";
+      btn.style.bottom="auto";
+      e.preventDefault();
+    });
+
+    btn.addEventListener("pointerup",e=>{
+      if(!dragging) return;
+      dragging=false;
+      btn.classList.remove("sdx-dragging");
+      try{btn.releasePointerCapture(e.pointerId)}catch(_){}
+      const r=btn.getBoundingClientRect();
+
+      try{
+        localStorage.setItem(KEY,JSON.stringify({x:Math.round(r.left),y:Math.round(r.top)}));
+      }catch(_){}
+
+      // Prevent the sound toggle when the user only moved the button.
+      if(moved){
+        btn.dataset.skipClick="1";
+        setTimeout(()=>delete btn.dataset.skipClick,0);
+      }
+    });
+
+    // Intercept click after a drag, but allow a normal click to toggle sound.
+    btn.addEventListener("click",e=>{
+      if(btn.dataset.skipClick==="1"){
+        e.stopImmediatePropagation();
+        e.preventDefault();
+      }
+    },true);
+
+    window.addEventListener("resize",()=>{
+      const r=btn.getBoundingClientRect();
+      const w=btn.offsetWidth||28, h=btn.offsetHeight||28;
+      const x=clamp(r.left,4,window.innerWidth-w-4);
+      const y=clamp(r.top,4,window.innerHeight-h-4);
+      btn.style.left=x+"px";
+      btn.style.top=y+"px";
+      btn.style.right="auto";
+      btn.style.bottom="auto";
+    });
+  }
+
+  if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded",initMovableVideoSoundButton);
+  }else{
+    initMovableVideoSoundButton();
+  }
+})();
+
 </script>
 
 
 <!-- SKYDRIVEX QUICK VIDEO SOUND -->
-<button id="sdxVideoSoundFloat" class="sdx-video-sound-float" onclick="ctQuickToggleVideoSound()" type="button">
+<button id="sdxVideoSoundFloat" class="sdx-video-sound-float" onclick="ctQuickToggleVideoSound()" type="button" aria-label="Video ovozini yoqish yoki o‘chirish" title="Video ovozi">
   <span id="sdxVideoSoundIcon">🔇</span>
-  <span>Video</span>
-  <span id="sdxVideoSoundState" class="sdx-vs-state">Ovoz OFF</span>
 </button>
 
 <!-- SKYDRIVEX FLOATING MUSIC PLAYER -->
