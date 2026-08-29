@@ -953,6 +953,55 @@ body.sdx-custom-theme *{scrollbar-color:var(--ct-accent) transparent}
 }
 .theme-wallpaper-box input[type=file]{display:none}
 .theme-wallpaper-name{font-size:11px;color:#8ea4c3;flex:1;min-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Video wallpaper */
+#ctVideoWallpaper{
+  position:fixed;inset:0;width:100vw;height:100vh;object-fit:cover;
+  object-position:var(--ct-bg-position);z-index:0;pointer-events:none;display:none;
+  background:#000;
+}
+body.ct-video-active #ctVideoWallpaper{display:block}
+body.ct-video-active #cloudPage,
+body.ct-video-active #authPage{
+  background-color:transparent!important;
+  background-image:linear-gradient(var(--ct-overlay),var(--ct-overlay))!important;
+  background-attachment:fixed!important;
+  position:relative;z-index:1;
+}
+.video-wallpaper-box{
+  margin-top:10px;border:1px dashed rgba(167,139,250,.34);border-radius:13px;padding:12px;
+  display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:rgba(76,29,149,.08)
+}
+.video-wallpaper-box input[type=file]{display:none}
+.video-wallpaper-status{font-size:11px;color:#a9bad3;flex:1;min-width:170px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.video-wallpaper-help{width:100%;font-size:10px;color:#7f96b6;line-height:1.5}
+.video-wallpaper-tools{display:flex;gap:8px;flex-wrap:wrap;width:100%}
+.video-wallpaper-tools .action-btn{flex:1;min-width:120px}
+.video-audio-settings{display:grid;grid-template-columns:auto minmax(180px,1fr);gap:12px;align-items:center;width:100%;padding-top:4px}
+.video-audio-toggle{display:flex;align-items:center;gap:8px;color:#c4d4ea;font-size:11px;white-space:nowrap}
+.video-audio-toggle input{accent-color:#8b5cf6}
+.video-volume{display:flex;align-items:center;gap:9px;color:#9fb2cd;font-size:11px}
+.video-volume input{flex:1;accent-color:#8b5cf6}
+.video-volume span{min-width:38px;text-align:right;color:#c4b5fd}
+@media(max-width:650px){.video-audio-settings{grid-template-columns:1fr}.video-audio-toggle{justify-content:space-between}}
+
+/* Background music */
+.music-wallpaper-box{
+  margin-top:10px;border:1px dashed rgba(56,189,248,.34);border-radius:13px;padding:12px;
+  display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:rgba(14,165,233,.07)
+}
+.music-wallpaper-box input[type=file]{display:none}
+.music-wallpaper-status{font-size:11px;color:#a9bad3;flex:1;min-width:170px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.music-wallpaper-tools{display:flex;gap:8px;flex-wrap:wrap;width:100%}
+.music-wallpaper-tools .action-btn{flex:1;min-width:120px}
+.music-wallpaper-settings{display:grid;grid-template-columns:minmax(180px,1fr) auto auto;gap:12px;align-items:center;width:100%;padding-top:4px}
+.music-volume{display:flex;align-items:center;gap:9px;color:#9fb2cd;font-size:11px}
+.music-volume input{flex:1;accent-color:#2687ff}
+.music-volume span{min-width:38px;text-align:right;color:#7dd3fc}
+.music-toggle{display:flex;align-items:center;gap:7px;color:#b7c7dd;font-size:11px;white-space:nowrap}
+.music-toggle input{accent-color:#2687ff}
+.music-wallpaper-help{width:100%;font-size:10px;color:#7f96b6;line-height:1.5}
+#ctBackgroundMusic{display:none}
+@media(max-width:650px){.music-wallpaper-settings{grid-template-columns:1fr}.music-toggle{justify-content:space-between}.music-wallpaper-tools{flex-direction:column}}
 .theme-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}
 .theme-actions .action-btn{flex:1;min-width:130px}
 .theme-preview-strip{
@@ -974,10 +1023,35 @@ body.sdx-custom-theme *{scrollbar-color:var(--ct-accent) transparent}
 }
 
 
-/* Google Drive ichki preview */
-.gdrive-preview-wrap{width:100%;height:min(72vh,720px);background:#020713;border-radius:14px;overflow:hidden;border:1px solid rgba(96,165,250,.18)}
-.gdrive-preview-frame{display:block;width:100%;height:100%;border:0;background:#020713}
-@media(max-width:650px){.gdrive-preview-wrap{height:68vh}}
+
+/* ===== SKYDRIVEX FLOATING MUSIC PLAYER ===== */
+.sdx-music-player{
+  position:fixed;right:20px;bottom:20px;z-index:190;
+  width:min(390px,calc(100vw - 28px));
+  border:1px solid rgba(90,160,255,.28);
+  background:linear-gradient(145deg,rgba(5,19,42,.92),rgba(7,31,61,.86));
+  backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
+  border-radius:16px;padding:12px;box-shadow:0 18px 55px rgba(0,0,0,.34);
+  display:none;color:#f4f8ff;
+}
+.sdx-music-player.show{display:block}
+.sdx-music-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.sdx-music-note{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;flex:0 0 auto;background:linear-gradient(135deg,#237cff,#259ce8);font-size:18px}
+.sdx-music-meta{min-width:0;flex:1}
+.sdx-music-title{font-size:12px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sdx-music-state{font-size:10px;color:#88a0c3;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sdx-music-change{border:1px solid rgba(91,157,238,.22);background:rgba(13,43,80,.86);color:#dcecff;border-radius:9px;padding:7px 9px;font-size:10px;cursor:pointer}
+.sdx-music-controls{display:flex;align-items:center;gap:7px}
+.sdx-music-btn{width:36px;height:34px;border:1px solid rgba(91,157,238,.22);background:rgba(13,43,80,.86);color:#fff;border-radius:9px;cursor:pointer;font-size:14px}
+.sdx-music-btn.primary{background:linear-gradient(135deg,#237cff,#259ce8);border-color:#3194ff}
+.sdx-music-volume-mini{display:flex;align-items:center;gap:7px;flex:1;margin-left:2px;font-size:11px;color:#9fb2cd}
+.sdx-music-volume-mini input{width:100%;accent-color:#2687ff}
+.sdx-music-volume-mini span{min-width:32px;text-align:right;color:#7dd3fc;font-size:10px}
+@media(max-width:650px){
+  .sdx-music-player{right:10px;bottom:78px;width:calc(100vw - 20px);border-radius:14px}
+  .sdx-music-change{padding:7px 8px}
+}
+
 </style>
 </head>
 
@@ -1523,6 +1597,47 @@ body.sdx-custom-theme *{scrollbar-color:var(--ct-accent) transparent}
           <button class="action-btn" onclick="ctRemoveWallpaper()">Fon rasmini olib tashlash</button>
         </div>
 
+
+        <div class="video-wallpaper-box">
+          <label for="ctVideoWallpaperFile" class="action-btn blue">🎬 Video Wallpaper tanlash</label>
+          <input id="ctVideoWallpaperFile" type="file" accept="video/mp4,video/webm,video/*" onchange="ctVideoWallpaperPicked(event)">
+          <span id="ctVideoWallpaperStatus" class="video-wallpaper-status">Video tanlanmagan</span>
+          <div class="video-wallpaper-tools">
+            <button class="action-btn" onclick="ctToggleVideoWallpaper()">⏯ Play / Pause</button>
+            <button class="action-btn" onclick="ctRemoveVideoWallpaper()">🗑 Video fonni olib tashlash</button>
+          </div>
+          <div class="video-audio-settings">
+            <label class="video-audio-toggle">🔊 Video ovozi <input id="ctVideoSoundEnabled" type="checkbox" onchange="ctVideoSoundChanged(this.checked)"></label>
+            <label class="video-volume">Ovoz balandligi
+              <input id="ctVideoVolume" type="range" min="0" max="100" value="50" oninput="ctVideoVolumeChanged(this.value)">
+              <span id="ctVideoVolumeValue">50%</span>
+            </label>
+          </div>
+          <div class="video-wallpaper-help">MP4 yoki WebM tanlang. Video avtomatik va takroriy ijro etiladi. Video ovozini yoqib/o‘chirishingiz va balandligini sozlashingiz mumkin. Video ovozi yoqilsa fon musiqasi avtomatik pauza bo‘ladi; fon musiqasini yoqsangiz video ovozi avtomatik o‘chadi.</div>
+        </div>
+
+
+
+        <div class="music-wallpaper-box">
+          <label for="ctBackgroundMusicFile" class="action-btn blue">🎵 Fon musiqasi tanlash</label>
+          <input id="ctBackgroundMusicFile" type="file" accept="audio/mpeg,audio/mp3,audio/wav,audio/ogg,audio/*" onchange="ctBackgroundMusicPicked(event)">
+          <span id="ctBackgroundMusicStatus" class="music-wallpaper-status">Musiqa tanlanmagan</span>
+          <div class="music-wallpaper-tools">
+            <button class="action-btn" onclick="ctToggleBackgroundMusic()">⏯ Play / Pause</button>
+            <button class="action-btn" onclick="ctRestartBackgroundMusic()">↺ Boshidan</button>
+            <button class="action-btn" onclick="ctRemoveBackgroundMusic()">🗑 Musiqani olib tashlash</button>
+          </div>
+          <div class="music-wallpaper-settings">
+            <label class="music-volume">🔊 Ovoz
+              <input id="ctMusicVolume" type="range" min="0" max="100" value="45" oninput="ctMusicVolumeChanged(this.value)">
+              <span id="ctMusicVolumeValue">45%</span>
+            </label>
+            <label class="music-toggle">🔁 Takrorlash <input id="ctMusicLoop" type="checkbox" checked onchange="ctMusicOptionChanged()"></label>
+            <label class="music-toggle">▶ Kirganda ijro <input id="ctMusicAutoplay" type="checkbox" checked onchange="ctMusicOptionChanged()"></label>
+          </div>
+          <div class="music-wallpaper-help">MP3, WAV yoki OGG tanlang. Musiqa shu brauzerda saqlanadi. “Kirganda ijro” yoqilgan bo‘lsa, sayt ochilganda boshlashga urinadi; telefon/Chrome/Safari ovozli autoplay’ni bloklasa, sahifaga bir marta bosishingiz bilan ijro boshlanadi.</div>
+        </div>
+
         <div class="theme-preview-strip"></div>
 
         <div class="theme-actions">
@@ -1570,12 +1685,11 @@ const BUCKET = "files";
 const GOOGLE_CLIENT_ID = "419686708374-o4jgjn6r3ickb33ritmafcga51sekdaq.apps.googleusercontent.com";
 const GOOGLE_DRIVE_SCOPE = "https://www.googleapis.com/auth/drive";
 let googleTokenClient = null;
-// Google Drive tokenini brauzer yopilib ochilganda ham saqlab turamiz.
-// Eslatma: Google access token odatda taxminan 1 soat amal qiladi.
 let googleDriveToken = localStorage.getItem("sdx_google_token") || sessionStorage.getItem("sdx_google_token") || "";
 let googleDriveTokenExpiresAt = Number(localStorage.getItem("sdx_google_exp") || sessionStorage.getItem("sdx_google_exp")) || 0;
-if (googleDriveToken) localStorage.setItem("sdx_google_token", googleDriveToken);
-if (googleDriveTokenExpiresAt) localStorage.setItem("sdx_google_exp", String(googleDriveTokenExpiresAt));
+let googleDrivePreviewObjectUrl = "";
+if(googleDriveToken) localStorage.setItem("sdx_google_token", googleDriveToken);
+if(googleDriveTokenExpiresAt) localStorage.setItem("sdx_google_exp", String(googleDriveTokenExpiresAt));
 let googleDriveFolderId = "root";
 let googleDriveFolderStack = [];
 
@@ -1824,6 +1938,9 @@ async function showCloud(user){
     await loadCurrentFolder();
 
     await calculateStorage();
+
+    // Sahifa refresh bo'lsa Google Drive holatini qayta tiklaymiz.
+    setTimeout(() => restoreGoogleDriveAfterReload(), 150);
 }
 
 
@@ -1833,15 +1950,8 @@ async function showCloud(user){
 
 async function logout(){
 
-    googleDriveToken = "";
-    googleDriveTokenExpiresAt = 0;
-    googleDriveFolderId = "root";
-    googleDriveFolderStack = [];
-    localStorage.removeItem("sdx_google_token");
-    localStorage.removeItem("sdx_google_exp");
-    sessionStorage.removeItem("sdx_google_token");
-    sessionStorage.removeItem("sdx_google_exp");
-
+    // Google Drive alohida ulanadi. SkyDriveX hisobidan chiqish Drive'ni uzmaydi.
+    // Google Drive'ni uzish uchun Google Drive bo'limidagi "Uzish" tugmasidan foydalaning.
     await supabaseClient.auth.signOut();
 
     window.currentUser = null;
@@ -3448,12 +3558,14 @@ function closePreview(event){
         return;
     }
 
-    previewContent.innerHTML =
-        "";
+    previewContent.innerHTML = "";
 
-    previewModal.classList.add(
-        "hidden"
-    );
+    if(googleDrivePreviewObjectUrl){
+        URL.revokeObjectURL(googleDrivePreviewObjectUrl);
+        googleDrivePreviewObjectUrl = "";
+    }
+
+    previewModal.classList.add("hidden");
 }
 
 
@@ -3903,84 +4015,143 @@ checkSession();
    GOOGLE DRIVE
 ===================================================== */
 function googleDriveTokenValid(){
-  return !!googleDriveToken && Date.now() < googleDriveTokenExpiresAt - 60000;
+  return !!googleDriveToken && Date.now() < googleDriveTokenExpiresAt - 15000;
 }
 
-function updateGoogleDriveStatus(){
+function saveGoogleDriveToken(token, expiresIn){
+  googleDriveToken = token || "";
+  googleDriveTokenExpiresAt = googleDriveToken ? Date.now() + Number(expiresIn || 3600) * 1000 : 0;
+  if(googleDriveToken){
+    localStorage.setItem("sdx_google_token", googleDriveToken);
+    localStorage.setItem("sdx_google_exp", String(googleDriveTokenExpiresAt));
+    sessionStorage.setItem("sdx_google_token", googleDriveToken);
+    sessionStorage.setItem("sdx_google_exp", String(googleDriveTokenExpiresAt));
+    localStorage.setItem("sdx_google_consent_granted", "1");
+  }
+}
+
+function clearGoogleDriveToken(keepConsent=false){
+  googleDriveToken = "";
+  googleDriveTokenExpiresAt = 0;
+  localStorage.removeItem("sdx_google_token");
+  localStorage.removeItem("sdx_google_exp");
+  sessionStorage.removeItem("sdx_google_token");
+  sessionStorage.removeItem("sdx_google_exp");
+  if(!keepConsent) localStorage.removeItem("sdx_google_consent_granted");
+}
+
+function updateGoogleDriveStatus(message=""){
   const connected=googleDriveTokenValid();
   const s=document.getElementById("gdriveStatus");
   const c=document.getElementById("gdriveConnectBtn");
   const d=document.getElementById("gdriveDisconnectBtn");
-  if(s) s.textContent=connected ? "🟢 Google Drive ulangan" : "⚫ Ulanmagan";
+  if(s) s.textContent=message || (connected ? "🟢 Google Drive ulangan" : "⚫ Ulanmagan");
   if(c) c.classList.toggle("hidden",connected);
   if(d) d.classList.toggle("hidden",!connected);
 }
 
 async function waitForGoogleOAuth(){
-  for(let i=0;i<50;i++){
+  for(let i=0;i<80;i++){
     if(window.google?.accounts?.oauth2) return true;
     await new Promise(r=>setTimeout(r,100));
   }
   return false;
 }
 
-async function connectGoogleDrive(){
-  if(googleDriveTokenValid()){ updateGoogleDriveStatus(); return loadGoogleDriveFiles(); }
-  if(!googleTokenClient){
-    const ready=await waitForGoogleOAuth();
-    if(!ready){ alert("Google login tizimi yuklanmadi. Sahifani yangilang."); return; }
-    googleTokenClient=google.accounts.oauth2.initTokenClient({
-      client_id:GOOGLE_CLIENT_ID,
-      scope:GOOGLE_DRIVE_SCOPE,
-      callback:async response=>{
-        if(response.error){ alert("Google Drive ulanish xatosi: "+response.error); return; }
-        googleDriveToken=response.access_token;
-        googleDriveTokenExpiresAt=Date.now()+Number(response.expires_in||3600)*1000;
-        localStorage.setItem("sdx_google_token",googleDriveToken);
-        localStorage.setItem("sdx_google_exp",String(googleDriveTokenExpiresAt));
-        localStorage.setItem("sdx_google_consent_granted","1");
-        sessionStorage.setItem("sdx_google_token",googleDriveToken);
-        sessionStorage.setItem("sdx_google_exp",String(googleDriveTokenExpiresAt));
-        googleDriveFolderId="root"; googleDriveFolderStack=[];
-        updateGoogleDriveStatus();
-        await loadGoogleDriveFiles("root");
+async function ensureGoogleTokenClient(){
+  if(googleTokenClient) return true;
+  const ready=await waitForGoogleOAuth();
+  if(!ready) return false;
+  googleTokenClient=google.accounts.oauth2.initTokenClient({
+    client_id:GOOGLE_CLIENT_ID,
+    scope:GOOGLE_DRIVE_SCOPE,
+    callback:async response=>{
+      if(response?.error){
+        updateGoogleDriveStatus("⚠ Google Drive qayta ulanishi kerak");
+        return;
       }
-    });
+      saveGoogleDriveToken(response.access_token, response.expires_in);
+      googleDriveFolderId="root";
+      googleDriveFolderStack=[];
+      updateGoogleDriveStatus();
+      await loadGoogleDriveFiles("root");
+    }
+  });
+  return true;
+}
+
+async function restoreGoogleDriveAfterReload(){
+  if(googleDriveTokenValid()){
+    updateGoogleDriveStatus();
+    await loadGoogleDriveFiles(googleDriveFolderId || "root");
+    return;
   }
-  // Birinchi ulanishda consent ko‘rinadi; keyingi ulanishlarda imkon qadar qayta so‘ramaydi.
+
+  // Old/expired tokenni olib tashlaymiz, ammo oldingi ruxsatni eslab qolamiz.
+  clearGoogleDriveToken(true);
+  updateGoogleDriveStatus();
+
+  // Oldin ruxsat berilgan bo'lsa, Google sessiyasi mavjud paytda prompt'siz token olishga urinadi.
+  if(localStorage.getItem("sdx_google_consent_granted") === "1"){
+    const ready=await ensureGoogleTokenClient();
+    if(ready){
+      try{
+        googleTokenClient.requestAccessToken({prompt:""});
+      }catch(e){
+        updateGoogleDriveStatus("⚠ Google Drive qayta ulanishi kerak");
+      }
+    }
+  }
+}
+
+async function connectGoogleDrive(){
+  if(googleDriveTokenValid()){
+    updateGoogleDriveStatus();
+    return loadGoogleDriveFiles();
+  }
+  const ready=await ensureGoogleTokenClient();
+  if(!ready){
+    alert("Google login tizimi yuklanmadi. Sahifani yangilang.");
+    return;
+  }
   const alreadyGranted = localStorage.getItem("sdx_google_consent_granted") === "1";
   googleTokenClient.requestAccessToken({prompt: alreadyGranted ? "" : "consent"});
 }
 
 function disconnectGoogleDrive(){
   const token=googleDriveToken;
-  googleDriveToken=""; googleDriveTokenExpiresAt=0; googleDriveFolderId="root"; googleDriveFolderStack=[];
-  localStorage.removeItem("sdx_google_token"); localStorage.removeItem("sdx_google_exp");
-  localStorage.removeItem("sdx_google_consent_granted");
-  sessionStorage.removeItem("sdx_google_token"); sessionStorage.removeItem("sdx_google_exp");
+  clearGoogleDriveToken(false);
+  googleDriveFolderId="root";
+  googleDriveFolderStack=[];
   if(token && window.google?.accounts?.oauth2) google.accounts.oauth2.revoke(token,()=>{});
   updateGoogleDriveStatus();
-  const list=document.getElementById("gdriveList"); if(list) list.innerHTML='<div class="empty">Google Drive’ni ulang.</div>';
-  const path=document.getElementById("gdrivePath"); if(path) path.textContent="🏠 My Drive";
+  const list=document.getElementById("gdriveList");
+  if(list) list.innerHTML='<div class="empty">Google Drive’ni ulang.</div>';
+  const path=document.getElementById("gdrivePath");
+  if(path) path.textContent="🏠 My Drive";
 }
 
 async function gdriveFetch(url,options={}){
   if(!googleDriveTokenValid()) throw new Error("Google Drive’ni ulang.");
-  const headers=new Headers(options.headers||{}); headers.set("Authorization","Bearer "+googleDriveToken);
+  const headers=new Headers(options.headers||{});
+  headers.set("Authorization","Bearer "+googleDriveToken);
   const response=await fetch(url,{...options,headers});
   if(response.status===401){
-    googleDriveToken=""; googleDriveTokenExpiresAt=0;
-    localStorage.removeItem("sdx_google_token"); localStorage.removeItem("sdx_google_exp");
-    sessionStorage.removeItem("sdx_google_token"); sessionStorage.removeItem("sdx_google_exp"); updateGoogleDriveStatus();
-    throw new Error("Google Drive sessiyasi tugadi. Qayta ulang.");
+    clearGoogleDriveToken(true);
+    updateGoogleDriveStatus("⚠ Google Drive sessiyasini yangilash kerak");
+    throw new Error("Google Drive sessiyasi tugadi. Ulanish tugmasini bir marta bosing.");
   }
   return response;
 }
 
 async function loadGoogleDriveFiles(folderId=googleDriveFolderId){
-  const list=document.getElementById("gdriveList"); if(!list) return;
+  const list=document.getElementById("gdriveList");
+  if(!list) return;
   updateGoogleDriveStatus();
-  if(!googleDriveTokenValid()){ list.innerHTML='<div class="empty">Google Drive’ni ulang.</div>'; return; }
+  if(!googleDriveTokenValid()){
+    list.innerHTML='<div class="empty">Google Drive’ni ulang.</div>';
+    return;
+  }
   list.innerHTML='<div class="empty">⏳ Google Drive yuklanmoqda...</div>';
   try{
     const q=encodeURIComponent(`'${folderId}' in parents and trashed = false`);
@@ -3988,70 +4159,109 @@ async function loadGoogleDriveFiles(folderId=googleDriveFolderId){
     const response=await gdriveFetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=${fields}&pageSize=1000&orderBy=folder,name`);
     const data=await response.json();
     if(!response.ok) throw new Error(data?.error?.message||"Google Drive xatosi.");
-    googleDriveFolderId=folderId; renderGoogleDriveFiles(data.files||[]);
-  }catch(error){ list.innerHTML=`<div class="empty">❌ ${escapeHtml(error.message)}</div>`; }
+    googleDriveFolderId=folderId;
+    renderGoogleDriveFiles(data.files||[]);
+  }catch(error){
+    list.innerHTML=`<div class="empty">❌ ${escapeHtml(error.message)}</div>`;
+  }
 }
 
 function renderGoogleDriveFiles(files){
-  const list=document.getElementById("gdriveList"); const path=document.getElementById("gdrivePath"); if(!list) return;
-  if(path){ const names=googleDriveFolderStack.map(x=>x.name); path.textContent="🏠 My Drive"+(names.length?" / "+names.join(" / "):""); }
+  const list=document.getElementById("gdriveList");
+  const path=document.getElementById("gdrivePath");
+  if(!list) return;
+  if(path){
+    const names=googleDriveFolderStack.map(x=>x.name);
+    path.textContent="🏠 My Drive"+(names.length?" / "+names.join(" / "):"");
+  }
   list.innerHTML="";
-  if(!files.length){ list.innerHTML='<div class="empty">📂 Bu Google Drive papkasi bo‘sh</div>'; return; }
+  if(!files.length){
+    list.innerHTML='<div class="empty">📂 Bu Google Drive papkasi bo‘sh</div>';
+    return;
+  }
   files.forEach(file=>{
     const isFolder=file.mimeType==="application/vnd.google-apps.folder";
     const nativeGoogle=!isFolder && file.mimeType?.startsWith("application/vnd.google-apps.");
-    const row=document.createElement("div"); row.className="file "+(isFolder?"folder":"");
+    const row=document.createElement("div");
+    row.className="file "+(isFolder?"folder":"");
     const size=isFolder?"Papka":(file.size?formatSize(Number(file.size)):"Google fayli");
     row.innerHTML=`<div class="file-left"><div class="file-icon">${isFolder?"📁":nativeGoogle?"📝":"📄"}</div><div class="file-info"><div class="file-name">${escapeHtml(file.name)}</div><div class="file-size">${size}</div></div></div><div class="file-actions"></div>`;
     const actions=row.querySelector(".file-actions");
     if(isFolder){
-      const b=document.createElement("button"); b.className="btn"; b.textContent="📂 Kirish"; b.onclick=()=>{googleDriveFolderStack.push({id:file.id,name:file.name});loadGoogleDriveFiles(file.id)}; actions.appendChild(b);
+      const b=document.createElement("button");
+      b.className="btn";
+      b.textContent="📂 Kirish";
+      b.onclick=()=>{
+        googleDriveFolderStack.push({id:file.id,name:file.name});
+        loadGoogleDriveFiles(file.id);
+      };
+      actions.appendChild(b);
     }else{
       const o=document.createElement("button");
       o.className="btn preview";
       o.textContent="👁️ Ochish";
       o.onclick=()=>openGoogleDriveFile(file);
       actions.appendChild(o);
-      if(!nativeGoogle){ const d=document.createElement("button"); d.className="btn"; d.textContent="⬇️"; d.onclick=()=>downloadGoogleDriveFile(file); actions.appendChild(d); }
+      if(!nativeGoogle){
+        const d=document.createElement("button");
+        d.className="btn";
+        d.textContent="⬇️";
+        d.onclick=()=>downloadGoogleDriveFile(file);
+        actions.appendChild(d);
+      }
     }
     list.appendChild(row);
   });
 }
 
-function openGoogleDriveFile(file){
-  const mime = String(file?.mimeType || "").toLowerCase();
-  const isPreviewable = mime.startsWith("video/") || mime.startsWith("image/") || mime.startsWith("audio/") || mime === "application/pdf";
+async function openGoogleDriveFile(file){
+  const mime=String(file?.mimeType||"").toLowerCase();
+  const nativeGoogle=mime.startsWith("application/vnd.google-apps.");
 
-  // Video/rasm/audio/PDF endi SkyDriveX ichidagi modalda ochiladi,
-  // yangi tabga chiqarib yubormaydi.
-  if(isPreviewable){
-    const modal = document.getElementById("previewModal");
-    const title = document.getElementById("previewTitle");
-    const content = document.getElementById("previewContent");
-    if(!modal || !title || !content) return;
-
-    title.textContent = file.name || "Google Drive Preview";
-    const id = encodeURIComponent(file.id || "");
-    content.innerHTML = `
-      <div class="gdrive-preview-wrap">
-        <iframe
-          class="gdrive-preview-frame"
-          src="https://drive.google.com/file/d/${id}/preview"
-          allow="autoplay; fullscreen"
-          allowfullscreen
-          referrerpolicy="strict-origin-when-cross-origin">
-        </iframe>
-      </div>`;
-    modal.classList.remove("hidden");
+  // Google Docs/Sheets/Slides Drive sahifasida ochiladi.
+  if(nativeGoogle){
+    window.open(file.webViewLink||`https://drive.google.com/open?id=${encodeURIComponent(file.id)}`,"_blank","noopener,noreferrer");
     return;
   }
 
-  // Google Docs/Sheets/Slides kabi fayllar Drive'ning o‘z sahifasida ochiladi.
-  window.open(
-    file.webViewLink || `https://drive.google.com/open?id=${encodeURIComponent(file.id)}`,
-    "_blank",
-    "noopener,noreferrer"
-  );
+  const previewable=mime.startsWith("video/") || mime.startsWith("image/") || mime.startsWith("audio/") || mime==="application/pdf";
+  if(!previewable){
+    await downloadGoogleDriveFile(file);
+    return;
+  }
+
+  const modal=document.getElementById("previewModal");
+  const title=document.getElementById("previewTitle");
+  const content=document.getElementById("previewContent");
+  if(!modal||!title||!content) return;
+
+  title.textContent=file.name||"Google Drive Preview";
+  content.innerHTML='<div class="empty">⏳ Google Drive fayli ochilmoqda...</div>';
+  modal.classList.remove("hidden");
+
+  try{
+    const response=await gdriveFetch(`https://www.googleapis.com/drive/v3/files/${encodeURIComponent(file.id)}?alt=media`);
+    if(!response.ok){
+      const data=await response.json().catch(()=>({}));
+      throw new Error(data?.error?.message||"Faylni ochib bo‘lmadi.");
+    }
+    const blob=await response.blob();
+    if(googleDrivePreviewObjectUrl) URL.revokeObjectURL(googleDrivePreviewObjectUrl);
+    googleDrivePreviewObjectUrl=URL.createObjectURL(blob);
+    const safeUrl=googleDrivePreviewObjectUrl;
+
+    if(mime.startsWith("video/")){
+      content.innerHTML=`<video class="preview-video" controls autoplay playsinline src="${safeUrl}"></video>`;
+    }else if(mime.startsWith("image/")){
+      content.innerHTML=`<img class="preview-image" src="${safeUrl}" alt="">`;
+    }else if(mime.startsWith("audio/")){
+      content.innerHTML=`<audio class="preview-audio" controls autoplay src="${safeUrl}"></audio>`;
+    }else{
+      content.innerHTML=`<iframe src="${safeUrl}" style="width:100%;height:72vh;border:0;border-radius:10px;background:#fff"></iframe>`;
+    }
+  }catch(error){
+    content.innerHTML=`<div class="empty">❌ ${escapeHtml(error.message)}</div>`;
+  }
 }
 
 async function googleDriveBack(){
@@ -4299,9 +4509,10 @@ function ctSave(){
   catch(e){alert("Dizaynni saqlab bo‘lmadi. Fon rasmi juda katta bo‘lishi mumkin.");}
   ctApplyTheme(s);
 }
-function ctReset(){
+async function ctReset(){
   if(!confirm("Standart Dark Blue Glass dizayniga qaytarilsinmi?"))return;
   localStorage.removeItem(CT_KEY);ctWallpaperData="";
+  await ctRemoveVideoWallpaper(false);
   const s={...CT_PRESETS.darkblue,preset:"darkblue",wallpaper:""};
   ctWriteControls(s);ctApplyTheme(s);showSettingsStatus?.("Standart dizayn tiklandi.");
 }
@@ -4314,6 +4525,7 @@ function ctRemoveWallpaper(){
 async function ctWallpaperPicked(ev){
   const file=ev.target.files?.[0];if(!file)return;
   if(!file.type.startsWith("image/"))return alert("Rasm faylini tanlang.");
+  ctDeactivateVideoWallpaper();
   const name=document.getElementById("ctWallpaperName");if(name)name.textContent="Rasm tayyorlanmoqda...";
   try{
     const data=await ctCompressImage(file,1920,1080,.82);
@@ -4374,14 +4586,462 @@ function ctImport(ev){
   };
   rd.readAsText(file);
 }
+
+/* ===== VIDEO WALLPAPER ENGINE ===== */
+const CT_VIDEO_DB="sdx_video_wallpaper_db_v1";
+const CT_VIDEO_STORE="wallpapers";
+const CT_VIDEO_KEY="main";
+let ctVideoObjectUrl="";
+const CT_VIDEO_AUDIO_SETTINGS_KEY="sdx_video_audio_settings_v1";
+
+function ctGetVideoAudioSettings(){
+  try{
+    return {...{sound:false,volume:50},...(JSON.parse(localStorage.getItem(CT_VIDEO_AUDIO_SETTINGS_KEY)||"{}")||{})};
+  }catch(_){return {sound:false,volume:50}}
+}
+function ctSaveVideoAudioSettings(settings){
+  localStorage.setItem(CT_VIDEO_AUDIO_SETTINGS_KEY,JSON.stringify(settings));
+}
+function ctSyncVideoAudioControls(){
+  const settings=ctGetVideoAudioSettings();
+  const sound=document.getElementById("ctVideoSoundEnabled");
+  const volume=document.getElementById("ctVideoVolume");
+  const value=document.getElementById("ctVideoVolumeValue");
+  if(sound)sound.checked=!!settings.sound;
+  if(volume)volume.value=String(settings.volume??50);
+  if(value)value.textContent=`${settings.volume??50}%`;
+  const v=document.getElementById("ctVideoWallpaper");
+  if(v){
+    v.volume=Math.max(0,Math.min(1,(settings.volume??50)/100));
+    v.muted=!settings.sound;
+    v.defaultMuted=!settings.sound;
+  }
+}
+function ctPauseBackgroundMusicForVideo(){
+  const a=document.getElementById("ctBackgroundMusic");
+  if(a?.src && !a.paused){
+    a.pause();
+    ctSetMusicStatus?.(`⏸ ${a.dataset.musicName||"Musiqa"} — video ovozi yoqilgani uchun pauza`);
+  }
+}
+function ctMuteVideoForMusic(){
+  const v=document.getElementById("ctVideoWallpaper");
+  const settings=ctGetVideoAudioSettings();
+  if(settings.sound){
+    settings.sound=false;
+    ctSaveVideoAudioSettings(settings);
+  }
+  if(v){v.muted=true;v.defaultMuted=true;}
+  ctSyncVideoAudioControls();
+}
+async function ctVideoSoundChanged(enabled){
+  const settings=ctGetVideoAudioSettings();
+  settings.sound=!!enabled;
+  ctSaveVideoAudioSettings(settings);
+  const v=ctEnsureVideoWallpaper();
+  v.volume=Math.max(0,Math.min(1,(settings.volume??50)/100));
+  v.muted=!settings.sound;
+  v.defaultMuted=!settings.sound;
+  if(settings.sound){
+    ctPauseBackgroundMusicForVideo();
+    try{await v.play()}catch(_){
+      settings.sound=false;ctSaveVideoAudioSettings(settings);v.muted=true;v.defaultMuted=true;
+      alert("Brauzer video ovozini avtomatik yoqishga ruxsat bermadi. Video ustidagi sozlamadan yana bir marta yoqib ko‘ring.");
+    }
+  }
+  ctSyncVideoAudioControls();
+}
+function ctVideoVolumeChanged(value){
+  const settings=ctGetVideoAudioSettings();
+  settings.volume=Math.max(0,Math.min(100,Number(value)||0));
+  ctSaveVideoAudioSettings(settings);
+  const v=document.getElementById("ctVideoWallpaper");
+  if(v)v.volume=settings.volume/100;
+  const out=document.getElementById("ctVideoVolumeValue");
+  if(out)out.textContent=`${settings.volume}%`;
+}
+
+function ctVideoDb(){
+  return new Promise((resolve,reject)=>{
+    const req=indexedDB.open(CT_VIDEO_DB,1);
+    req.onupgradeneeded=()=>{
+      const db=req.result;
+      if(!db.objectStoreNames.contains(CT_VIDEO_STORE))db.createObjectStore(CT_VIDEO_STORE);
+    };
+    req.onsuccess=()=>resolve(req.result);
+    req.onerror=()=>reject(req.error);
+  });
+}
+async function ctVideoDbPut(record){
+  const db=await ctVideoDb();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction(CT_VIDEO_STORE,"readwrite");
+    tx.objectStore(CT_VIDEO_STORE).put(record,CT_VIDEO_KEY);
+    tx.oncomplete=()=>{db.close();resolve()};
+    tx.onerror=()=>{const e=tx.error;db.close();reject(e)};
+  });
+}
+async function ctVideoDbGet(){
+  const db=await ctVideoDb();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction(CT_VIDEO_STORE,"readonly");
+    const req=tx.objectStore(CT_VIDEO_STORE).get(CT_VIDEO_KEY);
+    req.onsuccess=()=>resolve(req.result||null);
+    req.onerror=()=>reject(req.error);
+    tx.oncomplete=()=>db.close();
+  });
+}
+async function ctVideoDbDelete(){
+  const db=await ctVideoDb();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction(CT_VIDEO_STORE,"readwrite");
+    tx.objectStore(CT_VIDEO_STORE).delete(CT_VIDEO_KEY);
+    tx.oncomplete=()=>{db.close();resolve()};
+    tx.onerror=()=>{const e=tx.error;db.close();reject(e)};
+  });
+}
+function ctEnsureVideoWallpaper(){
+  let v=document.getElementById("ctVideoWallpaper");
+  if(!v){
+    v=document.createElement("video");
+    v.id="ctVideoWallpaper";
+    const settings=ctGetVideoAudioSettings();
+    v.muted=!settings.sound;v.defaultMuted=!settings.sound;v.volume=Math.max(0,Math.min(1,(settings.volume??50)/100));v.autoplay=true;v.loop=true;v.playsInline=true;
+    v.setAttribute("autoplay","");v.setAttribute("loop","");v.setAttribute("playsinline","");
+    document.body.prepend(v);
+  }
+  ctSyncVideoAudioControls();
+  return v;
+}
+function ctSetVideoStatus(msg){
+  const s=document.getElementById("ctVideoWallpaperStatus");
+  if(s)s.textContent=msg;
+}
+function ctDeactivateVideoWallpaper(){
+  const v=document.getElementById("ctVideoWallpaper");
+  if(v){v.pause();v.style.display="none";}
+  document.body.classList.remove("ct-video-active");
+}
+async function ctApplyVideoBlob(blob,name="Video wallpaper"){
+  const v=ctEnsureVideoWallpaper();
+  if(ctVideoObjectUrl)URL.revokeObjectURL(ctVideoObjectUrl);
+  ctVideoObjectUrl=URL.createObjectURL(blob);
+  v.src=ctVideoObjectUrl;
+  v.style.display="block";
+  document.body.classList.add("ct-video-active");
+  const settings=ctGetVideoAudioSettings();
+  v.volume=Math.max(0,Math.min(1,(settings.volume??50)/100));
+  v.muted=!settings.sound;v.defaultMuted=!settings.sound;
+  if(settings.sound)ctPauseBackgroundMusicForVideo();
+  ctSetVideoStatus(`✅ ${name}`);
+  ctSyncVideoAudioControls();
+  try{await v.play()}catch(_){/* ovozli autoplay ayrim brauzerlarda birinchi bosishni kutishi mumkin */}
+}
+async function ctVideoWallpaperPicked(ev){
+  const file=ev.target.files?.[0];if(!file)return;
+  if(!file.type.startsWith("video/"))return alert("Video faylini tanlang (MP4 yoki WebM).");
+  ctSetVideoStatus("Video saqlanmoqda...");
+  try{
+    if(file.size>180*1024*1024){
+      const ok=confirm("Video 180 MB dan katta. Telefonda sekin ishlashi mumkin. Baribir qo‘yilsinmi?");
+      if(!ok){ev.target.value="";ctSetVideoStatus("Video tanlanmagan");return;}
+    }
+    await ctVideoDbPut({blob:file,name:file.name,type:file.type,size:file.size,updatedAt:Date.now()});
+    localStorage.setItem("sdx_video_wallpaper_enabled","1");
+    await ctApplyVideoBlob(file,file.name);
+    showSettingsStatus?.("✅ Video wallpaper saqlandi.");
+  }catch(e){
+    console.error(e);ctSetVideoStatus("Video saqlanmadi");
+    alert("Video wallpaper saqlanmadi. Brauzer xotirasi yetarli bo‘lmasligi mumkin.");
+  }
+}
+async function ctLoadVideoWallpaper(){
+  if(localStorage.getItem("sdx_video_wallpaper_enabled")!=="1")return;
+  try{
+    const rec=await ctVideoDbGet();
+    if(rec?.blob)await ctApplyVideoBlob(rec.blob,rec.name||"Video wallpaper");
+  }catch(e){console.warn("Video wallpaper yuklanmadi",e)}
+}
+async function ctRemoveVideoWallpaper(ask=true){
+  if(ask&&!confirm("Video wallpaper olib tashlansinmi?"))return;
+  ctDeactivateVideoWallpaper();
+  localStorage.removeItem("sdx_video_wallpaper_enabled");
+  try{await ctVideoDbDelete()}catch(_){}
+  if(ctVideoObjectUrl){URL.revokeObjectURL(ctVideoObjectUrl);ctVideoObjectUrl="";}
+  const v=document.getElementById("ctVideoWallpaper");if(v){v.removeAttribute("src");v.load();}
+  const f=document.getElementById("ctVideoWallpaperFile");if(f)f.value="";
+  ctSetVideoStatus("Video tanlanmagan");
+  if(ask)showSettingsStatus?.("Video wallpaper olib tashlandi.");
+}
+function ctToggleVideoWallpaper(){
+  const v=document.getElementById("ctVideoWallpaper");
+  if(!v||!v.src)return alert("Avval video wallpaper tanlang.");
+  if(v.paused)v.play().catch(()=>{});else v.pause();
+}
+
+
+
+/* ===== BACKGROUND MUSIC ENGINE ===== */
+const CT_MUSIC_DB="sdx_background_music_db_v1";
+const CT_MUSIC_STORE="music";
+const CT_MUSIC_KEY="main";
+const CT_MUSIC_SETTINGS_KEY="sdx_background_music_settings_v1";
+let ctMusicObjectUrl="";
+let ctMusicUnlockBound=false;
+
+function ctMusicDb(){
+  return new Promise((resolve,reject)=>{
+    const req=indexedDB.open(CT_MUSIC_DB,1);
+    req.onupgradeneeded=()=>{
+      const db=req.result;
+      if(!db.objectStoreNames.contains(CT_MUSIC_STORE))db.createObjectStore(CT_MUSIC_STORE);
+    };
+    req.onsuccess=()=>resolve(req.result);
+    req.onerror=()=>reject(req.error);
+  });
+}
+async function ctMusicDbPut(record){
+  const db=await ctMusicDb();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction(CT_MUSIC_STORE,"readwrite");
+    tx.objectStore(CT_MUSIC_STORE).put(record,CT_MUSIC_KEY);
+    tx.oncomplete=()=>{db.close();resolve()};
+    tx.onerror=()=>{const e=tx.error;db.close();reject(e)};
+  });
+}
+async function ctMusicDbGet(){
+  const db=await ctMusicDb();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction(CT_MUSIC_STORE,"readonly");
+    const req=tx.objectStore(CT_MUSIC_STORE).get(CT_MUSIC_KEY);
+    req.onsuccess=()=>resolve(req.result||null);
+    req.onerror=()=>reject(req.error);
+    tx.oncomplete=()=>db.close();
+  });
+}
+async function ctMusicDbDelete(){
+  const db=await ctMusicDb();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction(CT_MUSIC_STORE,"readwrite");
+    tx.objectStore(CT_MUSIC_STORE).delete(CT_MUSIC_KEY);
+    tx.oncomplete=()=>{db.close();resolve()};
+    tx.onerror=()=>{const e=tx.error;db.close();reject(e)};
+  });
+}
+function ctGetMusicSettings(){
+  try{
+    return {...{volume:45,loop:true,autoplay:true},...(JSON.parse(localStorage.getItem(CT_MUSIC_SETTINGS_KEY)||"{}")||{})};
+  }catch(_){return {volume:45,loop:true,autoplay:true}}
+}
+function ctSaveMusicSettings(s){
+  localStorage.setItem(CT_MUSIC_SETTINGS_KEY,JSON.stringify(s));
+}
+function ctEnsureBackgroundMusic(){
+  let a=document.getElementById("ctBackgroundMusic");
+  if(!a){
+    a=document.createElement("audio");
+    a.id="ctBackgroundMusic";
+    a.preload="auto";
+    document.body.appendChild(a);
+  }
+  ctAttachMusicPlayerEvents(a);
+  return a;
+}
+function ctSetMusicStatus(msg){
+  const s=document.getElementById("ctBackgroundMusicStatus");
+  if(s)s.textContent=msg;
+  const ps=document.getElementById("sdxMusicPlayerState");
+  if(ps)ps.textContent=String(msg||"").replace(/^✅\s*/,"").replace(/^⏸\s*/,"");
+  ctUpdateMiniMusicPlayer();
+}
+function ctChooseBackgroundMusic(){
+  const input=document.getElementById("ctBackgroundMusicFile");
+  if(input)input.click();
+}
+function ctUpdateMiniMusicPlayer(){
+  const p=document.getElementById("sdxMusicPlayer");
+  const a=document.getElementById("ctBackgroundMusic");
+  if(!p)return;
+  const has=!!(a&&a.src&&localStorage.getItem("sdx_background_music_enabled")==="1");
+  p.classList.toggle("show",has);
+  if(!has)return;
+  const title=document.getElementById("sdxMusicPlayerTitle");
+  const play=document.getElementById("sdxMusicPlayButton");
+  const mini=document.getElementById("sdxMiniMusicVolume");
+  const miniVal=document.getElementById("sdxMiniMusicVolumeValue");
+  const settings=ctGetMusicSettings();
+  if(title)title.textContent=a.dataset.musicName||"Fon musiqasi";
+  if(play)play.textContent=a.paused?"▶":"⏸";
+  if(mini)mini.value=String(settings.volume??45);
+  if(miniVal)miniVal.textContent=`${settings.volume??45}%`;
+}
+function ctAttachMusicPlayerEvents(a){
+  if(!a||a.dataset.sdxPlayerEvents==="1")return;
+  a.dataset.sdxPlayerEvents="1";
+  ["play","pause","ended","loadedmetadata"].forEach(evt=>a.addEventListener(evt,ctUpdateMiniMusicPlayer));
+  a.addEventListener("play",ctMuteVideoForMusic);
+}
+function ctSyncMusicControls(){
+  const s=ctGetMusicSettings();
+  const v=document.getElementById("ctMusicVolume"), vv=document.getElementById("ctMusicVolumeValue");
+  const l=document.getElementById("ctMusicLoop"), ap=document.getElementById("ctMusicAutoplay");
+  if(v)v.value=String(s.volume??45);
+  if(vv)vv.textContent=`${s.volume??45}%`;
+  const mv=document.getElementById("sdxMiniMusicVolume"), mvv=document.getElementById("sdxMiniMusicVolumeValue");
+  if(mv)mv.value=String(s.volume??45);
+  if(mvv)mvv.textContent=`${s.volume??45}%`;
+  if(l)l.checked=s.loop!==false;
+  if(ap)ap.checked=s.autoplay!==false;
+  const a=document.getElementById("ctBackgroundMusic");
+  if(a){a.volume=Math.max(0,Math.min(1,(s.volume??45)/100));a.loop=s.loop!==false;}
+}
+function ctBindMusicUnlock(){
+  if(ctMusicUnlockBound)return;
+  ctMusicUnlockBound=true;
+  const unlock=async()=>{
+    const a=document.getElementById("ctBackgroundMusic");
+    const s=ctGetMusicSettings();
+    if(a?.src && s.autoplay!==false && a.paused){
+      try{await a.play();ctSetMusicStatus((a.dataset.musicName?`✅ ${a.dataset.musicName}`:"✅ Musiqa")+" — ijro etilmoqda");}
+      catch(_){return;}
+    }
+    ["pointerdown","touchstart","keydown"].forEach(evt=>document.removeEventListener(evt,unlock,true));
+    ctMusicUnlockBound=false;
+  };
+  ["pointerdown","touchstart","keydown"].forEach(evt=>document.addEventListener(evt,unlock,true));
+}
+async function ctTryAutoplayMusic(){
+  const a=document.getElementById("ctBackgroundMusic");
+  const s=ctGetMusicSettings();
+  if(!a?.src || s.autoplay===false)return;
+  try{
+    await a.play();
+    ctSetMusicStatus((a.dataset.musicName?`✅ ${a.dataset.musicName}`:"✅ Musiqa")+" — ijro etilmoqda");
+  }catch(_){
+    ctSetMusicStatus((a.dataset.musicName?`✅ ${a.dataset.musicName}`:"✅ Musiqa")+" — boshlash uchun sahifaga bir marta bosing");
+    ctBindMusicUnlock();
+  }
+}
+async function ctApplyMusicBlob(blob,name="Fon musiqasi"){
+  const a=ctEnsureBackgroundMusic();
+  if(ctMusicObjectUrl)URL.revokeObjectURL(ctMusicObjectUrl);
+  ctMusicObjectUrl=URL.createObjectURL(blob);
+  a.src=ctMusicObjectUrl;
+  a.dataset.musicName=name;
+  const s=ctGetMusicSettings();
+  a.volume=Math.max(0,Math.min(1,(s.volume??45)/100));
+  a.loop=s.loop!==false;
+  ctSetMusicStatus(`✅ ${name}`);
+  ctSyncMusicControls();
+  if(s.autoplay!==false)await ctTryAutoplayMusic();
+}
+async function ctBackgroundMusicPicked(ev){
+  const file=ev.target.files?.[0];if(!file)return;
+  if(!file.type.startsWith("audio/"))return alert("Audio faylini tanlang (MP3, WAV yoki OGG).");
+  if(file.size>100*1024*1024){
+    const ok=confirm("Audio 100 MB dan katta. Telefonda sekinroq yuklanishi mumkin. Baribir saqlansinmi?");
+    if(!ok){ev.target.value="";return;}
+  }
+  ctSetMusicStatus("Musiqa saqlanmoqda...");
+  try{
+    await ctMusicDbPut({blob:file,name:file.name,type:file.type,size:file.size,updatedAt:Date.now()});
+    localStorage.setItem("sdx_background_music_enabled","1");
+    await ctApplyMusicBlob(file,file.name);
+    showSettingsStatus?.("✅ Fon musiqasi saqlandi.");
+  }catch(e){
+    console.error(e);ctSetMusicStatus("Musiqa saqlanmadi");
+    alert("Musiqani saqlab bo‘lmadi. Brauzer xotirasi yetarli bo‘lmasligi mumkin.");
+  }
+}
+async function ctLoadBackgroundMusic(){
+  ctSyncMusicControls();
+  if(localStorage.getItem("sdx_background_music_enabled")!=="1")return;
+  try{
+    const rec=await ctMusicDbGet();
+    if(rec?.blob)await ctApplyMusicBlob(rec.blob,rec.name||"Fon musiqasi");
+  }catch(e){console.warn("Fon musiqasi yuklanmadi",e)}
+}
+function ctMusicVolumeChanged(value){
+  const s=ctGetMusicSettings();s.volume=Number(value);ctSaveMusicSettings(s);
+  const a=document.getElementById("ctBackgroundMusic");if(a)a.volume=Math.max(0,Math.min(1,s.volume/100));
+  const v=document.getElementById("ctMusicVolumeValue");if(v)v.textContent=`${s.volume}%`;
+  const mv=document.getElementById("sdxMiniMusicVolume"),mvv=document.getElementById("sdxMiniMusicVolumeValue");
+  if(mv&&String(mv.value)!==String(s.volume))mv.value=String(s.volume);
+  if(mvv)mvv.textContent=`${s.volume}%`;
+  ctUpdateMiniMusicPlayer();
+}
+function ctMusicOptionChanged(){
+  const s=ctGetMusicSettings();
+  const l=document.getElementById("ctMusicLoop"),ap=document.getElementById("ctMusicAutoplay");
+  s.loop=l?l.checked:true;s.autoplay=ap?ap.checked:true;ctSaveMusicSettings(s);
+  const a=document.getElementById("ctBackgroundMusic");if(a)a.loop=s.loop;
+  if(s.autoplay)ctTryAutoplayMusic();
+}
+async function ctToggleBackgroundMusic(){
+  const a=document.getElementById("ctBackgroundMusic");
+  if(!a?.src)return alert("Avval fon musiqasini tanlang.");
+  if(a.paused){try{await a.play();ctSetMusicStatus(`✅ ${a.dataset.musicName||"Musiqa"} — ijro etilmoqda`)}catch(_){ctSetMusicStatus("Ijro uchun sahifaga bir marta bosing");ctBindMusicUnlock();}}
+  else{a.pause();ctSetMusicStatus(`⏸ ${a.dataset.musicName||"Musiqa"} — pauza`)}
+}
+function ctRestartBackgroundMusic(){
+  const a=document.getElementById("ctBackgroundMusic");
+  if(!a?.src)return alert("Avval fon musiqasini tanlang.");
+  a.currentTime=0;a.play().catch(()=>ctBindMusicUnlock());
+}
+function ctStopBackgroundMusic(){
+  const a=document.getElementById("ctBackgroundMusic");
+  if(!a?.src)return alert("Avval fon musiqasini tanlang.");
+  a.pause();
+  try{a.currentTime=0}catch(_){}
+  ctSetMusicStatus(`⏹ ${a.dataset.musicName||"Musiqa"} — to‘xtatildi`);
+  ctUpdateMiniMusicPlayer();
+}
+async function ctRemoveBackgroundMusic(ask=true){
+  if(ask&&!confirm("Fon musiqasi olib tashlansinmi?"))return;
+  const a=document.getElementById("ctBackgroundMusic");
+  if(a){a.pause();a.removeAttribute("src");a.load();delete a.dataset.musicName;}
+  localStorage.removeItem("sdx_background_music_enabled");
+  try{await ctMusicDbDelete()}catch(_){}
+  if(ctMusicObjectUrl){URL.revokeObjectURL(ctMusicObjectUrl);ctMusicObjectUrl="";}
+  const f=document.getElementById("ctBackgroundMusicFile");if(f)f.value="";
+  ctSetMusicStatus("Musiqa tanlanmagan");
+  ctUpdateMiniMusicPlayer();
+  if(ask)showSettingsStatus?.("Fon musiqasi olib tashlandi.");
+}
+
+document.addEventListener("DOMContentLoaded",async()=>{ctSyncVideoAudioControls();await ctLoadVideoWallpaper();ctSyncVideoAudioControls();});
+document.addEventListener("DOMContentLoaded",async()=>{await ctLoadBackgroundMusic();ctUpdateMiniMusicPlayer();});
+
 const ctOldOpenSettings=window.openSettings;
 window.openSettings=function(){
   if(typeof ctOldOpenSettings==="function")ctOldOpenSettings();
-  setTimeout(ctLoad,0);
+  setTimeout(()=>{ctLoad();ctSyncMusicControls();ctSyncVideoAudioControls();},0);
 };
 document.addEventListener("DOMContentLoaded",ctLoad);
 
 </script>
+
+
+<!-- SKYDRIVEX FLOATING MUSIC PLAYER -->
+<div id="sdxMusicPlayer" class="sdx-music-player" aria-label="Fon musiqasi boshqaruvi">
+  <div class="sdx-music-top">
+    <div class="sdx-music-note">🎵</div>
+    <div class="sdx-music-meta">
+      <div id="sdxMusicPlayerTitle" class="sdx-music-title">Fon musiqasi</div>
+      <div id="sdxMusicPlayerState" class="sdx-music-state">Tayyor</div>
+    </div>
+    <button class="sdx-music-change" onclick="ctChooseBackgroundMusic()">🔄 Almashtirish</button>
+  </div>
+  <div class="sdx-music-controls">
+    <button id="sdxMusicPlayButton" class="sdx-music-btn primary" onclick="ctToggleBackgroundMusic()" title="Play / Pause">▶</button>
+    <button class="sdx-music-btn" onclick="ctRestartBackgroundMusic()" title="Boshidan">↺</button>
+    <button class="sdx-music-btn" onclick="ctStopBackgroundMusic()" title="To‘xtatish">■</button>
+    <label class="sdx-music-volume-mini" title="Ovoz balandligi">🔊
+      <input id="sdxMiniMusicVolume" type="range" min="0" max="100" value="45" oninput="ctMusicVolumeChanged(this.value)">
+      <span id="sdxMiniMusicVolumeValue">45%</span>
+    </label>
+  </div>
+</div>
 
 </body>
 </html>
