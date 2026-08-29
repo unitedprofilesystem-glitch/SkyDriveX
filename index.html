@@ -1454,6 +1454,33 @@ body.ct-video-active .sdx-video-sound-float{display:flex}
 
 
 <!-- =====================================================
+     MOVE FILE / FOLDER MODAL
+===================================================== -->
+
+<div id="moveModal" class="modal hidden" onclick="closeMoveModal(event)">
+  <div class="modal-box" style="max-width:720px" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div>
+        <strong>↔️ Ko‘chirish</strong>
+        <div id="moveItemName" style="color:var(--muted);font-size:13px;margin-top:4px"></div>
+      </div>
+      <button class="close-btn" onclick="closeMoveModal()">✕</button>
+    </div>
+
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
+      <button class="btn" onclick="sdxMoveGoBack()">↩️ Orqaga</button>
+      <div id="moveCurrentPath" style="flex:1;min-width:180px;color:#bfdbfe;font-size:13px">🏠 Bosh papka</div>
+      <button id="moveConfirmBtn" class="action-btn blue" onclick="sdxMoveHere()">✅ Shu papkaga ko‘chirish</button>
+    </div>
+
+    <div id="moveFolderList">
+      <div class="empty">⏳ Papkalar yuklanmoqda...</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- =====================================================
      PREVIEW MODAL
 ===================================================== -->
 
@@ -2634,6 +2661,12 @@ function renderItems(items){
                         </button>
 
                         <button
+                            class="btn"
+                            onclick="openMoveFolder('${escapeJs(item.name)}')">
+                            ↔️ Ko‘chirish
+                        </button>
+
+                        <button
                             class="btn delete"
                             onclick="deleteFolder('${escapeJs(item.name)}')">
                             🗑️ O‘chirish
@@ -2714,6 +2747,12 @@ function renderItems(items){
                         </button>
 
                         <button
+                            class="btn"
+                            onclick="openMoveFile('${escapeJs(fullPath)}','${escapeJs(item.name)}')">
+                            ↔️ Ko‘chirish
+                        </button>
+
+                        <button
                             class="btn delete"
                             onclick="deleteFile('${escapeJs(fullPath)}')">
                             🗑️
@@ -2728,6 +2767,291 @@ function renderItems(items){
             );
         }
     );
+}
+
+
+/* =====================================================
+   MOVE FILE / FOLDER
+===================================================== */
+
+const sdxMoveState = {
+    type:"",
+    sourcePath:"",
+    sourceRelative:"",
+    name:"",
+    browserFolder:""
+};
+
+function sdxJoinRelative(a,b){
+    return [a,b]
+        .filter(Boolean)
+        .join("/")
+        .replace(/^\/+|\/+$/g,"");
+}
+
+function closeMoveModal(event){
+    if(event && event.target !== event.currentTarget){
+        return;
+    }
+    document.getElementById("moveModal")?.classList.add("hidden");
+}
+
+async function openMoveFile(fullPath,name){
+    sdxMoveState.type = "file";
+    sdxMoveState.sourcePath = fullPath;
+    sdxMoveState.sourceRelative = currentFolder ? currentFolder + "/" + name : name;
+    sdxMoveState.name = name;
+    sdxMoveState.browserFolder = "";
+
+    const label=document.getElementById("moveItemName");
+    if(label) label.textContent = "📄 " + name;
+    document.getElementById("moveModal")?.classList.remove("hidden");
+    await sdxRenderMoveFolderPicker();
+}
+
+async function openMoveFolder(folderName){
+    const relative = currentFolder ? currentFolder + "/" + folderName : folderName;
+
+    // SkyDriveX tizim papkasini ko‘chirmaymiz — wallpaper va ichki sozlamalar buzilmasin.
+    if(relative === ".skydrivex" || relative.startsWith(".skydrivex/")){
+        alert(".skydrivex — SkyDriveX tizim papkasi. Uni ko‘chirish mumkin emas.");
+        return;
+    }
+
+    sdxMoveState.type = "folder";
+    sdxMoveState.sourcePath = fullUserPath(relative);
+    sdxMoveState.sourceRelative = relative;
+    sdxMoveState.name = folderName;
+    sdxMoveState.browserFolder = "";
+
+    const label=document.getElementById("moveItemName");
+    if(label) label.textContent = "📁 " + folderName;
+    document.getElementById("moveModal")?.classList.remove("hidden");
+    await sdxRenderMoveFolderPicker();
+}
+
+async function sdxRenderMoveFolderPicker(){
+    const list=document.getElementById("moveFolderList");
+    const pathLabel=document.getElementById("moveCurrentPath");
+    if(!list) return;
+
+    const user=await getUser();
+    if(!user){
+        list.innerHTML='<div class="empty">Avval tizimga kiring.</div>';
+        return;
+    }
+
+    if(
+        sdxMoveState.type === "folder" &&
+        (
+            sdxMoveState.browserFolder === sdxMoveState.sourceRelative ||
+            sdxMoveState.browserFolder.startsWith(sdxMoveState.sourceRelative + "/")
+        )
+    ){
+        sdxMoveState.browserFolder="";
+    }
+
+    if(pathLabel){
+        pathLabel.textContent = sdxMoveState.browserFolder
+            ? "📁 " + sdxMoveState.browserFolder
+            : "🏠 Bosh papka";
+    }
+
+    list.innerHTML='<div class="empty">⏳ Papkalar yuklanmoqda...</div>';
+
+    const folderPath = user.id + (sdxMoveState.browserFolder ? "/" + sdxMoveState.browserFolder : "");
+
+    try{
+        const {data,error}=await supabaseClient.storage
+            .from(BUCKET)
+            .list(folderPath,{limit:1000,offset:0,sortBy:{column:"name",order:"asc"}});
+        if(error) throw error;
+
+        const folders=(data||[]).filter(item=>{
+            if(!item?.name || item.metadata) return false;
+
+            // Ichki xizmat papkalariga oddiy fayllarni ko‘chirmaymiz.
+            if(!sdxMoveState.browserFolder && (item.name === "profile" || item.name === ".skydrivex")){
+                return false;
+            }
+
+            const childRel=sdxJoinRelative(sdxMoveState.browserFolder,item.name);
+            if(
+                sdxMoveState.type === "folder" &&
+                (
+                    childRel === sdxMoveState.sourceRelative ||
+                    childRel.startsWith(sdxMoveState.sourceRelative + "/")
+                )
+            ){
+                return false;
+            }
+            return true;
+        });
+
+        if(!folders.length){
+            list.innerHTML='<div class="empty">📂 Bu yerda boshqa papka yo‘q.<br><small>Yuqoridagi “Shu papkaga ko‘chirish” tugmasini bossangiz bo‘ladi.</small></div>';
+            return;
+        }
+
+        list.innerHTML="";
+        folders.forEach(folder=>{
+            const row=document.createElement("div");
+            row.className="file folder";
+            row.innerHTML=`
+                <div class="file-left" style="cursor:pointer" onclick="sdxOpenMoveDestinationFolder('${escapeJs(folder.name)}')">
+                    <div class="file-icon">📁</div>
+                    <div class="file-info">
+                        <div class="file-name folder-name">${escapeHtml(folder.name)}</div>
+                        <div class="file-size">Ko‘chirish joyini tanlash</div>
+                    </div>
+                </div>
+                <div class="file-actions">
+                    <button class="btn" onclick="sdxOpenMoveDestinationFolder('${escapeJs(folder.name)}')">📂 Kirish</button>
+                </div>`;
+            list.appendChild(row);
+        });
+    }catch(error){
+        console.error(error);
+        list.innerHTML=`<div class="empty">❌ Papkalarni yuklab bo‘lmadi: ${escapeHtml(error.message||String(error))}</div>`;
+    }
+}
+
+async function sdxOpenMoveDestinationFolder(name){
+    sdxMoveState.browserFolder=sdxJoinRelative(sdxMoveState.browserFolder,name);
+    await sdxRenderMoveFolderPicker();
+}
+
+async function sdxMoveGoBack(){
+    if(!sdxMoveState.browserFolder) return;
+    const p=sdxMoveState.browserFolder.split("/");
+    p.pop();
+    sdxMoveState.browserFolder=p.join("/");
+    await sdxRenderMoveFolderPicker();
+}
+
+async function sdxStorageEntryExists(parentFullPath,name){
+    try{
+        const {data,error}=await supabaseClient.storage
+            .from(BUCKET)
+            .list(parentFullPath,{limit:1000,offset:0});
+        if(error) throw error;
+        return (data||[]).some(x=>x?.name===name);
+    }catch(_){
+        return false;
+    }
+}
+
+async function sdxCollectFolderFiles(folderPath){
+    const output=[];
+
+    async function walk(path){
+        let offset=0;
+        while(true){
+            const {data,error}=await supabaseClient.storage
+                .from(BUCKET)
+                .list(path,{limit:1000,offset});
+            if(error) throw error;
+
+            const items=data||[];
+            for(const item of items){
+                if(!item?.name) continue;
+                const child=path+"/"+item.name;
+                if(item.metadata){
+                    output.push(child);
+                }else{
+                    await walk(child);
+                }
+            }
+
+            if(items.length<1000) break;
+            offset+=1000;
+        }
+    }
+
+    await walk(folderPath);
+    return output;
+}
+
+async function sdxMoveHere(){
+    const user=await getUser();
+    if(!user) return;
+
+    const targetRelative=sdxMoveState.browserFolder;
+    const targetParentFull=user.id+(targetRelative?"/"+targetRelative:"");
+
+    if(
+        sdxMoveState.type === "folder" &&
+        (
+            targetRelative === sdxMoveState.sourceRelative ||
+            targetRelative.startsWith(sdxMoveState.sourceRelative + "/")
+        )
+    ){
+        alert("Papkani o‘zining ichiga ko‘chirib bo‘lmaydi.");
+        return;
+    }
+
+    const targetFull=targetParentFull+"/"+sdxMoveState.name;
+
+    if(targetFull===sdxMoveState.sourcePath){
+        alert("Bu fayl/papka hozir ham shu joyda turibdi.");
+        return;
+    }
+
+    const exists=await sdxStorageEntryExists(targetParentFull,sdxMoveState.name);
+    if(exists){
+        alert("Tanlangan joyda shu nomli fayl yoki papka allaqachon bor.");
+        return;
+    }
+
+    const destinationLabel=targetRelative || "Bosh papka";
+    if(!confirm(`“${sdxMoveState.name}” → ${destinationLabel}\n\nKo‘chirilsinmi?`)){
+        return;
+    }
+
+    const confirmBtn=document.getElementById("moveConfirmBtn");
+    const oldText=confirmBtn?.textContent||"";
+    if(confirmBtn){confirmBtn.disabled=true;confirmBtn.textContent="⏳ Ko‘chirilmoqda...";}
+
+    try{
+        if(sdxMoveState.type === "file"){
+            const {error}=await supabaseClient.storage
+                .from(BUCKET)
+                .move(sdxMoveState.sourcePath,targetFull);
+            if(error) throw error;
+        }else{
+            const sourcePrefix=sdxMoveState.sourcePath;
+            const files=await sdxCollectFolderFiles(sourcePrefix);
+
+            if(!files.length){
+                throw new Error("Papka ichida ko‘chiriladigan fayl topilmadi.");
+            }
+
+            let moved=0;
+            for(const sourceFile of files){
+                const relative=sourceFile.slice(sourcePrefix.length+1);
+                const destinationFile=targetFull+"/"+relative;
+                const {error}=await supabaseClient.storage
+                    .from(BUCKET)
+                    .move(sourceFile,destinationFile);
+                if(error){
+                    throw new Error(`${moved} ta fayl ko‘chirildi, keyin xato: ${error.message}`);
+                }
+                moved++;
+            }
+        }
+
+        closeMoveModal();
+        await loadCurrentFolder();
+        await calculateStorage();
+        if(typeof showSettingsStatus === "function"){
+            showSettingsStatus("✅ Ko‘chirildi: "+sdxMoveState.name);
+        }
+    }catch(error){
+        console.error(error);
+        alert("Ko‘chirishda xatolik: "+(error?.message||error));
+    }finally{
+        if(confirmBtn){confirmBtn.disabled=false;confirmBtn.textContent=oldText||"✅ Shu papkaga ko‘chirish";}
+    }
 }
 
 
