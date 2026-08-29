@@ -1,677 +1,1930 @@
-from pathlib import Path
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-src = Path("/mnt/data/Вставленный текст(20260829-130525).txt")
-html = src.read_text(encoding="utf-8")
+<title>SkyDriveX</title>
 
-CLIENT_ID = "419686708374-o4jgjn6r3ickb33ritmafcga51sekdaq.apps.googleusercontent.com"
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 
-# 1) Google Identity Services script
-if "https://accounts.google.com/gsi/client" not in html:
-    html = html.replace(
-        '<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>',
-        '<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>\n'
-        '<script src="https://accounts.google.com/gsi/client" async defer></script>',
-        1
-    )
+<style>
 
-# 2) Google Drive CSS before </style>
-gdrive_css = r'''
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+:root{
+    --bg:#080b12;
+    --card:#111722;
+    --card2:#151c28;
+    --border:#273142;
+    --text:#f5f7fb;
+    --muted:#8d99aa;
+    --blue:#3b82f6;
+    --blue2:#2563eb;
+    --danger:#ef4444;
+    --danger-bg:#32171b;
+    --green:#22c55e;
+}
+
+body{
+    font-family:Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    min-height:100vh;
+}
+
+button,
+input{
+    font:inherit;
+}
+
+button{
+    cursor:pointer;
+}
+
+.hidden{
+    display:none!important;
+}
+
 /* =========================
-   GOOGLE DRIVE
+   AUTH
 ========================= */
 
-.gdrive-card{
+#authPage{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+}
+
+.auth-card{
+    width:100%;
+    max-width:430px;
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:24px;
+    padding:32px;
+    box-shadow:0 20px 60px rgba(0,0,0,.35);
+}
+
+.auth-logo{
+    text-align:center;
+    font-size:32px;
+    font-weight:800;
+    margin-bottom:10px;
+}
+
+.auth-logo span,
+.logo span{
+    color:var(--blue);
+}
+
+.auth-title{
+    text-align:center;
+    color:var(--muted);
+    margin-bottom:25px;
+}
+
+.input{
+    width:100%;
+    padding:14px;
+    margin-bottom:12px;
+    border-radius:12px;
+    border:1px solid var(--border);
+    background:#0b1019;
+    color:white;
+    outline:none;
+}
+
+.input:focus{
+    border-color:var(--blue);
+}
+
+.auth-btn{
+    width:100%;
+    border:0;
+    padding:14px;
+    border-radius:12px;
+    background:var(--blue2);
+    color:white;
+    font-weight:700;
+}
+
+.switch-btn{
+    width:100%;
+    border:0;
+    background:transparent;
+    color:#60a5fa;
+    margin-top:18px;
+}
+
+#authMessage{
+    margin-top:15px;
+    text-align:center;
+    font-size:14px;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.header{
+    height:70px;
+    background:#0d121b;
+    border-bottom:1px solid var(--border);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 25px;
+    position:sticky;
+    top:0;
+    z-index:20;
+}
+
+.logo{
+    font-size:24px;
+    font-weight:800;
+}
+
+.header-right{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.user{
+    color:var(--muted);
+    font-size:14px;
+}
+
+.logout{
+    border:0;
+    background:var(--danger-bg);
+    color:#ff9a9a;
+    padding:9px 13px;
+    border-radius:9px;
+}
+
+/* =========================
+   MAIN
+========================= */
+
+.container{
+    max-width:1100px;
+    margin:25px auto;
+    padding:0 18px;
+}
+
+.welcome{
+    margin-bottom:22px;
+}
+
+.welcome h1{
+    font-size:30px;
+    margin-bottom:7px;
+}
+
+.welcome p{
+    color:var(--muted);
+}
+
+/* =========================
+   PROFILE
+========================= */
+
+.profile-card{
     background:var(--card);
     border:1px solid var(--border);
     border-radius:20px;
     padding:20px;
+    display:flex;
+    align-items:center;
+    gap:18px;
     margin-bottom:20px;
 }
 
-.gdrive-head{
+.avatar{
+    width:82px;
+    height:82px;
+    border-radius:50%;
+    object-fit:cover;
+    object-position:center;
+    background:#1c2533;
+    border:2px solid var(--border);
+    display:block;
+}
+
+.avatar-placeholder{
+    width:82px;
+    height:82px;
+    border-radius:50%;
+    background:#1c2533;
     display:flex;
     align-items:center;
-    justify-content:space-between;
-    gap:12px;
-    flex-wrap:wrap;
-    margin-bottom:14px;
+    justify-content:center;
+    font-size:32px;
 }
 
-.gdrive-actions{
+.profile-info{
+    flex:1;
+}
+
+.profile-name{
+    font-size:20px;
+    font-weight:700;
+    margin-bottom:5px;
+}
+
+.profile-email{
+    color:var(--muted);
+    font-size:14px;
+    margin-bottom:12px;
+}
+
+.profile-actions{
     display:flex;
+    flex-wrap:wrap;
     gap:8px;
+}
+
+.small-btn{
+    border:0;
+    padding:8px 11px;
+    border-radius:8px;
+    background:#1e293b;
+    color:white;
+}
+
+.small-btn.blue{
+    background:var(--blue2);
+}
+
+.small-btn.red{
+    background:var(--danger-bg);
+    color:#ff9a9a;
+}
+
+#avatarInput{
+    display:none;
+}
+
+/* =========================
+   STORAGE
+========================= */
+
+.storage-card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:18px;
+    padding:18px;
+    margin-bottom:20px;
+}
+
+.storage-top{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:10px;
+}
+
+.storage-title{
+    font-weight:700;
+}
+
+.storage-value{
+    color:var(--muted);
+    font-size:14px;
+}
+
+.progress{
+    height:9px;
+    background:#202938;
+    border-radius:20px;
+    overflow:hidden;
+}
+
+.progress-bar{
+    height:100%;
+    width:0%;
+    background:var(--blue);
+    transition:.3s;
+}
+
+/* =========================
+   UPLOAD
+========================= */
+
+.upload-box{
+    background:var(--card);
+    border:2px dashed #334155;
+    border-radius:20px;
+    padding:28px 20px;
+    text-align:center;
+    margin-bottom:20px;
+}
+
+.upload-box h2{
+    margin-bottom:8px;
+}
+
+.upload-box p{
+    color:var(--muted);
+    margin-bottom:18px;
+}
+
+.upload-btn{
+    display:inline-block;
+    background:var(--blue2);
+    color:white;
+    padding:13px 20px;
+    border-radius:11px;
+    font-weight:700;
+    margin:4px;
+}
+
+.upload-btn.folder-btn{
+    background:#1e293b;
+}
+
+#fileInput,
+#folderInput{
+    display:none;
+}
+
+#uploadStatus{
+    margin-top:13px;
+    color:var(--muted);
+}
+
+/* =========================
+   TOOLBAR
+========================= */
+
+.toolbar{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:18px;
+    padding:15px;
+    margin-bottom:20px;
+    display:flex;
+    gap:10px;
     flex-wrap:wrap;
 }
 
-.gdrive-btn{
+.search{
+    flex:1;
+    min-width:200px;
+    padding:11px 13px;
+    border-radius:10px;
+    border:1px solid var(--border);
+    background:#0b1019;
+    color:white;
+    outline:none;
+}
+
+.action-btn{
     border:0;
     padding:10px 14px;
     border-radius:10px;
     background:#1e293b;
     color:white;
-    font-weight:700;
 }
 
-.gdrive-btn.blue{
+.action-btn.blue{
     background:var(--blue2);
 }
 
-.gdrive-btn.red{
-    background:var(--danger-bg);
-    color:#ff9a9a;
+/* =========================
+   FILE CARD
+========================= */
+
+.files-card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:20px;
 }
 
-.gdrive-status{
+.files-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:18px;
+}
+
+.files-header h2{
+    font-size:20px;
+}
+
+.path{
     color:var(--muted);
     font-size:13px;
     margin-top:5px;
 }
 
-.gdrive-path{
-    color:var(--muted);
-    font-size:13px;
-    margin:12px 0;
+.back-btn{
+    border:0;
+    background:#1e293b;
+    color:white;
+    padding:9px 13px;
+    border-radius:9px;
 }
 
-#gdriveFileInput{
-    display:none;
+/* =========================
+   ITEM
+========================= */
+
+.file{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:15px;
+    padding:14px 5px;
+    border-bottom:1px solid #202938;
 }
+
+.file:last-child{
+    border-bottom:0;
+}
+
+.file-left{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    min-width:0;
+}
+
+.file-icon{
+    width:43px;
+    height:43px;
+    border-radius:11px;
+    background:#1c2533;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:21px;
+    flex-shrink:0;
+}
+
+.file-info{
+    min-width:0;
+}
+
+.file-name{
+    font-weight:700;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+
+.file-size{
+    color:var(--muted);
+    font-size:12px;
+    margin-top:4px;
+}
+
+.file-actions{
+    display:flex;
+    gap:7px;
+    flex-shrink:0;
+}
+
+.btn{
+    border:0;
+    padding:8px 11px;
+    border-radius:8px;
+    background:#1e293b;
+    color:white;
+}
+
+.btn.delete{
+    background:var(--danger-bg);
+    color:#ff9a9a;
+}
+
+.btn.preview{
+    background:#172554;
+    color:#93c5fd;
+}
+
+/* =========================
+   FOLDER
+========================= */
+
+.folder{
+    background:#111a27;
+}
+
+.folder .file-icon{
+    background:#172554;
+}
+
+.folder-name{
+    color:#bfdbfe;
+}
+
+/* =========================
+   EMPTY
+========================= */
+
+.empty{
+    text-align:center;
+    padding:40px 15px;
+    color:var(--muted);
+}
+
+/* =========================
+   MODAL
+========================= */
+
+.modal{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.78);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    z-index:100;
+}
+
+.modal-box{
+    width:100%;
+    max-width:800px;
+    max-height:90vh;
+    overflow:auto;
+    background:#0f151f;
+    border:1px solid var(--border);
+    border-radius:18px;
+    padding:18px;
+}
+
+.modal-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:15px;
+}
+
+.close-btn{
+    border:0;
+    background:#32171b;
+    color:#ff9a9a;
+    padding:8px 11px;
+    border-radius:8px;
+}
+
+.preview-image{
+    max-width:100%;
+    max-height:70vh;
+    display:block;
+    margin:auto;
+    border-radius:10px;
+}
+
+.preview-video{
+    width:100%;
+    max-height:70vh;
+    border-radius:10px;
+}
+
+.preview-audio{
+    width:100%;
+}
+
+/* =========================
+   MOBILE
+========================= */
 
 @media(max-width:650px){
-    .gdrive-actions{
+
+    .header{
+        padding:0 13px;
+    }
+
+    .logo{
+        font-size:20px;
+    }
+
+    .user{
+        display:none;
+    }
+
+    .container{
+        margin-top:18px;
+        padding:0 10px;
+    }
+
+    .welcome h1{
+        font-size:24px;
+    }
+
+    .profile-card{
+        flex-direction:column;
+        align-items:flex-start;
+    }
+
+    .avatar,
+    .avatar-placeholder{
+        width:70px;
+        height:70px;
+    }
+
+    .profile-actions{
         width:100%;
     }
-    .gdrive-btn{
+
+    .small-btn{
         flex:1;
     }
-}
-'''
-if "/* =========================\n   GOOGLE DRIVE" not in html:
-    html = html.replace("</style>", gdrive_css + "\n</style>", 1)
 
-# 3) Add Google Drive section before FILE LIST
-file_list_marker = """<!-- =====================================================
-     FILE LIST
-===================================================== -->"""
-gdrive_section = r'''
+    .toolbar{
+        flex-direction:column;
+    }
+
+    .search{
+        width:100%;
+        min-width:0;
+    }
+
+    .action-btn{
+        width:100%;
+    }
+
+    .files-card{
+        padding:13px;
+    }
+
+    .file{
+        align-items:flex-start;
+        flex-direction:column;
+    }
+
+    .file-left{
+        width:100%;
+    }
+
+    .file-actions{
+        width:100%;
+    }
+
+    .file-actions .btn{
+        flex:1;
+    }
+
+    .files-header{
+        align-items:flex-start;
+    }
+
+    .upload-btn{
+        display:block;
+        width:100%;
+        margin:6px 0;
+    }
+}
+
+
+/* GOOGLE DRIVE */
+.gdrive-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:20px;margin-bottom:20px}
+.gdrive-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.gdrive-actions{display:flex;gap:8px;flex-wrap:wrap}
+.gdrive-btn{border:0;padding:10px 14px;border-radius:10px;background:#1e293b;color:#fff;font-weight:700}
+.gdrive-btn.blue{background:var(--blue2)}
+.gdrive-btn.red{background:var(--danger-bg);color:#ff9a9a}
+.gdrive-status,.gdrive-path{color:var(--muted);font-size:13px}
+.gdrive-path{margin:10px 0}
+#gdriveFileInput{display:none}
+@media(max-width:650px){.gdrive-actions{width:100%}.gdrive-btn{flex:1}}
+
+</style>
+</head>
+
+<body>
+
 <!-- =====================================================
-     GOOGLE DRIVE
+     AUTH
 ===================================================== -->
 
-<section class="gdrive-card">
+<section id="authPage">
 
-    <div class="gdrive-head">
-        <div>
-            <h2>🔺 Google Drive</h2>
-            <div id="gdriveStatus" class="gdrive-status">
-                ⚫ Ulanmagan
-            </div>
+    <div class="auth-card">
+
+        <div class="auth-logo">
+            Sky<span>DriveX</span>
         </div>
 
-        <div class="gdrive-actions">
-            <button
-                id="gdriveConnectBtn"
-                class="gdrive-btn blue"
-                onclick="connectGoogleDrive()">
-                🔗 Google Drive’ni ulash
-            </button>
+        <p class="auth-title" id="authTitle">
+            Hisobingizga kiring
+        </p>
 
-            <button
-                id="gdriveDisconnectBtn"
-                class="gdrive-btn red hidden"
-                onclick="disconnectGoogleDrive()">
-                Uzish
-            </button>
+        <input
+            type="email"
+            id="email"
+            class="input"
+            placeholder="Email">
 
-            <button
-                class="gdrive-btn"
-                onclick="googleDriveBack()">
-                ↩️ Orqaga
-            </button>
+        <input
+            type="password"
+            id="password"
+            class="input"
+            placeholder="Parol">
 
-            <button
-                class="gdrive-btn"
-                onclick="loadGoogleDriveFiles()">
-                🔄 Yangilash
-            </button>
+        <button
+            class="auth-btn"
+            id="authButton"
+            onclick="login()">
+            Kirish
+        </button>
 
-            <label
-                for="gdriveFileInput"
-                class="gdrive-btn blue">
-                ⬆️ Drive’ga yuklash
-            </label>
+        <button
+            class="switch-btn"
+            id="switchButton"
+            onclick="toggleAuth()">
+            Hisobingiz yo‘qmi? Ro‘yxatdan o‘ting
+        </button>
 
-            <input
-                type="file"
-                id="gdriveFileInput"
-                multiple>
-        </div>
-    </div>
+        <div id="authMessage"></div>
 
-    <div id="gdrivePath" class="gdrive-path">
-        🏠 My Drive
-    </div>
-
-    <div id="gdriveList">
-        <div class="empty">
-            Google Drive’ni ulang.
-        </div>
     </div>
 
 </section>
 
 
-'''
-if 'id="gdriveList"' not in html:
-    html = html.replace(file_list_marker, gdrive_section + file_list_marker, 1)
+<!-- =====================================================
+     CLOUD
+===================================================== -->
 
-# 4) Add Google constants after BUCKET
-if "GOOGLE_CLIENT_ID" not in html:
-    html = html.replace(
-        'const BUCKET = "files";',
-        f'''const BUCKET = "files";
+<section id="cloudPage" class="hidden">
 
-const GOOGLE_CLIENT_ID =
-    "{CLIENT_ID}";
+<header class="header">
 
-const GOOGLE_DRIVE_SCOPE =
-    "https://www.googleapis.com/auth/drive";
+    <div class="logo">
+        Sky<span>DriveX</span>
+    </div>
 
-let googleTokenClient = null;
-let googleDriveToken =
-    sessionStorage.getItem("skydrivex_google_token") || "";
+    <div class="header-right">
 
-let googleDriveTokenExpiresAt =
-    Number(
-        sessionStorage.getItem(
-            "skydrivex_google_token_expires"
-        )
-    ) || 0;
+        <div
+            class="user"
+            id="userEmail">
+        </div>
 
-let googleDriveFolderId = "root";
-let googleDriveFolderStack = [];''',
-        1
-    )
+        <button
+            class="logout"
+            onclick="logout()">
+            Chiqish
+        </button>
 
-# 5) Add Google Drive functions before DOWNLOAD FILE section
-marker = """/* =====================================================
-   DOWNLOAD FILE
-===================================================== */"""
-gdrive_functions = r'''
+    </div>
+
+</header>
+
+
+<main class="container">
+
+<!-- WELCOME -->
+
+<section class="welcome">
+
+    <h1>☁️ Mening SkyDriveX</h1>
+
+    <p>
+        Fayllaringizni xavfsiz saqlang va
+        istalgan qurilmadan foydalaning.
+    </p>
+
+</section>
+
+
+<!-- =====================================================
+     PROFILE
+===================================================== -->
+
+<section class="profile-card">
+
+    <div id="avatarContainer">
+
+        <div class="avatar-placeholder">
+            👤
+        </div>
+
+    </div>
+
+    <div class="profile-info">
+
+        <div
+            class="profile-name"
+            id="profileName">
+            SkyDriveX foydalanuvchisi
+        </div>
+
+        <div
+            class="profile-email"
+            id="profileEmail">
+        </div>
+
+        <div class="profile-actions">
+
+            <label
+                for="avatarInput"
+                class="small-btn blue">
+                👤 Rasm yuklash
+            </label>
+
+            <input
+                type="file"
+                id="avatarInput"
+                accept="image/*">
+
+            <button
+                class="small-btn"
+                onclick="changeAvatar()">
+                🔄 Almashtirish
+            </button>
+
+            <button
+                class="small-btn red"
+                onclick="deleteAvatar()">
+                🗑️ Rasmni o‘chirish
+            </button>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     STORAGE
+===================================================== -->
+
+<section class="storage-card">
+
+    <div class="storage-top">
+
+        <div class="storage-title">
+            ☁️ Storage
+        </div>
+
+        <div
+            class="storage-value"
+            id="storageText">
+            0 B
+        </div>
+
+    </div>
+
+    <div class="progress">
+
+        <div
+            class="progress-bar"
+            id="storageBar">
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     UPLOAD
+===================================================== -->
+
+<section class="upload-box">
+
+    <h2>⬆️ Fayl yuklash</h2>
+
+    <p>
+        Telefon yoki kompyuterdan fayl tanlang
+    </p>
+
+    <!-- BITTA FAYL -->
+
+    <label
+        class="upload-btn"
+        for="fileInput">
+        📤 Fayl tanlash
+    </label>
+
+    <input
+        type="file"
+        id="fileInput">
+
+
+    <!-- BUTUN PAPKA -->
+
+    <label
+        class="upload-btn folder-btn"
+        for="folderInput">
+        📁 Papka tanlash
+    </label>
+
+    <input
+        type="file"
+        id="folderInput"
+        webkitdirectory
+        directory
+        multiple>
+
+
+    <div id="uploadStatus"></div>
+
+</section>
+
+
+<!-- =====================================================
+     TOOLBAR
+===================================================== -->
+
+<section class="toolbar">
+
+    <input
+        type="text"
+        id="searchInput"
+        class="search"
+        placeholder="🔍 Fayl yoki papka qidirish..."
+        oninput="filterItems()">
+
+    <button
+        class="action-btn blue"
+        onclick="createFolder()">
+        📁 Yangi papka
+    </button>
+
+    <button
+        class="action-btn"
+        onclick="goBack()">
+        ↩️ Orqaga
+    </button>
+
+    <button
+        class="action-btn"
+        onclick="loadCurrentFolder()">
+        🔄 Yangilash
+    </button>
+
+</section>
+
+
+<!-- =====================================================
+     FILE LIST
+===================================================== -->
+
+<section class="files-card">
+
+    <div class="files-header">
+
+        <div>
+
+            <h2>
+                📂 <span id="currentTitle">
+                    Fayllar
+                </span>
+            </h2>
+
+            <div
+                class="path"
+                id="currentPath">
+                Bosh papka
+            </div>
+
+        </div>
+
+    </div>
+
+    <div id="fileList">
+
+        <div class="empty">
+            ⏳ Yuklanmoqda...
+        </div>
+
+    </div>
+
+</section>
+
+
+<section class="gdrive-card">
+  <div class="gdrive-head">
+    <div><h2>🔺 Google Drive</h2><div id="gdriveStatus" class="gdrive-status">⚫ Ulanmagan</div></div>
+    <div class="gdrive-actions">
+      <button id="gdriveConnectBtn" class="gdrive-btn blue" onclick="connectGoogleDrive()">🔗 Google Drive’ni ulash</button>
+      <button id="gdriveDisconnectBtn" class="gdrive-btn red hidden" onclick="disconnectGoogleDrive()">Uzish</button>
+      <button class="gdrive-btn" onclick="googleDriveBack()">↩️ Orqaga</button>
+      <button class="gdrive-btn" onclick="loadGoogleDriveFiles()">🔄 Yangilash</button>
+      <label for="gdriveFileInput" class="gdrive-btn blue">⬆️ Drive’ga yuklash</label>
+      <input id="gdriveFileInput" type="file" multiple>
+    </div>
+  </div>
+  <div id="gdrivePath" class="gdrive-path">🏠 My Drive</div>
+  <div id="gdriveList"><div class="empty">Google Drive’ni ulang.</div></div>
+</section>
+
+</main>
+
+</section>
+
+
+<!-- =====================================================
+     PREVIEW MODAL
+===================================================== -->
+
+<div
+    id="previewModal"
+    class="modal hidden"
+    onclick="closePreview(event)">
+
+    <div class="modal-box">
+
+        <div class="modal-header">
+
+            <strong id="previewTitle">
+                Ko‘rish
+            </strong>
+
+            <button
+                class="close-btn"
+                onclick="closePreview()">
+                ✕
+            </button>
+
+        </div>
+
+        <div id="previewContent"></div>
+
+    </div>
+
+</div>
+
+
+<script>
+
 /* =====================================================
-   GOOGLE DRIVE
+   SUPABASE
 ===================================================== */
 
-function googleDriveTokenValid(){
+const SUPABASE_URL =
+    "https://xfhxkdbwvhzdcbzlnnim.supabase.co";
 
-    return (
-        googleDriveToken &&
-        Date.now() <
-        googleDriveTokenExpiresAt - 60000
+const SUPABASE_KEY =
+    "sb_publishable_hkxNeCCzHufwArjRe5g0Dg_LgRS6Dlv";
+
+const supabaseClient =
+    window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
     );
+
+const BUCKET = "files";
+
+const GOOGLE_CLIENT_ID = "419686708374-o4jgjn6r3ickb33ritmafcga51sekdaq.apps.googleusercontent.com";
+const GOOGLE_DRIVE_SCOPE = "https://www.googleapis.com/auth/drive";
+let googleTokenClient = null;
+let googleDriveToken = sessionStorage.getItem("sdx_google_token") || "";
+let googleDriveTokenExpiresAt = Number(sessionStorage.getItem("sdx_google_exp")) || 0;
+let googleDriveFolderId = "root";
+let googleDriveFolderStack = [];
+
+
+
+/* =====================================================
+   ELEMENTS
+===================================================== */
+
+const authPage =
+    document.getElementById("authPage");
+
+const cloudPage =
+    document.getElementById("cloudPage");
+
+const authTitle =
+    document.getElementById("authTitle");
+
+const authButton =
+    document.getElementById("authButton");
+
+const switchButton =
+    document.getElementById("switchButton");
+
+const authMessage =
+    document.getElementById("authMessage");
+
+const emailInput =
+    document.getElementById("email");
+
+const passwordInput =
+    document.getElementById("password");
+
+const fileInput =
+    document.getElementById("fileInput");
+
+const folderInput =
+    document.getElementById("folderInput");
+
+const avatarInput =
+    document.getElementById("avatarInput");
+
+const fileList =
+    document.getElementById("fileList");
+
+const userEmail =
+    document.getElementById("userEmail");
+
+const profileEmail =
+    document.getElementById("profileEmail");
+
+const profileName =
+    document.getElementById("profileName");
+
+const uploadStatus =
+    document.getElementById("uploadStatus");
+
+const currentTitle =
+    document.getElementById("currentTitle");
+
+const currentPath =
+    document.getElementById("currentPath");
+
+const searchInput =
+    document.getElementById("searchInput");
+
+const storageText =
+    document.getElementById("storageText");
+
+const storageBar =
+    document.getElementById("storageBar");
+
+const avatarContainer =
+    document.getElementById("avatarContainer");
+
+const previewModal =
+    document.getElementById("previewModal");
+
+const previewContent =
+    document.getElementById("previewContent");
+
+const previewTitle =
+    document.getElementById("previewTitle");
+
+
+let registerMode = false;
+
+let currentFolder = "";
+
+let allItems = [];
+
+
+/* =====================================================
+   AUTH MODE
+===================================================== */
+
+function toggleAuth(){
+
+    registerMode = !registerMode;
+
+    if(registerMode){
+
+        authTitle.textContent =
+            "Yangi hisob yarating";
+
+        authButton.textContent =
+            "Ro‘yxatdan o‘tish";
+
+        switchButton.textContent =
+            "Hisobingiz bormi? Kirish";
+
+    }else{
+
+        authTitle.textContent =
+            "Hisobingizga kiring";
+
+        authButton.textContent =
+            "Kirish";
+
+        switchButton.textContent =
+            "Hisobingiz yo‘qmi? Ro‘yxatdan o‘ting";
+    }
+
+    authMessage.textContent = "";
 }
 
 
-async function waitGoogleIdentity(){
+/* =====================================================
+   LOGIN / REGISTER
+===================================================== */
 
-    for(let i = 0; i < 50; i++){
+async function login(){
 
-        if(
-            window.google &&
-            google.accounts &&
-            google.accounts.oauth2
-        ){
-            return true;
-        }
+    const email =
+        emailInput.value.trim();
 
-        await new Promise(
-            resolve =>
-                setTimeout(resolve,100)
+    const password =
+        passwordInput.value;
+
+    if(!email || !password){
+
+        showAuthMessage(
+            "Email va parolni kiriting.",
+            "red"
         );
-    }
-
-    return false;
-}
-
-
-async function initGoogleDriveClient(){
-
-    if(googleTokenClient){
-        return true;
-    }
-
-    const ready =
-        await waitGoogleIdentity();
-
-    if(!ready){
-
-        alert(
-            "Google login tizimi yuklanmadi. Sahifani yangilang."
-        );
-
-        return false;
-    }
-
-    googleTokenClient =
-        google.accounts.oauth2
-            .initTokenClient({
-
-                client_id:
-                    GOOGLE_CLIENT_ID,
-
-                scope:
-                    GOOGLE_DRIVE_SCOPE,
-
-                callback:
-                    async response => {
-
-                        if(response.error){
-
-                            alert(
-                                "Google Drive ulanish xatosi: " +
-                                response.error
-                            );
-
-                            return;
-                        }
-
-                        googleDriveToken =
-                            response.access_token;
-
-                        const expires =
-                            Number(
-                                response.expires_in ||
-                                3600
-                            );
-
-                        googleDriveTokenExpiresAt =
-                            Date.now() +
-                            expires * 1000;
-
-                        sessionStorage.setItem(
-                            "skydrivex_google_token",
-                            googleDriveToken
-                        );
-
-                        sessionStorage.setItem(
-                            "skydrivex_google_token_expires",
-                            String(
-                                googleDriveTokenExpiresAt
-                            )
-                        );
-
-                        updateGoogleDriveStatus();
-
-                        await loadGoogleDriveFiles(
-                            "root",
-                            true
-                        );
-                    }
-            });
-
-    return true;
-}
-
-
-async function connectGoogleDrive(){
-
-    if(googleDriveTokenValid()){
-
-        updateGoogleDriveStatus();
-
-        await loadGoogleDriveFiles();
 
         return;
     }
 
-    const ready =
-        await initGoogleDriveClient();
-
-    if(!ready){
-        return;
-    }
-
-    googleTokenClient
-        .requestAccessToken({
-            prompt:"consent"
-        });
-}
-
-
-function disconnectGoogleDrive(){
-
-    const oldToken =
-        googleDriveToken;
-
-    googleDriveToken = "";
-
-    googleDriveTokenExpiresAt = 0;
-
-    googleDriveFolderId = "root";
-
-    googleDriveFolderStack = [];
-
-    sessionStorage.removeItem(
-        "skydrivex_google_token"
-    );
-
-    sessionStorage.removeItem(
-        "skydrivex_google_token_expires"
-    );
-
-    if(
-        oldToken &&
-        window.google &&
-        google.accounts &&
-        google.accounts.oauth2
-    ){
-
-        google.accounts.oauth2.revoke(
-            oldToken,
-            function(){}
-        );
-    }
-
-    updateGoogleDriveStatus();
-
-    const list =
-        document.getElementById(
-            "gdriveList"
-        );
-
-    if(list){
-
-        list.innerHTML =
-            `<div class="empty">
-                Google Drive’ni ulang.
-             </div>`;
-    }
-
-    const path =
-        document.getElementById(
-            "gdrivePath"
-        );
-
-    if(path){
-        path.textContent =
-            "🏠 My Drive";
-    }
-}
-
-
-function updateGoogleDriveStatus(){
-
-    const connected =
-        googleDriveTokenValid();
-
-    const status =
-        document.getElementById(
-            "gdriveStatus"
-        );
-
-    const connectBtn =
-        document.getElementById(
-            "gdriveConnectBtn"
-        );
-
-    const disconnectBtn =
-        document.getElementById(
-            "gdriveDisconnectBtn"
-        );
-
-    if(status){
-
-        status.textContent =
-            connected
-            ? "🟢 Google Drive ulangan"
-            : "⚫ Ulanmagan";
-    }
-
-    if(connectBtn){
-
-        connectBtn.classList.toggle(
-            "hidden",
-            connected
-        );
-    }
-
-    if(disconnectBtn){
-
-        disconnectBtn.classList.toggle(
-            "hidden",
-            !connected
-        );
-    }
-}
-
-
-async function googleDriveRequest(
-    url,
-    options = {}
-){
-
-    if(!googleDriveTokenValid()){
-
-        throw new Error(
-            "Google Drive’ni ulang."
-        );
-    }
-
-    const headers =
-        new Headers(
-            options.headers || {}
-        );
-
-    headers.set(
-        "Authorization",
-        "Bearer " +
-        googleDriveToken
-    );
-
-    const response =
-        await fetch(
-            url,
-            {
-                ...options,
-                headers
-            }
-        );
-
-    if(response.status === 401){
-
-        googleDriveToken = "";
-
-        googleDriveTokenExpiresAt = 0;
-
-        sessionStorage.removeItem(
-            "skydrivex_google_token"
-        );
-
-        sessionStorage.removeItem(
-            "skydrivex_google_token_expires"
-        );
-
-        updateGoogleDriveStatus();
-
-        throw new Error(
-            "Google Drive sessiyasi tugadi. Qayta ulang."
-        );
-    }
-
-    return response;
-}
-
-
-async function loadGoogleDriveFiles(
-    folderId = googleDriveFolderId,
-    reset = false
-){
-
-    const list =
-        document.getElementById(
-            "gdriveList"
-        );
-
-    if(!list){
-        return;
-    }
-
-    updateGoogleDriveStatus();
-
-    if(!googleDriveTokenValid()){
-
-        list.innerHTML =
-            `<div class="empty">
-                Google Drive’ni ulang.
-             </div>`;
-
-        return;
-    }
-
-    if(reset){
-
-        googleDriveFolderId =
-            "root";
-
-        googleDriveFolderStack =
-            [];
-
-        folderId =
-            "root";
-    }
-
-    list.innerHTML =
-        `<div class="empty">
-            ⏳ Google Drive yuklanmoqda...
-         </div>`;
+    authButton.disabled = true;
 
     try{
 
-        const q =
-            encodeURIComponent(
-                "'" +
-                folderId +
-                "' in parents and trashed = false"
+        if(registerMode){
+
+            const {data,error} =
+                await supabaseClient.auth.signUp({
+                    email,
+                    password
+                });
+
+            if(error){
+                throw error;
+            }
+
+            showAuthMessage(
+                "Ro‘yxatdan o‘tildi.",
+                "green"
             );
 
-        const fields =
-            encodeURIComponent(
-                "files(id,name,mimeType,size,modifiedTime,webViewLink)"
-            );
+            if(data.session){
+                showCloud(data.session.user);
+            }
 
-        const url =
-            "https://www.googleapis.com/drive/v3/files" +
-            "?q=" +
-            q +
-            "&fields=" +
-            fields +
-            "&pageSize=1000" +
-            "&orderBy=folder,name";
+        }else{
 
-        const response =
-            await googleDriveRequest(
-                url
-            );
+            const {data,error} =
+                await supabaseClient.auth.signInWithPassword({
+                    email,
+                    password
+                });
 
-        const data =
-            await response.json();
+            if(error){
+                throw error;
+            }
 
-        if(!response.ok){
-
-            throw new Error(
-                data?.error?.message ||
-                "Google Drive xatosi."
-            );
+            showCloud(data.user);
         }
 
-        googleDriveFolderId =
-            folderId;
+    }catch(error){
 
-        renderGoogleDriveFiles(
-            data.files || []
+        showAuthMessage(
+            error.message,
+            "red"
+        );
+
+    }finally{
+
+        authButton.disabled = false;
+    }
+}
+
+
+/* =====================================================
+   AUTH MESSAGE
+===================================================== */
+
+function showAuthMessage(
+    message,
+    color
+){
+
+    authMessage.textContent =
+        message;
+
+    authMessage.style.color =
+        color;
+}
+
+
+/* =====================================================
+   SHOW CLOUD
+===================================================== */
+
+async function showCloud(user){
+
+    window.currentUser = user;
+
+    authPage.classList.add("hidden");
+
+    cloudPage.classList.remove("hidden");
+
+    userEmail.textContent =
+        user.email;
+
+    profileEmail.textContent =
+        user.email;
+
+    profileName.textContent =
+        "SkyDriveX foydalanuvchisi";
+
+    currentFolder = "";
+
+    await loadAvatar();
+
+    await loadCurrentFolder();
+
+    await calculateStorage();
+}
+
+
+/* =====================================================
+   LOGOUT
+===================================================== */
+
+async function logout(){
+
+    googleDriveToken = "";
+    googleDriveTokenExpiresAt = 0;
+    googleDriveFolderId = "root";
+    googleDriveFolderStack = [];
+    sessionStorage.removeItem("sdx_google_token");
+    sessionStorage.removeItem("sdx_google_exp");
+
+    await supabaseClient.auth.signOut();
+
+    window.currentUser = null;
+
+    cloudPage.classList.add("hidden");
+
+    authPage.classList.remove("hidden");
+
+    emailInput.value = "";
+
+    passwordInput.value = "";
+
+    fileList.innerHTML = "";
+
+    currentFolder = "";
+}
+
+
+/* =====================================================
+   CHECK SESSION
+===================================================== */
+
+async function checkSession(){
+
+    const {
+        data:{
+            session
+        }
+    } =
+        await supabaseClient.auth.getSession();
+
+    if(session){
+
+        window.currentUser =
+            session.user;
+
+        await showCloud(
+            session.user
+        );
+
+    }else{
+
+        authPage.classList.remove("hidden");
+
+        cloudPage.classList.add("hidden");
+    }
+}
+
+
+/* =====================================================
+   USER
+===================================================== */
+
+async function getUser(){
+
+    const {
+        data:{
+            user
+        }
+    } =
+        await supabaseClient.auth.getUser();
+
+    return user;
+}
+
+
+/* =====================================================
+   FULL USER PATH
+===================================================== */
+
+function fullUserPath(path){
+
+    const user =
+        window.currentUser;
+
+    if(!user){
+        return path;
+    }
+
+    return user.id +
+        (path ? "/" + path : "");
+}
+
+
+/* =====================================================
+   SAFE NAME
+===================================================== */
+
+function safeFileName(name){
+
+    return name
+        .normalize("NFKD")
+        .replace(/[^\x00-\x7F]/g,"")
+        .replace(/[^a-zA-Z0-9._-]/g,"_");
+}
+
+
+/* =====================================================
+   SINGLE FILE UPLOAD
+===================================================== */
+
+fileInput.addEventListener(
+    "change",
+    async function(){
+
+        const file =
+            this.files[0];
+
+        if(!file){
+            return;
+        }
+
+        const user =
+            await getUser();
+
+        if(!user){
+
+            alert(
+                "Avval tizimga kiring."
+            );
+
+            return;
+        }
+
+        uploadStatus.textContent =
+            "⏳ Fayl yuklanmoqda...";
+
+        try{
+
+            const safeName =
+                safeFileName(
+                    file.name
+                );
+
+            const fileName =
+                Date.now() +
+                "_" +
+                safeName;
+
+            let path =
+                user.id + "/";
+
+            if(currentFolder){
+
+                path +=
+                    currentFolder + "/";
+            }
+
+            path +=
+                fileName;
+
+            const {error} =
+                await supabaseClient
+                    .storage
+                    .from(BUCKET)
+                    .upload(
+                        path,
+                        file,
+                        {
+                            upsert:false,
+                            contentType:
+                                file.type
+                        }
+                    );
+
+            if(error){
+                throw error;
+            }
+
+            uploadStatus.textContent =
+                "✅ Fayl muvaffaqiyatli yuklandi!";
+
+            fileInput.value = "";
+
+            await loadCurrentFolder();
+
+            await calculateStorage();
+
+        }catch(error){
+
+            console.error(error);
+
+            uploadStatus.textContent =
+                "❌ " +
+                error.message;
+        }
+    }
+);
+
+
+/* =====================================================
+   FOLDER UPLOAD
+===================================================== */
+
+folderInput.addEventListener(
+    "change",
+    async function(){
+
+        const files =
+            Array.from(this.files);
+
+        if(!files.length){
+            return;
+        }
+
+        const user =
+            await getUser();
+
+        if(!user){
+
+            alert(
+                "Avval tizimga kiring."
+            );
+
+            this.value = "";
+
+            return;
+        }
+
+        uploadStatus.textContent =
+            "⏳ " +
+            files.length +
+            " ta fayl tayyorlanmoqda...";
+
+        let success = 0;
+
+        let failed = 0;
+
+        try{
+
+            for(
+                const file of files
+            ){
+
+                try{
+
+                    const relativePath =
+                        file.webkitRelativePath;
+
+                    if(!relativePath){
+                        failed++;
+                        continue;
+                    }
+
+                    const parts =
+                        relativePath
+                        .split("/")
+                        .filter(Boolean);
+
+                    if(parts.length < 2){
+
+                        failed++;
+
+                        continue;
+                    }
+
+                    /*
+                      Masalan:
+
+                      MyFolder/
+                      MyFolder/video.mp4
+                      MyFolder/2026/test.mp4
+
+                      parts:
+
+                      [
+                        "MyFolder",
+                        "2026",
+                        "test.mp4"
+                      ]
+                    */
+
+                    const rootFolder =
+                        safeFileName(
+                            parts[0]
+                        );
+
+                    const folders =
+                        parts.slice(
+                            1,
+                            -1
+                        );
+
+                    const safeFolders =
+                        folders.map(
+                            folder =>
+                                safeFileName(
+                                    folder
+                                )
+                        );
+
+                    const safeName =
+                        safeFileName(
+                            parts[
+                                parts.length - 1
+                            ]
+                        );
+
+                    let uploadPath =
+                        user.id + "/";
+
+                    /*
+                      Agar hozir biror papka
+                      ichida turgan bo‘lsak
+                    */
+
+                    if(currentFolder){
+
+                        uploadPath +=
+                            currentFolder +
+                            "/";
+                    }
+
+                    /*
+                      Tanlangan asosiy papka
+                    */
+
+                    uploadPath +=
+                        rootFolder + "/";
+
+                    /*
+                      Ichki papkalar
+                    */
+
+                    if(
+                        safeFolders.length
+                    ){
+
+                        uploadPath +=
+                            safeFolders.join(
+                                "/"
+                            ) +
+                            "/";
+                    }
+
+                    /*
+                      Bir xil nomdagi fayllar
+                      ustma-ust tushmasligi uchun
+                      timestamp
+                    */
+
+                    const uniqueName =
+                        Date.now() +
+                        "_" +
+                        Math.random()
+                            .toString(36)
+                            .substring(2,8) +
+                        "_" +
+                        safeName;
+
+                    uploadPath +=
+                        uniqueName;
+
+                    const {error} =
+                        await supabaseClient
+                            .storage
+                            .from(BUCKET)
+                            .upload(
+                                uploadPath,
+                                file,
+                                {
+                                    upsert:false,
+                                    contentType:
+                                        file.type
+                                }
+                            );
+
+                    if(error){
+
+                        console.error(
+                            "Fayl:",
+                            file.name,
+                            error
+                        );
+
+                        failed++;
+
+                    }else{
+
+                        success++;
+                    }
+
+                }catch(fileError){
+
+                    console.error(
+                        "Fayl xatosi:",
+                        file.name,
+                        fileError
+                    );
+
+                    failed++;
+                }
+
+                uploadStatus.textContent =
+                    "⏳ Yuklanmoqda: " +
+                    (success + failed) +
+                    " / " +
+                    files.length;
+            }
+
+            uploadStatus.textContent =
+                "✅ " +
+                success +
+                " ta fayl yuklandi." +
+                (
+                    failed > 0
+                    ?
+                    " ❌ " +
+                    failed +
+                    " ta fayl yuklanmadi."
+                    :
+                    ""
+                );
+
+            this.value = "";
+
+            await loadCurrentFolder();
+
+            await calculateStorage();
+
+        }catch(error){
+
+            console.error(error);
+
+            uploadStatus.textContent =
+                "❌ " +
+                error.message;
+
+            this.value = "";
+        }
+    }
+);
+
+
+/* =====================================================
+   LOAD CURRENT FOLDER
+===================================================== */
+
+async function loadCurrentFolder(){
+
+    const user =
+        await getUser();
+
+    if(!user){
+        return;
+    }
+
+    fileList.innerHTML =
+        `<div class="empty">
+            ⏳ Yuklanmoqda...
+         </div>`;
+
+    const folderPath =
+        user.id +
+        (
+            currentFolder
+            ? "/" +
+              currentFolder
+            : ""
+        );
+
+    currentTitle.textContent =
+        currentFolder
+        ?
+        currentFolder
+            .split("/")
+            .pop()
+        :
+        "Fayllar";
+
+    currentPath.textContent =
+        currentFolder
+        ?
+        "📁 " +
+        currentFolder
+        :
+        "🏠 Bosh papka";
+
+    try{
+
+        const {data,error} =
+            await supabaseClient
+                .storage
+                .from(BUCKET)
+                .list(
+                    folderPath,
+                    {
+                        limit:1000,
+                        offset:0,
+                        sortBy:{
+                            column:
+                                "created_at",
+                            order:
+                                "desc"
+                        }
+                    }
+                );
+
+        if(error){
+            throw error;
+        }
+
+        allItems =
+            data || [];
+
+        /*
+          profile papkasini asosiy
+          fayllar ro‘yxatida ko‘rsatmaymiz.
+        */
+
+        if(!currentFolder){
+
+            allItems =
+                allItems.filter(
+                    item =>
+                        item.name !==
+                        "profile"
+                );
+        }
+
+        renderItems(
+            allItems
         );
 
     }catch(error){
 
         console.error(error);
 
-        list.innerHTML =
+        fileList.innerHTML =
             `<div class="empty">
-                ❌ ${escapeHtml(error.message)}
+                ❌ Fayllarni yuklashda xatolik
              </div>`;
     }
 }
 
 
-function renderGoogleDriveFiles(
-    files
-){
+/* =====================================================
+   RENDER ITEMS
+===================================================== */
 
-    const list =
-        document.getElementById(
-            "gdriveList"
-        );
+function renderItems(items){
 
-    const path =
-        document.getElementById(
-            "gdrivePath"
-        );
+    fileList.innerHTML = "";
 
-    if(!list){
-        return;
-    }
+    if(
+        !items ||
+        items.length === 0
+    ){
 
-    if(path){
-
-        const names =
-            googleDriveFolderStack
-                .map(
-                    item =>
-                        item.name
-                );
-
-        path.textContent =
-            "🏠 My Drive" +
-            (
-                names.length
-                ? " / " +
-                  names.join(" / ")
-                : ""
-            );
-    }
-
-    list.innerHTML = "";
-
-    if(!files.length){
-
-        list.innerHTML =
+        fileList.innerHTML =
             `<div class="empty">
-                📂 Bu Google Drive papkasi bo‘sh
+                📂 Bu papka bo‘sh
              </div>`;
 
         return;
     }
 
-    files.forEach(
-        file => {
+    items.forEach(
+        item => {
+
+            if(!item.name){
+                return;
+            }
 
             const isFolder =
-                file.mimeType ===
-                "application/vnd.google-apps.folder";
+                !item.metadata;
 
-            const googleNative =
-                !isFolder &&
-                file.mimeType &&
-                file.mimeType.startsWith(
-                    "application/vnd.google-apps."
-                );
-
-            const row =
+            const div =
                 document.createElement(
                     "div"
                 );
 
-            row.className =
+            div.className =
                 "file " +
                 (
                     isFolder
@@ -679,220 +1932,1066 @@ function renderGoogleDriveFiles(
                     : ""
                 );
 
-            const icon =
-                isFolder
-                ? "📁"
-                : googleNative
-                ? "📝"
-                : "📄";
-
-            const size =
-                isFolder
-                ? "Papka"
-                : file.size
-                ? formatSize(
-                    Number(file.size)
-                  )
-                : "Google fayli";
-
-            row.innerHTML = `
-
-                <div class="file-left">
-
-                    <div class="file-icon">
-                        ${icon}
-                    </div>
-
-                    <div class="file-info">
-
-                        <div class="file-name">
-                            ${escapeHtml(file.name)}
-                        </div>
-
-                        <div class="file-size">
-                            ${size}
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <div class="file-actions"></div>
-            `;
-
-            const actions =
-                row.querySelector(
-                    ".file-actions"
-                );
-
             if(isFolder){
 
-                const open =
-                    document.createElement(
-                        "button"
-                    );
+                div.innerHTML = `
 
-                open.className =
-                    "btn";
+                    <div
+                        class="file-left"
+                        onclick="openFolder('${escapeJs(item.name)}')"
+                        style="cursor:pointer;">
 
-                open.textContent =
-                    "📂 Kirish";
+                        <div class="file-icon">
+                            📁
+                        </div>
 
-                open.onclick =
-                    function(){
+                        <div class="file-info">
 
-                        googleDriveFolderStack
-                            .push({
-                                id:file.id,
-                                name:file.name
-                            });
+                            <div
+                                class="file-name folder-name">
+                                ${escapeHtml(item.name)}
+                            </div>
 
-                        loadGoogleDriveFiles(
-                            file.id
-                        );
-                    };
+                            <div class="file-size">
+                                Papka
+                            </div>
 
-                actions.appendChild(
-                    open
-                );
+                        </div>
+
+                    </div>
+
+                    <div class="file-actions">
+
+                        <button
+                            class="btn"
+                            onclick="openFolder('${escapeJs(item.name)}')">
+                            📂 Kirish
+                        </button>
+
+                        <button
+                            class="btn delete"
+                            onclick="deleteFolder('${escapeJs(item.name)}')">
+                            🗑️ O‘chirish
+                        </button>
+
+                    </div>
+                `;
 
             }else{
 
-                const open =
-                    document.createElement(
-                        "button"
+                const relativePath =
+                    currentFolder
+                    ?
+                    currentFolder +
+                    "/" +
+                    item.name
+                    :
+                    item.name;
+
+                const fullPath =
+                    fullUserPath(
+                        relativePath
                     );
 
-                open.className =
-                    "btn preview";
-
-                open.textContent =
-                    "👁️ Ochish";
-
-                open.onclick =
-                    function(){
-
-                        const url =
-                            file.webViewLink ||
-                            (
-                                "https://drive.google.com/open?id=" +
-                                encodeURIComponent(
-                                    file.id
-                                )
-                            );
-
-                        window.open(
-                            url,
-                            "_blank",
-                            "noopener,noreferrer"
-                        );
-                    };
-
-                actions.appendChild(
-                    open
-                );
-
-                if(!googleNative){
-
-                    const download =
-                        document.createElement(
-                            "button"
-                        );
-
-                    download.className =
-                        "btn";
-
-                    download.textContent =
-                        "⬇️";
-
-                    download.onclick =
-                        function(){
-
-                            downloadGoogleDriveFile(
-                                file
-                            );
-                        };
-
-                    actions.appendChild(
-                        download
+                const size =
+                    formatSize(
+                        item.metadata?.size ||
+                        0
                     );
-                }
+
+                const type =
+                    getFileType(
+                        item.name
+                    );
+
+                div.innerHTML = `
+
+                    <div class="file-left">
+
+                        <div class="file-icon">
+                            ${getFileIcon(type)}
+                        </div>
+
+                        <div class="file-info">
+
+                            <div class="file-name">
+                                ${escapeHtml(item.name)}
+                            </div>
+
+                            <div class="file-size">
+                                ${size}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="file-actions">
+
+                        ${
+                            isPreviewable(type)
+                            ?
+                            `
+                            <button
+                                class="btn preview"
+                                onclick="previewFile('${escapeJs(fullPath)}','${type}','${escapeJs(item.name)}')">
+                                👁️ Ko‘rish
+                            </button>
+                            `
+                            :
+                            ""
+                        }
+
+                        <button
+                            class="btn"
+                            onclick="downloadFile('${escapeJs(fullPath)}')">
+                            ⬇️
+                        </button>
+
+                        <button
+                            class="btn delete"
+                            onclick="deleteFile('${escapeJs(fullPath)}')">
+                            🗑️
+                        </button>
+
+                    </div>
+                `;
             }
 
-            list.appendChild(
-                row
+            fileList.appendChild(
+                div
             );
         }
     );
 }
 
 
-async function googleDriveBack(){
+/* =====================================================
+   OPEN FOLDER
+===================================================== */
+
+function openFolder(name){
+
+    currentFolder =
+        currentFolder
+        ?
+        currentFolder +
+        "/" +
+        name
+        :
+        name;
+
+    searchInput.value = "";
+
+    loadCurrentFolder();
+}
+
+
+/* =====================================================
+   GO BACK
+===================================================== */
+
+function goBack(){
+
+    if(!currentFolder){
+        return;
+    }
+
+    const parts =
+        currentFolder.split("/");
+
+    parts.pop();
+
+    currentFolder =
+        parts.join("/");
+
+    searchInput.value = "";
+
+    loadCurrentFolder();
+}
+
+
+/* =====================================================
+   CREATE FOLDER
+===================================================== */
+
+async function createFolder(){
+
+    const name =
+        prompt(
+            "Yangi papka nomini kiriting:"
+        );
+
+    if(!name){
+        return;
+    }
+
+    const cleanName =
+        name
+            .trim()
+            .replace(/[\/\\]/g,"_");
+
+    if(!cleanName){
+
+        alert(
+            "Papka nomi noto‘g‘ri."
+        );
+
+        return;
+    }
+
+    const user =
+        await getUser();
+
+    if(!user){
+        return;
+    }
+
+    try{
+
+        const path =
+            user.id +
+            "/" +
+            (
+                currentFolder
+                ?
+                currentFolder +
+                "/"
+                :
+                ""
+            ) +
+            cleanName +
+            "/.keep";
+
+        const blob =
+            new Blob(
+                ["SkyDriveX"],
+                {
+                    type:
+                        "text/plain"
+                }
+            );
+
+        const {error} =
+            await supabaseClient
+                .storage
+                .from(BUCKET)
+                .upload(
+                    path,
+                    blob,
+                    {
+                        upsert:false
+                    }
+                );
+
+        if(error){
+            throw error;
+        }
+
+        await loadCurrentFolder();
+
+    }catch(error){
+
+        alert(
+            "Papka yaratishda xatolik: " +
+            error.message
+        );
+    }
+}
+
+
+/* =====================================================
+   DELETE FILE
+===================================================== */
+
+async function deleteFile(path){
+
+    const ok =
+        confirm(
+            "Bu faylni o‘chirishni xohlaysizmi?"
+        );
+
+    if(!ok){
+        return;
+    }
+
+    try{
+
+        const {error} =
+            await supabaseClient
+                .storage
+                .from(BUCKET)
+                .remove([
+                    path
+                ]);
+
+        if(error){
+            throw error;
+        }
+
+        await loadCurrentFolder();
+
+        await calculateStorage();
+
+    }catch(error){
+
+        alert(
+            "O‘chirishda xatolik: " +
+            error.message
+        );
+    }
+}
+
+
+/* =====================================================
+   DELETE FOLDER
+===================================================== */
+
+async function deleteFolder(
+    folderName
+){
+
+    const ok =
+        confirm(
+            "📁 '" +
+            folderName +
+            "' papkasini va ichidagi fayllarni o‘chirishni xohlaysizmi?"
+        );
+
+    if(!ok){
+        return;
+    }
+
+    const user =
+        await getUser();
+
+    if(!user){
+        return;
+    }
+
+    const folderPath =
+        user.id +
+        "/" +
+        (
+            currentFolder
+            ?
+            currentFolder +
+            "/"
+            :
+            ""
+        ) +
+        folderName;
+
+    try{
+
+        await deleteFolderRecursive(
+            folderPath
+        );
+
+        await loadCurrentFolder();
+
+        await calculateStorage();
+
+    }catch(error){
+
+        console.error(error);
+
+        alert(
+            "Papkani o‘chirishda xatolik: " +
+            error.message
+        );
+    }
+}
+
+
+/* =====================================================
+   RECURSIVE FOLDER DELETE
+===================================================== */
+
+async function deleteFolderRecursive(
+    folderPath
+){
+
+    const {data,error} =
+        await supabaseClient
+            .storage
+            .from(BUCKET)
+            .list(
+                folderPath,
+                {
+                    limit:1000
+                }
+            );
+
+    if(error){
+        throw error;
+    }
 
     if(
-        !googleDriveTokenValid()
+        !data ||
+        data.length === 0
     ){
+
+        return;
+    }
+
+    const filesToDelete = [];
+
+    for(
+        const item of data
+    ){
+
+        if(!item.name){
+            continue;
+        }
+
+        const childPath =
+            folderPath +
+            "/" +
+            item.name;
+
+        if(item.metadata){
+
+            filesToDelete.push(
+                childPath
+            );
+
+        }else{
+
+            await deleteFolderRecursive(
+                childPath
+            );
+        }
+    }
+
+    if(
+        filesToDelete.length
+    ){
+
+        const {
+            error:removeError
+        } =
+            await supabaseClient
+                .storage
+                .from(BUCKET)
+                .remove(
+                    filesToDelete
+                );
+
+        if(removeError){
+            throw removeError;
+        }
+    }
+}
+
+
+/* =====================================================
+   PROFILE AVATAR
+===================================================== */
+
+avatarInput.addEventListener(
+    "change",
+    async function(){
+
+        const file =
+            this.files[0];
+
+        if(!file){
+            return;
+        }
+
+        if(
+            !file.type.startsWith(
+                "image/"
+            )
+        ){
+
+            alert(
+                "Faqat rasm faylini tanlang."
+            );
+
+            this.value = "";
+
+            return;
+        }
+
+        const user =
+            await getUser();
+
+        if(!user){
+            return;
+        }
+
+        try{
+
+            const extension =
+                file.name
+                    .split(".")
+                    .pop()
+                    .toLowerCase();
+
+            const path =
+                user.id +
+                "/profile/avatar." +
+                extension;
+
+            await deleteOldAvatars(
+                user.id
+            );
+
+            const {error} =
+                await supabaseClient
+                    .storage
+                    .from(BUCKET)
+                    .upload(
+                        path,
+                        file,
+                        {
+                            upsert:true,
+                            contentType:
+                                file.type
+                        }
+                    );
+
+            if(error){
+                throw error;
+            }
+
+            await loadAvatar();
+
+            this.value = "";
+
+        }catch(error){
+
+            alert(
+                "Profil rasmini yuklashda xatolik: " +
+                error.message
+            );
+        }
+    }
+);
+
+
+/* =====================================================
+   DELETE OLD AVATARS
+===================================================== */
+
+async function deleteOldAvatars(
+    userId
+){
+
+    const {data,error} =
+        await supabaseClient
+            .storage
+            .from(BUCKET)
+            .list(
+                userId +
+                "/profile",
+                {
+                    limit:100
+                }
+            );
+
+    if(error){
         return;
     }
 
     if(
-        googleDriveFolderStack.length
+        !data ||
+        !data.length
     ){
-
-        googleDriveFolderStack.pop();
+        return;
     }
 
-    const parent =
-        googleDriveFolderStack.length
-        ?
-        googleDriveFolderStack[
-            googleDriveFolderStack.length - 1
-        ].id
-        :
-        "root";
+    const paths =
+        data
+            .filter(
+                x =>
+                    x.name
+            )
+            .map(
+                x =>
+                    userId +
+                    "/profile/" +
+                    x.name
+            );
 
-    await loadGoogleDriveFiles(
-        parent
+    if(paths.length){
+
+        await supabaseClient
+            .storage
+            .from(BUCKET)
+            .remove(
+                paths
+            );
+    }
+}
+
+
+/* =====================================================
+   LOAD AVATAR
+===================================================== */
+
+async function loadAvatar(){
+
+    const user = await getUser();
+
+    if(!user){
+        return;
+    }
+
+    try{
+
+        const {data, error} =
+            await supabaseClient
+                .storage
+                .from(BUCKET)
+                .list(
+                    user.id + "/profile",
+                    {
+                        limit:100
+                    }
+                );
+
+        if(error){
+            throw error;
+        }
+
+        const avatar = (data || []).find(
+            x =>
+                x.name &&
+                x.name.startsWith("avatar.")
+        );
+
+        if(!avatar){
+
+            avatarContainer.innerHTML = `
+                <div class="avatar-placeholder">
+                    👤
+                </div>
+            `;
+
+            return;
+        }
+
+        const path =
+            user.id +
+            "/profile/" +
+            avatar.name;
+
+        /* Private bucketdan rasmni yuklaymiz */
+        const {
+            data: blob,
+            error: downloadError
+        } =
+            await supabaseClient
+                .storage
+                .from(BUCKET)
+                .download(path);
+
+        if(downloadError){
+            throw downloadError;
+        }
+
+        if(!blob){
+            throw new Error(
+                "Profil rasmi topilmadi."
+            );
+        }
+
+        /* Blob uchun vaqtinchalik URL */
+        const imageUrl =
+            URL.createObjectURL(blob);
+
+        const img =
+            document.createElement("img");
+
+        img.className = "avatar";
+
+        img.src = imageUrl;
+
+        img.alt = "Profil rasmi";
+
+        img.onload = function(){
+
+            /* Eski URLni keyin tozalash mumkin */
+            setTimeout(() => {
+                URL.revokeObjectURL(imageUrl);
+            }, 1000);
+
+        };
+
+        img.onerror = function(){
+
+            console.error(
+                "Profil rasmi ochilmadi"
+            );
+
+            avatarContainer.innerHTML = `
+                <div class="avatar-placeholder">
+                    👤
+                </div>
+            `;
+
+        };
+
+        avatarContainer.innerHTML = "";
+
+        avatarContainer.appendChild(img);
+
+    }catch(error){
+
+        console.error(
+            "Avatar yuklash xatosi:",
+            error
+        );
+
+        avatarContainer.innerHTML = `
+            <div class="avatar-placeholder">
+                👤
+            </div>
+        `;
+    }
+}
+/* =====================================================
+   CHANGE AVATAR
+===================================================== */
+
+function changeAvatar(){
+
+    avatarInput.click();
+}
+
+
+/* =====================================================
+   DELETE AVATAR
+===================================================== */
+
+async function deleteAvatar(){
+
+    const ok =
+        confirm(
+            "Profil rasmini o‘chirishni xohlaysizmi?"
+        );
+
+    if(!ok){
+        return;
+    }
+
+    const user =
+        await getUser();
+
+    if(!user){
+        return;
+    }
+
+    try{
+
+        await deleteOldAvatars(
+            user.id
+        );
+
+        await loadAvatar();
+
+    }catch(error){
+
+        alert(
+            "Profil rasmini o‘chirishda xatolik: " +
+            error.message
+        );
+    }
+}
+
+
+/* =====================================================
+   SEARCH
+===================================================== */
+
+function filterItems(){
+
+    const query =
+        searchInput.value
+            .toLowerCase()
+            .trim();
+
+    if(!query){
+
+        renderItems(
+            allItems
+        );
+
+        return;
+    }
+
+    const filtered =
+        allItems.filter(
+            item =>
+                item.name &&
+                item.name
+                    .toLowerCase()
+                    .includes(query)
+        );
+
+    renderItems(
+        filtered
     );
 }
 
 
-async function downloadGoogleDriveFile(
-    file
+/* =====================================================
+   FILE TYPES
+===================================================== */
+
+function getFileType(name){
+
+    const ext =
+        name
+            .split(".")
+            .pop()
+            .toLowerCase();
+
+    if([
+        "jpg",
+        "jpeg",
+        "png",
+        "gif",
+        "webp",
+        "bmp",
+        "svg"
+    ].includes(ext)){
+
+        return "image";
+    }
+
+    if([
+        "mp4",
+        "webm",
+        "mov",
+        "mkv",
+        "avi"
+    ].includes(ext)){
+
+        return "video";
+    }
+
+    if([
+        "mp3",
+        "wav",
+        "ogg",
+        "m4a",
+        "aac",
+        "flac"
+    ].includes(ext)){
+
+        return "audio";
+    }
+
+    if([
+        "pdf"
+    ].includes(ext)){
+
+        return "pdf";
+    }
+
+    return "file";
+}
+
+
+/* =====================================================
+   FILE ICON
+===================================================== */
+
+function getFileIcon(type){
+
+    if(
+        type === "image"
+    ){
+        return "🖼️";
+    }
+
+    if(
+        type === "video"
+    ){
+        return "🎬";
+    }
+
+    if(
+        type === "audio"
+    ){
+        return "🎵";
+    }
+
+    if(
+        type === "pdf"
+    ){
+        return "📕";
+    }
+
+    return "📄";
+}
+
+
+/* =====================================================
+   PREVIEWABLE
+===================================================== */
+
+function isPreviewable(type){
+
+    return [
+        "image",
+        "video",
+        "audio"
+    ].includes(type);
+}
+
+
+/* =====================================================
+   PREVIEW
+===================================================== */
+
+async function previewFile(
+    path,
+    type,
+    name
 ){
 
     try{
 
-        const response =
-            await googleDriveRequest(
-                "https://www.googleapis.com/drive/v3/files/" +
-                encodeURIComponent(
-                    file.id
-                ) +
-                "?alt=media"
-            );
+        const {data,error} =
+            await supabaseClient
+                .storage
+                .from(BUCKET)
+                .download(
+                    path
+                );
 
-        if(!response.ok){
-
-            const data =
-                await response
-                    .json()
-                    .catch(
-                        () => ({})
-                    );
-
-            throw new Error(
-                data?.error?.message ||
-                "Faylni yuklab bo‘lmadi."
-            );
+        if(error){
+            throw error;
         }
-
-        const blob =
-            await response.blob();
 
         const url =
             URL.createObjectURL(
-                blob
+                data
+            );
+
+        previewTitle.textContent =
+            name;
+
+        if(
+            type === "image"
+        ){
+
+            previewContent.innerHTML =
+                `
+                <img
+                    class="preview-image"
+                    src="${url}"
+                    alt="">
+                `;
+        }
+
+        if(
+            type === "video"
+        ){
+
+            previewContent.innerHTML =
+                `
+                <video
+                    class="preview-video"
+                    controls
+                    autoplay>
+
+                    <source
+                        src="${url}">
+
+                    Brauzeringiz videoni
+                    qo‘llab-quvvatlamaydi.
+
+                </video>
+                `;
+        }
+
+        if(
+            type === "audio"
+        ){
+
+            previewContent.innerHTML =
+                `
+                <audio
+                    class="preview-audio"
+                    controls
+                    autoplay>
+
+                    <source
+                        src="${url}">
+
+                </audio>
+                `;
+        }
+
+        previewModal.classList.remove(
+            "hidden"
+        );
+
+    }catch(error){
+
+        alert(
+            "Faylni ko‘rsatishda xatolik: " +
+            error.message
+        );
+    }
+}
+
+
+/* =====================================================
+   CLOSE PREVIEW
+===================================================== */
+
+function closePreview(event){
+
+    if(
+        event &&
+        event.target !==
+        previewModal
+    ){
+
+        return;
+    }
+
+    previewContent.innerHTML =
+        "";
+
+    previewModal.classList.add(
+        "hidden"
+    );
+}
+
+
+/* =====================================================
+   DOWNLOAD
+===================================================== */
+
+async function downloadFile(
+    path
+){
+
+    try{
+
+        const {data,error} =
+            await supabaseClient
+                .storage
+                .from(BUCKET)
+                .download(
+                    path
+                );
+
+        if(error){
+            throw error;
+        }
+
+        const url =
+            URL.createObjectURL(
+                data
             );
 
         const a =
@@ -900,15 +2999,16 @@ async function downloadGoogleDriveFile(
                 "a"
             );
 
-        a.href =
-            url;
+        a.href = url;
 
         a.download =
-            file.name ||
-            "download";
+            path
+                .split("/")
+                .pop();
 
-        document.body
-            .appendChild(a);
+        document.body.appendChild(
+            a
+        );
 
         a.click();
 
@@ -919,228 +3019,283 @@ async function downloadGoogleDriveFile(
                 URL.revokeObjectURL(
                     url
                 ),
-            1500
+            1000
         );
 
     }catch(error){
 
         alert(
-            "Google Drive: " +
+            "Yuklab olishda xatolik: " +
             error.message
         );
     }
 }
 
 
-async function uploadGoogleDriveFile(
-    file
-){
+/* =====================================================
+   STORAGE CALCULATOR
+===================================================== */
 
-    const metadata = {
+async function calculateStorage(){
 
-        name:
-            file.name,
+    const user =
+        await getUser();
 
-        parents:[
-            googleDriveFolderId ||
-            "root"
-        ]
-    };
-
-    const boundary =
-        "-------SkyDriveX" +
-        Date.now();
-
-    const delimiter =
-        "\r\n--" +
-        boundary +
-        "\r\n";
-
-    const closeDelimiter =
-        "\r\n--" +
-        boundary +
-        "--";
-
-    const metadataBlob =
-        new Blob(
-            [
-                delimiter,
-                "Content-Type: application/json; charset=UTF-8\r\n\r\n",
-                JSON.stringify(metadata),
-                delimiter,
-                "Content-Type: " +
-                (
-                    file.type ||
-                    "application/octet-stream"
-                ) +
-                "\r\n\r\n"
-            ],
-            {
-                type:"text/plain"
-            }
-        );
-
-    const body =
-        new Blob(
-            [
-                metadataBlob,
-                file,
-                closeDelimiter
-            ]
-        );
-
-    const response =
-        await googleDriveRequest(
-            "https://www.googleapis.com/upload/drive/v3/files" +
-            "?uploadType=multipart" +
-            "&fields=id,name",
-            {
-                method:"POST",
-                headers:{
-                    "Content-Type":
-                        "multipart/related; boundary=" +
-                        boundary
-                },
-                body
-            }
-        );
-
-    const data =
-        await response
-            .json()
-            .catch(
-                () => ({})
-            );
-
-    if(!response.ok){
-
-        throw new Error(
-            data?.error?.message ||
-            "Google Drive upload xatosi."
-        );
+    if(!user){
+        return;
     }
 
-    return data;
-}
+    let total = 0;
 
+    try{
 
-const gdriveFileInput =
-    document.getElementById(
-        "gdriveFileInput"
-    );
-
-if(gdriveFileInput){
-
-    gdriveFileInput.addEventListener(
-        "change",
-        async function(){
-
-            const files =
-                Array.from(
-                    this.files || []
-                );
-
-            if(!files.length){
-                return;
+        await calculateFolderSize(
+            user.id,
+            value => {
+                total = value;
             }
+        );
 
-            if(
-                !googleDriveTokenValid()
-            ){
+        const limit =
+            1024 *
+            1024 *
+            1024;
 
-                this.value = "";
-
-                alert(
-                    "Avval Google Drive’ni ulang."
-                );
-
-                return;
-            }
-
-            let success = 0;
-
-            for(
-                const file of files
-            ){
-
-                try{
-
-                    await uploadGoogleDriveFile(
-                        file
-                    );
-
-                    success++;
-
-                }catch(error){
-
-                    alert(
-                        file.name +
-                        ": " +
-                        error.message
-                    );
-                }
-            }
-
-            this.value = "";
-
-            alert(
-                success +
-                " ta fayl Google Drive’ga yuklandi."
+        const percent =
+            Math.min(
+                100,
+                (
+                    total /
+                    limit
+                ) * 100
             );
 
-            await loadGoogleDriveFiles();
+        storageText.textContent =
+            formatSize(total) +
+            " / 1 GB";
+
+        storageBar.style.width =
+            percent +
+            "%";
+
+    }catch(error){
+
+        console.error(
+            "Storage hisoblash:",
+            error
+        );
+    }
+}
+
+
+/* =====================================================
+   CALCULATE FOLDER SIZE
+===================================================== */
+
+async function calculateFolderSize(
+    folder,
+    callback,
+    total = 0
+){
+
+    const {data,error} =
+        await supabaseClient
+            .storage
+            .from(BUCKET)
+            .list(
+                folder,
+                {
+                    limit:1000
+                }
+            );
+
+    if(error){
+        throw error;
+    }
+
+    if(!data){
+
+        callback(total);
+
+        return total;
+    }
+
+    for(
+        const item of data
+    ){
+
+        if(!item.name){
+            continue;
         }
+
+        const path =
+            folder +
+            "/" +
+            item.name;
+
+        if(item.metadata){
+
+            /*
+              .keep faylini storage
+              hisobiga qo‘shmaymiz
+            */
+
+            if(
+                item.name !==
+                ".keep"
+            ){
+
+                total +=
+                    Number(
+                        item.metadata
+                            ?.size ||
+                        0
+                    );
+            }
+
+        }else{
+
+            total =
+                await calculateFolderSize(
+                    path,
+                    callback,
+                    total
+                );
+        }
+    }
+
+    callback(total);
+
+    return total;
+}
+
+
+/* =====================================================
+   FORMAT SIZE
+===================================================== */
+
+function formatSize(bytes){
+
+    if(!bytes){
+        return "0 B";
+    }
+
+    const units =
+        [
+            "B",
+            "KB",
+            "MB",
+            "GB",
+            "TB"
+        ];
+
+    const i =
+        Math.floor(
+            Math.log(bytes) /
+            Math.log(1024)
+        );
+
+    return (
+        parseFloat(
+            (
+                bytes /
+                Math.pow(
+                    1024,
+                    i
+                )
+            ).toFixed(2)
+        )
+        +
+        " " +
+        units[i]
     );
 }
 
 
-updateGoogleDriveStatus();
+/* =====================================================
+   SECURITY HELPERS
+===================================================== */
+
+function escapeHtml(text){
+
+    return String(text)
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+}
 
 
-'''
-if "async function connectGoogleDrive" not in html:
-    html = html.replace(marker, gdrive_functions + marker, 1)
+function escapeJs(text){
 
-# 6) Clear Google token when user logs out of SkyDriveX
-logout_old = """async function logout(){
+    return String(text)
+        .replace(
+            /\\/g,
+            "\\\\"
+        )
+        .replace(
+            /'/g,
+            "\\'"
+        );
+}
 
-    await supabaseClient.auth.signOut();"""
-logout_new = """async function logout(){
 
-    googleDriveToken = "";
-    googleDriveTokenExpiresAt = 0;
-    googleDriveFolderId = "root";
-    googleDriveFolderStack = [];
+/* =====================================================
+   AUTH STATE
+===================================================== */
 
-    sessionStorage.removeItem(
-        "skydrivex_google_token"
-    );
+supabaseClient.auth.onAuthStateChange(
+    async (
+        event,
+        session
+    ) => {
 
-    sessionStorage.removeItem(
-        "skydrivex_google_token_expires"
-    );
+        if(
+            event ===
+            "SIGNED_IN" &&
+            session
+        ){
 
-    await supabaseClient.auth.signOut();"""
-if logout_old in html and "skydrivex_google_token_expires" not in html[html.find("async function logout()"):html.find("async function logout()")+700]:
-    html = html.replace(logout_old, logout_new, 1)
+            window.currentUser =
+                session.user;
+        }
 
-# 7) Write as index.html
-out = Path("/mnt/data/SkyDriveX_GoogleDrive_index.html")
-out.write_text(html, encoding="utf-8")
+        if(
+            event ===
+            "SIGNED_OUT"
+        ){
 
-# Checks
-checks = [
-    CLIENT_ID,
-    'id="gdriveList"',
-    "connectGoogleDrive",
-    "loadGoogleDriveFiles",
-    "uploadGoogleDriveFile",
-    "accounts.google.com/gsi/client"
-]
-missing = [x for x in checks if x not in html]
-if missing:
-    raise RuntimeError("Tekshiruvdan o‘tmadi: " + ", ".join(missing))
+            window.currentUser =
+                null;
+        }
+    }
+);
 
-print("Tayyor:", out)
-print("Aynan hozir yuborgan eski SkyDriveX faylingizga Google Drive qo‘shildi.")
-print("Qo‘shildi: ulash/uzish, fayl-papka ko‘rish, papkaga kirish, Drive’ga yuklash, Drive’dan yuklab olish.")
+
+/* =====================================================
+   START
+===================================================== */
+
+checkSession();
+
+\n\n/* =====================================================\n   GOOGLE DRIVE\n===================================================== */\nfunction googleDriveTokenValid(){\n  return !!googleDriveToken && Date.now() < googleDriveTokenExpiresAt - 60000;\n}\n\nfunction updateGoogleDriveStatus(){\n  const connected=googleDriveTokenValid();\n  const s=document.getElementById("gdriveStatus");\n  const c=document.getElementById("gdriveConnectBtn");\n  const d=document.getElementById("gdriveDisconnectBtn");\n  if(s) s.textContent=connected ? "🟢 Google Drive ulangan" : "⚫ Ulanmagan";\n  if(c) c.classList.toggle("hidden",connected);\n  if(d) d.classList.toggle("hidden",!connected);\n}\n\nasync function waitForGoogleOAuth(){\n  for(let i=0;i<50;i++){\n    if(window.google?.accounts?.oauth2) return true;\n    await new Promise(r=>setTimeout(r,100));\n  }\n  return false;\n}\n\nasync function connectGoogleDrive(){\n  if(googleDriveTokenValid()){ updateGoogleDriveStatus(); return loadGoogleDriveFiles(); }\n  if(!googleTokenClient){\n    const ready=await waitForGoogleOAuth();\n    if(!ready){ alert("Google login tizimi yuklanmadi. Sahifani yangilang."); return; }\n    googleTokenClient=google.accounts.oauth2.initTokenClient({\n      client_id:GOOGLE_CLIENT_ID,\n      scope:GOOGLE_DRIVE_SCOPE,\n      callback:async response=>{\n        if(response.error){ alert("Google Drive ulanish xatosi: "+response.error); return; }\n        googleDriveToken=response.access_token;\n        googleDriveTokenExpiresAt=Date.now()+Number(response.expires_in||3600)*1000;\n        sessionStorage.setItem("sdx_google_token",googleDriveToken);\n        sessionStorage.setItem("sdx_google_exp",String(googleDriveTokenExpiresAt));\n        googleDriveFolderId="root"; googleDriveFolderStack=[];\n        updateGoogleDriveStatus();\n        await loadGoogleDriveFiles("root");\n      }\n    });\n  }\n  googleTokenClient.requestAccessToken({prompt:"consent"});\n}\n\nfunction disconnectGoogleDrive(){\n  const token=googleDriveToken;\n  googleDriveToken=""; googleDriveTokenExpiresAt=0; googleDriveFolderId="root"; googleDriveFolderStack=[];\n  sessionStorage.removeItem("sdx_google_token"); sessionStorage.removeItem("sdx_google_exp");\n  if(token && window.google?.accounts?.oauth2) google.accounts.oauth2.revoke(token,()=>{});\n  updateGoogleDriveStatus();\n  const list=document.getElementById("gdriveList"); if(list) list.innerHTML='<div class="empty">Google Drive’ni ulang.</div>';\n  const path=document.getElementById("gdrivePath"); if(path) path.textContent="🏠 My Drive";\n}\n\nasync function gdriveFetch(url,options={}){\n  if(!googleDriveTokenValid()) throw new Error("Google Drive’ni ulang.");\n  const headers=new Headers(options.headers||{}); headers.set("Authorization","Bearer "+googleDriveToken);\n  const response=await fetch(url,{...options,headers});\n  if(response.status===401){\n    googleDriveToken=""; googleDriveTokenExpiresAt=0; sessionStorage.removeItem("sdx_google_token"); sessionStorage.removeItem("sdx_google_exp"); updateGoogleDriveStatus();\n    throw new Error("Google Drive sessiyasi tugadi. Qayta ulang.");\n  }\n  return response;\n}\n\nasync function loadGoogleDriveFiles(folderId=googleDriveFolderId){\n  const list=document.getElementById("gdriveList"); if(!list) return;\n  updateGoogleDriveStatus();\n  if(!googleDriveTokenValid()){ list.innerHTML='<div class="empty">Google Drive’ni ulang.</div>'; return; }\n  list.innerHTML='<div class="empty">⏳ Google Drive yuklanmoqda...</div>';\n  try{\n    const q=encodeURIComponent(`'${folderId}' in parents and trashed = false`);\n    const fields=encodeURIComponent("files(id,name,mimeType,size,modifiedTime,webViewLink)");\n    const response=await gdriveFetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=${fields}&pageSize=1000&orderBy=folder,name`);\n    const data=await response.json();\n    if(!response.ok) throw new Error(data?.error?.message||"Google Drive xatosi.");\n    googleDriveFolderId=folderId; renderGoogleDriveFiles(data.files||[]);\n  }catch(error){ list.innerHTML=`<div class="empty">❌ ${escapeHtml(error.message)}</div>`; }\n}\n\nfunction renderGoogleDriveFiles(files){\n  const list=document.getElementById("gdriveList"); const path=document.getElementById("gdrivePath"); if(!list) return;\n  if(path){ const names=googleDriveFolderStack.map(x=>x.name); path.textContent="🏠 My Drive"+(names.length?" / "+names.join(" / "):""); }\n  list.innerHTML="";\n  if(!files.length){ list.innerHTML='<div class="empty">📂 Bu Google Drive papkasi bo‘sh</div>'; return; }\n  files.forEach(file=>{\n    const isFolder=file.mimeType==="application/vnd.google-apps.folder";\n    const nativeGoogle=!isFolder && file.mimeType?.startsWith("application/vnd.google-apps.");\n    const row=document.createElement("div"); row.className="file "+(isFolder?"folder":"");\n    const size=isFolder?"Papka":(file.size?formatSize(Number(file.size)):"Google fayli");\n    row.innerHTML=`<div class="file-left"><div class="file-icon">${isFolder?"📁":nativeGoogle?"📝":"📄"}</div><div class="file-info"><div class="file-name">${escapeHtml(file.name)}</div><div class="file-size">${size}</div></div></div><div class="file-actions"></div>`;\n    const actions=row.querySelector(".file-actions");\n    if(isFolder){\n      const b=document.createElement("button"); b.className="btn"; b.textContent="📂 Kirish"; b.onclick=()=>{googleDriveFolderStack.push({id:file.id,name:file.name});loadGoogleDriveFiles(file.id)}; actions.appendChild(b);\n    }else{\n      const o=document.createElement("button"); o.className="btn preview"; o.textContent="👁️ Ochish"; o.onclick=()=>window.open(file.webViewLink||`https://drive.google.com/open?id=${encodeURIComponent(file.id)}`,"_blank","noopener,noreferrer"); actions.appendChild(o);\n      if(!nativeGoogle){ const d=document.createElement("button"); d.className="btn"; d.textContent="⬇️"; d.onclick=()=>downloadGoogleDriveFile(file); actions.appendChild(d); }\n    }\n    list.appendChild(row);\n  });\n}\n\nasync function googleDriveBack(){\n  if(!googleDriveTokenValid()) return;\n  if(googleDriveFolderStack.length) googleDriveFolderStack.pop();\n  const parent=googleDriveFolderStack.length?googleDriveFolderStack[googleDriveFolderStack.length-1].id:"root";\n  await loadGoogleDriveFiles(parent);\n}\n\nasync function downloadGoogleDriveFile(file){\n  try{\n    const response=await gdriveFetch(`https://www.googleapis.com/drive/v3/files/${encodeURIComponent(file.id)}?alt=media`);\n    if(!response.ok){ const data=await response.json().catch(()=>({})); throw new Error(data?.error?.message||"Faylni yuklab bo‘lmadi."); }\n    const blob=await response.blob(); const url=URL.createObjectURL(blob); const a=document.createElement("a"); a.href=url; a.download=file.name||"download"; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1500);\n  }catch(error){ alert("Google Drive: "+error.message); }\n}\n\nasync function uploadGoogleDriveFile(file){\n  const metadata={name:file.name,parents:[googleDriveFolderId||"root"]};\n  const form=new FormData();\n  form.append("metadata",new Blob([JSON.stringify(metadata)],{type:"application/json"}));\n  form.append("file",file);\n  const response=await gdriveFetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name",{method:"POST",body:form});\n  const data=await response.json().catch(()=>({}));\n  if(!response.ok) throw new Error(data?.error?.message||"Google Drive upload xatosi.");\n  return data;\n}\n\ndocument.getElementById("gdriveFileInput")?.addEventListener("change",async function(){\n  const files=Array.from(this.files||[]); if(!files.length) return;\n  if(!googleDriveTokenValid()){ this.value=""; alert("Avval Google Drive’ni ulang."); return; }\n  let success=0;\n  for(const file of files){ try{ await uploadGoogleDriveFile(file); success++; }catch(error){ alert(file.name+": "+error.message); } }\n  this.value=""; alert(success+" ta fayl Google Drive’ga yuklandi."); await loadGoogleDriveFiles();\n});\n\nupdateGoogleDriveStatus();\n
+</script>
+
+</body>
+</html>
