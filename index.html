@@ -5980,5 +5980,391 @@ document.addEventListener("DOMContentLoaded",()=>{
   </div>
 </div>
 
+
+
+<script>
+/* ============================================================
+   SKYDRIVEX CLOUD FEATURES PACK
+   Trash + Recent + Favorites + Share + Version History
+   Activity + Device Sessions + Smart Search + Storage Analytics
+   Automatic Supabase/B2 storage rules
+   ============================================================ */
+(() => {
+  const SDX_B2_WORKER = "https://skydrivex-b2.zprvtm.workers.dev";
+  const SDX_DEFAULT_RULE = {mode:"auto",large_file_mb:20,fallback_to_b2:true};
+  const SDX_HIDDEN_ROOTS = new Set(["profile", ".skydrivex"]);
+  let sdxRule = {...SDX_DEFAULT_RULE};
+  let sdxReady = false;
+
+  const sleep = ms => new Promise(r=>setTimeout(r,ms));
+  const basename = p => String(p||"").split("/").filter(Boolean).pop() || "";
+  const dirname = p => { const a=String(p||"").split("/").filter(Boolean); a.pop(); return a.join("/"); };
+  const relPath = name => currentFolder ? `${currentFolder}/${name}` : name;
+  const fullSupabasePath = (uid, rel) => `${uid}/${String(rel||"").replace(/^\/+/,"")}`;
+  const encodeVersionKey = p => btoa(unescape(encodeURIComponent(p))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/g,"");
+  const humanTime = v => { try{return new Date(v).toLocaleString()}catch{return String(v||"")} };
+
+  async function session(){
+    const {data}=await supabaseClient.auth.getSession();
+    return data?.session || null;
+  }
+  async function currentUser(){ return (await session())?.user || null; }
+  async function b2Fetch(path, options={}){
+    const s=await session(); if(!s) throw new Error("Avval SkyDriveX hisobiga kiring.");
+    const headers=new Headers(options.headers||{}); headers.set("Authorization",`Bearer ${s.access_token}`);
+    const r=await fetch(SDX_B2_WORKER+path,{...options,headers});
+    if(!r.ok){let d={};try{d=await r.json()}catch{};throw new Error(d.error||`B2 xatosi (${r.status})`)}
+    return r;
+  }
+  async function b2Json(path,options={}){return (await b2Fetch(path,options)).json()}
+
+  async function dbInsert(table,row){
+    const {error}=await supabaseClient.from(table).insert(row);
+    if(error) console.warn(`[SkyDriveX ${table}]`,error.message);
+  }
+  async function logActivity(action,storage=null,path=null,details={}){
+    const u=await currentUser(); if(!u)return;
+    await dbInsert("sdx_activity",{user_id:u.id,action,storage,path,details});
+  }
+  async function markRecent(storage,path,name){
+    const u=await currentUser(); if(!u)return;
+    const {error}=await supabaseClient.from("sdx_recent").upsert({user_id:u.id,storage,path,name,opened_at:new Date().toISOString()},{onConflict:"user_id,storage,path"});
+    if(error) console.warn("recent",error.message);
+  }
+
+  function deviceId(){
+    let id=localStorage.getItem("sdx_device_id");
+    if(!id){id=crypto.randomUUID?.() || `d_${Date.now()}_${Math.random().toString(36).slice(2)}`;localStorage.setItem("sdx_device_id",id)}
+    return id;
+  }
+  function deviceName(){
+    const ua=navigator.userAgent;
+    if(/Android/i.test(ua))return "Android";
+    if(/iPhone|iPad/i.test(ua))return "iPhone / iPad";
+    if(/Windows/i.test(ua))return "Windows PC";
+    if(/Mac/i.test(ua))return "Mac";
+    return "Brauzer qurilmasi";
+  }
+  async function touchDevice(){
+    const u=await currentUser(); if(!u)return;
+    await supabaseClient.from("sdx_devices").upsert({user_id:u.id,device_id:deviceId(),device_name:deviceName(),user_agent:navigator.userAgent.slice(0,500),last_seen:new Date().toISOString()},{onConflict:"user_id,device_id"});
+  }
+
+  async function loadRule(){
+    const u=await currentUser(); if(!u)return;
+    const {data,error}=await supabaseClient.from("sdx_settings").select("storage_rule").eq("user_id",u.id).maybeSingle();
+    if(!error && data?.storage_rule) sdxRule={...SDX_DEFAULT_RULE,...data.storage_rule};
+    else {
+      const local=localStorage.getItem("sdx_storage_rule"); if(local){try{sdxRule={...SDX_DEFAULT_RULE,...JSON.parse(local)}}catch{}}
+    }
+  }
+  async function saveRule(rule){
+    sdxRule={...SDX_DEFAULT_RULE,...rule}; localStorage.setItem("sdx_storage_rule",JSON.stringify(sdxRule));
+    const u=await currentUser(); if(u) await supabaseClient.from("sdx_settings").upsert({user_id:u.id,storage_rule:sdxRule,updated_at:new Date().toISOString()},{onConflict:"user_id"});
+  }
+  function chooseStorage(file){
+    if(sdxRule.mode==="supabase")return "supabase";
+    if(sdxRule.mode==="b2")return "b2";
+    return file.size >= (Number(sdxRule.large_file_mb)||20)*1024*1024 ? "b2" : "supabase";
+  }
+
+  async function supabaseList(folder=""){
+    const u=await currentUser(); if(!u)return [];
+    const folderPath=u.id+(folder?`/${folder}`:"");
+    const {data,error}=await supabaseClient.storage.from(BUCKET).list(folderPath,{limit:1000,offset:0,sortBy:{column:"created_at",order:"desc"}});
+    if(error)throw error;
+    return (data||[]).filter(x=>x?.name && !(folder===""&&SDX_HIDDEN_ROOTS.has(x.name))).map(x=>({...x,_storage:"supabase",_relative:folder?`${folder}/${x.name}`:x.name}));
+  }
+  async function b2List(folder=""){
+    const d=await b2Json(`/files?folder=${encodeURIComponent(folder)}`);
+    return (d.items||[]).filter(x=>x?.name && !(folder===""&&SDX_HIDDEN_ROOTS.has(x.name))).map(x=>x.type==="folder"
+      ? {name:x.name,metadata:null,_storage:"b2",_relative:x.path,_b2Folder:true}
+      : {name:x.name,metadata:{size:x.size||0,mimetype:x.contentType},_storage:"b2",_relative:x.path,_fileId:x.fileId,_contentType:x.contentType});
+  }
+  function mergeItems(a,b){
+    const m=new Map();
+    for(const x of [...a,...b]){
+      const isFolder=!x.metadata, key=(isFolder?"folder:":"file:")+x.name;
+      if(isFolder && m.has(key)){const old=m.get(key);old._stores=[...new Set([...(old._stores||[old._storage]),x._storage])];continue}
+      if(!isFolder && m.has(key)){
+        // Same logical name on two providers: show both with provider label instead of hiding one.
+        const copy={...x,name:x.name+` [${x._storage==="b2"?"B2":"Supabase"}]`,_displayName:x.name};
+        m.set(key+":"+x._storage,copy); continue;
+      }
+      m.set(key,{...x,_stores:isFolder?[x._storage]:undefined});
+    }
+    return [...m.values()];
+  }
+
+  async function loadCombinedFolder(){
+    const u=await currentUser(); if(!u)return;
+    fileList.innerHTML='<div class="empty">⏳ Supabase + B2 yuklanmoqda...</div>';
+    currentTitle.textContent=currentFolder?currentFolder.split("/").pop():"Fayllar";
+    currentPath.textContent=currentFolder?"📁 "+currentFolder:"🏠 Bosh papka";
+    const results=await Promise.allSettled([supabaseList(currentFolder),b2List(currentFolder)]);
+    const sup=results[0].status==="fulfilled"?results[0].value:[];
+    const b2=results[1].status==="fulfilled"?results[1].value:[];
+    allItems=mergeItems(sup,b2);
+    renderItems(allItems);
+    if(results.some(x=>x.status==="rejected")) console.warn("SkyDriveX providerlardan biri vaqtincha ishlamadi",results);
+  }
+
+  function providerBadge(storage){return storage==="b2"?"B2":"Supabase"}
+  function renderCombined(items){
+    fileList.innerHTML="";
+    if(!items?.length){fileList.innerHTML='<div class="empty">📂 Bu papka bo‘sh</div>';return}
+    items.forEach(item=>{
+      if(!item?.name)return;
+      const isFolder=!item.metadata, div=document.createElement("div"); div.className="file "+(isFolder?"folder":"");
+      if(isFolder){
+        div.innerHTML=`<div class="file-left" onclick="openFolder('${escapeJs(item.name)}')" style="cursor:pointer"><div class="file-icon">📁</div><div class="file-info"><div class="file-name folder-name">${escapeHtml(item.name)}</div><div class="file-size">Papka · ${(item._stores||[]).map(providerBadge).join(" + ")||providerBadge(item._storage)}</div></div></div><div class="file-actions"><button class="btn" onclick="openFolder('${escapeJs(item.name)}')">📂 Kirish</button><button class="btn delete" onclick="deleteFolder('${escapeJs(item.name)}')">🗑️ O‘chirish</button></div>`;
+      }else{
+        const display=item._displayName||item.name, relative=item._relative||relPath(display), storage=item._storage||"supabase";
+        const full=storage==="supabase"?fullSupabasePath(window.currentUser?.id||"",relative):relative;
+        const size=formatSize(item.metadata?.size||0), type=getFileType(display), fid=item._fileId||"";
+        div.innerHTML=`<div class="file-left"><div class="file-icon">${getFileIcon(type)}</div><div class="file-info"><div class="file-name">${escapeHtml(display)}</div><div class="file-size">${size} · ${providerBadge(storage)}</div></div></div><div class="file-actions">${isPreviewable(type)?`<button class="btn preview" onclick="sdxPreview('${storage}','${escapeJs(full)}','${escapeJs(fid)}','${type}','${escapeJs(display)}')">👁️</button>`:""}<button class="btn" onclick="sdxDownload('${storage}','${escapeJs(full)}','${escapeJs(fid)}','${escapeJs(display)}')">⬇️</button><button class="btn" onclick="sdxToggleFavorite('${storage}','${escapeJs(relative)}','${escapeJs(display)}')">⭐</button><button class="btn" onclick="sdxShareItem('${storage}','${escapeJs(full)}','${escapeJs(fid)}','${escapeJs(display)}')">🔗</button><button class="btn" onclick="sdxShowVersions('${storage}','${escapeJs(relative)}','${escapeJs(display)}')">🕘</button><button class="btn delete" onclick="sdxTrashItem('${storage}','${escapeJs(full)}','${escapeJs(relative)}','${escapeJs(fid)}','${escapeJs(display)}',${Number(item.metadata?.size||0)})">🗑️</button></div>`;
+      }
+      fileList.appendChild(div);
+    });
+  }
+
+  async function findB2ByPath(path){
+    const folder=dirname(path), name=basename(path); const d=await b2Json(`/files?folder=${encodeURIComponent(folder)}`);
+    return (d.items||[]).find(x=>x.type==="file"&&x.name===name)||null;
+  }
+  async function b2DownloadBlob(fileId){return (await b2Fetch(`/download?id=${encodeURIComponent(fileId)}`)).blob()}
+  async function b2UploadBlob(path,blob){
+    const r=await b2Fetch(`/upload?path=${encodeURIComponent(path)}`,{method:"POST",headers:{"Content-Type":blob.type||"application/octet-stream"},body:blob}); return r.json();
+  }
+  async function b2Delete(fileId){return b2Json("/delete",{method:"DELETE",headers:{"Content-Type":"application/json"},body:JSON.stringify({fileId})})}
+
+  async function archiveExisting(storage,relative){
+    const u=await currentUser(); if(!u)return;
+    const versionRel=`.skydrivex/versions/${encodeVersionKey(relative)}/${Date.now()}__${basename(relative)}`;
+    if(storage==="supabase"){
+      const full=fullSupabasePath(u.id,relative), versionFull=fullSupabasePath(u.id,versionRel);
+      const parent=dirname(relative), list=await supabaseList(parent); const existing=list.find(x=>x.metadata&&x.name===basename(relative));
+      if(!existing)return;
+      const {error}=await supabaseClient.storage.from(BUCKET).move(full,versionFull); if(error)throw error;
+      await dbInsert("sdx_versions",{user_id:u.id,storage:"supabase",logical_path:relative,version_path:versionRel,name:basename(relative),size_bytes:existing.metadata?.size||0});
+    }else{
+      const existing=await findB2ByPath(relative); if(!existing)return;
+      const blob=await b2DownloadBlob(existing.fileId); await b2UploadBlob(versionRel,blob); await b2Delete(existing.fileId);
+      await dbInsert("sdx_versions",{user_id:u.id,storage:"b2",logical_path:relative,version_path:versionRel,name:basename(relative),size_bytes:existing.size||blob.size||0});
+    }
+  }
+
+  async function uploadSupabase(file,relative){
+    const u=await currentUser(); await archiveExisting("supabase",relative);
+    const {error}=await supabaseClient.storage.from(BUCKET).upload(fullSupabasePath(u.id,relative),file,{upsert:false,contentType:getUploadContentType(file)}); if(error)throw error;
+  }
+  async function uploadB2(file,relative){
+    await archiveExisting("b2",relative); await b2UploadBlob(relative,file);
+  }
+  async function smartUpload(file,relative){
+    let storage=chooseStorage(file);
+    try{ storage==="b2"?await uploadB2(file,relative):await uploadSupabase(file,relative); }
+    catch(e){
+      if(storage==="supabase"&&sdxRule.fallback_to_b2){await uploadB2(file,relative);storage="b2";} else throw e;
+    }
+    await logActivity("upload",storage,relative,{name:file.name,size:file.size});
+    return storage;
+  }
+
+  function replaceUploadInputs(){
+    const old=document.getElementById("fileInput");
+    if(old&&!old.dataset.sdxEnhanced){
+      const n=old.cloneNode(true); n.dataset.sdxEnhanced="1"; old.replaceWith(n);
+      n.addEventListener("change",async function(){
+        const files=Array.from(this.files||[]); if(!files.length)return;
+        uploadStatus.textContent=`⏳ ${files.length} ta fayl yuklanmoqda...`;
+        let ok=0,fail=0;
+        for(const file of files){try{const name=safeFileName(file.name), relative=currentFolder?`${currentFolder}/${name}`:name; const st=await smartUpload(file,relative);ok++;uploadStatus.textContent=`⏳ ${ok+fail}/${files.length} · ${providerBadge(st)}`;}catch(e){console.error(e);fail++;}}
+        this.value=""; uploadStatus.textContent=`✅ ${ok} ta yuklandi${fail?` · ❌ ${fail} ta xato`:""}`; await loadCombinedFolder(); await sdxCalculateCombinedStorage();
+      });
+    }
+    const fold=document.getElementById("folderInput");
+    if(fold&&!fold.dataset.sdxEnhanced){
+      const n=fold.cloneNode(true); n.dataset.sdxEnhanced="1"; fold.replaceWith(n);
+      n.addEventListener("change",async function(){
+        const files=Array.from(this.files||[]); if(!files.length)return; let ok=0,fail=0;
+        for(const file of files){try{const parts=(file.webkitRelativePath||file.name).split("/").filter(Boolean).map(safeFileName); const relative=[currentFolder,...parts].filter(Boolean).join("/"); await smartUpload(file,relative);ok++;}catch(e){console.error(e);fail++;} uploadStatus.textContent=`⏳ ${ok+fail}/${files.length}`;}
+        this.value=""; uploadStatus.textContent=`✅ ${ok} ta yuklandi${fail?` · ❌ ${fail} ta xato`:""}`; await loadCombinedFolder(); await sdxCalculateCombinedStorage();
+      });
+    }
+  }
+
+  window.sdxPreview=async(storage,path,fileId,type,name)=>{
+    try{
+      let blob;
+      if(storage==="b2")blob=await b2DownloadBlob(fileId); else {const {data,error}=await supabaseClient.storage.from(BUCKET).download(path);if(error)throw error;blob=data}
+      const url=URL.createObjectURL(blob); previewTitle.textContent=name;
+      if(type==="image")previewContent.innerHTML=`<img class="preview-image" src="${url}" alt="">`;
+      else if(type==="video")previewContent.innerHTML=`<video class="preview-video" controls autoplay src="${url}"></video>`;
+      else if(type==="audio")previewContent.innerHTML=`<audio class="preview-audio" controls autoplay src="${url}"></audio>`;
+      else previewContent.innerHTML=`<iframe src="${url}" style="width:100%;height:70vh;border:0;background:#fff"></iframe>`;
+      previewModal.classList.remove("hidden"); await markRecent(storage,storage==="supabase"?path.split("/").slice(1).join("/"):path,name); await logActivity("preview",storage,path,{name});
+    }catch(e){alert("Ko‘rishda xatolik: "+e.message)}
+  };
+  window.sdxDownload=async(storage,path,fileId,name)=>{
+    try{let blob;if(storage==="b2")blob=await b2DownloadBlob(fileId);else{const {data,error}=await supabaseClient.storage.from(BUCKET).download(path);if(error)throw error;blob=data}const u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1500);await markRecent(storage,storage==="supabase"?path.split("/").slice(1).join("/"):path,name);await logActivity("download",storage,path,{name});}catch(e){alert("Yuklab olishda xatolik: "+e.message)}
+  };
+
+  window.sdxToggleFavorite=async(storage,path,name)=>{
+    const u=await currentUser();if(!u)return;
+    const {data}=await supabaseClient.from("sdx_favorites").select("id").eq("user_id",u.id).eq("storage",storage).eq("path",path).maybeSingle();
+    if(data?.id){await supabaseClient.from("sdx_favorites").delete().eq("id",data.id);alert("⭐ Sevimlilardan olindi");}
+    else{await supabaseClient.from("sdx_favorites").insert({user_id:u.id,storage,path,name});alert("⭐ Sevimlilarga qo‘shildi");}
+  };
+
+  window.sdxShareItem=async(storage,path,fileId,name,seconds=3600)=>{
+    try{
+      let link;
+      if(storage==="b2"){
+        const d=await b2Json("/share",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({fileId,expiresIn:seconds})}); link=d.url;
+      }else{
+        const {data,error}=await supabaseClient.storage.from(BUCKET).createSignedUrl(path,seconds); if(error)throw error; link=data.signedUrl;
+      }
+      const u=await currentUser(); if(u)await dbInsert("sdx_shares",{user_id:u.id,storage,path:storage==="supabase"?path.split("/").slice(1).join("/"):path,name,expires_at:new Date(Date.now()+seconds*1000).toISOString()});
+      try{await navigator.clipboard.writeText(link)}catch{}
+      prompt("🔗 Link tayyor. Nusxa olish uchun Ctrl+C:",link); await logActivity("share",storage,path,{name,seconds});
+    }catch(e){alert("Share link xatosi: "+e.message)}
+  };
+
+  window.sdxTrashItem=async(storage,fullPath,relative,fileId,name,size=0)=>{
+    if(!confirm(`“${name}” Savatga ko‘chirilsinmi?`))return;
+    const u=await currentUser();if(!u)return;
+    const trashRel=`.skydrivex/trash/${Date.now()}/${relative}`;
+    try{
+      if(storage==="supabase"){
+        const {error}=await supabaseClient.storage.from(BUCKET).move(fullPath,fullSupabasePath(u.id,trashRel)); if(error)throw error;
+      }else{
+        const blob=await b2DownloadBlob(fileId); await b2UploadBlob(trashRel,blob); await b2Delete(fileId);
+      }
+      await supabaseClient.from("sdx_trash").insert({user_id:u.id,storage,original_path:relative,trash_path:trashRel,name,size_bytes:size});
+      await logActivity("trash",storage,relative,{name}); await loadCombinedFolder(); await sdxCalculateCombinedStorage();
+    }catch(e){alert("Savatga ko‘chirishda xatolik: "+e.message)}
+  };
+  window.sdxRestoreTrash=async id=>{
+    const u=await currentUser();if(!u)return; const {data:t,error}=await supabaseClient.from("sdx_trash").select("*").eq("id",id).single();if(error)return alert(error.message);
+    try{
+      if(t.storage==="supabase"){const {error:e}=await supabaseClient.storage.from(BUCKET).move(fullSupabasePath(u.id,t.trash_path),fullSupabasePath(u.id,t.original_path));if(e)throw e;}
+      else{const f=await findB2ByPath(t.trash_path);if(!f)throw new Error("Savatdagi B2 fayl topilmadi.");const blob=await b2DownloadBlob(f.fileId);await b2UploadBlob(t.original_path,blob);await b2Delete(f.fileId)}
+      await supabaseClient.from("sdx_trash").delete().eq("id",id);await logActivity("restore",t.storage,t.original_path,{name:t.name});await sdxRenderTrash();await loadCombinedFolder();
+    }catch(e){alert("Tiklashda xatolik: "+e.message)}
+  };
+  window.sdxPermanentDelete=async id=>{
+    if(!confirm("Bu fayl butunlay o‘chadi. Davom etilsinmi?"))return;const u=await currentUser();if(!u)return;const {data:t}=await supabaseClient.from("sdx_trash").select("*").eq("id",id).single();if(!t)return;
+    try{if(t.storage==="supabase"){const {error}=await supabaseClient.storage.from(BUCKET).remove([fullSupabasePath(u.id,t.trash_path)]);if(error)throw error;}else{const f=await findB2ByPath(t.trash_path);if(f)await b2Delete(f.fileId)}await supabaseClient.from("sdx_trash").delete().eq("id",id);await logActivity("permanent_delete",t.storage,t.original_path,{name:t.name});await sdxRenderTrash();}catch(e){alert(e.message)}
+  };
+  window.sdxRenderTrash=async()=>{
+    const c=document.getElementById("f74Content"),u=await currentUser();if(!c||!u)return; const {data=[]}=await supabaseClient.from("sdx_trash").select("*").eq("user_id",u.id).order("deleted_at",{ascending:false}).limit(200);
+    c.innerHTML=data.length?`<div class="f74-list">${data.map(t=>`<div class="f74-item"><span>🗑️ ${escapeHtml(t.name)}<br><small class="f74-muted">${providerBadge(t.storage)} · ${humanTime(t.deleted_at)}</small></span><span><button class="btn" onclick="sdxRestoreTrash('${t.id}')">↩️ Tiklash</button> <button class="btn delete" onclick="sdxPermanentDelete('${t.id}')">❌</button></span></div>`).join("")}</div>`:'<div class="empty">Savat bo‘sh</div>';
+  };
+
+  window.sdxShowVersions=async(storage,path,name)=>{openF74(75);setTimeout(()=>sdxRenderVersions(path,name),0)};
+  window.sdxRenderVersions=async(path="",name="")=>{
+    const c=document.getElementById("f74Content"),u=await currentUser();if(!c||!u)return; let q=supabaseClient.from("sdx_versions").select("*").eq("user_id",u.id).order("created_at",{ascending:false}).limit(200);if(path)q=q.eq("logical_path",path);const {data=[]}=await q;
+    c.innerHTML=`<div class="f74-row"><input id="sdxVersionSearch" class="input" value="${escapeHtml(path)}" placeholder="Fayl yo‘li"><button class="action-btn blue" onclick="sdxRenderVersions(document.getElementById('sdxVersionSearch').value)">Qidirish</button></div>${data.length?`<div class="f74-list">${data.map(v=>`<div class="f74-item"><span>🕘 ${escapeHtml(v.name)}<br><small class="f74-muted">${providerBadge(v.storage)} · ${formatSize(v.size_bytes||0)} · ${humanTime(v.created_at)}</small></span><button class="btn" onclick="sdxRestoreVersion('${v.id}')">↩️ Shu versiyani tiklash</button></div>`).join("")}</div>`:'<div class="empty">Version topilmadi</div>'}`;
+  };
+  window.sdxRestoreVersion=async id=>{
+    const u=await currentUser();if(!u)return;const {data:v}=await supabaseClient.from("sdx_versions").select("*").eq("id",id).single();if(!v)return;
+    if(!confirm(`“${v.name}” eski versiyasi tiklansinmi?`))return;
+    try{
+      await archiveExisting(v.storage,v.logical_path);
+      if(v.storage==="supabase"){
+        const {error}=await supabaseClient.storage.from(BUCKET).copy(fullSupabasePath(u.id,v.version_path),fullSupabasePath(u.id,v.logical_path));if(error)throw error;
+      }else{
+        const f=await findB2ByPath(v.version_path);if(!f)throw new Error("Version fayli topilmadi.");const blob=await b2DownloadBlob(f.fileId);await b2UploadBlob(v.logical_path,blob);
+      }
+      await logActivity("version_restore",v.storage,v.logical_path,{version_id:id});alert("✅ Version tiklandi");await loadCombinedFolder();
+    }catch(e){alert("Version tiklashda xatolik: "+e.message)}
+  };
+
+  window.sdxRenderFavorites=async()=>{
+    const c=document.getElementById("f74Content"),u=await currentUser();if(!c||!u)return;const {data=[]}=await supabaseClient.from("sdx_favorites").select("*").eq("user_id",u.id).order("created_at",{ascending:false});
+    c.innerHTML=data.length?`<div class="f74-list">${data.map(x=>`<div class="f74-item"><span>⭐ ${escapeHtml(x.name)}<br><small class="f74-muted">${providerBadge(x.storage)} · ${escapeHtml(x.path)}</small></span><button class="btn delete" onclick="sdxRemoveFavorite('${x.id}')">🗑️</button></div>`).join("")}</div>`:'<div class="empty">Sevimlilar bo‘sh</div>';
+  };
+  window.sdxRemoveFavorite=async id=>{await supabaseClient.from("sdx_favorites").delete().eq("id",id);await sdxRenderFavorites()};
+  window.sdxRenderActivity=async()=>{
+    const c=document.getElementById("f74Content"),u=await currentUser();if(!c||!u)return;const {data=[]}=await supabaseClient.from("sdx_activity").select("*").eq("user_id",u.id).order("created_at",{ascending:false}).limit(200);
+    c.innerHTML=data.length?`<div class="f74-list">${data.map(x=>`<div class="f74-item"><span>${escapeHtml(x.action)}${x.path?` · ${escapeHtml(x.path)}`:""}<br><small class="f74-muted">${x.storage?providerBadge(x.storage)+" · ":""}${humanTime(x.created_at)}</small></span></div>`).join("")}</div>`:'<div class="empty">Faoliyat yo‘q</div>';
+  };
+  window.sdxRenderRecent=async()=>{
+    const c=document.getElementById("f74Content"),u=await currentUser();if(!c||!u)return;const {data=[]}=await supabaseClient.from("sdx_recent").select("*").eq("user_id",u.id).order("opened_at",{ascending:false}).limit(100);
+    c.innerHTML=data.length?`<div class="f74-list">${data.map(x=>`<div class="f74-item"><span>🕘 ${escapeHtml(x.name)}<br><small class="f74-muted">${providerBadge(x.storage)} · ${humanTime(x.opened_at)}</small></span></div>`).join("")}</div>`:'<div class="empty">Yaqinda ochilgan fayl yo‘q</div>';
+  };
+  window.sdxRenderDevices=async()=>{
+    const c=document.getElementById("f74Content"),u=await currentUser();if(!c||!u)return;await touchDevice();const {data=[]}=await supabaseClient.from("sdx_devices").select("*").eq("user_id",u.id).order("last_seen",{ascending:false});
+    c.innerHTML=`<div class="f74-list">${data.map(x=>`<div class="f74-item"><span>💻 ${escapeHtml(x.device_name)}${x.device_id===deviceId()?" · Shu qurilma":""}<br><small class="f74-muted">Oxirgi faollik: ${humanTime(x.last_seen)}</small></span></div>`).join("")||'<div class="empty">Qurilma topilmadi</div>'}</div><div class="f74-row" style="margin-top:12px"><button class="action-btn red" onclick="sdxLogoutAllDevices()">Barcha qurilmalardan chiqish</button></div>`;
+  };
+  window.sdxLogoutAllDevices=async()=>{if(!confirm("Hamma qurilmalardagi SkyDriveX sessiyalari yopilsinmi?"))return;await supabaseClient.auth.signOut({scope:"global"});location.reload()};
+
+  async function recursiveSupabaseStats(){
+    const u=await currentUser(); if(!u)return {bytes:0,files:0,types:{}}; const out={bytes:0,files:0,types:{}};
+    async function walk(path){let offset=0;while(true){const {data,error}=await supabaseClient.storage.from(BUCKET).list(path,{limit:1000,offset});if(error)throw error;const arr=data||[];for(const x of arr){if(!x?.name)continue;if(path===u.id&&SDX_HIDDEN_ROOTS.has(x.name))continue;const child=path+"/"+x.name;if(x.metadata){const s=x.metadata.size||0;out.bytes+=s;out.files++;const t=getFileType(x.name)||"other";out.types[t]=(out.types[t]||0)+s}else await walk(child)}if(arr.length<1000)break;offset+=1000;}}
+    await walk(u.id);return out;
+  }
+  window.sdxCalculateCombinedStorage=async()=>{
+    const [s,b]=await Promise.allSettled([recursiveSupabaseStats(),b2Json("/storage")]);
+    const sup=s.status==="fulfilled"?s.value:{bytes:0,files:0,types:{}}, b2=b.status==="fulfilled"?b.value:{usedBytes:0,files:0};
+    const total=sup.bytes+(b2.usedBytes||0); if(typeof storageValue!=="undefined"&&storageValue)storageValue.textContent=formatSize(total); if(typeof sideStorageText!=="undefined"&&sideStorageText)sideStorageText.textContent=`${formatSize(total)} · Supabase + B2`;
+    return {supabase:sup,b2:{bytes:b2.usedBytes||0,files:b2.files||0},total};
+  };
+  window.sdxRenderStorageAnalytics=async()=>{
+    const c=document.getElementById("f74Content");if(!c)return;c.innerHTML='<div class="empty">⏳ Hisoblanmoqda...</div>';const s=await sdxCalculateCombinedStorage();
+    c.innerHTML=`<div class="f74-statgrid"><div class="f74-stat"><span>Jami</span><strong>${formatSize(s.total)}</strong></div><div class="f74-stat"><span>Supabase</span><strong>${formatSize(s.supabase.bytes)}</strong></div><div class="f74-stat"><span>Backblaze B2</span><strong>${formatSize(s.b2.bytes)}</strong></div><div class="f74-stat"><span>Fayllar</span><strong>${s.supabase.files+s.b2.files}</strong></div></div><div class="f74-list" style="margin-top:12px">${Object.entries(s.supabase.types).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="f74-item"><span>${escapeHtml(k)}</span><b>${formatSize(v)}</b></div>`).join("")}</div>`;
+  };
+
+  window.sdxSmartSearch=async q=>{
+    const r=document.getElementById("uSearchRes74");if(!r)return;q=String(q||"").trim().toLowerCase();if(!q){r.innerHTML="";return}r.innerHTML='<div class="empty">⏳ Qidirilmoqda...</div>';
+    const u=await currentUser();if(!u)return;const hits=[];
+    async function walkSup(path,rel=""){const {data=[]}=await supabaseClient.storage.from(BUCKET).list(path,{limit:1000});for(const x of data){if(!x?.name)continue;if(!rel&&SDX_HIDDEN_ROOTS.has(x.name))continue;const rr=[rel,x.name].filter(Boolean).join("/");if(x.name.toLowerCase().includes(q))hits.push({storage:"supabase",name:x.name,path:rr,folder:!x.metadata,size:x.metadata?.size||0});if(!x.metadata&&hits.length<100)await walkSup(path+"/"+x.name,rr);if(hits.length>=100)return}}
+    await walkSup(u.id);
+    try{const root=await b2Json("/files?folder=");for(const x of root.items||[]){if(x.name.toLowerCase().includes(q))hits.push({storage:"b2",name:x.name,path:x.path,folder:x.type==="folder",size:x.size||0})}}catch{}
+    r.innerHTML=hits.length?hits.slice(0,100).map(x=>`<div class="f74-item"><span>${x.folder?"📁":"📄"} ${escapeHtml(x.name)}<br><small class="f74-muted">${providerBadge(x.storage)} · ${escapeHtml(x.path)}${x.folder?"":" · "+formatSize(x.size)}</small></span></div>`).join(""):'<div class="empty">Topilmadi</div>';
+  };
+
+  window.sdxRenderStorageRules=()=>{
+    const c=document.getElementById("f74Content");if(!c)return;
+    c.innerHTML=`<div class="f74-row"><select id="sdxRuleMode" class="input"><option value="auto" ${sdxRule.mode==="auto"?"selected":""}>Avtomatik</option><option value="supabase" ${sdxRule.mode==="supabase"?"selected":""}>Faqat Supabase</option><option value="b2" ${sdxRule.mode==="b2"?"selected":""}>Faqat Backblaze B2</option></select><input id="sdxRuleMb" class="input" type="number" min="1" max="1024" value="${Number(sdxRule.large_file_mb)||20}" placeholder="MB"><button class="action-btn blue" onclick="sdxSaveStorageRules()">Saqlash</button></div><p class="f74-muted">Avtomatik rejimda ko‘rsatilgan MB dan katta fayllar B2 ga, kichiklari Supabase ga tushadi. Supabase xato bersa B2 fallback ishlaydi.</p>`;
+  };
+  window.sdxSaveStorageRules=async()=>{await saveRule({mode:document.getElementById("sdxRuleMode").value,large_file_mb:Number(document.getElementById("sdxRuleMb").value)||20,fallback_to_b2:true});alert("✅ Storage qoidasi saqlandi")};
+
+  function enhanceFeatureModules(){
+    if(Array.isArray(window.F74) || typeof F74!=="undefined"){
+      try{if(!F74.some(x=>x[1]==="Version History")){F74.push(["🕘","Version History"],["⚙️","Automatic Storage Rules"]);initF74();}}catch{}
+    }
+    const original=window.renderF74;
+    if(typeof original!=="function")return;
+    window.renderF74=function(n){
+      if(n===2){sdxRenderActivity();return}
+      if(n===3){sdxRenderFavorites();return}
+      if(n===4){sdxRenderTrash();return}
+      if([6,44,62].includes(n)){sdxRenderStorageAnalytics();return}
+      if([12,53,63,68].includes(n)){const c=document.getElementById("f74Content");c.innerHTML='<div class="f74-row"><input id="uSearch74" class="input" placeholder="Barcha cloudlarda qidirish..." oninput="sdxSmartSearch(this.value)"></div><div id="uSearchRes74" class="f74-list"></div>';return}
+      if(n===15){const c=document.getElementById("f74Content");c.innerHTML='<p>Fayl qatoridagi 🔗 tugmasini bosing. Supabase va B2 uchun 1 soatlik xavfsiz link yaratiladi va nusxalanadi.</p>';return}
+      if(n===24){sdxRenderDevices();return}
+      if(n===28){sdxRenderRecent();return}
+      if(n===75){sdxRenderVersions();return}
+      if(n===76){sdxRenderStorageRules();return}
+      return original(n);
+    };
+  }
+
+  async function init(){
+    if(sdxReady)return; sdxReady=true;
+    await loadRule(); await touchDevice(); replaceUploadInputs(); enhanceFeatureModules();
+    // Override existing global list/render functions without changing the visual CSS/layout.
+    window.loadCurrentFolder=loadCombinedFolder; window.renderItems=renderCombined; window.calculateStorage=sdxCalculateCombinedStorage;
+    try{await loadCombinedFolder();await sdxCalculateCombinedStorage()}catch(e){console.warn("SkyDriveX cloud pack init",e)}
+    setInterval(touchDevice,5*60*1000);
+  }
+
+  window.addEventListener("load",()=>setTimeout(init,250));
+})();
+
+</script>
+
 </body>
 </html>
