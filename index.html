@@ -354,7 +354,10 @@ button{
 }
 
 #fileInput,
-#folderInput{
+#folderInput,
+#b2FileInput,
+#supabaseFileInput,
+#gdriveFileInput{
     display:none;
 }
 
@@ -1073,6 +1076,271 @@ body.ct-video-active .sdx-video-sound-float{display:flex}
   .sdx-music-change{padding:7px 8px}
 }
 
+
+/* v11: sidebar cloud storage cards */
+.sdx-side-clouds{padding:12px!important}
+.side-cloud-title{font-size:12px;font-weight:800;margin-bottom:10px;color:#fff}
+.side-cloud-row{margin-top:10px}
+.side-cloud-row:first-of-type{margin-top:0}
+.side-cloud-row .side-storage-head{font-size:10px!important;margin-bottom:5px!important;gap:6px}
+.side-cloud-row .side-storage-head span:last-child{font-weight:600;color:#9fb3d1;white-space:nowrap}
+.side-cloud-row .side-progress{height:5px!important}
+</style>
+
+<style id="sdx-typography-v4">
+/* SkyDriveX v4 Typography — compact, menu-like, consistent */
+html, body, button, input, select, textarea {
+  font-family: Inter, "Segoe UI", Arial, sans-serif !important;
+}
+body { font-size: 12px !important; }
+
+/* Sidebar / top bar */
+.sdx-nav a,
+.x-top-search,
+.x-top-icon,
+.x-user-chip { font-size: 12px !important; }
+.sdx-nav a { font-weight: 600 !important; }
+.sdx-brand { font-size: 18px !important; font-weight: 800 !important; }
+
+/* Main dashboard text */
+.x-greeting h1 { font-size: 16px !important; font-weight: 700 !important; letter-spacing: -0.2px !important; }
+.x-greeting p { font-size: 11px !important; font-weight: 400 !important; }
+.stat-glass small { font-size: 10px !important; font-weight: 500 !important; }
+.stat-glass strong { font-size: 16px !important; font-weight: 700 !important; }
+
+/* Section headings */
+.apps-head h2,
+.files-header h2,
+.gdrive-head h2,
+.settings-section h3,
+.feature74-head h2 { font-size: 14px !important; font-weight: 700 !important; }
+
+/* Buttons and controls */
+button,
+.action-btn,
+.upload-btn,
+.gdrive-btn,
+.small-btn,
+.apps-add,
+.feature74-btn,
+.input,
+.search,
+select,
+textarea { font-size: 12px !important; font-weight: 600 !important; }
+
+/* Files, cards, labels */
+.file,
+.file-name,
+.file-size,
+.file-status,
+.app-name,
+.settings-switch span,
+.settings-label,
+.f74-muted,
+.f74-item,
+.f74-chip { font-size: 11px !important; }
+.app-name { font-weight: 700 !important; }
+
+/* Secondary / helper text */
+.apps-head p,
+.apps-hint,
+.settings-section p,
+.settings-note,
+.gdrive-status,
+.gdrive-path,
+.feature74-btn small,
+.sdx-side-storage small { font-size: 10px !important; font-weight: 400 !important; }
+
+/* Keep italic styling out for a cleaner UI */
+em, i { font-style: normal !important; }
+
+/* Normalize excessive boldness */
+b, strong { font-weight: 700; }
+
+/* Mobile remains compact */
+@media (max-width: 650px){
+  body { font-size: 11px !important; }
+  .x-greeting h1 { font-size: 15px !important; }
+  .sdx-nav a { font-size: 11px !important; }
+}
+</style>
+
+
+<style id="sdx-v14-profile-header">
+/* v14: larger left-aligned clickable profile avatar */
+.sdx-brand-profile{display:flex!important;align-items:center!important;justify-content:flex-start!important;padding:14px 18px!important;position:relative!important}
+.sdx-mini-profile{margin:0!important;display:flex;align-items:center;gap:8px;min-width:0;position:relative}
+.sdx-mini-avatar{width:42px;height:42px;border-radius:50%;overflow:hidden;display:grid;place-items:center;flex:0 0 42px;background:linear-gradient(145deg,#258cff,#52b8ff);border:2px solid rgba(255,255,255,.22);box-shadow:0 0 16px rgba(31,132,255,.22);color:#fff;font-size:13px;font-weight:800;cursor:pointer;transition:transform .16s ease,box-shadow .16s ease}
+.sdx-mini-avatar:hover{transform:scale(1.04);box-shadow:0 0 20px rgba(31,132,255,.34)}
+.sdx-mini-avatar img{width:100%;height:100%;object-fit:cover;display:block;border-radius:50%}
+.sdx-mini-name{font-size:11px!important;font-weight:700!important;color:#eaf3ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80px}
+.sdx-avatar-menu{position:absolute;left:0;top:50px;min-width:150px;padding:6px;background:#0b1f36;border:1px solid rgba(82,164,255,.35);border-radius:10px;box-shadow:0 12px 28px rgba(0,0,0,.35);z-index:9999;display:none}
+.sdx-avatar-menu.open{display:block}
+.sdx-avatar-menu button{width:100%;border:0;background:transparent;color:#eaf3ff;text-align:left;padding:8px 10px;border-radius:7px;font-size:11px!important;font-weight:600!important;cursor:pointer}
+.sdx-avatar-menu button:hover{background:rgba(48,153,255,.15)}
+.sdx-avatar-menu .danger{color:#ff8b95}
+@media(max-width:900px){.sdx-mini-name{display:none!important}.sdx-brand-profile{padding-left:14px!important}.sdx-mini-avatar{width:38px;height:38px;flex-basis:38px}}
+</style>
+
+<style id="sdx-v15-profile-align">
+/* v15: align profile avatar with sidebar menu items */
+.sdx-brand-profile{padding-left:4px!important;padding-right:8px!important;}
+.sdx-mini-profile{margin-left:0!important;}
+@media(max-width:900px){.sdx-brand-profile{padding-left:4px!important;}}
+</style>
+
+<style id="sdx-v19-login-credit-animation">
+/* v19: login credit + soft sequential entrance animation */
+#authPage .auth-card{
+  animation:sdxAuthCardIn .65s cubic-bezier(.22,.8,.3,1) both;
+}
+#authPage .auth-logo,
+#authPage .auth-title,
+#authPage .input,
+#authPage .auth-btn,
+#authPage .switch-btn,
+#authPage .sdx-created-by,
+#authPage .sdx-login-date,
+#authPage #authMessage{
+  opacity:0;
+  transform:translateY(10px);
+  animation:sdxAuthItemIn .52s ease forwards;
+}
+#authPage .auth-logo{animation-delay:.12s}
+#authPage .auth-title{animation-delay:.22s}
+#authPage #email{animation-delay:.32s}
+#authPage #password{animation-delay:.42s}
+#authPage .auth-btn{animation-delay:.52s}
+#authPage .switch-btn{animation-delay:.62s}
+#authPage .sdx-created-by{animation-delay:.74s}
+#authPage .sdx-login-date{animation-delay:.86s}
+#authPage #authMessage{animation-delay:.96s}
+.sdx-created-by{
+  margin:13px auto 0;
+  max-width:360px;
+  text-align:center;
+  color:#7f91a9;
+  font-size:10.5px!important;
+  line-height:1.55;
+  font-weight:500!important;
+  letter-spacing:.01em;
+}
+.sdx-created-by strong{
+  color:#b9cbe2;
+  font-weight:650!important;
+}
+
+.sdx-login-date{
+  position:absolute;
+  left:16px;
+  bottom:12px;
+  color:#6f829c;
+  font-size:10px!important;
+  font-weight:550!important;
+  letter-spacing:.04em;
+  pointer-events:none;
+}
+#authPage .auth-card{position:relative;}
+@keyframes sdxAuthCardIn{
+  from{opacity:0;transform:translateY(14px) scale(.985)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+@keyframes sdxAuthItemIn{
+  to{opacity:1;transform:translateY(0)}
+}
+@media (prefers-reduced-motion: reduce){
+  #authPage .auth-card,
+  #authPage .auth-logo,
+  #authPage .auth-title,
+  #authPage .input,
+  #authPage .auth-btn,
+  #authPage .switch-btn,
+  #authPage .sdx-created-by,
+  #authPage .sdx-login-date,
+  #authPage #authMessage{animation:none!important;opacity:1!important;transform:none!important}
+}
+</style>
+
+
+<style id="sdx-creative-login-v21">
+/* United Profile System — Creative #10 login treatment. Functional layout preserved. */
+#authPage{position:relative;overflow:hidden;background:radial-gradient(circle at 50% 115%,rgba(23,118,255,.24),transparent 38%),#020a14!important;}
+#authPage::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;animation:sdxStarsIn 1.8s .15s ease forwards;background-image:radial-gradient(circle,rgba(255,255,255,.55) 0 1px,transparent 1.4px),radial-gradient(circle,rgba(46,153,255,.5) 0 1px,transparent 1.5px);background-size:73px 73px,119px 119px;background-position:12px 18px,45px 66px;}
+#authPage::after{content:"";position:absolute;left:-10%;right:-10%;bottom:-30%;height:48%;border-radius:50% 50% 0 0/28% 28% 0 0;border-top:1px solid rgba(66,174,255,.65);box-shadow:0 -10px 45px rgba(0,123,255,.24),0 -2px 12px rgba(85,207,255,.25);pointer-events:none;opacity:0;transform:translateY(30px);animation:sdxHorizonIn 1.5s .25s cubic-bezier(.2,.8,.2,1) forwards;}
+#authPage .auth-card{z-index:1;background:linear-gradient(180deg,rgba(7,28,54,.92),rgba(4,18,35,.94))!important;box-shadow:0 24px 80px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.03)!important;}
+#authPage .auth-card::before{content:"";position:absolute;left:8%;right:8%;top:0;height:1px;background:linear-gradient(90deg,transparent,#2fa7ff,transparent);transform:scaleX(0);transform-origin:center;animation:sdxSweep 1.2s .25s ease forwards;}
+#authPage .sdx-ups-logo{font-size:28px!important;letter-spacing:-.035em;font-weight:750!important;opacity:0;transform:translateY(12px);animation:sdxTitleIn .75s .42s cubic-bezier(.2,.8,.2,1) forwards!important;}
+#authPage .sdx-ups-logo span{background:linear-gradient(90deg,#168dff,#37d4ff);-webkit-background-clip:text;background-clip:text;color:transparent!important;text-shadow:0 0 24px rgba(35,166,255,.22);}
+#authPage .auth-title{letter-spacing:.14em;font-size:10px!important;text-transform:uppercase;}
+#authPage .input{transition:border-color .25s,box-shadow .25s,transform .25s!important;}
+#authPage .input:focus{border-color:#249cff!important;box-shadow:0 0 0 3px rgba(36,156,255,.09),0 0 25px rgba(36,156,255,.08)!important;transform:translateY(-1px);}
+#authPage .auth-btn{position:relative;overflow:hidden;background:linear-gradient(90deg,#087cff,#22b8ff)!important;box-shadow:0 8px 26px rgba(0,135,255,.18);}
+#authPage .auth-btn::after{content:"";position:absolute;top:-70%;bottom:-70%;width:32%;left:-45%;transform:skewX(-22deg);background:linear-gradient(90deg,transparent,rgba(255,255,255,.38),transparent);animation:sdxButtonShine 2.8s 1.5s ease-in-out infinite;}
+@keyframes sdxStarsIn{to{opacity:.55}}
+@keyframes sdxHorizonIn{to{opacity:1;transform:translateY(0)}}
+@keyframes sdxSweep{to{transform:scaleX(1)}}
+@keyframes sdxTitleIn{to{opacity:1;transform:translateY(0)}}
+@keyframes sdxButtonShine{0%,55%{left:-45%}80%,100%{left:125%}}
+@media(max-width:600px){#authPage .sdx-ups-logo{font-size:23px!important}#authPage::after{bottom:-20%;height:34%}}
+@media(prefers-reduced-motion:reduce){#authPage::before,#authPage::after,#authPage .auth-card::before,#authPage .sdx-ups-logo,#authPage .auth-btn::after{animation:none!important;opacity:1!important;transform:none!important}}
+</style>
+
+<style id="sdx-v24-video-background-fix">
+/* v24: video wallpaper can show while Creative #10 overlays stay active. */
+body.ct-video-active #authPage{
+  background-color:transparent!important;
+  background-image:linear-gradient(rgba(2,10,20,.22),rgba(2,10,20,.22))!important;
+}
+body.ct-video-active #cloudPage{
+  background-color:transparent!important;
+  background-image:linear-gradient(rgba(2,10,20,.18),rgba(2,10,20,.18))!important;
+}
+body.ct-video-active #authPage::before,
+body.ct-video-active #authPage::after{
+  z-index:0;
+}
+body.ct-video-active #authPage .auth-card{
+  position:relative;
+  z-index:2;
+}
+#ctVideoWallpaper{
+  z-index:0!important;
+}
+body.ct-video-active #authPage,
+body.ct-video-active #cloudPage{
+  position:relative;
+  z-index:1;
+}
+</style>
+
+<style id="sdx-v26-instant-video-wallpaper">
+/* v26: selected video is immediately visible behind every app view. */
+body.ct-video-active{background:#020a14!important;}
+body.ct-video-active #ctVideoWallpaper{
+  display:block!important;position:fixed!important;inset:0!important;
+  width:100vw!important;height:100vh!important;object-fit:cover!important;
+  opacity:1!important;visibility:visible!important;z-index:0!important;
+}
+body.ct-video-active #cloudPage,body.ct-video-active #authPage{
+  background:transparent!important;position:relative!important;z-index:1!important;
+}
+body.ct-video-active #dashboardTop{background:transparent!important;}
+body.ct-video-active #sdxSettingsPage,
+body.ct-video-active #sdxDevicesPage,
+body.ct-video-active #sdxFavoritesPage{
+  background:rgba(8,35,66,.58)!important;
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+}
+body.ct-video-active .settings-modal-box{background:rgba(7,24,45,.42)!important;}
+/* ===== v27: pre-login cached wallpaper ===== */
+body.sdx-prelogin-image-active #authPage{
+  background-color:transparent!important;
+  background-image:linear-gradient(rgba(2,10,20,.24),rgba(2,10,20,.24)),var(--sdx-prelogin-wallpaper)!important;
+  background-size:cover!important;
+  background-position:center!important;
+  background-repeat:no-repeat!important;
+}
+
 </style>
 </head>
 
@@ -1086,8 +1354,8 @@ body.ct-video-active .sdx-video-sound-float{display:flex}
 
     <div class="auth-card">
 
-        <div class="auth-logo">
-            Sky<span>DriveX</span>
+        <div class="auth-logo sdx-ups-logo">
+            United <span>Profile</span> System
         </div>
 
         <p class="auth-title" id="authTitle">
@@ -1120,7 +1388,13 @@ body.ct-video-active .sdx-video-sound-float{display:flex}
             Hisobingiz yo‘qmi? Ro‘yxatdan o‘ting
         </button>
 
+        <div class="sdx-created-by">
+            <strong>Ziyoyev Miraziz Muzaffar o‘g‘li</strong> tomonidan yaratilgan.
+        </div>
+
         <div id="authMessage"></div>
+
+        <div class="sdx-login-date">06.09.2026</div>
 
     </div>
 
@@ -1134,21 +1408,43 @@ body.ct-video-active .sdx-video-sound-float{display:flex}
 <section id="cloudPage" class="hidden">
 
 <aside class="sdx-sidebar">
-  <div class="sdx-brand"><div class="sdx-brand-icon">☁</div><div>Sky<span>DriveX</span></div></div>
+  <div class="sdx-brand sdx-brand-profile">
+    <div class="sdx-mini-profile" title="Miraziz">
+      <div class="sdx-mini-avatar" id="sdxMiniAvatar" role="button" tabindex="0" aria-label="Profil rasmi menyusi"><span>M</span></div>
+      <div class="sdx-mini-name">Miraziz</div>
+      <div class="sdx-avatar-menu" id="sdxAvatarMenu">
+        <button type="button" id="sdxAvatarChange">🖼 Rasmni o‘zgartirish</button>
+        <button type="button" class="danger" id="sdxAvatarDelete">🗑 Rasmni o‘chirish</button>
+      </div>
+    </div>
+  </div>
   <nav class="sdx-nav">
     <a class="active" href="#dashboardTop">⌂ <span>Dashboard</span></a>
     <a href="#filesArea">▢ <span>Fayllarim</span></a>
     <a href="#filesArea">▱ <span>Papkalar</span></a>
     <a href="#gdriveArea">△ <span>Google Drive</span></a>
     <a href="#appsArea">◈ <span>Ilovalar</span></a>
-    <a href="#filesArea">☆ <span>Sevimlilar</span></a>
+    <a href="#filesArea">▣ <span>Qurilmalar</span></a>
     <a href="javascript:void(0)" onclick="openSettings()">⚙ <span>Sozlamalar</span></a>
     <a href="javascript:void(0)" onclick="logout()">◉ <span>Chiqish</span></a>
   </nav>
-  <div class="sdx-side-storage">
-    <div class="side-storage-head"><span>Storage</span><span id="sideStorageText">0%</span></div>
-    <div class="side-progress"><div id="sideStorageBar"></div></div>
-    <small>SkyDriveX Cloud</small>
+  <div class="sdx-side-storage sdx-side-clouds">
+    <div class="side-cloud-title">Storage</div>
+
+    <div class="side-cloud-row">
+      <div class="side-storage-head"><span>Supabase</span><span id="sideSupabaseText">0 B / 1 GB</span></div>
+      <div class="side-progress"><div id="sideSupabaseBar"></div></div>
+    </div>
+
+    <div class="side-cloud-row">
+      <div class="side-storage-head"><span>Backblaze</span><span id="sideBackblazeText">0 B / 10 GB</span></div>
+      <div class="side-progress"><div id="sideBackblazeBar"></div></div>
+    </div>
+
+    <div class="side-cloud-row">
+      <div class="side-storage-head"><span>Google Drive</span><span id="sideGoogleDriveText">Ulanmagan</span></div>
+      <div class="side-progress"><div id="sideGoogleDriveBar"></div></div>
+    </div>
   </div>
 </aside>
 
@@ -1165,7 +1461,7 @@ body.ct-video-active .sdx-video-sound-float{display:flex}
 <main class="container" id="dashboardTop">
 
 <section class="x-greeting">
-  <div><h1>Xush kelibsiz, United System! 👋</h1><p>Fayllaringiz xavfsiz va bir joyda.</p></div>
+  <div><h1>United Profile System</h1><p>Fayllaringiz xavfsiz va bir joyda.</p></div>
   <div class="x-badge">VARIANT 5 · DARK BLUE GLASS</div>
 </section>
 <section class="sdx-stats">
@@ -1174,6 +1470,90 @@ body.ct-video-active .sdx-video-sound-float{display:flex}
   <div class="stat-glass"><div class="stat-icon">☁</div><div><small>Storage</small><strong id="statStorage">0 B</strong><div class="stat-sub muted">ishlatilgan xotira</div></div></div>
   <div class="stat-glass"><div class="stat-icon">△</div><div><small>Google Drive</small><strong id="statDrive">Ulanmagan</strong><div class="stat-sub muted">hisob holati</div></div></div>
 </section>
+<!-- =====================================================
+     UPLOAD
+===================================================== -->
+
+<section class="upload-box">
+
+    <h2>⬆️ Fayl yuklash</h2>
+
+    <p>
+        Telefon yoki kompyuterdan istalgan faylni tanlang — EXE, MSI, APK, ZIP, RAR, 7Z va boshqa fayllar ham qo‘llanadi
+    </p>
+
+    <!-- BITTA FAYL -->
+
+    <label
+        class="upload-btn"
+        for="fileInput">
+        📤 Fayl tanlash
+    </label>
+
+    <input
+        type="file"
+        id="fileInput"
+        accept="*/*">
+
+    <!-- TO'G'RIDAN-TO'G'RI BACKBLAZE B2 -->
+
+    <label
+        class="upload-btn"
+        for="b2FileInput">
+        ☁️ Backblaze'ga yuklash
+    </label>
+
+    <input
+        type="file"
+        id="b2FileInput"
+        accept="*/*"
+        multiple>
+
+    <!-- TO'G'RIDAN-TO'G'RI SUPABASE -->
+
+    <label
+        class="upload-btn"
+        for="supabaseFileInput">
+        ☁️ Supabase'ga yuklash
+    </label>
+
+    <input
+        type="file"
+        id="supabaseFileInput"
+        accept="*/*"
+        multiple>
+
+    <!-- TO'G'RIDAN-TO'G'RI GOOGLE DRIVE -->
+
+    <label
+        class="upload-btn"
+        for="gdriveFileInput">
+        🔺 Google Drive'ga yuklash
+    </label>
+
+
+    <!-- BUTUN PAPKA -->
+
+    <label
+        class="upload-btn folder-btn"
+        for="folderInput">
+        📁 Papka tanlash
+    </label>
+
+    <input
+        type="file"
+        id="folderInput"
+        webkitdirectory
+        directory
+        multiple>
+
+
+    <div id="uploadStatus"></div>
+
+</section>
+
+
+
 <section class="x-dashboard-grid">
 <section class="apps-card x-top-apps" id="appsArea">
   <div class="apps-head">
@@ -1303,53 +1683,6 @@ body.ct-video-active .sdx-video-sound-float{display:flex}
         </div>
 
     </div>
-
-</section>
-
-
-<!-- =====================================================
-     UPLOAD
-===================================================== -->
-
-<section class="upload-box">
-
-    <h2>⬆️ Fayl yuklash</h2>
-
-    <p>
-        Telefon yoki kompyuterdan istalgan faylni tanlang — EXE, MSI, APK, ZIP, RAR, 7Z va boshqa fayllar ham qo‘llanadi
-    </p>
-
-    <!-- BITTA FAYL -->
-
-    <label
-        class="upload-btn"
-        for="fileInput">
-        📤 Fayl tanlash
-    </label>
-
-    <input
-        type="file"
-        id="fileInput"
-        accept="*/*">
-
-
-    <!-- BUTUN PAPKA -->
-
-    <label
-        class="upload-btn folder-btn"
-        for="folderInput">
-        📁 Papka tanlash
-    </label>
-
-    <input
-        type="file"
-        id="folderInput"
-        webkitdirectory
-        directory
-        multiple>
-
-
-    <div id="uploadStatus"></div>
 
 </section>
 
@@ -2033,11 +2366,97 @@ async function logout(){
 }
 
 
+
+/* =====================================================
+   v27 PRE-LOGIN WALLPAPER CACHE
+   Shu qurilmada bir marta login qilingandan keyin fon
+   keyingi ochilishlarda login oynasidan oldin ham chiqadi.
+===================================================== */
+const SDX_LOGIN_WP_CACHE_DB="sdx_login_wallpaper_cache_v1";
+const SDX_LOGIN_WP_CACHE_STORE="wallpaper";
+const SDX_LOGIN_WP_CACHE_KEY="main";
+let sdxPreloginObjectUrl="";
+function sdxLoginWpDb(){
+  return new Promise((resolve,reject)=>{
+    const req=indexedDB.open(SDX_LOGIN_WP_CACHE_DB,1);
+    req.onupgradeneeded=()=>{
+      const db=req.result;
+      if(!db.objectStoreNames.contains(SDX_LOGIN_WP_CACHE_STORE))db.createObjectStore(SDX_LOGIN_WP_CACHE_STORE);
+    };
+    req.onsuccess=()=>resolve(req.result);
+    req.onerror=()=>reject(req.error);
+  });
+}
+async function sdxLoginWallpaperCachePut(record){
+  const db=await sdxLoginWpDb();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction(SDX_LOGIN_WP_CACHE_STORE,"readwrite");
+    tx.objectStore(SDX_LOGIN_WP_CACHE_STORE).put(record,SDX_LOGIN_WP_CACHE_KEY);
+    tx.oncomplete=()=>{db.close();resolve()};
+    tx.onerror=()=>{const e=tx.error;db.close();reject(e)};
+  });
+}
+async function sdxLoginWallpaperCacheGet(){
+  const db=await sdxLoginWpDb();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction(SDX_LOGIN_WP_CACHE_STORE,"readonly");
+    const req=tx.objectStore(SDX_LOGIN_WP_CACHE_STORE).get(SDX_LOGIN_WP_CACHE_KEY);
+    req.onsuccess=()=>resolve(req.result||null);
+    req.onerror=()=>reject(req.error);
+    tx.oncomplete=()=>db.close();
+  });
+}
+async function sdxLoginWallpaperCacheDelete(){
+  try{
+    const db=await sdxLoginWpDb();
+    await new Promise((resolve,reject)=>{
+      const tx=db.transaction(SDX_LOGIN_WP_CACHE_STORE,"readwrite");
+      tx.objectStore(SDX_LOGIN_WP_CACHE_STORE).delete(SDX_LOGIN_WP_CACHE_KEY);
+      tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error);
+    });
+    db.close();
+  }catch(_){ }
+}
+async function sdxPreloadLoginWallpaperCache(){
+  try{
+    const rec=await sdxLoginWallpaperCacheGet();
+    if(!rec?.blob || !rec?.kind)return false;
+    if(sdxPreloginObjectUrl){try{URL.revokeObjectURL(sdxPreloginObjectUrl)}catch(_){}}
+    sdxPreloginObjectUrl=URL.createObjectURL(rec.blob);
+    if(rec.kind==="video"){
+      let v=document.getElementById("ctVideoWallpaper");
+      if(!v){
+        v=document.createElement("video");
+        v.id="ctVideoWallpaper";
+        v.preload="auto";v.autoplay=true;v.loop=true;v.muted=true;v.defaultMuted=true;v.playsInline=true;
+        v.setAttribute("autoplay","");v.setAttribute("loop","");v.setAttribute("muted","");v.setAttribute("playsinline","");
+        document.body.prepend(v);
+      }
+      v.src=sdxPreloginObjectUrl;v.style.display="block";v.load();
+      document.body.classList.add("ct-video-active");
+      document.body.classList.remove("sdx-prelogin-image-active");
+      try{await v.play()}catch(_){ }
+      return true;
+    }
+    if(rec.kind==="image"){
+      document.documentElement.style.setProperty("--sdx-prelogin-wallpaper",`url("${sdxPreloginObjectUrl}")`);
+      document.body.classList.add("sdx-prelogin-image-active");
+      document.body.classList.remove("ct-video-active");
+      return true;
+    }
+  }catch(e){console.warn("Pre-login wallpaper cache:",e)}
+  return false;
+}
+
+
 /* =====================================================
    CHECK SESSION
 ===================================================== */
 
 async function checkSession(){
+
+    // v27: avval shu qurilmadagi oxirgi fonni login oynasidayoq ko'rsatamiz.
+    await sdxPreloadLoginWallpaperCache();
 
     const {
         data:{
@@ -4536,7 +4955,7 @@ async function restoreGoogleDriveAfterReload(){
     }
     updateGoogleDriveStatus("⏳ Google Drive ulanmoqda...");
     const ok=await refreshGoogleDriveTokenFromServer(true);
-    if(ok) await loadGoogleDriveFiles(googleDriveFolderId || "root");
+    if(ok){ await loadGoogleDriveFiles(googleDriveFolderId || "root"); if(typeof sdxCalculateCombinedStorage==="function") await sdxCalculateCombinedStorage(); }
   }catch(error){
     clearGoogleDriveToken();
     updateGoogleDriveStatus();
@@ -4590,6 +5009,7 @@ window.addEventListener("message",async event=>{
     googleDriveFolderId="root";
     googleDriveFolderStack=[];
     await loadGoogleDriveFiles("root");
+    if(typeof sdxCalculateCombinedStorage==="function") await sdxCalculateCombinedStorage();
   }
 });
 
@@ -4769,7 +5189,7 @@ document.getElementById("gdriveFileInput")?.addEventListener("change",async func
   if(!googleDriveTokenValid() && !(await refreshGoogleDriveTokenFromServer(true))){ this.value=""; alert("Google Drive ulanmagan. Asosiy qurilmada bir marta ulang."); return; }
   let success=0;
   for(const file of files){ try{ await uploadGoogleDriveFile(file); success++; }catch(error){ alert(file.name+": "+error.message); } }
-  this.value=""; alert(success+" ta fayl Google Drive’ga yuklandi."); await loadGoogleDriveFiles();
+  this.value=""; alert(success+" ta fayl Google Drive’ga yuklandi."); await loadGoogleDriveFiles(); if(typeof sdxCalculateCombinedStorage==="function") await sdxCalculateCombinedStorage();
 });
 
 updateGoogleDriveStatus();
@@ -4789,9 +5209,8 @@ function syncDashboardStats(){
     const folders=(allItems||[]).filter(x=>x&&!x.metadata).length;
     const a=document.getElementById('statFiles'),b=document.getElementById('statFolders');
     if(a)a.textContent=files; if(b)b.textContent=folders;
-    const st=document.getElementById('storageText'), ss=document.getElementById('statStorage'); if(st&&ss)ss.textContent=st.textContent||'0 B';
-    const gs=document.getElementById('gdriveStatus'), gd=document.getElementById('statDrive'); if(gs&&gd)gd.textContent=(gs.textContent||'').includes('Ulanmagan')?'Ulanmagan':'Ulangan';
-    const bar=document.getElementById('storageBar'), side=document.getElementById('sideStorageBar'), sideText=document.getElementById('sideStorageText');
+    /* Storage/Drive qiymatlarini sdxCalculateCombinedStorage boshqaradi. */
+    const bar=document.getElementById('storageBar');
     if(bar&&side){side.style.width=bar.style.width||'0%'; if(sideText)sideText.textContent=bar.style.width||'0%';}
   }catch(e){}
 }
@@ -5009,30 +5428,97 @@ async function sdxUpdateUserMetadata(patch){
   return data?.user||user;
 }
 
+const SDX_WALLPAPER_RULE_KEY = "wallpaper_sync";
+
+async function sdxReadWallpaperSettingsRule(userId){
+  const {data,error}=await supabaseClient
+    .from("sdx_settings")
+    .select("storage_rule")
+    .eq("user_id",userId)
+    .maybeSingle();
+  if(error) throw error;
+  const rule=(data?.storage_rule && typeof data.storage_rule==="object") ? data.storage_rule : {};
+  return rule;
+}
+
+async function sdxWriteWallpaperSettingsRule(userId,wallpaperValue){
+  const rule=await sdxReadWallpaperSettingsRule(userId);
+  const next={...rule,[SDX_WALLPAPER_RULE_KEY]:wallpaperValue||null};
+  const {error}=await supabaseClient
+    .from("sdx_settings")
+    .upsert({user_id:userId,storage_rule:next,updated_at:new Date().toISOString()},{onConflict:"user_id"});
+  if(error) throw error;
+  return next;
+}
+
+function sdxWallpaperFileExt(file,kind){
+  const byName=(file?.name||"").split(".").pop()?.toLowerCase();
+  if(byName && /^[a-z0-9]{2,5}$/.test(byName)) return byName;
+  const type=(file?.type||"").toLowerCase();
+  if(kind==="video") return type.includes("webm")?"webm":"mp4";
+  if(type.includes("png"))return "png";
+  if(type.includes("webp"))return "webp";
+  return "jpg";
+}
+
 async function sdxUploadWallpaperToCloud(file,kind,displayName=""){
   const user=await sdxFreshUser();
   if(!user) throw new Error("SkyDriveX hisobiga kiring.");
-  const path=sdxWallpaperCloudPath(kind,user.id);
+
+  // Oldingi fon ma'lumotini sdx_settings dan olamiz.
+  let oldWallpaper=null;
+  try{
+    const oldRule=await sdxReadWallpaperSettingsRule(user.id);
+    oldWallpaper=oldRule?.[SDX_WALLPAPER_RULE_KEY]||null;
+  }catch(e){
+    console.warn("Old wallpaper settings:",e);
+  }
+
+  // Har yangilashda yangi path — brauzer/cache eski fonni ushlab qolmaydi.
+  const ext=sdxWallpaperFileExt(file,kind);
+  const path=`${user.id}/.skydrivex/wallpapers/${kind}-${Date.now()}.${ext}`;
 
   const {error}=await supabaseClient.storage
     .from(BUCKET)
     .upload(path,file,{
-      upsert:true,
+      upsert:false,
       contentType:file.type || (kind==="video"?"video/mp4":"image/jpeg"),
       cacheControl:"3600"
     });
   if(error) throw error;
 
-  const patch={
-    [SDX_CLOUD_WALLPAPER_META.type]:kind,
-    [SDX_CLOUD_WALLPAPER_META.path]:path,
-    [SDX_CLOUD_WALLPAPER_META.name]:displayName||file.name||`${kind} wallpaper`,
-    [SDX_CLOUD_WALLPAPER_META.updated]:Date.now()
+  const wallpaperRecord={
+    kind,
+    path,
+    name:displayName||file.name||`${kind} wallpaper`,
+    updatedAt:Date.now(),
+    storage:"supabase",
+    videoSettings:kind==="video"?(ctGetVideoAudioSettings?.()||{}):null
   };
-  if(kind==="video"){
-    patch[SDX_CLOUD_WALLPAPER_META.videoSettings]=ctGetVideoAudioSettings?.()||{};
+
+  try{
+    // Asosiy cross-device manba: public.sdx_settings.storage_rule.wallpaper_sync
+    await sdxWriteWallpaperSettingsRule(user.id,wallpaperRecord);
+
+    // Eski versiyalar bilan moslik uchun auth metadata ham yangilanadi.
+    const patch={
+      [SDX_CLOUD_WALLPAPER_META.type]:kind,
+      [SDX_CLOUD_WALLPAPER_META.path]:path,
+      [SDX_CLOUD_WALLPAPER_META.name]:wallpaperRecord.name,
+      [SDX_CLOUD_WALLPAPER_META.updated]:wallpaperRecord.updatedAt
+    };
+    if(kind==="video")patch[SDX_CLOUD_WALLPAPER_META.videoSettings]=wallpaperRecord.videoSettings||{};
+    try{await sdxUpdateUserMetadata(patch)}catch(e){console.warn("Wallpaper metadata compatibility:",e)}
+
+    // Yangi fon xavfsiz saqlangandan keyingina eski faylni o'chiramiz.
+    if(oldWallpaper?.path && oldWallpaper.path!==path){
+      try{await supabaseClient.storage.from(BUCKET).remove([oldWallpaper.path])}catch(_){ }
+    }
+  }catch(e){
+    // DB yozuvi muvaffaqiyatsiz bo'lsa orphan fayl qoldirmaslikka harakat qilamiz.
+    try{await supabaseClient.storage.from(BUCKET).remove([path])}catch(_){ }
+    throw e;
   }
-  await sdxUpdateUserMetadata(patch);
   return path;
 }
 
@@ -5048,38 +5534,66 @@ async function sdxLoadWallpaperFromCloud(){
   const user=await sdxFreshUser();
   if(!user) return false;
 
-  const meta=user.user_metadata||{};
-  const kind=meta[SDX_CLOUD_WALLPAPER_META.type];
-  const path=meta[SDX_CLOUD_WALLPAPER_META.path];
-  const name=meta[SDX_CLOUD_WALLPAPER_META.name]||"Cloud wallpaper";
+  let wall=null;
+  try{
+    const rule=await sdxReadWallpaperSettingsRule(user.id);
+    wall=rule?.[SDX_WALLPAPER_RULE_KEY]||null;
+  }catch(e){
+    console.warn("Wallpaper settings read:",e);
+  }
 
-  if(!kind || !path) return false;
+  // v24 va undan oldingi ma'lumotlar uchun fallback.
+  if(!wall?.kind || !wall?.path){
+    const meta=user.user_metadata||{};
+    const kind=meta[SDX_CLOUD_WALLPAPER_META.type];
+    const path=meta[SDX_CLOUD_WALLPAPER_META.path];
+    if(kind&&path){
+      wall={
+        kind,
+        path,
+        name:meta[SDX_CLOUD_WALLPAPER_META.name]||"Cloud wallpaper",
+        updatedAt:meta[SDX_CLOUD_WALLPAPER_META.updated]||0,
+        videoSettings:meta[SDX_CLOUD_WALLPAPER_META.videoSettings]||null
+      };
+    }
+  }
+
+  if(!wall?.kind || !wall?.path) return false;
 
   try{
-    const signed=await sdxSignedWallpaperUrl(path);
+    const signed=await sdxSignedWallpaperUrl(wall.path);
     if(!signed) return false;
+    const name=wall.name||"Cloud wallpaper";
 
-    if(kind==="video"){
-      const cloudSettings=meta[SDX_CLOUD_WALLPAPER_META.videoSettings];
-      if(cloudSettings && typeof cloudSettings==="object"){
-        localStorage.setItem(CT_VIDEO_AUDIO_SETTINGS_KEY,JSON.stringify(cloudSettings));
+    if(wall.kind==="video"){
+      if(wall.videoSettings && typeof wall.videoSettings==="object"){
+        localStorage.setItem(CT_VIDEO_AUDIO_SETTINGS_KEY,JSON.stringify(wall.videoSettings));
       }
       localStorage.setItem("sdx_video_wallpaper_enabled","1");
       await ctApplyVideoUrl(signed,name);
+      // Shu qurilmada keyingi ochilishda login oldidan ham chiqishi uchun cloud videoni lokal cache qilamiz.
+      fetch(signed).then(r=>{if(!r.ok)throw new Error("wallpaper fetch");return r.blob()})
+        .then(blob=>Promise.allSettled([
+          sdxLoginWallpaperCachePut({kind:"video",blob,name,updatedAt:wall.updatedAt||Date.now()}),
+          ctVideoDbPut({blob,name,type:blob.type,size:blob.size,updatedAt:wall.updatedAt||Date.now()})
+        ])).catch(e=>console.warn("Video pre-login cache:",e));
       return true;
     }
 
-    if(kind==="image"){
+    if(wall.kind==="image"){
       ctDeactivateVideoWallpaper?.();
+      localStorage.removeItem("sdx_video_wallpaper_enabled");
       ctWallpaperData=signed;
-      let s=null;
-      try{s=JSON.parse(localStorage.getItem(CT_KEY)||"null")}catch(_){}
-      if(!s)s={...CT_PRESETS.darkblue,preset:"darkblue",wallpaper:signed};
-      s={...s,wallpaper:signed};
-      ctApplyTheme(s);
-      if(document.getElementById("ctWallpaperName")){
-        document.getElementById("ctWallpaperName").textContent=`☁️ ${name}`;
-      }
+      let theme=null;
+      try{theme=JSON.parse(localStorage.getItem(CT_KEY)||"null")}catch(_){ }
+      if(!theme)theme={...CT_PRESETS.darkblue,preset:"darkblue",wallpaper:signed};
+      theme={...theme,wallpaper:signed};
+      ctApplyTheme(theme);
+      const label=document.getElementById("ctWallpaperName");
+      if(label)label.textContent=`☁️ ${name}`;
+      fetch(signed).then(r=>{if(!r.ok)throw new Error("wallpaper fetch");return r.blob()})
+        .then(blob=>sdxLoginWallpaperCachePut({kind:"image",blob,name,updatedAt:wall.updatedAt||Date.now()}))
+        .catch(e=>console.warn("Image pre-login cache:",e));
       return true;
     }
   }catch(e){
@@ -5092,21 +5606,36 @@ async function sdxRemoveCloudWallpaper(kind=null){
   try{
     const user=await sdxFreshUser();
     if(!user) return;
+
+    let rule={};
+    try{rule=await sdxReadWallpaperSettingsRule(user.id)}catch(_){ }
+    const wall=rule?.[SDX_WALLPAPER_RULE_KEY]||null;
+
+    if(wall && (!kind || wall.kind===kind)){
+      if(wall.path){
+        const {error}=await supabaseClient.storage.from(BUCKET).remove([wall.path]);
+        if(error)console.warn("Wallpaper storage remove:",error.message);
+      }
+      await sdxWriteWallpaperSettingsRule(user.id,null);
+    }
+
+    // Eski metadata ham tozalanadi.
     const meta=user.user_metadata||{};
-    const currentKind=kind||meta[SDX_CLOUD_WALLPAPER_META.type];
-    const path=meta[SDX_CLOUD_WALLPAPER_META.path];
-    if(path && (!kind || currentKind===kind)){
-      await supabaseClient.storage.from(BUCKET).remove([path]);
-      await sdxUpdateUserMetadata({
-        [SDX_CLOUD_WALLPAPER_META.type]:null,
-        [SDX_CLOUD_WALLPAPER_META.path]:null,
-        [SDX_CLOUD_WALLPAPER_META.name]:null,
-        [SDX_CLOUD_WALLPAPER_META.updated]:null,
-        [SDX_CLOUD_WALLPAPER_META.videoSettings]:null
-      });
+    const metaKind=meta[SDX_CLOUD_WALLPAPER_META.type];
+    if(!kind || metaKind===kind){
+      try{
+        await sdxUpdateUserMetadata({
+          [SDX_CLOUD_WALLPAPER_META.type]:null,
+          [SDX_CLOUD_WALLPAPER_META.path]:null,
+          [SDX_CLOUD_WALLPAPER_META.name]:null,
+          [SDX_CLOUD_WALLPAPER_META.updated]:null,
+          [SDX_CLOUD_WALLPAPER_META.videoSettings]:null
+        });
+      }catch(_){ }
     }
   }catch(e){
     console.warn("Cloud wallpaper remove:",e);
+    throw e;
   }
 }
 
@@ -5116,15 +5645,21 @@ function sdxScheduleCloudVideoSettingsSync(settings){
     try{
       const user=await sdxFreshUser();
       if(!user) return;
-      const meta=user.user_metadata||{};
-      if(meta[SDX_CLOUD_WALLPAPER_META.type]!=="video") return;
-      await sdxUpdateUserMetadata({
-        [SDX_CLOUD_WALLPAPER_META.videoSettings]:settings
-      });
+      const rule=await sdxReadWallpaperSettingsRule(user.id);
+      const wall=rule?.[SDX_WALLPAPER_RULE_KEY];
+      if(!wall || wall.kind!=="video") return;
+      const nextWall={...wall,videoSettings:settings,updatedAt:Date.now()};
+      await sdxWriteWallpaperSettingsRule(user.id,nextWall);
+      try{
+        const meta=user.user_metadata||{};
+        if(meta[SDX_CLOUD_WALLPAPER_META.type]==="video"){
+          await sdxUpdateUserMetadata({[SDX_CLOUD_WALLPAPER_META.videoSettings]:settings});
+        }
+      }catch(_){ }
     }catch(e){
       console.warn("Video settings cloud sync:",e);
     }
-  },500);
+  },700);
 }
 
 function ctRangeLabels(){
@@ -5156,6 +5691,8 @@ async function ctReset(){
   ctWriteControls(s);ctApplyTheme(s);showSettingsStatus?.("Standart dizayn tiklandi.");
 }
 async function ctRemoveWallpaper(){
+  await sdxLoginWallpaperCacheDelete();
+  document.body.classList.remove("sdx-prelogin-image-active");
   ctWallpaperData="";
   const f=document.getElementById("ctWallpaperFile");if(f)f.value="";
   const n=document.getElementById("ctWallpaperName");if(n)n.textContent="Fon rasmi tanlanmagan";
@@ -5174,6 +5711,7 @@ async function ctWallpaperPicked(ev){
     ctLive();
 
     const blob=await (await fetch(data)).blob();
+    try{await sdxLoginWallpaperCachePut({kind:"image",blob,name:file.name,updatedAt:Date.now()})}catch(_){ }
     const cloudFile=new File([blob],"wallpaper.jpg",{type:"image/jpeg"});
     await sdxUploadWallpaperToCloud(cloudFile,"image",file.name);
     if(name)name.textContent=`☁️ ${file.name}`;
@@ -5481,6 +6019,7 @@ async function ctVideoWallpaperPicked(ev){
     // Shu qurilmada login ekranida ham tez ko‘rinishi uchun lokal nusxa saqlanadi.
     try{
       await ctVideoDbPut({blob:file,name:file.name,type:file.type,size:file.size,updatedAt:Date.now()});
+      await sdxLoginWallpaperCachePut({kind:"video",blob:file,name:file.name,updatedAt:Date.now()});
     }catch(_){}
 
     localStorage.setItem("sdx_video_wallpaper_enabled","1");
@@ -5506,6 +6045,7 @@ async function ctLoadVideoWallpaper(){
 }
 async function ctRemoveVideoWallpaper(ask=true){
   if(ask&&!confirm("Video wallpaper barcha qurilmalardan olib tashlansinmi?"))return;
+  await sdxLoginWallpaperCacheDelete();
   ctDeactivateVideoWallpaper();
   localStorage.removeItem("sdx_video_wallpaper_enabled");
   try{await ctVideoDbDelete()}catch(_){}
@@ -6183,6 +6723,52 @@ document.addEventListener("DOMContentLoaded",()=>{
         this.value=""; uploadStatus.textContent=`✅ ${ok} ta yuklandi${fail?` · ❌ ${fail} ta xato`:""}`; await loadCombinedFolder(); await sdxCalculateCombinedStorage();
       });
     }
+    const supInput=document.getElementById("supabaseFileInput");
+    if(supInput&&!supInput.dataset.sdxEnhanced){
+      const n=supInput.cloneNode(true); n.dataset.sdxEnhanced="1"; supInput.replaceWith(n);
+      n.addEventListener("change",async function(){
+        const files=Array.from(this.files||[]); if(!files.length)return;
+        uploadStatus.textContent=`⏳ ${files.length} ta fayl Supabase'ga yuklanmoqda...`;
+        let ok=0,fail=0;
+        for(const file of files){
+          try{
+            const name=safeFileName(file.name), relative=currentFolder?`${currentFolder}/${name}`:name;
+            await uploadSupabase(file,relative);
+            await logActivity("upload","supabase",relative,{name:file.name,size:file.size,manual:true});
+            ok++;
+            uploadStatus.textContent=`⏳ ${ok+fail}/${files.length} · Supabase`;
+          }catch(e){console.error(e);fail++;}
+        }
+        this.value="";
+        uploadStatus.textContent=`✅ Supabase: ${ok} ta yuklandi${fail?` · ❌ ${fail} ta xato`:""}`;
+        await loadCombinedFolder();
+        await sdxCalculateCombinedStorage();
+      });
+    }
+
+    const b2=document.getElementById("b2FileInput");
+    if(b2&&!b2.dataset.sdxEnhanced){
+      const n=b2.cloneNode(true); n.dataset.sdxEnhanced="1"; b2.replaceWith(n);
+      n.addEventListener("change",async function(){
+        const files=Array.from(this.files||[]); if(!files.length)return;
+        uploadStatus.textContent=`⏳ ${files.length} ta fayl Backblaze'ga yuklanmoqda...`;
+        let ok=0,fail=0;
+        for(const file of files){
+          try{
+            const name=safeFileName(file.name), relative=currentFolder?`${currentFolder}/${name}`:name;
+            await uploadB2(file,relative);
+            await logActivity("upload","b2",relative,{name:file.name,size:file.size,manual:true});
+            ok++;
+            uploadStatus.textContent=`⏳ ${ok+fail}/${files.length} · Backblaze B2`;
+          }catch(e){console.error(e);fail++;}
+        }
+        this.value="";
+        uploadStatus.textContent=`✅ Backblaze: ${ok} ta yuklandi${fail?` · ❌ ${fail} ta xato`:""}`;
+        await loadCombinedFolder();
+        await sdxCalculateCombinedStorage();
+      });
+    }
+
     const fold=document.getElementById("folderInput");
     if(fold&&!fold.dataset.sdxEnhanced){
       const n=fold.cloneNode(true); n.dataset.sdxEnhanced="1"; fold.replaceWith(n);
@@ -6305,15 +6891,55 @@ document.addEventListener("DOMContentLoaded",()=>{
     async function walk(path){let offset=0;while(true){const {data,error}=await supabaseClient.storage.from(BUCKET).list(path,{limit:1000,offset});if(error)throw error;const arr=data||[];for(const x of arr){if(!x?.name)continue;if(path===u.id&&SDX_HIDDEN_ROOTS.has(x.name))continue;const child=path+"/"+x.name;if(x.metadata){const s=x.metadata.size||0;out.bytes+=s;out.files++;const t=getFileType(x.name)||"other";out.types[t]=(out.types[t]||0)+s}else await walk(child)}if(arr.length<1000)break;offset+=1000;}}
     await walk(u.id);return out;
   }
+  async function sdxGoogleDriveStorage(){
+    try{
+      // Token SkyDriveX serveridan tiklanadi. gdriveFetch 401 bo'lsa tokenni ham avtomatik yangilaydi.
+      if(!googleDriveTokenValid() && !(await refreshGoogleDriveTokenFromServer(true))) {
+        return {connected:false,used:0,limit:15*1024**3};
+      }
+      const r=await gdriveFetch("https://www.googleapis.com/drive/v3/about?fields=storageQuota");
+      const d=await r.json().catch(()=>({}));
+      if(!r.ok) throw new Error(d?.error?.message||"Google Drive quota olinmadi");
+      const q=d.storageQuota||{};
+      const used=Number(q.usage||0);
+      const limit=Number(q.limit||15*1024**3);
+      return {connected:true,used:Number.isFinite(used)?used:0,limit:Number.isFinite(limit)&&limit>0?limit:15*1024**3};
+    }catch(e){
+      console.warn("Google Drive storage quota:",e);
+      return {connected:googleDriveTokenValid(),used:0,limit:15*1024**3};
+    }
+  }
   window.sdxCalculateCombinedStorage=async()=>{
-    const [s,b]=await Promise.allSettled([recursiveSupabaseStats(),b2Json("/storage")]);
-    const sup=s.status==="fulfilled"?s.value:{bytes:0,files:0,types:{}}, b2=b.status==="fulfilled"?b.value:{usedBytes:0,files:0};
-    const total=sup.bytes+(b2.usedBytes||0); if(typeof storageValue!=="undefined"&&storageValue)storageValue.textContent=formatSize(total); if(typeof sideStorageText!=="undefined"&&sideStorageText)sideStorageText.textContent=`${formatSize(total)} · Supabase + B2`;
-    return {supabase:sup,b2:{bytes:b2.usedBytes||0,files:b2.files||0},total};
+    const [s,b,g]=await Promise.allSettled([recursiveSupabaseStats(),b2Json("/storage"),sdxGoogleDriveStorage()]);
+    const sup=s.status==="fulfilled"?s.value:{bytes:0,files:0,types:{}};
+    const b2=b.status==="fulfilled"?b.value:{usedBytes:0,files:0};
+    const gd=g.status==="fulfilled"?g.value:{connected:false,used:0,limit:15*1024**3};
+    const B2_LIMIT=10*1024**3, SUP_LIMIT=1*1024**3, GD_LIMIT=gd.limit||15*1024**3;
+    const b2Bytes=b2.usedBytes||0, pct=Math.min(100,(b2Bytes/B2_LIMIT)*100);
+    const storageText=document.getElementById("storageText"),storageBar=document.getElementById("storageBar");
+    const stat=document.getElementById("statStorage");
+    if(storageText) storageText.textContent=`${formatSize(b2Bytes)} / 10 GB`;
+    if(storageBar) storageBar.style.width=pct+"%";
+
+    const supPct=Math.min(100,(sup.bytes/SUP_LIMIT)*100);
+    const gdPct=gd.connected?Math.min(100,(gd.used/GD_LIMIT)*100):0;
+    const sideSupText=document.getElementById("sideSupabaseText"),sideSupBar=document.getElementById("sideSupabaseBar");
+    const sideB2Text=document.getElementById("sideBackblazeText"),sideB2Bar=document.getElementById("sideBackblazeBar");
+    const sideGdText=document.getElementById("sideGoogleDriveText"),sideGdBar=document.getElementById("sideGoogleDriveBar");
+    if(sideSupText) sideSupText.textContent=`${formatSize(sup.bytes)} / 1 GB`;
+    if(sideSupBar) sideSupBar.style.width=supPct+"%";
+    if(sideB2Text) sideB2Text.textContent=`${formatSize(b2Bytes)} / 10 GB`;
+    if(sideB2Bar) sideB2Bar.style.width=pct+"%";
+    if(sideGdText) sideGdText.textContent=gd.connected?`${formatSize(gd.used)} / ${formatSize(GD_LIMIT)}`:"Ulanmagan";
+    if(sideGdBar) sideGdBar.style.width=gdPct+"%";
+
+    if(stat){stat.style.fontSize="14px";stat.style.lineHeight="1.65";stat.innerHTML=`Backblaze: ${formatSize(b2Bytes)} / 10 GB<br>Supabase: ${formatSize(sup.bytes)} / 1 GB<br>Google Drive: ${gd.connected?formatSize(gd.used)+" / "+formatSize(GD_LIMIT):"Ulanmagan"}`;}
+    const drive=document.getElementById("statDrive");if(drive)drive.textContent=gd.connected?`${formatSize(gd.used)} / ${formatSize(GD_LIMIT)}`:"Ulanmagan";
+    return {supabase:sup,b2:{bytes:b2Bytes,files:b2.files||0},google:gd,total:b2Bytes+sup.bytes+gd.used,limits:{b2:B2_LIMIT,supabase:SUP_LIMIT,google:GD_LIMIT}};
   };
   window.sdxRenderStorageAnalytics=async()=>{
     const c=document.getElementById("f74Content");if(!c)return;c.innerHTML='<div class="empty">⏳ Hisoblanmoqda...</div>';const s=await sdxCalculateCombinedStorage();
-    c.innerHTML=`<div class="f74-statgrid"><div class="f74-stat"><span>Jami</span><strong>${formatSize(s.total)}</strong></div><div class="f74-stat"><span>Supabase</span><strong>${formatSize(s.supabase.bytes)}</strong></div><div class="f74-stat"><span>Backblaze B2</span><strong>${formatSize(s.b2.bytes)}</strong></div><div class="f74-stat"><span>Fayllar</span><strong>${s.supabase.files+s.b2.files}</strong></div></div><div class="f74-list" style="margin-top:12px">${Object.entries(s.supabase.types).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="f74-item"><span>${escapeHtml(k)}</span><b>${formatSize(v)}</b></div>`).join("")}</div>`;
+    c.innerHTML=`<div class="f74-statgrid"><div class="f74-stat"><span>Backblaze</span><strong>${formatSize(s.b2.bytes)} / 10 GB</strong></div><div class="f74-stat"><span>Supabase</span><strong>${formatSize(s.supabase.bytes)} / 1 GB</strong></div><div class="f74-stat"><span>Google Drive</span><strong>${s.google.connected?formatSize(s.google.used)+" / "+formatSize(s.limits.google):"Ulanmagan"}</strong></div><div class="f74-stat"><span>Fayllar</span><strong>${s.supabase.files+s.b2.files}</strong></div></div><div class="f74-list" style="margin-top:12px">${Object.entries(s.supabase.types).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="f74-item"><span>${escapeHtml(k)}</span><b>${formatSize(v)}</b></div>`).join("")}</div>`;
   };
 
   window.sdxSmartSearch=async q=>{
@@ -6364,6 +6990,433 @@ document.addEventListener("DOMContentLoaded",()=>{
   window.addEventListener("load",()=>setTimeout(init,250));
 })();
 
+</script>
+
+
+<script id="sdx-storage-autorefresh-v5">
+/* SkyDriveX v5: keep provider storage cards synchronized without changing layout. */
+(function(){
+  async function refreshStorageV5(){
+    try{
+      if(typeof window.sdxCalculateCombinedStorage === "function"){
+        await window.sdxCalculateCombinedStorage();
+      }
+    }catch(e){ console.warn("Storage auto refresh:", e); }
+  }
+  window.sdxRefreshStorage = refreshStorageV5;
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", ()=>setTimeout(refreshStorageV5, 1200), {once:true});
+  }else setTimeout(refreshStorageV5, 1200);
+  window.addEventListener("load", ()=>{
+    setTimeout(refreshStorageV5, 2500);
+    setTimeout(refreshStorageV5, 6000);
+  });
+  document.addEventListener("visibilitychange", ()=>{ if(!document.hidden) refreshStorageV5(); });
+  setInterval(refreshStorageV5, 60000);
+})();
+</script>
+
+
+<script id="sdx-v14-profile-sync">
+(function(){
+  function syncMiniAvatar(){
+    const mini=document.getElementById('sdxMiniAvatar');
+    if(!mini) return;
+    const srcImg=document.querySelector('#avatarContainer img');
+    if(srcImg && srcImg.src){
+      mini.innerHTML='';
+      const img=document.createElement('img');
+      img.src=srcImg.src; img.alt='Miraziz';
+      mini.appendChild(img);
+    }else{
+      mini.innerHTML='<span>M</span>';
+    }
+  }
+  function closeMenu(){
+    document.getElementById('sdxAvatarMenu')?.classList.remove('open');
+  }
+  function toggleMenu(e){
+    e?.stopPropagation();
+    document.getElementById('sdxAvatarMenu')?.classList.toggle('open');
+  }
+  window.addEventListener('load',()=>{
+    syncMiniAvatar();
+    setTimeout(syncMiniAvatar,1200);
+    const target=document.getElementById('avatarContainer');
+    if(target){
+      new MutationObserver(syncMiniAvatar).observe(target,{childList:true,subtree:true,attributes:true});
+    }
+    const mini=document.getElementById('sdxMiniAvatar');
+    const menu=document.getElementById('sdxAvatarMenu');
+    mini?.addEventListener('click',toggleMenu);
+    mini?.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggleMenu(e)}});
+    menu?.addEventListener('click',e=>e.stopPropagation());
+    document.getElementById('sdxAvatarChange')?.addEventListener('click',()=>{closeMenu(); if(typeof changeAvatar==='function') changeAvatar(); else document.getElementById('avatarInput')?.click();});
+    document.getElementById('sdxAvatarDelete')?.addEventListener('click',()=>{closeMenu(); if(typeof deleteAvatar==='function') deleteAvatar();});
+    document.addEventListener('click',closeMenu);
+    document.addEventListener('keydown',e=>{if(e.key==='Escape') closeMenu();});
+  });
+})();
+</script>
+
+
+<!-- SDX v17: sidebar sections open as separate blocks/pages -->
+<style>
+  .sdx-view-hidden{display:none!important}
+  #sdxFavoritesPage,#sdxSettingsPage{
+    background:rgba(8,35,66,.92);
+    border:1px solid rgba(48,139,255,.45);
+    border-radius:14px;
+    padding:18px;
+    min-height:360px;
+  }
+  #sdxFavoritesPage h2,#sdxSettingsPage h2{margin:0 0 14px;font-size:16px}
+  #sdxFavoritesList .sdx-fav-row{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:12px 14px;margin-bottom:9px;border:1px solid rgba(90,145,210,.28);
+    border-radius:10px;background:rgba(10,39,73,.7)
+  }
+  #sdxFavoritesList .sdx-fav-meta{font-size:11px;color:#8fa6c3;margin-top:4px}
+  #sdxSettingsPage .settings-modal-box{
+    position:static!important;transform:none!important;margin:0!important;
+    width:100%!important;max-width:none!important;max-height:none!important;
+    border:none!important;box-shadow:none!important;background:transparent!important;
+    padding:0!important
+  }
+  #sdxSettingsPage .modal-header .close-btn{display:none!important}
+  .sdx-apps-only.x-dashboard-grid{grid-template-columns:1fr!important}
+  .sdx-apps-only.x-dashboard-grid > .x-glass-card{display:none!important}
+</style>
+<script>
+(function(){
+  let sdxCurrentView='dashboard';
+  let settingsBoxHome=null;
+
+  function navLinks(){return Array.from(document.querySelectorAll('.sdx-nav a'))}
+  function setActiveByLabel(label){
+    navLinks().forEach(a=>a.classList.toggle('active',(a.textContent||'').trim().includes(label)));
+  }
+  function mainSections(){return Array.from(document.querySelectorAll('#dashboardTop > section'))}
+  function hideAll(){mainSections().forEach(el=>el.classList.add('sdx-view-hidden'))}
+  function show(...els){els.filter(Boolean).forEach(el=>el.classList.remove('sdx-view-hidden'))}
+  function restoreFileRows(){document.querySelectorAll('#fileList .file').forEach(x=>x.style.display='')}
+  function applyFolderOnly(){
+    document.querySelectorAll('#fileList .file').forEach(x=>x.style.display=x.classList.contains('folder')?'':'none');
+  }
+  function ensureExtraPages(){
+    const main=document.getElementById('dashboardTop'); if(!main)return;
+    if(!document.getElementById('sdxFavoritesPage')){
+      const sec=document.createElement('section'); sec.id='sdxFavoritesPage'; sec.className='sdx-view-hidden';
+      sec.innerHTML='<h2>☆ Sevimlilar</h2><div id="sdxFavoritesList"><div class="empty">⏳ Yuklanmoqda...</div></div>';
+      main.appendChild(sec);
+    }
+    if(!document.getElementById('sdxSettingsPage')){
+      const sec=document.createElement('section'); sec.id='sdxSettingsPage'; sec.className='sdx-view-hidden';
+      sec.innerHTML='<h2>⚙ Sozlamalar</h2><div id="sdxSettingsMount"></div>';
+      main.appendChild(sec);
+    }
+  }
+  async function renderFavoritesPage(){
+    const c=document.getElementById('sdxFavoritesList'); if(!c)return;
+    try{
+      const u=window.currentUser || (await supabaseClient.auth.getUser()).data?.user;
+      if(!u){c.innerHTML='<div class="empty">Hisob topilmadi.</div>';return}
+      const {data=[],error}=await supabaseClient.from('sdx_favorites').select('*').eq('user_id',u.id).order('created_at',{ascending:false});
+      if(error)throw error;
+      c.innerHTML=data.length?data.map(x=>`<div class="sdx-fav-row"><div><b>⭐ ${escapeHtml(x.name||'Fayl')}</b><div class="sdx-fav-meta">${x.storage==='b2'?'Backblaze':'Supabase'} · ${escapeHtml(x.path||'')}</div></div><button class="btn delete" onclick="sdxDeleteFavoriteFromPage('${x.id}')">🗑️</button></div>`).join(''):'<div class="empty">Sevimlilar bo‘sh</div>';
+    }catch(e){c.innerHTML='<div class="empty">❌ Sevimlilarni yuklab bo‘lmadi</div>';console.warn(e)}
+  }
+  window.sdxDeleteFavoriteFromPage=async function(id){
+    try{await supabaseClient.from('sdx_favorites').delete().eq('id',id);await renderFavoritesPage()}catch(e){alert('Xatolik: '+e.message)}
+  };
+  function mountSettings(){
+    const modal=document.getElementById('settingsModal'),mount=document.getElementById('sdxSettingsMount');
+    if(!modal||!mount)return;
+    const box=modal.querySelector('.settings-modal-box');
+    if(!box)return;
+    if(!settingsBoxHome)settingsBoxHome=modal;
+    mount.appendChild(box);
+    modal.classList.add('hidden');
+    try{
+      const u=window.currentUser;
+      const n=document.getElementById('settingsName'),e=document.getElementById('settingsEmail'),p=document.getElementById('settingsPassword'),p2=document.getElementById('settingsPassword2');
+      if(n)n.value=u?.user_metadata?.display_name||''; if(e)e.value=u?.email||''; if(p)p.value=''; if(p2)p2.value='';
+      if(typeof applyVisualSettings==='function')applyVisualSettings();
+      if(typeof ctLoad==='function')ctLoad();
+    }catch(_){ }
+  }
+  function unmountSettings(){
+    const page=document.getElementById('sdxSettingsPage');
+    const box=page?.querySelector('.settings-modal-box');
+    const modal=document.getElementById('settingsModal');
+    if(box&&modal)modal.appendChild(box);
+  }
+  function showView(view){
+    ensureExtraPages();
+    if(sdxCurrentView==='settings' && view!=='settings')unmountSettings();
+    sdxCurrentView=view;
+    hideAll(); restoreFileRows();
+    const q=s=>document.querySelector(s), id=s=>document.getElementById(s);
+    const grid=q('#dashboardTop > .x-dashboard-grid'); if(grid)grid.classList.remove('sdx-apps-only');
+    if(view==='dashboard'){
+      show(q('#dashboardTop > .x-greeting'),q('#dashboardTop > .sdx-stats'),q('#dashboardTop > .upload-box'),grid,q('#dashboardTop > .x-bottom-grid'));
+      setActiveByLabel('Dashboard');
+    }else if(view==='files'){
+      show(q('#dashboardTop > .toolbar'),id('filesArea')); setActiveByLabel('Fayllarim');
+      const t=id('currentTitle'); if(t)t.textContent='Fayllar';
+      if(typeof loadCurrentFolder==='function')loadCurrentFolder();
+    }else if(view==='folders'){
+      show(q('#dashboardTop > .toolbar'),id('filesArea')); setActiveByLabel('Papkalar');
+      const t=id('currentTitle'); if(t)t.textContent='Papkalar';
+      if(typeof loadCurrentFolder==='function')Promise.resolve(loadCurrentFolder()).then(()=>setTimeout(applyFolderOnly,250));
+      setTimeout(applyFolderOnly,500);
+    }else if(view==='gdrive'){
+      show(id('gdriveArea')); setActiveByLabel('Google Drive');
+      if(typeof loadGoogleDriveFiles==='function' && typeof googleDriveTokenValid==='function' && googleDriveTokenValid())loadGoogleDriveFiles();
+    }else if(view==='apps'){
+      if(grid){grid.classList.add('sdx-apps-only');show(grid)} setActiveByLabel('Ilovalar');
+    }else if(view==='favorites'){
+      show(id('sdxFavoritesPage')); setActiveByLabel('Sevimlilar'); renderFavoritesPage();
+    }else if(view==='settings'){
+      show(id('sdxSettingsPage')); setActiveByLabel('Sozlamalar'); mountSettings();
+    }
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  window.sdxShowView=showView;
+  function bindNav(){
+    const links=navLinks();
+    const map=[['Dashboard','dashboard'],['Fayllarim','files'],['Papkalar','folders'],['Google Drive','gdrive'],['Ilovalar','apps'],['Sevimlilar','favorites'],['Sozlamalar','settings']];
+    links.forEach(a=>{
+      const txt=(a.textContent||'').trim(); const pair=map.find(([label])=>txt.includes(label));
+      if(!pair)return;
+      a.removeAttribute('onclick');a.setAttribute('href','javascript:void(0)');
+      a.addEventListener('click',e=>{e.preventDefault();showView(pair[1])});
+    });
+  }
+  document.addEventListener('DOMContentLoaded',()=>{
+    ensureExtraPages();bindNav();
+    setTimeout(()=>showView('dashboard'),50);
+    const list=document.getElementById('fileList');
+    if(list)new MutationObserver(()=>{if(sdxCurrentView==='folders')applyFolderOnly()}).observe(list,{childList:true,subtree:false});
+  });
+})();
+</script>
+
+
+
+<!-- SDX v18: replace Favorites with Device Sessions -->
+<style>
+  #sdxDevicesPage{
+    background:rgba(8,35,66,.92);
+    border:1px solid rgba(48,139,255,.45);
+    border-radius:14px;
+    padding:18px;
+    min-height:360px;
+  }
+  #sdxDevicesPage h2{margin:0 0 6px;font-size:16px}
+  #sdxDevicesPage .sdx-dev-sub{font-size:12px;color:#8fa6c3;margin-bottom:14px}
+  #sdxDevicesList{display:grid;gap:10px}
+  .sdx-device-row{
+    display:flex;align-items:center;justify-content:space-between;gap:14px;
+    padding:13px 14px;border:1px solid rgba(90,145,210,.28);
+    border-radius:10px;background:rgba(10,39,73,.7)
+  }
+  .sdx-device-main{min-width:0}
+  .sdx-device-name{font-size:13px;font-weight:700;color:#f3f7ff}
+  .sdx-device-meta{font-size:11px;color:#8fa6c3;margin-top:4px;line-height:1.55}
+  .sdx-device-current{display:inline-block;margin-left:7px;padding:2px 6px;border-radius:999px;background:rgba(36,153,255,.18);color:#64b9ff;font-size:10px;font-weight:700}
+  .sdx-kick-btn{border:1px solid rgba(255,87,105,.5);background:rgba(239,68,68,.14);color:#ff8e9b;border-radius:9px;padding:8px 11px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap}
+  .sdx-kick-btn:hover{background:rgba(239,68,68,.22)}
+  .sdx-dev-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+  @media(max-width:700px){.sdx-device-row{align-items:flex-start;flex-direction:column}.sdx-kick-btn{width:100%}}
+</style>
+<script>
+(function(){
+  const NAV_LABEL='Qurilmalar';
+  let currentView='';
+
+  function esc(v){
+    if(typeof escapeHtml==='function') return escapeHtml(String(v??''));
+    return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+  function fmtDate(v){
+    try{return new Date(v).toLocaleString('uz-UZ',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})}catch{return v||'-'}
+  }
+  function thisDeviceId(){return localStorage.getItem('sdx_device_id')||''}
+  async function getUser(){
+    const r=await supabaseClient.auth.getUser(); return r?.data?.user||null;
+  }
+  async function getSettings(u){
+    const {data,error}=await supabaseClient.from('sdx_settings').select('storage_rule').eq('user_id',u.id).maybeSingle();
+    if(error && error.code!=='PGRST116') throw error;
+    return data?.storage_rule&&typeof data.storage_rule==='object'?data.storage_rule:{};
+  }
+  async function saveSettings(u,obj){
+    const {error}=await supabaseClient.from('sdx_settings').upsert({user_id:u.id,storage_rule:obj,updated_at:new Date().toISOString()},{onConflict:'user_id'});
+    if(error)throw error;
+  }
+  async function revokedIds(u){
+    const st=await getSettings(u); return Array.isArray(st._revoked_devices)?st._revoked_devices:[];
+  }
+  async function revokeDevice(id){
+    const u=await getUser(); if(!u)return;
+    if(id===thisDeviceId()){
+      if(!confirm('Shu qurilmadan chiqilsinmi?'))return;
+      try{await supabaseClient.from('sdx_devices').delete().eq('user_id',u.id).eq('device_id',id)}catch(_){ }
+      await supabaseClient.auth.signOut({scope:'local'}); location.reload(); return;
+    }
+    if(!confirm('Tanlangan qurilma SkyDriveX hisobidan chiqarilsinmi?'))return;
+    const st=await getSettings(u), arr=Array.isArray(st._revoked_devices)?st._revoked_devices:[];
+    if(!arr.includes(id))arr.push(id);
+    st._revoked_devices=arr;
+    await saveSettings(u,st);
+    try{await supabaseClient.from('sdx_devices').delete().eq('user_id',u.id).eq('device_id',id)}catch(_){ }
+    await renderDevicesPage();
+  }
+  window.sdxRevokeOneDevice=revokeDevice;
+
+  async function renderDevicesPage(){
+    const c=document.getElementById('sdxDevicesList'); if(!c)return;
+    c.innerHTML='<div class="empty">⏳ Yuklanmoqda...</div>';
+    try{
+      const u=await getUser(); if(!u){c.innerHTML='<div class="empty">Hisob topilmadi.</div>';return}
+      // current device row gets refreshed by existing tracker when available
+      try{if(typeof touchDevice==='function')await touchDevice()}catch(_){ }
+      const {data=[],error}=await supabaseClient.from('sdx_devices').select('*').eq('user_id',u.id).order('last_seen',{ascending:false});
+      if(error)throw error;
+      const cur=thisDeviceId();
+      c.innerHTML=data.length?data.map(d=>{
+        const current=d.device_id===cur;
+        return `<div class="sdx-device-row"><div class="sdx-device-main"><div class="sdx-device-name">💻 ${esc(d.device_name||'Qurilma')}${current?'<span class="sdx-device-current">SHU QURILMA</span>':''}</div><div class="sdx-device-meta">Hisob: ${esc(u.email||u.user_metadata?.display_name||'SkyDriveX')}<br>Kirgan sana: ${fmtDate(d.created_at)}<br>Oxirgi faollik: ${fmtDate(d.last_seen)}</div></div><button class="sdx-kick-btn" onclick="sdxRevokeOneDevice('${esc(d.device_id)}')">${current?'Chiqish':'Chiqarish'}</button></div>`;
+      }).join(''):'<div class="empty">Qurilma topilmadi</div>';
+    }catch(e){console.warn(e);c.innerHTML='<div class="empty">❌ Qurilmalarni yuklab bo‘lmadi</div>'}
+  }
+  window.sdxRenderDevicesPage=renderDevicesPage;
+
+  async function checkRevoked(){
+    try{
+      const u=await getUser(), id=thisDeviceId(); if(!u||!id)return;
+      const arr=await revokedIds(u);
+      if(arr.includes(id)){
+        await supabaseClient.auth.signOut({scope:'local'});
+        alert('Bu qurilma hisobdan chiqarildi.');
+        location.reload();
+      }
+    }catch(e){console.warn('device revoke check',e)}
+  }
+
+  function ensurePage(){
+    const main=document.getElementById('dashboardTop'); if(!main)return;
+    const old=document.getElementById('sdxFavoritesPage'); if(old)old.remove();
+    if(!document.getElementById('sdxDevicesPage')){
+      const sec=document.createElement('section');sec.id='sdxDevicesPage';sec.className='sdx-view-hidden';
+      sec.innerHTML='<h2>▣ Qurilmalar</h2><div class="sdx-dev-sub">Hisobga kirilgan qurilmalar, kirgan sana va oxirgi faollik.</div><div id="sdxDevicesList"></div><div class="sdx-dev-actions"><button class="action-btn red" onclick="sdxLogoutAllDevices()">Barcha qurilmalardan chiqish</button></div>';
+      main.appendChild(sec);
+    }
+  }
+  function navLinks(){return Array.from(document.querySelectorAll('.sdx-nav a'))}
+  function setActive(){navLinks().forEach(a=>a.classList.toggle('active',(a.textContent||'').includes(NAV_LABEL)))}
+  function hideAll(){Array.from(document.querySelectorAll('#dashboardTop > section')).forEach(x=>x.classList.add('sdx-view-hidden'))}
+  function bind(){
+    const a=navLinks().find(x=>(x.textContent||'').includes(NAV_LABEL)); if(!a||a.dataset.sdxDevicesBound)return;
+    a.dataset.sdxDevicesBound='1'; a.href='javascript:void(0)';
+    a.addEventListener('click',e=>{e.preventDefault(); currentView='devices'; ensurePage(); hideAll(); document.getElementById('sdxDevicesPage')?.classList.remove('sdx-view-hidden'); setActive(); renderDevicesPage(); window.scrollTo({top:0,behavior:'smooth'});},true);
+  }
+
+  document.addEventListener('DOMContentLoaded',()=>{
+    ensurePage();bind();checkRevoked();
+    setInterval(checkRevoked,15000);
+  });
+})();
+</script>
+
+
+<!-- v25: Cross-device wallpaper sync uses sdx_settings.storage_rule.wallpaper_sync + Supabase Storage. -->
+
+
+<!-- v27: cached wallpaper can appear before login on a previously authenticated device. -->
+
+<script>
+/* =====================================================
+   v28 — GLOBAL PRE-LOGIN WALLPAPER
+   Public wallpaper appears even on a brand-new device before login.
+===================================================== */
+const SDX_PUBLIC_WP_BUCKET="public-wallpapers";
+const SDX_PUBLIC_WP_CONFIG_KEY="global_login_wallpaper";
+
+async function sdxV28LoadGlobalPreloginWallpaper(){
+  try{
+    const {data,error}=await supabaseClient.from("sdx_public_config")
+      .select("value").eq("key",SDX_PUBLIC_WP_CONFIG_KEY).maybeSingle();
+    if(error || !data?.value?.path || !data?.value?.kind) return false;
+    const rec=data.value;
+    const {data:urlData}=supabaseClient.storage.from(SDX_PUBLIC_WP_BUCKET).getPublicUrl(rec.path);
+    const url=urlData?.publicUrl;
+    if(!url)return false;
+    if(rec.kind==="video"){
+      let v=document.getElementById("ctVideoWallpaper");
+      if(!v){
+        v=document.createElement("video");v.id="ctVideoWallpaper";
+        v.preload="auto";v.autoplay=true;v.loop=true;v.muted=true;v.defaultMuted=true;v.playsInline=true;
+        v.setAttribute("autoplay","");v.setAttribute("loop","");v.setAttribute("muted","");v.setAttribute("playsinline","");
+        document.body.prepend(v);
+      }
+      v.src=url;v.style.display="block";v.load();
+      document.body.classList.add("ct-video-active");
+      document.body.classList.remove("sdx-prelogin-image-active");
+      try{await v.play()}catch(_){ }
+      return true;
+    }
+    document.documentElement.style.setProperty("--sdx-prelogin-wallpaper",`url("${url}")`);
+    document.body.classList.add("sdx-prelogin-image-active");
+    document.body.classList.remove("ct-video-active");
+    return true;
+  }catch(e){console.warn("v28 global pre-login wallpaper:",e);return false}
+}
+
+async function sdxV28PublishGlobalWallpaper(file,kind,displayName=""){
+  const user=await sdxFreshUser();
+  if(!user)return false;
+  try{
+    const ext=sdxWallpaperFileExt(file,kind);
+    const path=`global/${kind}-${Date.now()}.${ext}`;
+    const {error:upErr}=await supabaseClient.storage.from(SDX_PUBLIC_WP_BUCKET).upload(path,file,{
+      upsert:false,contentType:file.type||(kind==="video"?"video/mp4":"image/jpeg"),cacheControl:"3600"
+    });
+    if(upErr)throw upErr;
+    const value={kind,path,name:displayName||file.name||"wallpaper",updatedAt:Date.now()};
+    const {data:old}=await supabaseClient.from("sdx_public_config").select("value").eq("key",SDX_PUBLIC_WP_CONFIG_KEY).maybeSingle();
+    const {error:dbErr}=await supabaseClient.from("sdx_public_config").upsert({
+      key:SDX_PUBLIC_WP_CONFIG_KEY,value,owner_id:user.id,updated_at:new Date().toISOString()
+    },{onConflict:"key"});
+    if(dbErr){try{await supabaseClient.storage.from(SDX_PUBLIC_WP_BUCKET).remove([path])}catch(_){};throw dbErr}
+    const oldPath=old?.value?.path;
+    if(oldPath&&oldPath!==path){try{await supabaseClient.storage.from(SDX_PUBLIC_WP_BUCKET).remove([oldPath])}catch(_){}}
+    return true;
+  }catch(e){console.warn("v28 publish global wallpaper:",e);return false}
+}
+
+// Publish the same selected wallpaper globally after the existing account/cloud sync succeeds.
+(function(){
+  const oldUpload=window.sdxUploadWallpaperToCloud;
+  if(typeof oldUpload==="function"){
+    window.sdxUploadWallpaperToCloud=async function(file,kind,displayName=""){
+      const result=await oldUpload(file,kind,displayName);
+      await sdxV28PublishGlobalWallpaper(file,kind,displayName);
+      return result;
+    };
+    // global function declaration binding compatibility
+    try{sdxUploadWallpaperToCloud=window.sdxUploadWallpaperToCloud}catch(_){ }
+  }
+})();
+
+// On a completely new device there is no local cache. Load public global wallpaper immediately.
+document.addEventListener("DOMContentLoaded",async()=>{
+  try{
+    const local=await sdxLoginWallpaperCacheGet().catch(()=>null);
+    if(!local?.blob) await sdxV28LoadGlobalPreloginWallpaper();
+  }catch(_){await sdxV28LoadGlobalPreloginWallpaper()}
+},{once:true});
 </script>
 
 </body>
