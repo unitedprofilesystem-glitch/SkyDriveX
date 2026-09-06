@@ -2323,6 +2323,8 @@ html,body{max-width:100%;overflow-x:hidden}
 
 <section id="cloudPage" class="hidden">
 
+<div id="upsMobileMenuBackdropV45" onclick="UPS45CloseMenu(event)" aria-hidden="true"></div>
+
 <aside class="sdx-sidebar">
   <div class="sdx-brand sdx-brand-profile">
     <div class="sdx-mini-profile" title="Miraziz">
@@ -2366,6 +2368,7 @@ html,body{max-width:100%;overflow-x:hidden}
 
 <header class="header">
   <div class="header-right">
+    <button type="button" id="upsMobileMenuToggleV45" aria-label="Menyu" aria-expanded="false" onclick="UPS45ToggleMenu(event)">☰</button>
     <input class="x-top-search" placeholder="⌕  Qidirish..." oninput="document.getElementById('searchInput').value=this.value;filterItems()">
     <div class="x-top-icon">♧</div>
     <div class="x-user-chip">US</div>
@@ -10572,6 +10575,109 @@ window.UPS_NO_LOGIN_AUTO_REFRESH_V41=true;
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', improvePhoneUI, {once:true});
   else improvePhoneUI();
+})();
+</script>
+
+
+
+<style id="ups-v45-mobile-menu-working-style">
+@media (max-width:900px){
+  /* old generated mobile menu control is disabled; v45 uses a static reliable control */
+  #upsMobileMenuToggle,#upsMobileMenuBackdrop{display:none!important;pointer-events:none!important;}
+
+  #upsMobileMenuToggleV45{
+    display:grid!important;place-items:center!important;
+    width:42px!important;height:42px!important;min-width:42px!important;
+    padding:0!important;margin:0!important;border-radius:14px!important;
+    border:1px solid rgba(84,152,238,.28)!important;
+    background:rgba(4,18,39,.96)!important;color:#f4f8ff!important;
+    font:800 18px/1 system-ui,-apple-system,Segoe UI,sans-serif!important;
+    cursor:pointer!important;touch-action:manipulation!important;
+    position:relative!important;z-index:420!important;
+    appearance:none!important;-webkit-appearance:none!important;
+    pointer-events:auto!important;
+    grid-column:1!important;
+  }
+
+  #upsMobileMenuBackdropV45{
+    display:block!important;position:fixed!important;inset:0!important;
+    z-index:390!important;background:rgba(1,7,18,.56)!important;
+    opacity:0!important;visibility:hidden!important;pointer-events:none!important;
+    transition:opacity .18s ease,visibility .18s ease!important;
+  }
+  body.ups45-menu-open #upsMobileMenuBackdropV45{
+    opacity:1!important;visibility:visible!important;pointer-events:auto!important;
+  }
+
+  #cloudPage .sdx-sidebar{
+    position:fixed!important;left:0!important;right:auto!important;top:0!important;bottom:0!important;
+    width:min(84vw,310px)!important;max-width:310px!important;height:100dvh!important;
+    transform:translate3d(-110%,0,0)!important;
+    transition:transform .20s ease!important;
+    z-index:410!important;pointer-events:auto!important;
+    overflow-y:auto!important;overflow-x:hidden!important;
+  }
+  body.ups45-menu-open #cloudPage .sdx-sidebar{transform:translate3d(0,0,0)!important;}
+
+  body.ups45-menu-open{overflow:hidden!important;}
+
+  #cloudPage .header-right{
+    display:grid!important;grid-template-columns:42px minmax(0,1fr) 42px!important;
+    gap:10px!important;align-items:center!important;
+  }
+  #cloudPage .x-top-search{grid-column:2!important;}
+  #cloudPage .x-user-chip{grid-column:3!important;}
+  #cloudPage .x-top-icon{display:none!important;}
+}
+
+@media (max-width:480px){
+  #cloudPage .header-right{grid-template-columns:40px minmax(0,1fr) 40px!important;gap:8px!important;}
+  #upsMobileMenuToggleV45{width:40px!important;height:40px!important;min-width:40px!important;border-radius:13px!important;}
+}
+
+@media (min-width:901px){
+  #upsMobileMenuToggleV45,#upsMobileMenuBackdropV45{display:none!important;}
+}
+</style>
+
+<script id="ups-v45-mobile-menu-working-script">
+window.UPS45CloseMenu=function(ev){
+  if(ev){ try{ev.preventDefault()}catch(_){ } try{ev.stopPropagation()}catch(_){ } }
+  document.body.classList.remove('ups45-menu-open');
+  const b=document.getElementById('upsMobileMenuToggleV45');
+  if(b)b.setAttribute('aria-expanded','false');
+};
+window.UPS45OpenMenu=function(ev){
+  if(ev){ try{ev.preventDefault()}catch(_){ } try{ev.stopPropagation()}catch(_){ } }
+  if(!window.matchMedia('(max-width:900px)').matches)return;
+  document.body.classList.add('ups45-menu-open');
+  const b=document.getElementById('upsMobileMenuToggleV45');
+  if(b)b.setAttribute('aria-expanded','true');
+};
+window.UPS45ToggleMenu=function(ev){
+  if(ev){ try{ev.preventDefault()}catch(_){ } try{ev.stopPropagation()}catch(_){ } }
+  if(document.body.classList.contains('ups45-menu-open')) UPS45CloseMenu(); else UPS45OpenMenu();
+};
+(function(){
+  function boot(){
+    const btn=document.getElementById('upsMobileMenuToggleV45');
+    const sidebar=document.querySelector('#cloudPage .sdx-sidebar');
+    if(btn){
+      // iOS Safari fallback: both touch and click are supported, but touch only prevents duplicate clicks.
+      btn.addEventListener('touchend',function(e){
+        e.preventDefault();e.stopPropagation();UPS45ToggleMenu();
+      },{passive:false});
+    }
+    if(sidebar){
+      sidebar.addEventListener('click',function(e){e.stopPropagation();});
+      sidebar.querySelectorAll('a').forEach(a=>a.addEventListener('click',function(){
+        if(window.matchMedia('(max-width:900px)').matches)setTimeout(()=>UPS45CloseMenu(),80);
+      }));
+    }
+    document.addEventListener('keydown',function(e){if(e.key==='Escape')UPS45CloseMenu();});
+    window.addEventListener('resize',function(){if(!window.matchMedia('(max-width:900px)').matches)UPS45CloseMenu();},{passive:true});
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();
 </script>
 
