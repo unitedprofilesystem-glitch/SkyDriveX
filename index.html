@@ -10064,6 +10064,38 @@ html.ups-layout-editing #upsLayoutResizeHandle.show{display:block!important}
   font-family:system-ui,sans-serif!important;
 }
 #upsHoldEditBar.show{display:block!important}
+/* Popupning o'zini past-o'ng burchagidan tortib kichraytirish/kattalashtirish */
+#upsHoldEditBar{
+  min-width:250px!important;
+  min-height:170px!important;
+  max-width:calc(100vw - 20px)!important;
+  max-height:calc(100vh - 20px)!important;
+  overflow:auto!important;
+}
+#upsHoldBarResizeGrip{
+  position:absolute!important;
+  right:3px!important;
+  bottom:3px!important;
+  width:18px!important;
+  height:18px!important;
+  z-index:4!important;
+  cursor:nwse-resize!important;
+  touch-action:none!important;
+  user-select:none!important;
+  opacity:.9!important;
+}
+#upsHoldBarResizeGrip::before,
+#upsHoldBarResizeGrip::after{
+  content:"";
+  position:absolute;
+  right:2px;
+  bottom:2px;
+  border-right:2px solid rgba(153,239,244,.78);
+  border-bottom:2px solid rgba(153,239,244,.78);
+}
+#upsHoldBarResizeGrip::before{width:12px;height:12px}
+#upsHoldBarResizeGrip::after{width:6px;height:6px}
+#upsHoldEditBar.ups-bar-resizing{user-select:none!important}
 .ups-he-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
 .ups-he-name{flex:1;min-width:0;font-size:11px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#c9f7f8}
 .ups-he-close{
@@ -10261,7 +10293,8 @@ html.ups-hold-editing .ups-hold-selected{
         <button class="ups-he-btn danger" id="upsHEReset">Reset</button>
         <button class="ups-he-btn" id="upsHEDrag">Sudrash</button>
       </div>
-      <div class="ups-he-note">Element ustiga ~0.5 soniya bosib turing. “Sudrash”ni bosgach elementni erkin ko‘chirasiz.</div>`;
+      <div class="ups-he-note">Element ustiga ~0.5 soniya bosib turing. “Sudrash”ni bosgach elementni erkin ko‘chirasiz. Oynani past-o‘ng burchagidan tortib razmerini o‘zgartiring.</div>
+      <div id="upsHoldBarResizeGrip" title="Oynani kichraytirish / kattalashtirish"></div>`;
     document.body.appendChild(bar);
     const toastEl=document.createElement("div");toastEl.id="upsHoldToast";document.body.appendChild(toastEl);
 
@@ -10273,6 +10306,48 @@ html.ups-hold-editing .ups-hold-selected{
       selected.dataset.upsHoldDrag="1";
       toast("Endi elementni sudrang");
     });
+
+    // Edit popup razmerini eslab qolish
+    try{
+      const saved=JSON.parse(localStorage.getItem("ups_hold_bar_size_v1")||"null");
+      if(saved && saved.w && saved.h){
+        const maxW=Math.max(250,window.innerWidth-20);
+        const maxH=Math.max(170,window.innerHeight-20);
+        bar.style.setProperty("width",Math.min(maxW,Math.max(250,saved.w))+"px","important");
+        bar.style.setProperty("height",Math.min(maxH,Math.max(170,saved.h))+"px","important");
+      }
+    }catch(_){}
+
+    const grip=document.getElementById("upsHoldBarResizeGrip");
+    let barResize=null;
+    grip.addEventListener("pointerdown",e=>{
+      e.preventDefault();
+      e.stopPropagation();
+      const r=bar.getBoundingClientRect();
+      barResize={x:e.clientX,y:e.clientY,w:r.width,h:r.height};
+      bar.classList.add("ups-bar-resizing");
+      try{grip.setPointerCapture(e.pointerId)}catch(_){}
+    },true);
+    grip.addEventListener("pointermove",e=>{
+      if(!barResize)return;
+      e.preventDefault();
+      e.stopPropagation();
+      const maxW=Math.max(250,window.innerWidth-bar.getBoundingClientRect().left-10);
+      const maxH=Math.max(170,window.innerHeight-bar.getBoundingClientRect().top-10);
+      const w=Math.min(maxW,Math.max(250,barResize.w+(e.clientX-barResize.x)));
+      const h=Math.min(maxH,Math.max(170,barResize.h+(e.clientY-barResize.y)));
+      bar.style.setProperty("width",w+"px","important");
+      bar.style.setProperty("height",h+"px","important");
+    },true);
+    function finishBarResize(){
+      if(!barResize)return;
+      barResize=null;
+      bar.classList.remove("ups-bar-resizing");
+      const r=bar.getBoundingClientRect();
+      try{localStorage.setItem("ups_hold_bar_size_v1",JSON.stringify({w:Math.round(r.width),h:Math.round(r.height)}))}catch(_){}
+    }
+    grip.addEventListener("pointerup",finishBarResize,true);
+    grip.addEventListener("pointercancel",finishBarResize,true);
   }
 
   document.addEventListener("pointerdown",e=>{
