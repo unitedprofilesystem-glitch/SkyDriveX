@@ -1232,13 +1232,29 @@ b, strong { font-weight: 700; }
 
 .sdx-login-date{
   position:absolute;
-  left:16px;
-  bottom:12px;
-  color:#6f829c;
+  left:8px;
+  bottom:5px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  color:#7f94af;
   font-size:10px!important;
   font-weight:550!important;
   letter-spacing:.04em;
   pointer-events:none;
+}
+.sdx-date-icon{
+  width:15px;
+  height:15px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid rgba(55,157,255,.55);
+  border-radius:4px;
+  color:#49a7ff;
+  font-size:8px;
+  line-height:1;
+  box-shadow:0 0 8px rgba(38,139,255,.16);
 }
 #authPage .auth-card{position:relative;}
 @keyframes sdxAuthCardIn{
@@ -1262,86 +1278,840 @@ b, strong { font-weight: 700; }
 </style>
 
 
-<style id="sdx-creative-login-v21">
-/* United Profile System — Creative #10 login treatment. Functional layout preserved. */
-#authPage{position:relative;overflow:hidden;background:radial-gradient(circle at 50% 115%,rgba(23,118,255,.24),transparent 38%),#020a14!important;}
-#authPage::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;animation:sdxStarsIn 1.8s .15s ease forwards;background-image:radial-gradient(circle,rgba(255,255,255,.55) 0 1px,transparent 1.4px),radial-gradient(circle,rgba(46,153,255,.5) 0 1px,transparent 1.5px);background-size:73px 73px,119px 119px;background-position:12px 18px,45px 66px;}
-#authPage::after{content:"";position:absolute;left:-10%;right:-10%;bottom:-30%;height:48%;border-radius:50% 50% 0 0/28% 28% 0 0;border-top:1px solid rgba(66,174,255,.65);box-shadow:0 -10px 45px rgba(0,123,255,.24),0 -2px 12px rgba(85,207,255,.25);pointer-events:none;opacity:0;transform:translateY(30px);animation:sdxHorizonIn 1.5s .25s cubic-bezier(.2,.8,.2,1) forwards;}
-#authPage .auth-card{z-index:1;background:linear-gradient(180deg,rgba(7,28,54,.92),rgba(4,18,35,.94))!important;box-shadow:0 24px 80px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.03)!important;}
-#authPage .auth-card::before{content:"";position:absolute;left:8%;right:8%;top:0;height:1px;background:linear-gradient(90deg,transparent,#2fa7ff,transparent);transform:scaleX(0);transform-origin:center;animation:sdxSweep 1.2s .25s ease forwards;}
-#authPage .sdx-ups-logo{font-size:28px!important;letter-spacing:-.035em;font-weight:750!important;opacity:0;transform:translateY(12px);animation:sdxTitleIn .75s .42s cubic-bezier(.2,.8,.2,1) forwards!important;}
-#authPage .sdx-ups-logo span{background:linear-gradient(90deg,#168dff,#37d4ff);-webkit-background-clip:text;background-clip:text;color:transparent!important;text-shadow:0 0 24px rgba(35,166,255,.22);}
-#authPage .auth-title{letter-spacing:.14em;font-size:10px!important;text-transform:uppercase;}
-#authPage .input{transition:border-color .25s,box-shadow .25s,transform .25s!important;}
-#authPage .input:focus{border-color:#249cff!important;box-shadow:0 0 0 3px rgba(36,156,255,.09),0 0 25px rgba(36,156,255,.08)!important;transform:translateY(-1px);}
-#authPage .auth-btn{position:relative;overflow:hidden;background:linear-gradient(90deg,#087cff,#22b8ff)!important;box-shadow:0 8px 26px rgba(0,135,255,.18);}
-#authPage .auth-btn::after{content:"";position:absolute;top:-70%;bottom:-70%;width:32%;left:-45%;transform:skewX(-22deg);background:linear-gradient(90deg,transparent,rgba(255,255,255,.38),transparent);animation:sdxButtonShine 2.8s 1.5s ease-in-out infinite;}
-@keyframes sdxStarsIn{to{opacity:.55}}
-@keyframes sdxHorizonIn{to{opacity:1;transform:translateY(0)}}
-@keyframes sdxSweep{to{transform:scaleX(1)}}
-@keyframes sdxTitleIn{to{opacity:1;transform:translateY(0)}}
-@keyframes sdxButtonShine{0%,55%{left:-45%}80%,100%{left:125%}}
-@media(max-width:600px){#authPage .sdx-ups-logo{font-size:23px!important}#authPage::after{bottom:-20%;height:34%}}
-@media(prefers-reduced-motion:reduce){#authPage::before,#authPage::after,#authPage .auth-card::before,#authPage .sdx-ups-logo,#authPage .auth-btn::after{animation:none!important;opacity:1!important;transform:none!important}}
-</style>
-
-<style id="sdx-v24-video-background-fix">
-/* v24: video wallpaper can show while Creative #10 overlays stay active. */
-body.ct-video-active #authPage{
-  background-color:transparent!important;
-  background-image:linear-gradient(rgba(2,10,20,.22),rgba(2,10,20,.22))!important;
+<style id="ups-v20-glass-card-only">
+/* Variant 02 — Glass. Faqat login kartasi; orqa fon o'zgarmaydi. */
+#authPage .auth-card{
+  position:relative;
+  overflow:hidden;
+  background:linear-gradient(145deg,rgba(18,45,82,.58),rgba(7,23,47,.48))!important;
+  border:1px solid rgba(167,211,255,.46)!important;
+  -webkit-backdrop-filter:blur(24px) saturate(145%)!important;
+  backdrop-filter:blur(24px) saturate(145%)!important;
+  box-shadow:
+    0 24px 70px rgba(0,0,0,.38),
+    inset 0 1px 0 rgba(255,255,255,.16),
+    inset 0 -1px 0 rgba(88,166,255,.08)!important;
 }
-body.ct-video-active #cloudPage{
-  background-color:transparent!important;
-  background-image:linear-gradient(rgba(2,10,20,.18),rgba(2,10,20,.18))!important;
-}
-body.ct-video-active #authPage::before,
-body.ct-video-active #authPage::after{
+#authPage .auth-card::before{
+  content:"";
+  position:absolute;
+  left:-18%;
+  top:-36%;
+  width:78%;
+  height:68%;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(255,255,255,.13),rgba(255,255,255,0) 68%);
+  pointer-events:none;
   z-index:0;
 }
-body.ct-video-active #authPage .auth-card{
-  position:relative;
-  z-index:2;
-}
-#ctVideoWallpaper{
-  z-index:0!important;
-}
-body.ct-video-active #authPage,
-body.ct-video-active #cloudPage{
+#authPage .auth-card > *{
   position:relative;
   z-index:1;
 }
 </style>
 
-<style id="sdx-v26-instant-video-wallpaper">
-/* v26: selected video is immediately visible behind every app view. */
-body.ct-video-active{background:#020a14!important;}
-body.ct-video-active #ctVideoWallpaper{
-  display:block!important;position:fixed!important;inset:0!important;
-  width:100vw!important;height:100vh!important;object-fit:cover!important;
-  opacity:1!important;visibility:visible!important;z-index:0!important;
+<style>
+.sdx-login-date{
+  left:0!important;
+  right:0!important;
+  bottom:4px!important;
+  width:100%!important;
+  justify-content:center!important;
+  text-align:center!important;
+  white-space:nowrap!important;
 }
-body.ct-video-active #cloudPage,body.ct-video-active #authPage{
-  background:transparent!important;position:relative!important;z-index:1!important;
+</style>
+
+<style id="ups-signature-login-v1">
+/* Signature login — only login card + its contents. Page background untouched. */
+#authPage .auth-card{
+  max-width:620px!important;
+  padding:38px 44px 34px!important;
+  border-radius:28px!important;
+  background:linear-gradient(145deg,rgba(8,25,49,.74),rgba(3,15,33,.68))!important;
+  border:1px solid rgba(99,188,255,.62)!important;
+  box-shadow:0 28px 85px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.16),0 0 28px rgba(17,136,255,.10)!important;
 }
-body.ct-video-active #dashboardTop{background:transparent!important;}
-body.ct-video-active #sdxSettingsPage,
-body.ct-video-active #sdxDevicesPage,
-body.ct-video-active #sdxFavoritesPage{
-  background:rgba(8,35,66,.58)!important;
-  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+#authPage .auth-card::after{
+  content:"";position:absolute;inset:8px;border-radius:22px;pointer-events:none;
+  border:1px solid rgba(75,160,255,.10);
 }
-body.ct-video-active .settings-modal-box{background:rgba(7,24,45,.42)!important;}
-/* ===== v27: pre-login cached wallpaper ===== */
-body.sdx-prelogin-image-active #authPage{
-  background-color:transparent!important;
-  background-image:linear-gradient(rgba(2,10,20,.24),rgba(2,10,20,.24)),var(--sdx-prelogin-wallpaper)!important;
-  background-size:cover!important;
-  background-position:center!important;
-  background-repeat:no-repeat!important;
+#authPage .ups-signature-logo{
+  margin:0 0 18px!important;display:flex;align-items:flex-end;justify-content:center;gap:11px;
+  white-space:nowrap;line-height:.95!important;font-size:clamp(28px,4.4vw,48px)!important;
+}
+#authPage .ups-united-script{
+  color:#f7fbff!important;font-family:"Brush Script MT","Segoe Script","Lucida Handwriting",cursive!important;
+  font-size:1.42em!important;font-weight:700!important;font-style:italic!important;letter-spacing:-.06em;
+  text-shadow:0 0 8px rgba(255,255,255,.65),0 0 18px rgba(33,144,255,.9),0 0 34px rgba(0,102,255,.65);
+  transform:rotate(-3deg) translateY(3px);display:inline-block;position:relative;
+}
+#authPage .ups-united-script::after{
+  content:"";position:absolute;left:7%;right:-5%;bottom:-7px;height:3px;border-radius:999px;
+  background:linear-gradient(90deg,transparent,#18baff 22%,#087cff 72%,transparent);
+  box-shadow:0 0 10px #0f8cff;
+}
+#authPage .ups-profile-word{color:#eef4fb!important;font-weight:800!important;letter-spacing:-.035em;}
+#authPage .ups-system-word{color:#168dff!important;font-weight:850!important;letter-spacing:-.045em;text-shadow:0 0 18px rgba(17,139,255,.28);}
+#authPage .ups-creator-divider{display:flex;align-items:center;justify-content:center;gap:12px;margin:2px 0 28px;}
+#authPage .ups-divider-line{height:1px;flex:1;max-width:92px;background:linear-gradient(90deg,transparent,rgba(38,159,255,.85));}
+#authPage .ups-divider-line:last-child{background:linear-gradient(90deg,rgba(38,159,255,.85),transparent);}
+#authPage .ups-creator-text{color:#8db7e2;font-size:10.5px;font-weight:650;letter-spacing:.08em;text-align:center;white-space:nowrap;}
+#authPage .ups-hidden-auth-title{display:none!important;}
+#authPage .ups-input-shell{position:relative;margin-bottom:14px;}
+#authPage .ups-input-shell .input{
+  margin:0!important;padding:16px 48px 16px 48px!important;min-height:54px;
+  border-radius:14px!important;background:rgba(1,12,28,.66)!important;border:1px solid rgba(57,137,211,.62)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.025)!important;color:#f6f9ff!important;
+}
+#authPage .ups-input-shell .input:focus{border-color:#2fa7ff!important;box-shadow:0 0 0 3px rgba(31,145,255,.10),0 0 18px rgba(16,128,255,.12)!important;}
+#authPage .ups-field-icon{position:absolute;left:17px;top:50%;transform:translateY(-50%);z-index:3;color:#6fb9f3;font-size:21px;line-height:1;pointer-events:none;}
+#authPage .ups-lock-icon{font-size:15px;border:1px solid rgba(111,185,243,.55);border-radius:5px;padding:2px 3px;}
+#authPage .ups-eye-btn{position:absolute;right:14px;top:50%;transform:translateY(-50%);z-index:4;border:0;background:transparent;color:#7297be;font-size:19px;padding:6px;cursor:pointer;}
+#authPage .auth-btn{
+  min-height:56px!important;margin-top:4px;border-radius:14px!important;
+  background:linear-gradient(100deg,#0ca8ff 0%,#0868ed 52%,#0636b9 100%)!important;
+  border:1px solid rgba(50,196,255,.88)!important;
+  box-shadow:0 0 18px rgba(0,137,255,.34),inset 0 1px 0 rgba(255,255,255,.2)!important;
+  font-size:15px!important;letter-spacing:.01em;
+}
+#authPage .auth-btn:hover{filter:brightness(1.06);box-shadow:0 0 24px rgba(0,153,255,.48),inset 0 1px 0 rgba(255,255,255,.22)!important;}
+#authPage .ups-login-arrow{display:inline-block;margin-left:10px;font-size:21px;vertical-align:-1px;}
+#authPage .switch-btn{margin-top:17px!important;color:#56b0ff!important;font-size:12px!important;}
+#authPage .ups-old-credit-hidden{display:none!important;}
+#authPage #authMessage{min-height:12px;margin-top:10px!important;}
+#authPage .sdx-login-date{
+  position:static!important;width:auto!important;justify-content:center!important;margin:18px auto 0!important;
+  color:#87a8ca!important;font-size:11px!important;letter-spacing:.18em!important;transform:none!important;
+}
+#authPage .sdx-date-icon{color:#39a9ff!important;border-color:rgba(57,169,255,.72)!important;box-shadow:0 0 9px rgba(30,149,255,.24)!important;}
+@media(max-width:650px){
+  #authPage .auth-card{padding:30px 22px 28px!important;border-radius:22px!important;}
+  #authPage .ups-signature-logo{gap:7px;font-size:clamp(24px,7vw,36px)!important;}
+  #authPage .ups-creator-divider{gap:8px;margin-bottom:23px;}
+  #authPage .ups-creator-text{font-size:8.7px;letter-spacing:.045em;white-space:normal;line-height:1.35;}
+  #authPage .ups-divider-line{max-width:45px;}
+}
+</style>
+
+
+<style id="ups-signature-login-medium">
+/* Medium balanced login card only. Background and the rest of the site stay unchanged. */
+#authPage .auth-card{
+  max-width:600px!important;
+  padding:38px 44px 36px!important;
+}
+#authPage .ups-signature-logo{
+  font-size:clamp(28px,4vw,45px)!important;
+  margin-bottom:18px!important;
+}
+#authPage .ups-input-shell{
+  margin-bottom:16px!important;
+}
+#authPage .ups-input-shell .input{
+  min-height:55px!important;
+}
+#authPage .auth-btn{
+  min-height:57px!important;
+}
+@media(max-width:650px){
+  #authPage .auth-card{max-width:92vw!important;padding:28px 20px 26px!important;}
+}
+</style>
+
+<style id="ups-security-status-dots-style">
+.ups-code-dot-row{
+  display:flex;
+  justify-content:center;
+  gap:10px;
+  margin:2px 0 14px;
+}
+.ups-code-dot{
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  background:#7f8792;
+  box-shadow:0 0 0 1px rgba(255,255,255,.05);
+  transition:all .22s ease;
+}
+.ups-code-dot.filled{
+  background:#a7b0bc;
+  box-shadow:0 0 10px rgba(180,195,215,.22);
+}
+.ups-code-dot.success{
+  background:#2ed47a;
+  box-shadow:0 0 8px rgba(46,212,122,.95),0 0 18px rgba(46,212,122,.55);
+  transform:scale(1.12);
+}
+.ups-code-dot.error{
+  background:#ff4d5f;
+  box-shadow:0 0 8px rgba(255,77,95,.95),0 0 18px rgba(255,77,95,.55);
+  transform:scale(1.12);
+}
+.ups-security-input{
+  color:transparent!important;
+  caret-color:#8ecbff!important;
+  text-shadow:none!important;
+}
+</style>
+
+
+<style id="ups-nature-glass-theme">
+/* =====================================================
+   NATURE GLASS — CARD ONLY
+   Background is intentionally untouched.
+===================================================== */
+
+/* LOGIN CARD */
+#authPage .auth-card{
+  max-width:600px!important;
+  padding:34px 42px 30px!important;
+  border-radius:28px!important;
+
+  background:
+    linear-gradient(145deg,
+      rgba(16,42,55,.48) 0%,
+      rgba(13,31,47,.42) 46%,
+      rgba(10,25,39,.50) 100%)!important;
+
+  border:1px solid rgba(155,220,232,.42)!important;
+  box-shadow:
+    0 30px 90px rgba(0,0,0,.34),
+    0 0 0 1px rgba(115,190,215,.07) inset,
+    inset 0 1px 0 rgba(255,255,255,.20),
+    0 0 36px rgba(75,174,209,.10)!important;
+
+  backdrop-filter:blur(22px) saturate(130%)!important;
+  -webkit-backdrop-filter:blur(22px) saturate(130%)!important;
+  overflow:hidden!important;
 }
 
+#authPage .auth-card::before{
+  content:""!important;
+  position:absolute!important;
+  inset:0!important;
+  pointer-events:none!important;
+  border-radius:inherit!important;
+  background:
+    radial-gradient(circle at 18% 0%,rgba(194,244,255,.17),transparent 34%),
+    radial-gradient(circle at 90% 22%,rgba(92,202,210,.10),transparent 30%),
+    linear-gradient(180deg,rgba(255,255,255,.055),transparent 28%,rgba(58,138,150,.025))!important;
+  opacity:1!important;
+}
+
+#authPage .auth-card::after{
+  content:""!important;
+  position:absolute!important;
+  left:28px!important;
+  right:28px!important;
+  top:9px!important;
+  height:1px!important;
+  border-radius:100%!important;
+  background:linear-gradient(90deg,transparent,rgba(205,249,255,.72),transparent)!important;
+  opacity:.58!important;
+  pointer-events:none!important;
+}
+
+#authPage .auth-card > *{
+  position:relative!important;
+  z-index:2!important;
+}
+
+/* Logo slightly softer/natural glass look */
+#authPage .ups-united-script{
+  text-shadow:
+    0 0 8px rgba(255,255,255,.92),
+    0 0 22px rgba(96,196,238,.62),
+    0 0 40px rgba(74,173,212,.28)!important;
+}
+
+#authPage .ups-profile-word{
+  color:#f3fbff!important;
+  text-shadow:0 2px 18px rgba(0,0,0,.24)!important;
+}
+
+#authPage .ups-system-word{
+  color:#4dc6e6!important;
+  text-shadow:0 0 18px rgba(77,198,230,.30)!important;
+}
+
+#authPage .ups-divider-line{
+  background:linear-gradient(90deg,transparent,rgba(116,205,214,.58),transparent)!important;
+}
+
+#authPage .ups-creator-text{
+  color:#a8ced6!important;
+}
+
+/* Inputs */
+#authPage .ups-input-shell{
+  border-radius:15px!important;
+  background:rgba(4,22,31,.40)!important;
+  border:1px solid rgba(111,198,216,.48)!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.055),
+    0 8px 26px rgba(0,0,0,.12)!important;
+  backdrop-filter:blur(10px)!important;
+  -webkit-backdrop-filter:blur(10px)!important;
+}
+
+#authPage .ups-input-shell:focus-within{
+  border-color:rgba(107,225,229,.86)!important;
+  box-shadow:
+    0 0 0 3px rgba(74,199,207,.10),
+    0 0 23px rgba(65,185,205,.16),
+    inset 0 1px 0 rgba(255,255,255,.08)!important;
+}
+
+#authPage .ups-field-icon{
+  color:#78d0df!important;
+  border-color:rgba(94,193,211,.44)!important;
+}
+
+#authPage .ups-input-shell .input{
+  color:#eefbfc!important;
+}
+
+#authPage .ups-input-shell .input::placeholder{
+  color:#91acb4!important;
+}
+
+/* Nature blue/teal button */
+#authPage .auth-btn{
+  border:1px solid rgba(130,231,230,.46)!important;
+  background:
+    linear-gradient(135deg,#23b8d9 0%,#129bc8 46%,#1476d5 100%)!important;
+  box-shadow:
+    0 12px 30px rgba(9,143,183,.23),
+    0 0 25px rgba(52,196,213,.16),
+    inset 0 1px 0 rgba(255,255,255,.24)!important;
+}
+
+#authPage .auth-btn:hover{
+  filter:brightness(1.06)!important;
+  box-shadow:
+    0 15px 36px rgba(9,143,183,.27),
+    0 0 32px rgba(69,206,218,.22),
+    inset 0 1px 0 rgba(255,255,255,.26)!important;
+}
+
+#authPage .switch-btn{
+  color:#67cfe0!important;
+}
+
+#authPage .sdx-login-date{
+  color:#a3c5cc!important;
+}
+
+#authPage .sdx-date-icon{
+  color:#6fc9d7!important;
+  border-color:rgba(95,190,207,.44)!important;
+}
+
+/* =====================================================
+   SECOND SECURITY CODE — SAME NATURE GLASS LOOK
+===================================================== */
+.ups-security-card{
+  width:min(445px,94vw)!important;
+  padding:27px!important;
+  border-radius:24px!important;
+  color:#eefbfc!important;
+
+  background:
+    linear-gradient(145deg,
+      rgba(16,42,55,.76),
+      rgba(8,27,40,.70))!important;
+
+  border:1px solid rgba(155,220,232,.42)!important;
+  box-shadow:
+    0 28px 82px rgba(0,0,0,.42),
+    inset 0 1px 0 rgba(255,255,255,.18),
+    0 0 30px rgba(75,174,209,.12)!important;
+
+  backdrop-filter:blur(24px) saturate(130%)!important;
+  -webkit-backdrop-filter:blur(24px) saturate(130%)!important;
+  position:relative!important;
+  overflow:hidden!important;
+}
+
+.ups-security-card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 20% 0%,rgba(205,249,255,.15),transparent 36%),
+    radial-gradient(circle at 100% 20%,rgba(78,200,210,.10),transparent 34%);
+}
+
+.ups-security-card > *{
+  position:relative;
+  z-index:2;
+}
+
+.ups-security-icon{
+  width:54px!important;
+  height:54px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  margin:0 auto 11px!important;
+  border-radius:50%!important;
+  font-size:25px!important;
+  background:rgba(27,135,156,.13)!important;
+  border:1px solid rgba(110,212,221,.38)!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.10),
+    0 0 24px rgba(62,187,203,.13)!important;
+}
+
+.ups-security-title{
+  color:#f5fdff!important;
+  letter-spacing:.02em!important;
+}
+
+.ups-security-sub{
+  color:#9fc3cb!important;
+}
+
+.ups-security-input{
+  border-radius:15px!important;
+  background:rgba(4,22,31,.44)!important;
+  border:1px solid rgba(111,198,216,.48)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.05)!important;
+}
+
+.ups-security-input:focus{
+  border-color:rgba(107,225,229,.86)!important;
+  box-shadow:
+    0 0 0 3px rgba(74,199,207,.10),
+    0 0 22px rgba(65,185,205,.14)!important;
+}
+
+.ups-security-btn{
+  border:1px solid rgba(130,231,230,.42)!important;
+  background:linear-gradient(135deg,#23b8d9,#129bc8 48%,#1476d5)!important;
+  box-shadow:
+    0 10px 26px rgba(9,143,183,.22),
+    inset 0 1px 0 rgba(255,255,255,.22)!important;
+}
+
+.ups-security-note{
+  color:#759aa4!important;
+}
+
+/* Security dots: neutral -> teal, success green, error red */
+.ups-code-dot{
+  width:11px!important;
+  height:11px!important;
+  background:#728b92!important;
+  border:1px solid rgba(210,247,249,.12)!important;
+  box-shadow:inset 0 1px 2px rgba(255,255,255,.10)!important;
+}
+
+.ups-code-dot.filled{
+  background:#70d6df!important;
+  border-color:#96edf0!important;
+  box-shadow:
+    0 0 8px rgba(112,214,223,.90),
+    0 0 19px rgba(68,196,208,.46)!important;
+  transform:scale(1.08)!important;
+}
+
+.ups-code-dot.success{
+  background:#36dc83!important;
+  border-color:#8cf0b6!important;
+  box-shadow:
+    0 0 9px rgba(54,220,131,.98),
+    0 0 22px rgba(54,220,131,.58)!important;
+  transform:scale(1.14)!important;
+}
+
+.ups-code-dot.error{
+  background:#ff5868!important;
+  border-color:#ff9da6!important;
+  box-shadow:
+    0 0 9px rgba(255,88,104,.98),
+    0 0 22px rgba(255,88,104,.56)!important;
+  transform:scale(1.14)!important;
+}
+
+@media(max-width:650px){
+  #authPage .auth-card{
+    max-width:92vw!important;
+    padding:28px 20px 26px!important;
+    border-radius:24px!important;
+  }
+  .ups-security-card{
+    width:min(430px,94vw)!important;
+    padding:23px 19px!important;
+  }
+}
 </style>
+
+
+<style id="ups-nature-glass-dashboard-v1">
+/* =====================================================
+   NATURE GLASS — INNER APP ONLY
+   IMPORTANT: body/cloud page backgrounds are NOT changed.
+===================================================== */
+
+/* Sidebar */
+.sidebar{
+  background:linear-gradient(180deg,rgba(13,34,49,.76),rgba(7,24,36,.72))!important;
+  border-right:1px solid rgba(126,205,219,.28)!important;
+  backdrop-filter:blur(18px) saturate(125%)!important;
+  -webkit-backdrop-filter:blur(18px) saturate(125%)!important;
+  box-shadow:12px 0 32px rgba(0,0,0,.12)!important;
+}
+
+.sidebar .nav-item,
+.sidebar button,
+.sidebar a{
+  border-radius:12px!important;
+  transition:.22s ease!important;
+}
+
+.sidebar .nav-item:hover,
+.sidebar button:hover,
+.sidebar a:hover{
+  background:rgba(48,151,171,.13)!important;
+  border-color:rgba(106,205,216,.28)!important;
+}
+
+.sidebar .active,
+.sidebar .nav-item.active{
+  background:linear-gradient(135deg,rgba(43,184,217,.92),rgba(20,118,213,.92))!important;
+  color:#fff!important;
+  box-shadow:0 8px 24px rgba(15,140,181,.24)!important;
+}
+
+/* Topbar */
+.topbar{
+  background:rgba(11,31,45,.42)!important;
+  border-bottom:1px solid rgba(126,205,219,.20)!important;
+  backdrop-filter:blur(16px)!important;
+  -webkit-backdrop-filter:blur(16px)!important;
+}
+
+/* Generic cards / panels */
+.card,
+.panel,
+.stat-card,
+.storage-card,
+.quick-actions,
+.upload-section,
+.apps-section,
+.recent-files,
+.content-card,
+.dashboard-card{
+  background:
+    linear-gradient(145deg,rgba(17,46,59,.48),rgba(8,28,40,.43))!important;
+  border:1px solid rgba(122,205,216,.34)!important;
+  border-radius:16px!important;
+  backdrop-filter:blur(16px) saturate(125%)!important;
+  -webkit-backdrop-filter:blur(16px) saturate(125%)!important;
+  box-shadow:
+    0 16px 44px rgba(0,0,0,.16),
+    inset 0 1px 0 rgba(255,255,255,.07)!important;
+}
+
+/* More tolerant targeting for sections that use inline/custom classes */
+main section,
+.main-content section,
+.dashboard section{
+  border-color:rgba(122,205,216,.28)!important;
+}
+
+/* Stats boxes */
+[class*="stat"],
+[class*="storage"]{
+  border-color:rgba(122,205,216,.30)!important;
+}
+
+/* Buttons */
+button:not(.ups-eye-btn):not(.switch-btn){
+  border-radius:11px!important;
+  transition:.2s ease!important;
+}
+
+.btn-primary,
+.primary-btn,
+.upload-btn,
+.action-btn,
+button[style*="background"]{
+  box-shadow:0 8px 22px rgba(16,140,180,.16)!important;
+}
+
+.btn-primary:hover,
+.primary-btn:hover,
+.upload-btn:hover,
+.action-btn:hover{
+  filter:brightness(1.06)!important;
+  transform:translateY(-1px)!important;
+}
+
+/* Search / fields */
+input,
+select,
+textarea{
+  border-color:rgba(103,190,207,.36)!important;
+}
+
+.topbar input,
+.search-box input{
+  background:rgba(5,22,34,.40)!important;
+  border:1px solid rgba(103,190,207,.35)!important;
+  backdrop-filter:blur(10px)!important;
+  -webkit-backdrop-filter:blur(10px)!important;
+}
+
+.topbar input:focus,
+.search-box input:focus{
+  border-color:rgba(105,224,226,.72)!important;
+  box-shadow:0 0 0 3px rgba(73,199,207,.08)!important;
+}
+
+/* Tables / recent files */
+table{
+  border-collapse:separate!important;
+  border-spacing:0!important;
+}
+
+tr{
+  border-color:rgba(111,190,203,.18)!important;
+}
+
+tbody tr:hover{
+  background:rgba(63,155,171,.07)!important;
+}
+
+/* Small tags / badges */
+.badge,
+.tag,
+.variant-badge{
+  background:rgba(31,159,183,.16)!important;
+  border:1px solid rgba(98,202,213,.26)!important;
+  color:#a7eaf0!important;
+}
+
+/* Storage progress */
+progress,
+.progress,
+.progress-bar{
+  border-radius:999px!important;
+  overflow:hidden!important;
+}
+
+/* Text accents */
+.muted,
+.secondary,
+.subtitle,
+small{
+  color:#8fb3bb!important;
+}
+
+/* App icons */
+.icon,
+.nav-icon{
+  color:#76d3df!important;
+}
+
+/* Keep mobile tidy */
+@media(max-width:900px){
+  .sidebar{
+    backdrop-filter:blur(16px)!important;
+    -webkit-backdrop-filter:blur(16px)!important;
+  }
+}
+</style>
+
+
+<style id="ups-nature-glass-color-match-v2">
+/* =====================================================
+   NATURE GLASS — COLOR MATCH
+   Background is intentionally untouched.
+===================================================== */
+
+:root{
+  --ng-text:#eefbfc;
+  --ng-muted:#94b8bf;
+  --ng-teal:#69d2dd;
+  --ng-cyan:#38bfd3;
+  --ng-blue:#2c92d8;
+  --ng-line:rgba(115,202,214,.28);
+  --ng-card1:rgba(17,47,61,.50);
+  --ng-card2:rgba(8,28,40,.46);
+}
+
+/* Headings / text */
+#cloudPage,
+#cloudPage h1,
+#cloudPage h2,
+#cloudPage h3,
+#cloudPage h4,
+#cloudPage strong,
+#cloudPage b{
+  color:var(--ng-text)!important;
+}
+
+#cloudPage p,
+#cloudPage span,
+#cloudPage small,
+#cloudPage .muted,
+#cloudPage .subtitle,
+#cloudPage .secondary{
+  color:var(--ng-muted)!important;
+}
+
+/* Main cards and boxes */
+#cloudPage .card,
+#cloudPage .panel,
+#cloudPage .stat-card,
+#cloudPage .storage-card,
+#cloudPage .dashboard-card,
+#cloudPage .upload-section,
+#cloudPage .quick-actions,
+#cloudPage .apps-section,
+#cloudPage .recent-files,
+#cloudPage [class*="card"],
+#cloudPage [class*="panel"]{
+  background:linear-gradient(145deg,var(--ng-card1),var(--ng-card2))!important;
+  border-color:var(--ng-line)!important;
+}
+
+/* Sidebar palette */
+#cloudPage .sidebar{
+  background:linear-gradient(180deg,rgba(14,39,52,.78),rgba(6,24,36,.76))!important;
+  border-right-color:rgba(117,206,219,.28)!important;
+}
+
+#cloudPage .sidebar *{
+  color:#a9c8ce!important;
+}
+
+#cloudPage .sidebar .active,
+#cloudPage .sidebar .nav-item.active{
+  background:linear-gradient(135deg,#29b8cf,#257fcf)!important;
+  color:#fff!important;
+}
+
+#cloudPage .sidebar .active *,
+#cloudPage .sidebar .nav-item.active *{
+  color:#fff!important;
+}
+
+/* Buttons */
+#cloudPage button,
+#cloudPage .btn,
+#cloudPage [class*="btn"]{
+  border-color:rgba(105,211,220,.34)!important;
+}
+
+#cloudPage .btn-primary,
+#cloudPage .primary-btn,
+#cloudPage .upload-btn,
+#cloudPage .action-btn,
+#cloudPage button[style*="background"]{
+  background:linear-gradient(135deg,#29b8cf 0%,#239fca 45%,#257fcf 100%)!important;
+  color:#fff!important;
+}
+
+#cloudPage .btn-primary *,
+#cloudPage .primary-btn *,
+#cloudPage .upload-btn *,
+#cloudPage .action-btn *,
+#cloudPage button[style*="background"] *{
+  color:#fff!important;
+}
+
+/* Inputs/search/selects */
+#cloudPage input,
+#cloudPage select,
+#cloudPage textarea{
+  background:rgba(5,23,35,.44)!important;
+  border-color:rgba(105,199,212,.36)!important;
+  color:var(--ng-text)!important;
+}
+
+#cloudPage input::placeholder,
+#cloudPage textarea::placeholder{
+  color:#7f9da4!important;
+}
+
+/* Tables and rows */
+#cloudPage table,
+#cloudPage thead,
+#cloudPage tbody,
+#cloudPage tr,
+#cloudPage td,
+#cloudPage th{
+  color:#aec9ce!important;
+  border-color:rgba(109,192,204,.16)!important;
+}
+
+#cloudPage th{
+  color:#88aeb6!important;
+}
+
+#cloudPage tbody tr:hover{
+  background:rgba(62,159,175,.08)!important;
+}
+
+/* Progress/storage */
+#cloudPage .progress,
+#cloudPage .progress-bar,
+#cloudPage progress{
+  background-color:rgba(38,80,91,.42)!important;
+}
+
+#cloudPage .progress-fill,
+#cloudPage [class*="progress"] > div{
+  background:linear-gradient(90deg,#2cb8ca,#2d8dd5)!important;
+}
+
+/* Badges / status labels */
+#cloudPage .badge,
+#cloudPage .tag,
+#cloudPage .status,
+#cloudPage .variant-badge{
+  background:rgba(38,168,186,.14)!important;
+  border-color:rgba(100,212,219,.30)!important;
+  color:#9de7eb!important;
+}
+
+/* Accent links/icons */
+#cloudPage a,
+#cloudPage .link,
+#cloudPage .nav-icon,
+#cloudPage .icon{
+  color:#77d5df!important;
+}
+
+/* Success / storage-positive text */
+#cloudPage .success,
+#cloudPage .green,
+#cloudPage [style*="color: green"],
+#cloudPage [style*="color:#22c55e"],
+#cloudPage [style*="color: #22c55e"]{
+  color:#6fd7b0!important;
+}
+
+/* Danger remains readable but softer to match palette */
+#cloudPage .danger,
+#cloudPage .error{
+  color:#ff7d88!important;
+}
+
+/* Quick action blocks */
+#cloudPage [class*="quick"],
+#cloudPage [class*="action"]{
+  border-color:rgba(109,198,210,.26)!important;
+}
+
+/* Keep background untouched: deliberately no body/#cloudPage background declaration here. */
+</style>
+
 </head>
 
 <body>
@@ -1354,31 +2124,46 @@ body.sdx-prelogin-image-active #authPage{
 
     <div class="auth-card">
 
-        <div class="auth-logo sdx-ups-logo">
-            United <span>Profile</span> System
+        <div class="auth-logo ups-signature-logo">
+            <span class="ups-united-script">United</span>
+            <span class="ups-profile-word">Profile</span>
+            <span class="ups-system-word">System</span>
         </div>
 
-        <p class="auth-title" id="authTitle">
+        <div class="ups-creator-divider">
+            <span class="ups-divider-line"></span>
+            <span class="ups-creator-text">Ziyoyev Miraziz Muzaffar O'g'li tomonidan yaratilgan.</span>
+            <span class="ups-divider-line"></span>
+        </div>
+
+        <p class="auth-title ups-hidden-auth-title" id="authTitle">
             Hisobingizga kiring
         </p>
 
-        <input
-            type="email"
-            id="email"
-            class="input"
-            placeholder="Email">
+        <div class="ups-input-shell">
+            <span class="ups-field-icon" aria-hidden="true">♙</span>
+            <input
+                type="email"
+                id="email"
+                class="input"
+                placeholder="Email">
+        </div>
 
-        <input
-            type="password"
-            id="password"
-            class="input"
-            placeholder="Parol">
+        <div class="ups-input-shell">
+            <span class="ups-field-icon ups-lock-icon" aria-hidden="true">▣</span>
+            <input
+                type="password"
+                id="password"
+                class="input"
+                placeholder="Parol">
+            <button type="button" class="ups-eye-btn" aria-label="Parolni ko‘rsatish" onclick="(function(btn){const p=document.getElementById('password');if(!p)return;p.type=p.type==='password'?'text':'password';btn.textContent=p.type==='password'?'◉':'⊘'})(this)">◉</button>
+        </div>
 
         <button
             class="auth-btn"
             id="authButton"
             onclick="login()">
-            Kirish
+            Kirish <span class="ups-login-arrow">→</span>
         </button>
 
         <button
@@ -1388,13 +2173,13 @@ body.sdx-prelogin-image-active #authPage{
             Hisobingiz yo‘qmi? Ro‘yxatdan o‘ting
         </button>
 
-        <div class="sdx-created-by">
+        <div class="sdx-created-by ups-old-credit-hidden">
             <strong>Ziyoyev Miraziz Muzaffar o‘g‘li</strong> tomonidan yaratilgan.
         </div>
 
         <div id="authMessage"></div>
 
-        <div class="sdx-login-date">06.09.2026</div>
+        <div class="sdx-login-date"><span class="sdx-date-icon" aria-hidden="true">▣</span><span>06.09.2026</span></div>
 
     </div>
 
@@ -2211,71 +2996,35 @@ function toggleAuth(){
 
 async function login(){
 
-    const email =
-        emailInput.value.trim();
-
-    const password =
-        passwordInput.value;
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
 
     if(!email || !password){
-
-        showAuthMessage(
-            "Email va parolni kiriting.",
-            "red"
-        );
-
+        showAuthMessage("Email va parolni kiriting.","red");
         return;
     }
 
     authButton.disabled = true;
 
     try{
-
         if(registerMode){
+            const {data,error} = await supabaseClient.auth.signUp({email,password});
+            if(error) throw error;
 
-            const {data,error} =
-                await supabaseClient.auth.signUp({
-                    email,
-                    password
-                });
-
-            if(error){
-                throw error;
-            }
-
-            showAuthMessage(
-                "Ro‘yxatdan o‘tildi.",
-                "green"
-            );
+            showAuthMessage("Ro‘yxatdan o‘tildi.","green");
 
             if(data.session){
-                showCloud(data.session.user);
+                await upsSecurityCodeGate(data.session.user);
             }
-
         }else{
+            const {data,error} = await supabaseClient.auth.signInWithPassword({email,password});
+            if(error) throw error;
 
-            const {data,error} =
-                await supabaseClient.auth.signInWithPassword({
-                    email,
-                    password
-                });
-
-            if(error){
-                throw error;
-            }
-
-            showCloud(data.user);
+            await upsSecurityCodeGate(data.user);
         }
-
     }catch(error){
-
-        showAuthMessage(
-            error.message,
-            "red"
-        );
-
+        showAuthMessage(error.message,"red");
     }finally{
-
         authButton.disabled = false;
     }
 }
@@ -2366,118 +3115,19 @@ async function logout(){
 }
 
 
-
-/* =====================================================
-   v27 PRE-LOGIN WALLPAPER CACHE
-   Shu qurilmada bir marta login qilingandan keyin fon
-   keyingi ochilishlarda login oynasidan oldin ham chiqadi.
-===================================================== */
-const SDX_LOGIN_WP_CACHE_DB="sdx_login_wallpaper_cache_v1";
-const SDX_LOGIN_WP_CACHE_STORE="wallpaper";
-const SDX_LOGIN_WP_CACHE_KEY="main";
-let sdxPreloginObjectUrl="";
-function sdxLoginWpDb(){
-  return new Promise((resolve,reject)=>{
-    const req=indexedDB.open(SDX_LOGIN_WP_CACHE_DB,1);
-    req.onupgradeneeded=()=>{
-      const db=req.result;
-      if(!db.objectStoreNames.contains(SDX_LOGIN_WP_CACHE_STORE))db.createObjectStore(SDX_LOGIN_WP_CACHE_STORE);
-    };
-    req.onsuccess=()=>resolve(req.result);
-    req.onerror=()=>reject(req.error);
-  });
-}
-async function sdxLoginWallpaperCachePut(record){
-  const db=await sdxLoginWpDb();
-  return new Promise((resolve,reject)=>{
-    const tx=db.transaction(SDX_LOGIN_WP_CACHE_STORE,"readwrite");
-    tx.objectStore(SDX_LOGIN_WP_CACHE_STORE).put(record,SDX_LOGIN_WP_CACHE_KEY);
-    tx.oncomplete=()=>{db.close();resolve()};
-    tx.onerror=()=>{const e=tx.error;db.close();reject(e)};
-  });
-}
-async function sdxLoginWallpaperCacheGet(){
-  const db=await sdxLoginWpDb();
-  return new Promise((resolve,reject)=>{
-    const tx=db.transaction(SDX_LOGIN_WP_CACHE_STORE,"readonly");
-    const req=tx.objectStore(SDX_LOGIN_WP_CACHE_STORE).get(SDX_LOGIN_WP_CACHE_KEY);
-    req.onsuccess=()=>resolve(req.result||null);
-    req.onerror=()=>reject(req.error);
-    tx.oncomplete=()=>db.close();
-  });
-}
-async function sdxLoginWallpaperCacheDelete(){
-  try{
-    const db=await sdxLoginWpDb();
-    await new Promise((resolve,reject)=>{
-      const tx=db.transaction(SDX_LOGIN_WP_CACHE_STORE,"readwrite");
-      tx.objectStore(SDX_LOGIN_WP_CACHE_STORE).delete(SDX_LOGIN_WP_CACHE_KEY);
-      tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error);
-    });
-    db.close();
-  }catch(_){ }
-}
-async function sdxPreloadLoginWallpaperCache(){
-  try{
-    const rec=await sdxLoginWallpaperCacheGet();
-    if(!rec?.blob || !rec?.kind)return false;
-    if(sdxPreloginObjectUrl){try{URL.revokeObjectURL(sdxPreloginObjectUrl)}catch(_){}}
-    sdxPreloginObjectUrl=URL.createObjectURL(rec.blob);
-    if(rec.kind==="video"){
-      let v=document.getElementById("ctVideoWallpaper");
-      if(!v){
-        v=document.createElement("video");
-        v.id="ctVideoWallpaper";
-        v.preload="auto";v.autoplay=true;v.loop=true;v.muted=true;v.defaultMuted=true;v.playsInline=true;
-        v.setAttribute("autoplay","");v.setAttribute("loop","");v.setAttribute("muted","");v.setAttribute("playsinline","");
-        document.body.prepend(v);
-      }
-      v.src=sdxPreloginObjectUrl;v.style.display="block";v.load();
-      document.body.classList.add("ct-video-active");
-      document.body.classList.remove("sdx-prelogin-image-active");
-      try{await v.play()}catch(_){ }
-      return true;
-    }
-    if(rec.kind==="image"){
-      document.documentElement.style.setProperty("--sdx-prelogin-wallpaper",`url("${sdxPreloginObjectUrl}")`);
-      document.body.classList.add("sdx-prelogin-image-active");
-      document.body.classList.remove("ct-video-active");
-      return true;
-    }
-  }catch(e){console.warn("Pre-login wallpaper cache:",e)}
-  return false;
-}
-
-
 /* =====================================================
    CHECK SESSION
 ===================================================== */
 
 async function checkSession(){
 
-    // v27: avval shu qurilmadagi oxirgi fonni login oynasidayoq ko'rsatamiz.
-    await sdxPreloadLoginWallpaperCache();
-
-    const {
-        data:{
-            session
-        }
-    } =
-        await supabaseClient.auth.getSession();
+    const {data:{session}} = await supabaseClient.auth.getSession();
 
     if(session){
-
-        window.currentUser =
-            session.user;
-
-        await showCloud(
-            session.user
-        );
-
+        window.currentUser = session.user;
+        await upsSecurityCodeGate(session.user);
     }else{
-
         authPage.classList.remove("hidden");
-
         cloudPage.classList.add("hidden");
     }
 }
@@ -5428,97 +6078,30 @@ async function sdxUpdateUserMetadata(patch){
   return data?.user||user;
 }
 
-const SDX_WALLPAPER_RULE_KEY = "wallpaper_sync";
-
-async function sdxReadWallpaperSettingsRule(userId){
-  const {data,error}=await supabaseClient
-    .from("sdx_settings")
-    .select("storage_rule")
-    .eq("user_id",userId)
-    .maybeSingle();
-  if(error) throw error;
-  const rule=(data?.storage_rule && typeof data.storage_rule==="object") ? data.storage_rule : {};
-  return rule;
-}
-
-async function sdxWriteWallpaperSettingsRule(userId,wallpaperValue){
-  const rule=await sdxReadWallpaperSettingsRule(userId);
-  const next={...rule,[SDX_WALLPAPER_RULE_KEY]:wallpaperValue||null};
-  const {error}=await supabaseClient
-    .from("sdx_settings")
-    .upsert({user_id:userId,storage_rule:next,updated_at:new Date().toISOString()},{onConflict:"user_id"});
-  if(error) throw error;
-  return next;
-}
-
-function sdxWallpaperFileExt(file,kind){
-  const byName=(file?.name||"").split(".").pop()?.toLowerCase();
-  if(byName && /^[a-z0-9]{2,5}$/.test(byName)) return byName;
-  const type=(file?.type||"").toLowerCase();
-  if(kind==="video") return type.includes("webm")?"webm":"mp4";
-  if(type.includes("png"))return "png";
-  if(type.includes("webp"))return "webp";
-  return "jpg";
-}
-
 async function sdxUploadWallpaperToCloud(file,kind,displayName=""){
   const user=await sdxFreshUser();
   if(!user) throw new Error("SkyDriveX hisobiga kiring.");
-
-  // Oldingi fon ma'lumotini sdx_settings dan olamiz.
-  let oldWallpaper=null;
-  try{
-    const oldRule=await sdxReadWallpaperSettingsRule(user.id);
-    oldWallpaper=oldRule?.[SDX_WALLPAPER_RULE_KEY]||null;
-  }catch(e){
-    console.warn("Old wallpaper settings:",e);
-  }
-
-  // Har yangilashda yangi path — brauzer/cache eski fonni ushlab qolmaydi.
-  const ext=sdxWallpaperFileExt(file,kind);
-  const path=`${user.id}/.skydrivex/wallpapers/${kind}-${Date.now()}.${ext}`;
+  const path=sdxWallpaperCloudPath(kind,user.id);
 
   const {error}=await supabaseClient.storage
     .from(BUCKET)
     .upload(path,file,{
-      upsert:false,
+      upsert:true,
       contentType:file.type || (kind==="video"?"video/mp4":"image/jpeg"),
       cacheControl:"3600"
     });
   if(error) throw error;
 
-  const wallpaperRecord={
-    kind,
-    path,
-    name:displayName||file.name||`${kind} wallpaper`,
-    updatedAt:Date.now(),
-    storage:"supabase",
-    videoSettings:kind==="video"?(ctGetVideoAudioSettings?.()||{}):null
+  const patch={
+    [SDX_CLOUD_WALLPAPER_META.type]:kind,
+    [SDX_CLOUD_WALLPAPER_META.path]:path,
+    [SDX_CLOUD_WALLPAPER_META.name]:displayName||file.name||`${kind} wallpaper`,
+    [SDX_CLOUD_WALLPAPER_META.updated]:Date.now()
   };
-
-  try{
-    // Asosiy cross-device manba: public.sdx_settings.storage_rule.wallpaper_sync
-    await sdxWriteWallpaperSettingsRule(user.id,wallpaperRecord);
-
-    // Eski versiyalar bilan moslik uchun auth metadata ham yangilanadi.
-    const patch={
-      [SDX_CLOUD_WALLPAPER_META.type]:kind,
-      [SDX_CLOUD_WALLPAPER_META.path]:path,
-      [SDX_CLOUD_WALLPAPER_META.name]:wallpaperRecord.name,
-      [SDX_CLOUD_WALLPAPER_META.updated]:wallpaperRecord.updatedAt
-    };
-    if(kind==="video")patch[SDX_CLOUD_WALLPAPER_META.videoSettings]=wallpaperRecord.videoSettings||{};
-    try{await sdxUpdateUserMetadata(patch)}catch(e){console.warn("Wallpaper metadata compatibility:",e)}
-
-    // Yangi fon xavfsiz saqlangandan keyingina eski faylni o'chiramiz.
-    if(oldWallpaper?.path && oldWallpaper.path!==path){
-      try{await supabaseClient.storage.from(BUCKET).remove([oldWallpaper.path])}catch(_){ }
-    }
-  }catch(e){
-    // DB yozuvi muvaffaqiyatsiz bo'lsa orphan fayl qoldirmaslikka harakat qilamiz.
-    try{await supabaseClient.storage.from(BUCKET).remove([path])}catch(_){ }
-    throw e;
+  if(kind==="video"){
+    patch[SDX_CLOUD_WALLPAPER_META.videoSettings]=ctGetVideoAudioSettings?.()||{};
   }
+  await sdxUpdateUserMetadata(patch);
   return path;
 }
 
@@ -5534,66 +6117,38 @@ async function sdxLoadWallpaperFromCloud(){
   const user=await sdxFreshUser();
   if(!user) return false;
 
-  let wall=null;
-  try{
-    const rule=await sdxReadWallpaperSettingsRule(user.id);
-    wall=rule?.[SDX_WALLPAPER_RULE_KEY]||null;
-  }catch(e){
-    console.warn("Wallpaper settings read:",e);
-  }
+  const meta=user.user_metadata||{};
+  const kind=meta[SDX_CLOUD_WALLPAPER_META.type];
+  const path=meta[SDX_CLOUD_WALLPAPER_META.path];
+  const name=meta[SDX_CLOUD_WALLPAPER_META.name]||"Cloud wallpaper";
 
-  // v24 va undan oldingi ma'lumotlar uchun fallback.
-  if(!wall?.kind || !wall?.path){
-    const meta=user.user_metadata||{};
-    const kind=meta[SDX_CLOUD_WALLPAPER_META.type];
-    const path=meta[SDX_CLOUD_WALLPAPER_META.path];
-    if(kind&&path){
-      wall={
-        kind,
-        path,
-        name:meta[SDX_CLOUD_WALLPAPER_META.name]||"Cloud wallpaper",
-        updatedAt:meta[SDX_CLOUD_WALLPAPER_META.updated]||0,
-        videoSettings:meta[SDX_CLOUD_WALLPAPER_META.videoSettings]||null
-      };
-    }
-  }
-
-  if(!wall?.kind || !wall?.path) return false;
+  if(!kind || !path) return false;
 
   try{
-    const signed=await sdxSignedWallpaperUrl(wall.path);
+    const signed=await sdxSignedWallpaperUrl(path);
     if(!signed) return false;
-    const name=wall.name||"Cloud wallpaper";
 
-    if(wall.kind==="video"){
-      if(wall.videoSettings && typeof wall.videoSettings==="object"){
-        localStorage.setItem(CT_VIDEO_AUDIO_SETTINGS_KEY,JSON.stringify(wall.videoSettings));
+    if(kind==="video"){
+      const cloudSettings=meta[SDX_CLOUD_WALLPAPER_META.videoSettings];
+      if(cloudSettings && typeof cloudSettings==="object"){
+        localStorage.setItem(CT_VIDEO_AUDIO_SETTINGS_KEY,JSON.stringify(cloudSettings));
       }
       localStorage.setItem("sdx_video_wallpaper_enabled","1");
       await ctApplyVideoUrl(signed,name);
-      // Shu qurilmada keyingi ochilishda login oldidan ham chiqishi uchun cloud videoni lokal cache qilamiz.
-      fetch(signed).then(r=>{if(!r.ok)throw new Error("wallpaper fetch");return r.blob()})
-        .then(blob=>Promise.allSettled([
-          sdxLoginWallpaperCachePut({kind:"video",blob,name,updatedAt:wall.updatedAt||Date.now()}),
-          ctVideoDbPut({blob,name,type:blob.type,size:blob.size,updatedAt:wall.updatedAt||Date.now()})
-        ])).catch(e=>console.warn("Video pre-login cache:",e));
       return true;
     }
 
-    if(wall.kind==="image"){
+    if(kind==="image"){
       ctDeactivateVideoWallpaper?.();
-      localStorage.removeItem("sdx_video_wallpaper_enabled");
       ctWallpaperData=signed;
-      let theme=null;
-      try{theme=JSON.parse(localStorage.getItem(CT_KEY)||"null")}catch(_){ }
-      if(!theme)theme={...CT_PRESETS.darkblue,preset:"darkblue",wallpaper:signed};
-      theme={...theme,wallpaper:signed};
-      ctApplyTheme(theme);
-      const label=document.getElementById("ctWallpaperName");
-      if(label)label.textContent=`☁️ ${name}`;
-      fetch(signed).then(r=>{if(!r.ok)throw new Error("wallpaper fetch");return r.blob()})
-        .then(blob=>sdxLoginWallpaperCachePut({kind:"image",blob,name,updatedAt:wall.updatedAt||Date.now()}))
-        .catch(e=>console.warn("Image pre-login cache:",e));
+      let s=null;
+      try{s=JSON.parse(localStorage.getItem(CT_KEY)||"null")}catch(_){}
+      if(!s)s={...CT_PRESETS.darkblue,preset:"darkblue",wallpaper:signed};
+      s={...s,wallpaper:signed};
+      ctApplyTheme(s);
+      if(document.getElementById("ctWallpaperName")){
+        document.getElementById("ctWallpaperName").textContent=`☁️ ${name}`;
+      }
       return true;
     }
   }catch(e){
@@ -5606,36 +6161,21 @@ async function sdxRemoveCloudWallpaper(kind=null){
   try{
     const user=await sdxFreshUser();
     if(!user) return;
-
-    let rule={};
-    try{rule=await sdxReadWallpaperSettingsRule(user.id)}catch(_){ }
-    const wall=rule?.[SDX_WALLPAPER_RULE_KEY]||null;
-
-    if(wall && (!kind || wall.kind===kind)){
-      if(wall.path){
-        const {error}=await supabaseClient.storage.from(BUCKET).remove([wall.path]);
-        if(error)console.warn("Wallpaper storage remove:",error.message);
-      }
-      await sdxWriteWallpaperSettingsRule(user.id,null);
-    }
-
-    // Eski metadata ham tozalanadi.
     const meta=user.user_metadata||{};
-    const metaKind=meta[SDX_CLOUD_WALLPAPER_META.type];
-    if(!kind || metaKind===kind){
-      try{
-        await sdxUpdateUserMetadata({
-          [SDX_CLOUD_WALLPAPER_META.type]:null,
-          [SDX_CLOUD_WALLPAPER_META.path]:null,
-          [SDX_CLOUD_WALLPAPER_META.name]:null,
-          [SDX_CLOUD_WALLPAPER_META.updated]:null,
-          [SDX_CLOUD_WALLPAPER_META.videoSettings]:null
-        });
-      }catch(_){ }
+    const currentKind=kind||meta[SDX_CLOUD_WALLPAPER_META.type];
+    const path=meta[SDX_CLOUD_WALLPAPER_META.path];
+    if(path && (!kind || currentKind===kind)){
+      await supabaseClient.storage.from(BUCKET).remove([path]);
+      await sdxUpdateUserMetadata({
+        [SDX_CLOUD_WALLPAPER_META.type]:null,
+        [SDX_CLOUD_WALLPAPER_META.path]:null,
+        [SDX_CLOUD_WALLPAPER_META.name]:null,
+        [SDX_CLOUD_WALLPAPER_META.updated]:null,
+        [SDX_CLOUD_WALLPAPER_META.videoSettings]:null
+      });
     }
   }catch(e){
     console.warn("Cloud wallpaper remove:",e);
-    throw e;
   }
 }
 
@@ -5645,21 +6185,15 @@ function sdxScheduleCloudVideoSettingsSync(settings){
     try{
       const user=await sdxFreshUser();
       if(!user) return;
-      const rule=await sdxReadWallpaperSettingsRule(user.id);
-      const wall=rule?.[SDX_WALLPAPER_RULE_KEY];
-      if(!wall || wall.kind!=="video") return;
-      const nextWall={...wall,videoSettings:settings,updatedAt:Date.now()};
-      await sdxWriteWallpaperSettingsRule(user.id,nextWall);
-      try{
-        const meta=user.user_metadata||{};
-        if(meta[SDX_CLOUD_WALLPAPER_META.type]==="video"){
-          await sdxUpdateUserMetadata({[SDX_CLOUD_WALLPAPER_META.videoSettings]:settings});
-        }
-      }catch(_){ }
+      const meta=user.user_metadata||{};
+      if(meta[SDX_CLOUD_WALLPAPER_META.type]!=="video") return;
+      await sdxUpdateUserMetadata({
+        [SDX_CLOUD_WALLPAPER_META.videoSettings]:settings
+      });
     }catch(e){
       console.warn("Video settings cloud sync:",e);
     }
-  },700);
+  },500);
 }
 
 function ctRangeLabels(){
@@ -5691,8 +6225,6 @@ async function ctReset(){
   ctWriteControls(s);ctApplyTheme(s);showSettingsStatus?.("Standart dizayn tiklandi.");
 }
 async function ctRemoveWallpaper(){
-  await sdxLoginWallpaperCacheDelete();
-  document.body.classList.remove("sdx-prelogin-image-active");
   ctWallpaperData="";
   const f=document.getElementById("ctWallpaperFile");if(f)f.value="";
   const n=document.getElementById("ctWallpaperName");if(n)n.textContent="Fon rasmi tanlanmagan";
@@ -5711,7 +6243,6 @@ async function ctWallpaperPicked(ev){
     ctLive();
 
     const blob=await (await fetch(data)).blob();
-    try{await sdxLoginWallpaperCachePut({kind:"image",blob,name:file.name,updatedAt:Date.now()})}catch(_){ }
     const cloudFile=new File([blob],"wallpaper.jpg",{type:"image/jpeg"});
     await sdxUploadWallpaperToCloud(cloudFile,"image",file.name);
     if(name)name.textContent=`☁️ ${file.name}`;
@@ -6019,7 +6550,6 @@ async function ctVideoWallpaperPicked(ev){
     // Shu qurilmada login ekranida ham tez ko‘rinishi uchun lokal nusxa saqlanadi.
     try{
       await ctVideoDbPut({blob:file,name:file.name,type:file.type,size:file.size,updatedAt:Date.now()});
-      await sdxLoginWallpaperCachePut({kind:"video",blob:file,name:file.name,updatedAt:Date.now()});
     }catch(_){}
 
     localStorage.setItem("sdx_video_wallpaper_enabled","1");
@@ -6045,7 +6575,6 @@ async function ctLoadVideoWallpaper(){
 }
 async function ctRemoveVideoWallpaper(ask=true){
   if(ask&&!confirm("Video wallpaper barcha qurilmalardan olib tashlansinmi?"))return;
-  await sdxLoginWallpaperCacheDelete();
   ctDeactivateVideoWallpaper();
   localStorage.removeItem("sdx_video_wallpaper_enabled");
   try{await ctVideoDbDelete()}catch(_){}
@@ -7330,93 +7859,2743 @@ document.addEventListener("DOMContentLoaded",()=>{
 })();
 </script>
 
+<!-- =====================================================
+     UNITED PROFILE SYSTEM — SECOND SECURITY CODE
+     No email OTP. Background/design unchanged.
+===================================================== -->
+<style id="ups-security-code-style">
+#upsSecurityCodeOverlay{
+  position:fixed;inset:0;z-index:99999;display:none;
+  align-items:center;justify-content:center;padding:18px;
+  background:rgba(0,7,18,.72);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)
+}
+#upsSecurityCodeOverlay.show{display:flex}
+.ups-security-card{
+  width:min(430px,94vw);padding:25px;border-radius:22px;
+  color:#eef7ff;background:linear-gradient(145deg,rgba(8,31,62,.97),rgba(3,15,34,.95));
+  border:1px solid rgba(72,159,255,.45);
+  box-shadow:0 24px 80px rgba(0,0,0,.55),0 0 42px rgba(31,132,255,.15)
+}
+.ups-security-icon{text-align:center;font-size:31px;margin-bottom:8px}
+.ups-security-title{text-align:center;font-size:21px;font-weight:900}
+.ups-security-sub{text-align:center;color:#91a9c9;font-size:12px;line-height:1.6;margin:9px 0 17px}
+.ups-security-input{
+  width:100%;height:52px;border-radius:13px;padding:0 14px;outline:none;
+  border:1px solid rgba(64,153,255,.45);background:rgba(2,13,30,.84);
+  color:#fff;text-align:center;font-size:20px;font-weight:900;letter-spacing:8px;
+  margin-bottom:10px
+}
+.ups-security-input:focus{border-color:#2ba6ff;box-shadow:0 0 0 3px rgba(43,166,255,.11)}
+.ups-security-actions{display:flex;gap:9px;margin-top:13px}
+.ups-security-btn{
+  flex:1;min-height:45px;border:0;border-radius:12px;cursor:pointer;
+  color:#fff;font-weight:800;background:linear-gradient(135deg,#158cff,#18b8ef)
+}
+.ups-security-btn.secondary{background:#13253d;border:1px solid rgba(82,145,218,.28);color:#bfd4ed}
+#upsSecurityMessage{min-height:18px;margin-top:11px;text-align:center;font-size:11px;color:#7dd3fc}
+.ups-security-note{text-align:center;color:#667f9f;font-size:10px;line-height:1.5;margin-top:11px}
+</style>
 
-<!-- v25: Cross-device wallpaper sync uses sdx_settings.storage_rule.wallpaper_sync + Supabase Storage. -->
+<div id="upsSecurityCodeOverlay" aria-hidden="true">
+  <div class="ups-security-card">
+    <div class="ups-security-icon">🔐</div>
+    <div id="upsSecurityTitle" class="ups-security-title">Xavfsizlik kodi</div>
+    <div id="upsSecuritySub" class="ups-security-sub">
+      6 xonali xavfsizlik kodini kiriting.
+    </div>
 
+    <div id="upsSecurityDots1" class="ups-code-dot-row" aria-hidden="true">
+  <span class="ups-code-dot"></span><span class="ups-code-dot"></span><span class="ups-code-dot"></span>
+  <span class="ups-code-dot"></span><span class="ups-code-dot"></span><span class="ups-code-dot"></span>
+</div>
+<input id="upsSecurityCodeInput" class="ups-security-input" inputmode="numeric"
+           maxlength="6" autocomplete="one-time-code" placeholder="">
 
-<!-- v27: cached wallpaper can appear before login on a previously authenticated device. -->
+    <div id="upsSecurityDots2" class="ups-code-dot-row" aria-hidden="true" style="display:none">
+  <span class="ups-code-dot"></span><span class="ups-code-dot"></span><span class="ups-code-dot"></span>
+  <span class="ups-code-dot"></span><span class="ups-code-dot"></span><span class="ups-code-dot"></span>
+</div>
+<input id="upsSecurityCodeConfirm" class="ups-security-input" inputmode="numeric"
+           maxlength="6" placeholder="" style="display:none">
 
-<script>
-/* =====================================================
-   v28 — GLOBAL PRE-LOGIN WALLPAPER
-   Public wallpaper appears even on a brand-new device before login.
-===================================================== */
-const SDX_PUBLIC_WP_BUCKET="public-wallpapers";
-const SDX_PUBLIC_WP_CONFIG_KEY="global_login_wallpaper";
+    <div class="ups-security-actions">
+      <button id="upsSecurityVerifyBtn" class="ups-security-btn" type="button"
+              onclick="upsSecuritySubmit()">Tasdiqlash</button>
+    </div>
 
-async function sdxV28LoadGlobalPreloginWallpaper(){
-  try{
-    const {data,error}=await supabaseClient.from("sdx_public_config")
-      .select("value").eq("key",SDX_PUBLIC_WP_CONFIG_KEY).maybeSingle();
-    if(error || !data?.value?.path || !data?.value?.kind) return false;
-    const rec=data.value;
-    const {data:urlData}=supabaseClient.storage.from(SDX_PUBLIC_WP_BUCKET).getPublicUrl(rec.path);
-    const url=urlData?.publicUrl;
-    if(!url)return false;
-    if(rec.kind==="video"){
-      let v=document.getElementById("ctVideoWallpaper");
-      if(!v){
-        v=document.createElement("video");v.id="ctVideoWallpaper";
-        v.preload="auto";v.autoplay=true;v.loop=true;v.muted=true;v.defaultMuted=true;v.playsInline=true;
-        v.setAttribute("autoplay","");v.setAttribute("loop","");v.setAttribute("muted","");v.setAttribute("playsinline","");
-        document.body.prepend(v);
-      }
-      v.src=url;v.style.display="block";v.load();
-      document.body.classList.add("ct-video-active");
-      document.body.classList.remove("sdx-prelogin-image-active");
-      try{await v.play()}catch(_){ }
-      return true;
-    }
-    document.documentElement.style.setProperty("--sdx-prelogin-wallpaper",`url("${url}")`);
-    document.body.classList.add("sdx-prelogin-image-active");
-    document.body.classList.remove("ct-video-active");
-    return true;
-  }catch(e){console.warn("v28 global pre-login wallpaper:",e);return false}
+    <div id="upsSecurityMessage"></div>
+    <div class="ups-security-note">
+      Bu email kodi emas. Birinchi marta 6 xonali kod yaratasiz.
+      Qurilma tasdiqlangach eslab qolinadi; chiqarilgandan keyin yana kod so‘raladi.
+    </div>
+  </div>
+</div>
+
+<script id="ups-security-code-script">
+const UPS_SECURITY_HASH_KEY = "_ups_security_code_hash";
+const UPS_SECURITY_SALT_KEY = "_ups_security_code_salt";
+const UPS_TRUSTED_KEY = "_ups_security_trusted_devices";
+let upsSecurityMode = "verify";
+let upsSecurityUser = null;
+
+function upsSecEl(id){return document.getElementById(id)}
+function upsSecMsg(t,bad=false){
+  const e=upsSecEl("upsSecurityMessage");
+  if(!e)return;
+  e.textContent=t||"";
+  e.style.color=bad?"#fca5a5":"#7dd3fc";
 }
 
-async function sdxV28PublishGlobalWallpaper(file,kind,displayName=""){
-  const user=await sdxFreshUser();
-  if(!user)return false;
-  try{
-    const ext=sdxWallpaperFileExt(file,kind);
-    const path=`global/${kind}-${Date.now()}.${ext}`;
-    const {error:upErr}=await supabaseClient.storage.from(SDX_PUBLIC_WP_BUCKET).upload(path,file,{
-      upsert:false,contentType:file.type||(kind==="video"?"video/mp4":"image/jpeg"),cacheControl:"3600"
-    });
-    if(upErr)throw upErr;
-    const value={kind,path,name:displayName||file.name||"wallpaper",updatedAt:Date.now()};
-    const {data:old}=await supabaseClient.from("sdx_public_config").select("value").eq("key",SDX_PUBLIC_WP_CONFIG_KEY).maybeSingle();
-    const {error:dbErr}=await supabaseClient.from("sdx_public_config").upsert({
-      key:SDX_PUBLIC_WP_CONFIG_KEY,value,owner_id:user.id,updated_at:new Date().toISOString()
-    },{onConflict:"key"});
-    if(dbErr){try{await supabaseClient.storage.from(SDX_PUBLIC_WP_BUCKET).remove([path])}catch(_){};throw dbErr}
-    const oldPath=old?.value?.path;
-    if(oldPath&&oldPath!==path){try{await supabaseClient.storage.from(SDX_PUBLIC_WP_BUCKET).remove([oldPath])}catch(_){}}
-    return true;
-  }catch(e){console.warn("v28 publish global wallpaper:",e);return false}
-}
-
-// Publish the same selected wallpaper globally after the existing account/cloud sync succeeds.
-(function(){
-  const oldUpload=window.sdxUploadWallpaperToCloud;
-  if(typeof oldUpload==="function"){
-    window.sdxUploadWallpaperToCloud=async function(file,kind,displayName=""){
-      const result=await oldUpload(file,kind,displayName);
-      await sdxV28PublishGlobalWallpaper(file,kind,displayName);
-      return result;
-    };
-    // global function declaration binding compatibility
-    try{sdxUploadWallpaperToCloud=window.sdxUploadWallpaperToCloud}catch(_){ }
+function upsSecDeviceId(){
+  try{ if(typeof deviceId==="function") return deviceId(); }catch(_){}
+  let id=localStorage.getItem("sdx_device_id");
+  if(!id){
+    id=crypto.randomUUID?crypto.randomUUID():
+      ("dev_"+Date.now()+"_"+Math.random().toString(36).slice(2));
+    localStorage.setItem("sdx_device_id",id);
   }
-})();
+  return id;
+}
 
-// On a completely new device there is no local cache. Load public global wallpaper immediately.
-document.addEventListener("DOMContentLoaded",async()=>{
+function upsSecDeviceName(){
+  try{ if(typeof deviceName==="function") return deviceName(); }catch(_){}
+  return /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent)?"Telefon":"Kompyuter";
+}
+
+async function upsSecGetRule(user){
+  const {data,error}=await supabaseClient.from("sdx_settings")
+    .select("storage_rule").eq("user_id",user.id).maybeSingle();
+  if(error && error.code!=="PGRST116") throw error;
+  return data?.storage_rule && typeof data.storage_rule==="object" ? data.storage_rule : {};
+}
+
+async function upsSecSaveRule(user,rule){
+  const {error}=await supabaseClient.from("sdx_settings").upsert({
+    user_id:user.id, storage_rule:rule, updated_at:new Date().toISOString()
+  },{onConflict:"user_id"});
+  if(error)throw error;
+}
+
+function upsSecRandomSalt(){
+  const a=new Uint8Array(16); crypto.getRandomValues(a);
+  return Array.from(a).map(x=>x.toString(16).padStart(2,"0")).join("");
+}
+
+async function upsSecHash(code,salt){
+  const data=new TextEncoder().encode(salt+"|"+code);
+  const digest=await crypto.subtle.digest("SHA-256",data);
+  return Array.from(new Uint8Array(digest))
+    .map(x=>x.toString(16).padStart(2,"0")).join("");
+}
+
+async function upsSecTrusted(user){
+  const rule=await upsSecGetRule(user);
+  const id=upsSecDeviceId();
+  const revoked=Array.isArray(rule._revoked_devices)?rule._revoked_devices:[];
+  if(revoked.includes(id))return false;
+  const trusted=rule[UPS_TRUSTED_KEY]&&typeof rule[UPS_TRUSTED_KEY]==="object"
+    ? rule[UPS_TRUSTED_KEY]:{};
+  return !!trusted[id];
+}
+
+async function upsSecMarkTrusted(user){
+  const rule=await upsSecGetRule(user);
+  const id=upsSecDeviceId();
+  const trusted=rule[UPS_TRUSTED_KEY]&&typeof rule[UPS_TRUSTED_KEY]==="object"
+    ? rule[UPS_TRUSTED_KEY]:{};
+  trusted[id]={verified_at:new Date().toISOString(),device_name:upsSecDeviceName()};
+  rule[UPS_TRUSTED_KEY]=trusted;
+
+  const revoked=Array.isArray(rule._revoked_devices)?rule._revoked_devices:[];
+  rule._revoked_devices=revoked.filter(x=>x!==id);
+
+  await upsSecSaveRule(user,rule);
+  try{if(typeof touchDevice==="function")await touchDevice()}catch(_){}
+}
+
+function upsSecOpen(mode){
+  upsSecurityMode=mode;
+  const create=mode==="create";
+  upsSecEl("upsSecurityTitle").textContent=create?"Yangi xavfsizlik kodi":"Xavfsizlik kodi";
+  upsSecEl("upsSecuritySub").textContent=create
+    ?"6 xonali kod yarating. Keyingi yangi qurilmada shu kod so‘raladi."
+    :"6 xonali xavfsizlik kodini kiriting.";
+  upsSecEl("upsSecurityCodeConfirm").style.display=create?"block":"none";
+  upsSecEl("upsSecurityDots2").style.display=create?"flex":"none";
+  upsSecEl("upsSecurityCodeInput").value="";
+  upsSecEl("upsSecurityCodeConfirm").value="";
+  upsResetDotStatus();
+  upsSecMsg("");
+  upsSecEl("upsSecurityCodeOverlay").classList.add("show");
+  setTimeout(()=>upsSecEl("upsSecurityCodeInput")?.focus(),80);
+}
+
+function upsSecClose(){
+  upsSecEl("upsSecurityCodeOverlay").classList.remove("show");
+}
+
+async function upsSecurityCodeGate(user){
+  upsSecurityUser=user;
+
   try{
-    const local=await sdxLoginWallpaperCacheGet().catch(()=>null);
-    if(!local?.blob) await sdxV28LoadGlobalPreloginWallpaper();
-  }catch(_){await sdxV28LoadGlobalPreloginWallpaper()}
-},{once:true});
+    if(await upsSecTrusted(user)){
+      upsSecClose();
+      await showCloud(user);
+      return;
+    }
+
+    cloudPage.classList.add("hidden");
+    authPage.classList.remove("hidden");
+
+    const rule=await upsSecGetRule(user);
+    if(!rule[UPS_SECURITY_HASH_KEY] || !rule[UPS_SECURITY_SALT_KEY]){
+      upsSecOpen("create");
+    }else{
+      upsSecOpen("verify");
+    }
+  }catch(e){
+    console.error(e);
+    showAuthMessage(e?.message||"Xavfsizlik kodini tekshirib bo‘lmadi.","red");
+  }
+}
+window.upsSecurityCodeGate=upsSecurityCodeGate;
+
+
+function upsUpdateDots(inputId,rowId,status="normal"){
+  const input=upsSecEl(inputId);
+  const row=upsSecEl(rowId);
+  if(!input||!row)return;
+
+  const len=(input.value||"").replace(/\D/g,"").slice(0,6).length;
+  const dots=[...row.querySelectorAll(".ups-code-dot")];
+
+  dots.forEach((dot,i)=>{
+    dot.classList.remove("filled","success","error");
+    if(status==="success"){
+      dot.classList.add("success");
+    }else if(status==="error"){
+      dot.classList.add("error");
+    }else if(i<len){
+      dot.classList.add("filled");
+    }
+  });
+}
+
+function upsResetDotStatus(){
+  upsUpdateDots("upsSecurityCodeInput","upsSecurityDots1","normal");
+  upsUpdateDots("upsSecurityCodeConfirm","upsSecurityDots2","normal");
+}
+
+document.addEventListener("input",e=>{
+  if(e.target?.id==="upsSecurityCodeInput"){
+    e.target.value=(e.target.value||"").replace(/\D/g,"").slice(0,6);
+    upsUpdateDots("upsSecurityCodeInput","upsSecurityDots1","normal");
+  }
+  if(e.target?.id==="upsSecurityCodeConfirm"){
+    e.target.value=(e.target.value||"").replace(/\D/g,"").slice(0,6);
+    upsUpdateDots("upsSecurityCodeConfirm","upsSecurityDots2","normal");
+  }
+});
+
+async function upsSecuritySubmit(){
+  const code=(upsSecEl("upsSecurityCodeInput").value||"").replace(/\D/g,"");
+  if(code.length!==6){upsSecMsg("6 xonali kod kiriting.",true);return}
+
+  try{
+    const rule=await upsSecGetRule(upsSecurityUser);
+
+    if(upsSecurityMode==="create"){
+      const confirm=(upsSecEl("upsSecurityCodeConfirm").value||"").replace(/\D/g,"");
+      if(confirm!==code){
+        upsUpdateDots("upsSecurityCodeInput","upsSecurityDots1","error");
+        upsUpdateDots("upsSecurityCodeConfirm","upsSecurityDots2","error");
+        upsSecMsg("Kodlar bir xil emas.",true);
+        setTimeout(upsResetDotStatus,900);
+        return;
+      }
+
+      upsUpdateDots("upsSecurityCodeInput","upsSecurityDots1","success");
+      upsUpdateDots("upsSecurityCodeConfirm","upsSecurityDots2","success");
+
+      const salt=upsSecRandomSalt();
+      rule[UPS_SECURITY_SALT_KEY]=salt;
+      rule[UPS_SECURITY_HASH_KEY]=await upsSecHash(code,salt);
+      await upsSecSaveRule(upsSecurityUser,rule);
+      await upsSecMarkTrusted(upsSecurityUser);
+      upsSecClose();
+      await showCloud(upsSecurityUser);
+      return;
+    }
+
+    const enteredHash=await upsSecHash(code,rule[UPS_SECURITY_SALT_KEY]);
+    if(enteredHash!==rule[UPS_SECURITY_HASH_KEY]){
+      upsUpdateDots("upsSecurityCodeInput","upsSecurityDots1","error");
+      upsSecMsg("Kod noto‘g‘ri.",true);
+      setTimeout(upsResetDotStatus,900);
+      return
+    }
+
+    upsUpdateDots("upsSecurityCodeInput","upsSecurityDots1","success");
+    upsSecMsg("✅ Kod to‘g‘ri.");
+    await new Promise(r=>setTimeout(r,450));
+    await upsSecMarkTrusted(upsSecurityUser);
+    upsSecClose();
+    await showCloud(upsSecurityUser);
+
+  }catch(e){
+    upsSecMsg(e?.message||"Xatolik yuz berdi.",true);
+  }
+}
+window.upsSecuritySubmit=upsSecuritySubmit;
+
+/* If the existing Devices page revokes a device, revoke this second-code trust too. */
+window.upsRevokeSecurityTrustForDevice=async function(id){
+  const {data:{user}}=await supabaseClient.auth.getUser();
+  if(!user)return;
+
+  const rule=await upsSecGetRule(user);
+  const trusted=rule[UPS_TRUSTED_KEY]&&typeof rule[UPS_TRUSTED_KEY]==="object"
+    ? rule[UPS_TRUSTED_KEY]:{};
+
+  delete trusted[id];
+  rule[UPS_TRUSTED_KEY]=trusted;
+
+  const revoked=Array.isArray(rule._revoked_devices)?rule._revoked_devices:[];
+  if(!revoked.includes(id))revoked.push(id);
+  rule._revoked_devices=revoked;
+
+  await upsSecSaveRule(user,rule);
+};
+
+setTimeout(()=>{
+  if(typeof window.sdxRevokeOneDevice==="function" && !window.sdxRevokeOneDevice.__upsSecurityWrapped){
+    const original=window.sdxRevokeOneDevice;
+    const wrapped=async function(id){
+      try{await window.upsRevokeSecurityTrustForDevice(id)}catch(e){console.warn(e)}
+      return original.apply(this,arguments);
+    };
+    wrapped.__upsSecurityWrapped=true;
+    window.sdxRevokeOneDevice=wrapped;
+  }
+},0);
+
+document.addEventListener("keydown",e=>{
+  if(e.key==="Enter" && upsSecEl("upsSecurityCodeOverlay")?.classList.contains("show")){
+    e.preventDefault(); upsSecuritySubmit();
+  }
+});
+</script>
+
+
+<style id="ups-recovery-key-style">
+.ups-forgot-code-btn{
+  display:block;width:100%;margin:11px 0 0;padding:8px 10px;
+  border:0!important;background:transparent!important;box-shadow:none!important;
+  color:#77d5df!important;font-size:13px;font-weight:700;cursor:pointer;
+}
+.ups-forgot-code-btn:hover{color:#b8f5f7!important;text-decoration:underline}
+.ups-recovery-box{
+  display:none;margin-top:14px;padding:15px;border-radius:16px;
+  background:linear-gradient(145deg,rgba(17,47,61,.55),rgba(8,28,40,.52));
+  border:1px solid rgba(115,202,214,.30);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06);
+}
+.ups-recovery-box.show{display:block}
+.ups-recovery-box input{
+  width:100%;min-height:48px;padding:0 14px;border-radius:13px;
+  background:rgba(5,23,35,.48)!important;border:1px solid rgba(105,199,212,.38)!important;
+  color:#eefbfc!important;outline:none;
+}
+.ups-recovery-box input:focus{
+  border-color:rgba(105,224,226,.75)!important;
+  box-shadow:0 0 0 3px rgba(73,199,207,.08)!important;
+}
+.ups-recovery-actions{display:flex;gap:9px;margin-top:10px}
+.ups-recovery-actions button{
+  flex:1;min-height:44px;border-radius:12px!important;
+}
+.ups-recovery-primary{
+  background:linear-gradient(135deg,#29b8cf,#257fcf)!important;color:white!important;
+}
+.ups-recovery-secondary{
+  background:rgba(5,23,35,.42)!important;color:#9ed9df!important;
+  border:1px solid rgba(105,199,212,.28)!important;
+}
+.ups-recovery-msg{min-height:18px;margin-top:8px;font-size:12px;color:#94b8bf}
+</style>
+
+<script id="ups-recovery-key-script">
+(function(){
+  const HASH_KEY="_ups_recovery_key_hash";
+  const SALT_KEY="_ups_recovery_key_salt";
+  let recoveryMode="verify";
+
+  function hex(buf){return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,"0")).join("")}
+  function randomSalt(){
+    const a=new Uint8Array(18); crypto.getRandomValues(a);
+    return Array.from(a).map(b=>b.toString(16).padStart(2,"0")).join("");
+  }
+  async function hashKey(value,salt){
+    return hex(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(salt+"|"+value)));
+  }
+  async function getRule(){
+    const u=(await supabaseClient.auth.getUser()).data.user;
+    if(!u) throw new Error("Sessiya topilmadi");
+    const {data,error}=await supabaseClient.from("sdx_settings").select("storage_rule").eq("user_id",u.id).maybeSingle();
+    if(error) throw error;
+    return {user:u,rule:(data&&data.storage_rule)||{}};
+  }
+  async function saveRule(user,rule){
+    const {error}=await supabaseClient.from("sdx_settings").upsert(
+      {user_id:user.id,storage_rule:rule},{onConflict:"user_id"}
+    );
+    if(error) throw error;
+  }
+
+  function card(){
+    return document.querySelector(".ups-security-card");
+  }
+  function msg(t,ok=false){
+    const e=document.getElementById("upsRecoveryMsg"); if(!e)return;
+    e.textContent=t||""; e.style.color=ok?"#6fd7b0":"#ff8992";
+  }
+  function closeBox(){
+    document.getElementById("upsRecoveryBox")?.classList.remove("show");
+    const i=document.getElementById("upsRecoveryInput"); if(i)i.value="";
+    msg("");
+  }
+
+  async function openRecovery(){
+    try{
+      const {rule}=await getRule();
+      const has=!!(rule[HASH_KEY]&&rule[SALT_KEY]);
+      recoveryMode=has?"verify":"create";
+      document.getElementById("upsRecoveryTitle").textContent=
+        has?"Recovery Key kiriting":"Recovery Key yarating";
+      document.getElementById("upsRecoveryHint").textContent=
+        has?"To‘g‘ri kalit kiritilsa yangi 6 xonali kod o‘rnatasiz.":
+            "Birinchi marta. O‘zingiz biladigan uzun Recovery Key kiriting.";
+      document.getElementById("upsRecoverySubmit").textContent=
+        has?"Tasdiqlash":"Recovery Key saqlash";
+      document.getElementById("upsRecoveryBox").classList.add("show");
+      document.getElementById("upsRecoveryInput").focus();
+    }catch(e){ msg("Xatolik: "+e.message); }
+  }
+
+  async function submitRecovery(){
+    const input=document.getElementById("upsRecoveryInput");
+    const key=(input?.value||"").trim();
+    if(key.length<10){msg("Recovery Key kamida 10 ta belgidan iborat bo‘lsin.");return}
+    try{
+      const {user,rule}=await getRule();
+
+      if(recoveryMode==="create"){
+        const salt=randomSalt();
+        rule[SALT_KEY]=salt;
+        rule[HASH_KEY]=await hashKey(key,salt);
+        await saveRule(user,rule);
+        msg("Recovery Key saqlandi.",true);
+        setTimeout(closeBox,900);
+        return;
+      }
+
+      const check=await hashKey(key,rule[SALT_KEY]);
+      if(check!==rule[HASH_KEY]){
+        msg("Recovery Key noto‘g‘ri.");
+        input.value=""; input.focus(); return;
+      }
+
+      msg("Kalit to‘g‘ri. Yangi 6 xonali kodni kiriting.",true);
+      closeBox();
+
+      /* Switch the existing security UI into its first-time/create-code state
+         without exposing or storing the old code. */
+      if(typeof window.upsBeginSecurityCodeReset==="function"){
+        window.upsBeginSecurityCodeReset();
+      }else{
+        // Generic fallback: remove old security hash/salt, then re-run the existing gate.
+        delete rule["_ups_security_code_hash"];
+        delete rule["_ups_security_code_salt"];
+        rule["_ups_security_trusted_devices"]=[];
+        await saveRule(user,rule);
+        if(typeof upsSecurityCodeGate==="function") await upsSecurityCodeGate(user);
+        else location.reload();
+      }
+    }catch(e){msg("Xatolik: "+e.message)}
+  }
+
+  function mount(){
+    const c=card(); if(!c || document.getElementById("upsForgotCodeBtn")) return;
+    const wrap=document.createElement("div");
+    wrap.innerHTML=`
+      <button type="button" class="ups-forgot-code-btn" id="upsForgotCodeBtn">Kodni unutdingizmi?</button>
+      <div class="ups-recovery-box" id="upsRecoveryBox">
+        <div id="upsRecoveryTitle" style="font-weight:800;color:#eefbfc;margin-bottom:4px">Recovery Key</div>
+        <div id="upsRecoveryHint" style="font-size:12px;color:#94b8bf;margin-bottom:10px"></div>
+        <input id="upsRecoveryInput" type="password" autocomplete="off" placeholder="Recovery Key">
+        <div class="ups-recovery-actions">
+          <button type="button" class="ups-recovery-secondary" id="upsRecoveryCancel">Bekor qilish</button>
+          <button type="button" class="ups-recovery-primary" id="upsRecoverySubmit">Tasdiqlash</button>
+        </div>
+        <div class="ups-recovery-msg" id="upsRecoveryMsg"></div>
+      </div>`;
+    c.appendChild(wrap);
+    document.getElementById("upsForgotCodeBtn").onclick=openRecovery;
+    document.getElementById("upsRecoveryCancel").onclick=closeBox;
+    document.getElementById("upsRecoverySubmit").onclick=submitRecovery;
+    document.getElementById("upsRecoveryInput").addEventListener("keydown",e=>{
+      if(e.key==="Enter") submitRecovery();
+    });
+  }
+
+  new MutationObserver(mount).observe(document.documentElement,{childList:true,subtree:true});
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",mount); else mount();
+})();
+</script>
+
+
+<style id="ups-100-icon-themes">
+/* 100 sidebar icon styles — background untouched */
+.ups-icon-settings{
+  margin-top:18px;padding:18px;border-radius:18px;
+  background:linear-gradient(145deg,rgba(17,47,61,.52),rgba(8,28,40,.48));
+  border:1px solid rgba(115,202,214,.28);
+}
+.ups-icon-settings h3{margin:0 0 5px;color:#eefbfc}
+.ups-icon-settings p{margin:0 0 14px;color:#94b8bf;font-size:12px}
+.ups-icon-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px;
+  max-height:420px;overflow:auto;padding:3px;
+}
+.ups-icon-choice{
+  min-height:68px!important;padding:8px 5px!important;border-radius:13px!important;
+  background:rgba(5,23,35,.46)!important;border:1px solid rgba(105,199,212,.22)!important;
+  color:#9fcbd1!important;display:flex!important;flex-direction:column;align-items:center;
+  justify-content:center;gap:5px;box-shadow:none!important;
+}
+.ups-icon-choice:hover{border-color:rgba(105,224,226,.68)!important;background:rgba(27,91,105,.30)!important}
+.ups-icon-choice.active{
+  border-color:#69dbe2!important;
+  box-shadow:0 0 0 2px rgba(77,198,214,.12),0 0 18px rgba(45,192,211,.18)!important;
+  color:#eaffff!important;
+}
+.ups-icon-choice .preview{font-size:21px;line-height:1}
+.ups-icon-choice .nm{font-size:9px;line-height:1.1;text-align:center}
+
+/* base icon slot */
+.sdx-sidebar .ups-nav-svg{
+ width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;
+ flex:0 0 18px;transition:.22s ease;
+}
+.sdx-sidebar .ups-nav-svg svg{width:17px;height:17px;display:block}
+
+/* families driven by data attribute */
+.sdx-sidebar[data-ups-icon-family="outline"] .ups-nav-svg svg{fill:none;stroke:currentColor;stroke-width:1.8}
+.sdx-sidebar[data-ups-icon-family="filled"] .ups-nav-svg svg{fill:currentColor;stroke:none}
+.sdx-sidebar[data-ups-icon-family="thin"] .ups-nav-svg svg{fill:none;stroke:currentColor;stroke-width:1.15}
+.sdx-sidebar[data-ups-icon-family="bold"] .ups-nav-svg svg{fill:none;stroke:currentColor;stroke-width:2.6}
+.sdx-sidebar[data-ups-icon-family="duotone"] .ups-nav-svg{filter:drop-shadow(0 0 4px rgba(67,218,224,.25))}
+.sdx-sidebar[data-ups-icon-family="glass"] .ups-nav-svg{
+ width:28px;height:28px;flex-basis:28px;border-radius:50%;
+ background:linear-gradient(145deg,rgba(116,226,234,.18),rgba(21,78,101,.20));
+ border:1px solid rgba(132,225,232,.30);box-shadow:inset 0 1px 0 rgba(255,255,255,.10);
+}
+.sdx-sidebar[data-ups-icon-family="square"] .ups-nav-svg{
+ width:28px;height:28px;flex-basis:28px;border-radius:8px;
+ background:rgba(57,157,179,.16);border:1px solid rgba(105,206,217,.18);
+}
+.sdx-sidebar[data-ups-icon-family="neon"] .ups-nav-svg{filter:drop-shadow(0 0 5px currentColor)}
+.sdx-sidebar[data-ups-icon-family="diamond"] .ups-nav-svg{
+ width:26px;height:26px;flex-basis:26px;border:1px solid rgba(111,216,224,.32);
+ transform:rotate(45deg);border-radius:6px;
+}
+.sdx-sidebar[data-ups-icon-family="diamond"] .ups-nav-svg svg{transform:rotate(-45deg);width:14px;height:14px}
+.sdx-sidebar[data-ups-icon-family="minimal"] .ups-nav-svg{opacity:.78}
+.sdx-sidebar[data-ups-icon-family="pill"] .ups-nav-svg{
+ width:31px;height:24px;flex-basis:31px;border-radius:999px;background:rgba(47,170,188,.15);
+ border:1px solid rgba(91,206,216,.20)
+}
+
+/* color modes */
+.sdx-sidebar[data-ups-icon-color="cyan"] .ups-nav-svg{color:#67d9e2!important}
+.sdx-sidebar[data-ups-icon-color="ice"] .ups-nav-svg{color:#c7f7fa!important}
+.sdx-sidebar[data-ups-icon-color="blue"] .ups-nav-svg{color:#63aef2!important}
+.sdx-sidebar[data-ups-icon-color="teal"] .ups-nav-svg{color:#50d0c9!important}
+.sdx-sidebar[data-ups-icon-color="mint"] .ups-nav-svg{color:#7be0bd!important}
+.sdx-sidebar[data-ups-icon-color="white"] .ups-nav-svg{color:#eaf7f8!important}
+.sdx-sidebar[data-ups-icon-color="purple"] .ups-nav-svg{color:#bd8cff!important}
+.sdx-sidebar[data-ups-icon-color="gold"] .ups-nav-svg{color:#f0c76a!important}
+.sdx-sidebar[data-ups-icon-color="coral"] .ups-nav-svg{color:#ff8c91!important}
+.sdx-sidebar[data-ups-icon-color="gradient"] .ups-nav-svg{
+ color:#6ee7e7!important;filter:drop-shadow(0 0 5px rgba(75,180,255,.28))
+}
+</style>
+
+<script id="ups-100-sidebar-icons-script">
+(function(){
+const themes=[
+"Lucide Outline","Filled Modern","Glass Circle","Neon Glow","Duotone","Rounded Square","Apple Minimal","3D Glass","Cyan Gradient","Nature Glass",
+"Pastel","Bold","Thin Line","Circle Filled","Soft Gradient","Line & Fill","Minimal 2","Broken Line","Solar Blue","Compact Accent",
+"Monochrome","Dual Color","3D Rounded","Soft Gradient 2","Line & Fill 2","Minimal Ice","Broken Line 2","Solid Glass","Frosted","Outline White",
+"Material","Colorful","Neon Dark","White Clean","Black Style","Cyan Glass","Purple Glass","Dark","Light Mode","Vivid",
+"Windows","Fluent","Rounded Line","Filled Circle","Accent Blue","Accent Green","Accent Purple","Accent Orange","Accent Red","Blot Style",
+"Retro","Soft Square","Hexagon","Diamond","Triangle","Capsule","Dotted","Dashed","Glow Minimal","Element",
+"Elegant","Modern","Modern Dark","Cartoon","Flat Colorful","Gradient Neon","Outline 2","Minimal Dots","Inverted","Color Blend",
+"Crystal","Nature Glass 2","Nature Glow","Liquid","Rainbow","Galaxy","Cyberpunk","Steam","Retro Pixel","Line Art",
+"Soft Neon","Glass Pro","Ultra Minimal","Ultimate Drive","Aqua","Ocean","Arctic","Mint","Electric","Prism",
+"Executive","Orbital","Hologram","Vision","Quantum","Neural","Infinity","Black Diamond","United Ultimate","Custom Mix"
+];
+
+const families=["outline","filled","glass","neon","duotone","square","minimal","glass","neon","glass",
+"filled","bold","thin","filled","duotone","outline","minimal","outline","neon","square",
+"minimal","duotone","glass","square","outline","thin","outline","glass","glass","outline",
+"filled","filled","neon","outline","bold","glass","glass","minimal","square","filled",
+"square","duotone","outline","filled","square","square","square","square","square","neon",
+"outline","square","glass","diamond","outline","pill","thin","outline","minimal","glass",
+"thin","filled","minimal","filled","filled","neon","outline","minimal","filled","duotone",
+"glass","glass","neon","glass","neon","neon","neon","square","square","thin",
+"neon","glass","minimal","duotone","glass","glass","thin","square","neon","glass",
+"thin","glass","neon","glass","neon","duotone","glass","diamond","neon","duotone"];
+
+const colors=["cyan","ice","cyan","cyan","teal","cyan","ice","cyan","gradient","teal",
+"blue","ice","ice","blue","gradient","cyan","white","teal","blue","cyan",
+"white","purple","blue","teal","cyan","ice","cyan","white","ice","white",
+"blue","purple","purple","white","white","cyan","purple","ice","blue","gradient",
+"cyan","blue","ice","cyan","blue","mint","purple","gold","coral","cyan",
+"gold","cyan","purple","gold","gold","cyan","white","ice","coral","ice",
+"gold","blue","ice","coral","purple","gradient","white","cyan","ice","gradient",
+"ice","teal","mint","cyan","gradient","purple","coral","blue","purple","white",
+"cyan","ice","white","cyan","teal","blue","ice","mint","cyan","gradient",
+"gold","cyan","purple","ice","cyan","teal","cyan","white","cyan","gradient"];
+
+const icons={
+ dashboard:'<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9 21v-7h6v7"/>',
+ files:'<path d="M6 2h8l4 4v16H6z"/><path d="M14 2v5h5"/><path d="M9 13h6M9 17h6"/>',
+ folders:'<path d="M3 6h7l2 2h9v11H3z"/>',
+ drive:'<path d="m12 3 8 14H4z"/><path d="M8 17h8M9 8h6"/>',
+ apps:'<rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/>',
+ devices:'<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/>',
+ settings:'<circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.4-2.4 1A7 7 0 0 0 15 6l-.3-2.6h-4L10.4 6a7 7 0 0 0-1.5.9l-2.4-1-2 3.4 2 1.5a7 7 0 0 0 0 2.2l-2 1.5 2 3.4 2.4-1a7 7 0 0 0 1.5.9l.3 2.6h4l.3-2.6a7 7 0 0 0 1.5-.9l2.4 1 2-3.4-2-1.5c.1-.3.1-.7.1-1z"/>',
+ logout:'<path d="M10 5H5v14h5"/><path d="m14 8 4 4-4 4M18 12H9"/>'
+};
+
+function svg(k){
+  return '<span class="ups-nav-svg"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">'+icons[k]+'</svg></span>';
+}
+function keyFor(text){
+ text=(text||"").toLowerCase();
+ if(text.includes("dashboard")||text.includes("bosh")) return "dashboard";
+ if(text.includes("fayl")) return "files";
+ if(text.includes("papka")) return "folders";
+ if(text.includes("google drive")||text.includes("drive")) return "drive";
+ if(text.includes("ilova")) return "apps";
+ if(text.includes("qurilma")) return "devices";
+ if(text.includes("sozlama")||text.includes("setting")) return "settings";
+ if(text.includes("chiq")||text.includes("logout")) return "logout";
+ return null;
+}
+function installIcons(){
+ const sb=document.querySelector(".sdx-sidebar");
+ if(!sb)return;
+ sb.querySelectorAll(".sdx-nav a").forEach(a=>{
+   const label=a.querySelector("span");
+   if(!label)return;
+   const text=label.textContent.trim();
+   const k=keyFor(text);
+   if(!k)return;
+   if(!a.querySelector(".ups-nav-svg")){
+      a.insertAdjacentHTML("afterbegin",svg(k));
+   }
+   // hide the old emoji/text glyph that is a direct text node before the label
+   [...a.childNodes].forEach(n=>{
+      if(n.nodeType===3 && n.textContent.trim()) n.textContent="";
+   });
+ });
+}
+function apply(n){
+ n=Math.max(1,Math.min(100,Number(n)||10));
+ const sb=document.querySelector(".sdx-sidebar");
+ if(!sb)return;
+ installIcons();
+ sb.dataset.upsIconFamily=families[n-1]||"glass";
+ sb.dataset.upsIconColor=colors[n-1]||"teal";
+ localStorage.setItem("ups_sidebar_icon_theme",String(n));
+ document.querySelectorAll(".ups-icon-choice").forEach((b,i)=>b.classList.toggle("active",i===n-1));
+ const status=document.getElementById("upsIconThemeStatus");
+ if(status) status.textContent="Tanlandi: "+n+". "+themes[n-1];
+}
+function mountSettings(){
+ const grid=document.querySelector("#settingsModal .settings-grid");
+ if(!grid || document.getElementById("upsIconSettings"))return;
+ const box=document.createElement("section");
+ box.id="upsIconSettings";
+ box.className="settings-section full ups-icon-settings";
+ box.innerHTML=
+   '<h3>🎨 Sidebar ikonkalari</h3>'+
+   '<p>1–100 variantdan birini tanlang. O‘zgarish darhol chap menyuda ko‘rinadi.</p>'+
+   '<div id="upsIconThemeStatus" class="settings-status"></div>'+
+   '<div class="ups-icon-grid">'+
+   themes.map((t,i)=>'<button type="button" class="ups-icon-choice" data-i="'+(i+1)+'"><span class="preview">⌂</span><span class="nm">'+(i+1)+'. '+t+'</span></button>').join("")+
+   '</div>';
+ grid.appendChild(box);
+ box.querySelectorAll(".ups-icon-choice").forEach(b=>{
+   b.addEventListener("click",()=>apply(b.dataset.i));
+ });
+ apply(localStorage.getItem("ups_sidebar_icon_theme")||10);
+}
+function boot(){
+ installIcons();
+ mountSettings();
+ apply(localStorage.getItem("ups_sidebar_icon_theme")||10);
+}
+const mo=new MutationObserver(()=>{installIcons();mountSettings()});
+mo.observe(document.documentElement,{subtree:true,childList:true});
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);else boot();
+window.upsApplySidebarIconTheme=apply;
+})();
+</script>
+
+
+<style id="ups-full-site-theme-engine-v1">
+/* =========================================================
+   UNITED PROFILE SYSTEM — 100 FULL SITE VISUAL THEMES
+   IMPORTANT: PAGE / WALLPAPER BACKGROUND IS NEVER CHANGED.
+   Only UI elements are themed.
+========================================================= */
+
+:root{
+  --ups-accent:#29b8cf;
+  --ups-accent2:#257fcf;
+  --ups-accent3:#69d9e2;
+  --ups-text:#eefbfc;
+  --ups-muted:#94b8bf;
+  --ups-border:rgba(105,199,212,.32);
+  --ups-surface-1:rgba(17,47,61,.52);
+  --ups-surface-2:rgba(8,28,40,.48);
+  --ups-input:rgba(5,23,35,.46);
+  --ups-radius:16px;
+  --ups-radius-btn:12px;
+  --ups-blur:16px;
+  --ups-shadow:0 16px 44px rgba(0,0,0,.16);
+  --ups-glow:0 0 0 rgba(0,0,0,0);
+  --ups-line:1px;
+}
+
+/* ---------- Text ---------- */
+#authPage .auth-card,
+#authPage .auth-card h1,
+#authPage .auth-card h2,
+#authPage .auth-card h3,
+#authPage .auth-card strong,
+.ups-security-card,
+.ups-security-card h1,
+.ups-security-card h2,
+.ups-security-card h3,
+.ups-recovery-box,
+.sdx-sidebar,
+#cloudPage .card,
+#cloudPage .panel,
+#cloudPage [class*="card"],
+#cloudPage [class*="panel"],
+.settings-modal,
+.settings-section,
+.modal-content{
+  color:var(--ups-text)!important;
+}
+
+#authPage .auth-card p,
+#authPage .auth-card small,
+.ups-security-card p,
+.ups-security-card small,
+.ups-recovery-box p,
+.settings-section p,
+#cloudPage .muted,
+#cloudPage .secondary,
+#cloudPage small{
+  color:var(--ups-muted)!important;
+}
+
+/* ---------- Main surfaces ---------- */
+#authPage .auth-card,
+.ups-security-card,
+.ups-recovery-box,
+#cloudPage .card,
+#cloudPage .panel,
+#cloudPage .stat-card,
+#cloudPage .storage-card,
+#cloudPage .dashboard-card,
+#cloudPage .upload-section,
+#cloudPage .quick-actions,
+#cloudPage .apps-section,
+#cloudPage .recent-files,
+#cloudPage [class*="card"],
+#cloudPage [class*="panel"],
+.settings-modal,
+.settings-section,
+.modal-content,
+.dialog,
+.popup,
+.dropdown-menu{
+  background:linear-gradient(145deg,var(--ups-surface-1),var(--ups-surface-2))!important;
+  border:var(--ups-line) solid var(--ups-border)!important;
+  border-radius:var(--ups-radius)!important;
+  box-shadow:var(--ups-shadow),var(--ups-glow)!important;
+  backdrop-filter:blur(var(--ups-blur)) saturate(125%)!important;
+  -webkit-backdrop-filter:blur(var(--ups-blur)) saturate(125%)!important;
+}
+
+/* ---------- Sidebar only surface, not page background ---------- */
+.sdx-sidebar{
+  background:linear-gradient(180deg,var(--ups-surface-1),var(--ups-surface-2))!important;
+  border-right:var(--ups-line) solid var(--ups-border)!important;
+  box-shadow:var(--ups-shadow),var(--ups-glow)!important;
+  backdrop-filter:blur(var(--ups-blur)) saturate(125%)!important;
+  -webkit-backdrop-filter:blur(var(--ups-blur)) saturate(125%)!important;
+}
+
+/* ---------- Inputs ---------- */
+#authPage input,
+.ups-security-card input,
+.ups-recovery-box input,
+#cloudPage input,
+#cloudPage select,
+#cloudPage textarea,
+.settings-modal input,
+.settings-modal select,
+.settings-modal textarea{
+  background:var(--ups-input)!important;
+  border:var(--ups-line) solid var(--ups-border)!important;
+  border-radius:var(--ups-radius-btn)!important;
+  color:var(--ups-text)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04)!important;
+}
+
+#authPage input:focus,
+.ups-security-card input:focus,
+.ups-recovery-box input:focus,
+#cloudPage input:focus,
+#cloudPage select:focus,
+#cloudPage textarea:focus,
+.settings-modal input:focus,
+.settings-modal select:focus{
+  border-color:var(--ups-accent3)!important;
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--ups-accent) 16%,transparent),var(--ups-glow)!important;
+  outline:none!important;
+}
+
+#authPage input::placeholder,
+.ups-security-card input::placeholder,
+.ups-recovery-box input::placeholder,
+#cloudPage input::placeholder,
+#cloudPage textarea::placeholder{
+  color:var(--ups-muted)!important;
+}
+
+/* ---------- Buttons ---------- */
+#authPage .auth-btn,
+.ups-security-card button,
+.ups-recovery-box button,
+#cloudPage button,
+#cloudPage .btn,
+.settings-modal button{
+  border-radius:var(--ups-radius-btn)!important;
+  border:var(--ups-line) solid var(--ups-border)!important;
+  transition:.18s ease!important;
+}
+
+#authPage .auth-btn,
+.ups-security-primary,
+.ups-recovery-primary,
+#cloudPage .btn-primary,
+#cloudPage .primary-btn,
+#cloudPage .upload-btn,
+#cloudPage .action-btn,
+.settings-modal .btn-primary{
+  background:linear-gradient(135deg,var(--ups-accent),var(--ups-accent2))!important;
+  color:#fff!important;
+  box-shadow:var(--ups-glow)!important;
+}
+
+#authPage .auth-btn:hover,
+.ups-security-card button:hover,
+.ups-recovery-box button:hover,
+#cloudPage button:hover,
+.settings-modal button:hover{
+  filter:brightness(1.08)!important;
+}
+
+/* ---------- Sidebar navigation ---------- */
+.sdx-sidebar .sdx-nav a{
+  border-radius:var(--ups-radius-btn)!important;
+  border:1px solid transparent!important;
+}
+.sdx-sidebar .sdx-nav a:hover{
+  background:color-mix(in srgb,var(--ups-accent) 11%,transparent)!important;
+  border-color:color-mix(in srgb,var(--ups-accent3) 25%,transparent)!important;
+}
+.sdx-sidebar .sdx-nav a.active,
+.sdx-sidebar .sdx-nav .active{
+  background:linear-gradient(135deg,var(--ups-accent),var(--ups-accent2))!important;
+  color:#fff!important;
+  box-shadow:var(--ups-glow)!important;
+}
+
+/* ---------- Tables ---------- */
+#cloudPage table,
+#cloudPage th,
+#cloudPage td,
+#cloudPage tr{
+  border-color:color-mix(in srgb,var(--ups-border) 70%,transparent)!important;
+}
+#cloudPage tbody tr:hover{
+  background:color-mix(in srgb,var(--ups-accent) 7%,transparent)!important;
+}
+
+/* ---------- Badges / status ---------- */
+#cloudPage .badge,
+#cloudPage .tag,
+#cloudPage .status,
+.settings-modal .badge{
+  background:color-mix(in srgb,var(--ups-accent) 13%,transparent)!important;
+  border:1px solid color-mix(in srgb,var(--ups-accent3) 30%,transparent)!important;
+  color:var(--ups-accent3)!important;
+  border-radius:999px!important;
+}
+
+/* ---------- Progress ---------- */
+#cloudPage .progress,
+#cloudPage progress,
+#cloudPage [class*="progress"]{
+  border-radius:999px!important;
+}
+#cloudPage .progress-fill,
+#cloudPage [class*="progress"] > div{
+  background:linear-gradient(90deg,var(--ups-accent),var(--ups-accent2))!important;
+}
+
+/* ---------- Login logo / dividers / date ---------- */
+#authPage .ups-united-script,
+#authPage .ups-system-word,
+#authPage .ups-creator-text,
+#authPage .sdx-login-date,
+#authPage .switch-btn{
+  color:var(--ups-accent3)!important;
+}
+#authPage .ups-divider-line{
+  background:linear-gradient(90deg,transparent,var(--ups-accent3),transparent)!important;
+}
+
+/* ---------- 2nd code dots ---------- */
+.ups-code-dot{
+  border-color:var(--ups-border)!important;
+  background:var(--ups-input)!important;
+}
+.ups-code-dot.filled{
+  background:var(--ups-accent3)!important;
+  border-color:var(--ups-accent3)!important;
+  box-shadow:0 0 12px color-mix(in srgb,var(--ups-accent3) 55%,transparent)!important;
+}
+.ups-code-dot.success{
+  background:#59d5a3!important;
+  border-color:#59d5a3!important;
+  box-shadow:0 0 12px rgba(89,213,163,.65)!important;
+}
+.ups-code-dot.error{
+  background:#ff6f7d!important;
+  border-color:#ff6f7d!important;
+  box-shadow:0 0 12px rgba(255,111,125,.65)!important;
+}
+
+/* ---------- Recovery link ---------- */
+.ups-forgot-code-btn{
+  color:var(--ups-accent3)!important;
+}
+
+/* ---------- Settings 100-theme selector ---------- */
+.ups-icon-choice.active{
+  border-color:var(--ups-accent3)!important;
+  box-shadow:0 0 0 2px color-mix(in srgb,var(--ups-accent) 12%,transparent),var(--ups-glow)!important;
+}
+.ups-icon-choice .preview{
+  color:var(--ups-accent3)!important;
+}
+
+/* ---------- Family-specific full-site shapes ---------- */
+html[data-ups-full-family="minimal"]{
+  --ups-radius:10px;--ups-radius-btn:8px;--ups-blur:8px;--ups-shadow:0 8px 22px rgba(0,0,0,.10);--ups-glow:0 0 0 transparent;
+}
+html[data-ups-full-family="rounded"]{
+  --ups-radius:24px;--ups-radius-btn:16px;--ups-blur:16px;
+}
+html[data-ups-full-family="glass"]{
+  --ups-radius:20px;--ups-radius-btn:14px;--ups-blur:24px;--ups-shadow:0 20px 60px rgba(0,0,0,.20);
+}
+html[data-ups-full-family="neon"]{
+  --ups-radius:16px;--ups-radius-btn:11px;--ups-blur:14px;--ups-line:1px;
+  --ups-glow:0 0 24px color-mix(in srgb,var(--ups-accent) 22%,transparent);
+}
+html[data-ups-full-family="soft"]{
+  --ups-radius:22px;--ups-radius-btn:15px;--ups-blur:18px;--ups-shadow:0 14px 34px rgba(0,0,0,.12);
+}
+html[data-ups-full-family="sharp"]{
+  --ups-radius:6px;--ups-radius-btn:5px;--ups-blur:10px;
+}
+html[data-ups-full-family="luxury"]{
+  --ups-radius:18px;--ups-radius-btn:10px;--ups-blur:18px;--ups-shadow:0 22px 64px rgba(0,0,0,.24);
+}
+html[data-ups-full-family="cyber"]{
+  --ups-radius:8px;--ups-radius-btn:6px;--ups-blur:12px;--ups-glow:0 0 28px color-mix(in srgb,var(--ups-accent) 26%,transparent);
+}
+html[data-ups-full-family="pill"]{
+  --ups-radius:28px;--ups-radius-btn:999px;--ups-blur:16px;
+}
+html[data-ups-full-family="vision"]{
+  --ups-radius:26px;--ups-radius-btn:18px;--ups-blur:30px;--ups-shadow:0 24px 72px rgba(0,0,0,.18);
+}
+
+/* IMPORTANT:
+   No body background, #authPage background, #cloudPage background,
+   background-image, wallpaper, video or page-level backdrop is modified here.
+*/
+</style>
+
+<script id="ups-full-site-theme-engine-script-v1">
+(function(){
+  /* 10 visual families × 10 palettes = 100 full-site themes */
+  const families=["minimal","rounded","glass","neon","soft","sharp","luxury","cyber","pill","vision"];
+
+  const palettes=[
+    ["#29b8cf","#257fcf","#69d9e2","#eefbfc","#94b8bf","rgba(105,199,212,.32)","rgba(17,47,61,.52)","rgba(8,28,40,.48)","rgba(5,23,35,.46)"],
+    ["#5cb7ff","#356de8","#bde7ff","#f4fbff","#9bb6ca","rgba(100,176,230,.34)","rgba(19,43,67,.54)","rgba(7,24,43,.50)","rgba(8,25,43,.46)"],
+    ["#55d8b1","#259d91","#a7f2d9","#f2fffb","#96bdb2","rgba(91,205,177,.32)","rgba(14,50,48,.54)","rgba(5,31,33,.50)","rgba(5,29,31,.46)"],
+    ["#a984ff","#6d55e7","#dccbff","#fbf8ff","#b1a4c7","rgba(170,132,255,.32)","rgba(41,29,65,.55)","rgba(23,17,43,.50)","rgba(25,18,44,.46)"],
+    ["#f0bd61","#b7802d","#ffe3a7","#fffaf0","#c7b18b","rgba(225,177,89,.34)","rgba(58,42,19,.56)","rgba(37,27,13,.52)","rgba(39,29,14,.47)"],
+    ["#ff7e8c","#d64d68","#ffc1c8","#fff5f6","#c3a0a5","rgba(236,104,124,.32)","rgba(62,26,34,.54)","rgba(38,16,24,.50)","rgba(42,18,25,.46)"],
+    ["#efefef","#aeb7c2","#ffffff","#ffffff","#aeb7c2","rgba(218,226,235,.28)","rgba(39,45,54,.54)","rgba(20,25,32,.50)","rgba(22,27,34,.46)"],
+    ["#73e7ff","#00aeea","#c9f7ff","#f2fdff","#96bec6","rgba(84,214,238,.34)","rgba(12,49,61,.56)","rgba(4,27,37,.52)","rgba(5,30,40,.48)"],
+    ["#9be37b","#46a966","#d4ffc5","#f7fff4","#a8c39e","rgba(125,210,108,.32)","rgba(30,55,31,.55)","rgba(15,34,20,.50)","rgba(16,37,22,.46)"],
+    ["#ff9d5c","#e46634","#ffd2ad","#fff8f3","#c7a994","rgba(241,137,82,.32)","rgba(63,35,24,.55)","rgba(39,22,17,.50)","rgba(43,24,17,.46)"]
+  ];
+
+  function setVar(name,val){document.documentElement.style.setProperty(name,val)}
+
+  function applyFullTheme(n){
+    n=Math.max(1,Math.min(100,Number(n)||10));
+    const fam=families[Math.floor((n-1)/10)] || "glass";
+    const pal=palettes[(n-1)%10] || palettes[0];
+
+    document.documentElement.dataset.upsFullTheme=String(n);
+    document.documentElement.dataset.upsFullFamily=fam;
+
+    setVar("--ups-accent",pal[0]);
+    setVar("--ups-accent2",pal[1]);
+    setVar("--ups-accent3",pal[2]);
+    setVar("--ups-text",pal[3]);
+    setVar("--ups-muted",pal[4]);
+    setVar("--ups-border",pal[5]);
+    setVar("--ups-surface-1",pal[6]);
+    setVar("--ups-surface-2",pal[7]);
+    setVar("--ups-input",pal[8]);
+
+    localStorage.setItem("ups_full_site_theme",String(n));
+
+    /* keep sidebar icon style synchronized with same number */
+    if(typeof window.upsApplySidebarIconTheme==="function"){
+      window.upsApplySidebarIconTheme(n);
+    }
+
+    document.querySelectorAll(".ups-icon-choice").forEach((b,i)=>{
+      b.classList.toggle("active",i===n-1);
+    });
+
+    const status=document.getElementById("upsIconThemeStatus");
+    if(status) status.textContent="Butun sayt mavzusi: "+n+" / 100";
+  }
+
+  function wireChoices(){
+    document.querySelectorAll(".ups-icon-choice").forEach(btn=>{
+      if(btn.dataset.fullThemeBound==="1") return;
+      btn.dataset.fullThemeBound="1";
+      btn.addEventListener("click",function(){
+        applyFullTheme(this.dataset.i);
+      });
+    });
+  }
+
+  function boot(){
+    wireChoices();
+    const saved=localStorage.getItem("ups_full_site_theme") ||
+                localStorage.getItem("ups_sidebar_icon_theme") || "10";
+    applyFullTheme(saved);
+  }
+
+  new MutationObserver(wireChoices).observe(document.documentElement,{childList:true,subtree:true});
+  if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded",boot);
+  }else{
+    boot();
+  }
+
+  window.upsApplyFullSiteTheme=applyFullTheme;
+})();
+</script>
+
+
+<style id="ups-language-switcher-style">
+/* Language switcher in sidebar gap. Background/wallpaper untouched. */
+.ups-language-box{
+  margin-top:18px;
+  padding:13px 12px;
+  border-radius:15px;
+  background:linear-gradient(145deg,var(--ups-surface-1,rgba(17,47,61,.52)),var(--ups-surface-2,rgba(8,28,40,.48)));
+  border:1px solid var(--ups-border,rgba(105,199,212,.30));
+  box-shadow:var(--ups-glow,0 0 0 transparent);
+  backdrop-filter:blur(var(--ups-blur,16px));
+  -webkit-backdrop-filter:blur(var(--ups-blur,16px));
+}
+.ups-language-title{
+  font-size:11px;
+  font-weight:800;
+  color:var(--ups-muted,#94b8bf);
+  margin-bottom:9px;
+  letter-spacing:.2px;
+}
+.ups-language-buttons{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:6px;
+}
+.ups-lang-btn{
+  min-width:0!important;
+  height:35px!important;
+  padding:0 5px!important;
+  border-radius:10px!important;
+  background:rgba(5,23,35,.42)!important;
+  border:1px solid var(--ups-border,rgba(105,199,212,.28))!important;
+  color:var(--ups-muted,#94b8bf)!important;
+  font-size:10px!important;
+  font-weight:800!important;
+  box-shadow:none!important;
+}
+.ups-lang-btn:hover{
+  color:var(--ups-text,#eefbfc)!important;
+  border-color:var(--ups-accent3,#69d9e2)!important;
+}
+.ups-lang-btn.active{
+  color:#fff!important;
+  background:linear-gradient(135deg,var(--ups-accent,#29b8cf),var(--ups-accent2,#257fcf))!important;
+  border-color:transparent!important;
+  box-shadow:var(--ups-glow,0 0 0 transparent)!important;
+}
+@media(max-width:800px){
+  .ups-language-box{margin-top:10px}
+}
+</style>
+
+<script id="ups-language-engine-v1">
+(function(){
+const dict = {
+uz:{
+"Hisobingizga kiring":"Hisobingizga kiring",
+"Kirish":"Kirish",
+"Hisobingiz yo‘qmi? Ro‘yxatdan o‘ting":"Hisobingiz yo‘qmi? Ro‘yxatdan o‘ting",
+"Rasmni o‘zgartirish":"Rasmni o‘zgartirish",
+"Rasmni o‘chirish":"Rasmni o‘chirish",
+"Dashboard":"Dashboard",
+"Fayllarim":"Fayllarim",
+"Papkalar":"Papkalar",
+"Ilovalar":"Ilovalar",
+"Qurilmalar":"Qurilmalar",
+"Sozlamalar":"Sozlamalar",
+"Chiqish":"Chiqish",
+"Storage":"Xotira",
+"Ulanmagan":"Ulanmagan",
+"Fayllaringiz xavfsiz va bir joyda.":"Fayllaringiz xavfsiz va bir joyda.",
+"Fayllar":"Fayllar",
+"+ faol fayllar":"+ faol fayllar",
+"papkalar soni":"papkalar soni",
+"ishlatilgan xotira":"ishlatilgan xotira",
+"hisob holati":"hisob holati",
+"Fayl yuklash":"Fayl yuklash",
+"Telefon yoki kompyuterdan istalgan faylni tanlang — EXE, MSI, APK, ZIP, RAR, 7Z va boshqa fayllar ham qo‘llanadi":"Telefon yoki kompyuterdan istalgan faylni tanlang — EXE, MSI, APK, ZIP, RAR, 7Z va boshqa fayllar ham qo‘llanadi",
+"Fayl tanlash":"Fayl tanlash",
+"Backblaze'ga yuklash":"Backblaze'ga yuklash",
+"Supabase'ga yuklash":"Supabase'ga yuklash",
+"Google Drive'ga yuklash":"Google Drive'ga yuklash",
+"Papka tanlash":"Papka tanlash",
+"Kerakli servisni tez oching yoki o‘zingiz yangi ilova qo‘shing.":"Kerakli servisni tez oching yoki o‘zingiz yangi ilova qo‘shing.",
+"Tiklash":"Tiklash",
+"Ilova qo‘shish":"Ilova qo‘shish",
+"Tezkor Amallar":"Tezkor Amallar",
+"Fayl Yuklash":"Fayl Yuklash",
+"Papka Yaratish":"Papka Yaratish",
+"Google Drive Ochish":"Google Drive Ochish",
+"So‘nggi Fayllar":"So‘nggi Fayllar",
+"Nomi":"Nomi",
+"O‘lchami":"O‘lchami",
+"Holati":"Holati",
+"Fayllar yuklanmoqda...":"Fayllar yuklanmoqda...",
+"Mening SkyDriveX":"Mening SkyDriveX",
+"Fayllaringizni xavfsiz saqlang va istalgan qurilmadan foydalaning.":"Fayllaringizni xavfsiz saqlang va istalgan qurilmadan foydalaning.",
+"SkyDriveX foydalanuvchisi":"SkyDriveX foydalanuvchisi",
+"Rasm yuklash":"Rasm yuklash",
+"Almashtirish":"Almashtirish",
+"Yangi papka":"Yangi papka",
+"Orqaga":"Orqaga",
+"Yangilash":"Yangilash",
+"Bosh papka":"Bosh papka",
+"Yuklanmoqda...":"Yuklanmoqda...",
+"Google Drive’ni ulash":"Google Drive’ni ulash",
+"Uzish":"Uzish",
+"Drive’ga yuklash":"Drive’ga yuklash",
+"Google Drive’ni ulang.":"Google Drive’ni ulang.",
+"Ko‘chirish":"Ko‘chirish",
+"Shu papkaga ko‘chirish":"Shu papkaga ko‘chirish",
+"Papkalar yuklanmoqda...":"Papkalar yuklanmoqda...",
+"Ko‘rish":"Ko‘rish",
+"Ilova nomi":"Ilova nomi",
+"Link":"Link",
+"Ikonka":"Ikonka",
+"Ikonka sifatida emoji ishlatishingiz mumkin. Qo‘shgan ilovalaringiz shu brauzerda saqlanadi.":"Ikonka sifatida emoji ishlatishingiz mumkin. Qo‘shgan ilovalaringiz shu brauzerda saqlanadi.",
+"Bekor qilish":"Bekor qilish",
+"Saqlash":"Saqlash",
+"SkyDriveX hisobingiz va interfeysini boshqaring.":"SkyDriveX hisobingiz va interfeysini boshqaring.",
+"Profil":"Profil",
+"Ko‘rinadigan nomingizni o‘zgartiring.":"Ko‘rinadigan nomingizni o‘zgartiring.",
+"Profil nomi":"Profil nomi",
+"Parol":"Parol",
+"SkyDriveX hisobingiz uchun yangi parol o‘rnating.":"SkyDriveX hisobingiz uchun yangi parol o‘rnating.",
+"Yangi parol":"Yangi parol",
+"Parolni takrorlang":"Parolni takrorlang",
+"Parolni yangilash":"Parolni yangilash",
+"Ko‘rinish":"Ko‘rinish",
+"Dark Blue Glass interfeysini o‘zingizga moslang.":"Dark Blue Glass interfeysini o‘zingizga moslang.",
+"Ixcham rejim":"Ixcham rejim",
+"Animatsiyalar":"Animatsiyalar",
+"Sozlamalar shu brauzerda saqlanadi.":"Sozlamalar shu brauzerda saqlanadi.",
+"Launcher’ga yangi servis qo‘shing yoki o‘zingiz qo‘shganlarini boshqaring.":"Launcher’ga yangi servis qo‘shing yoki o‘zingiz qo‘shganlarini boshqaring.",
+"Standart ilovalarni tiklash":"Standart ilovalarni tiklash",
+"Custom ilovalarni tozalash":"Custom ilovalarni tozalash",
+"Tayyor dizayn":"Tayyor dizayn",
+"Fon joylashuvi":"Fon joylashuvi",
+"Markaz":"Markaz",
+"Tepada":"Tepada",
+"Pastda":"Pastda",
+"Chapda":"Chapda",
+"O‘ngda":"O‘ngda",
+"Asosiy rang":"Asosiy rang",
+"Ikkinchi rang":"Ikkinchi rang",
+"Sayt foni":"Sayt foni",
+"Kartalar":"Kartalar",
+"Matn":"Matn",
+"Yordamchi matn":"Yordamchi matn",
+"Border":"Chegara",
+"Glass blur":"Shisha blur",
+"Karta shaffofligi":"Karta shaffofligi",
+"Fon qoraytirish":"Fon qoraytirish",
+"Burchak yumaloqligi":"Burchak yumaloqligi",
+"Shrift o‘lchami":"Shrift o‘lchami",
+"Fon effektlari":"Fon effektlari",
+"Fon rasmi tanlash":"Fon rasmi tanlash",
+"Fon rasmi tanlanmagan":"Fon rasmi tanlanmagan",
+"Fon rasmini olib tashlash":"Fon rasmini olib tashlash",
+"Video Wallpaper tanlash":"Video fon tanlash",
+"Video tanlanmagan":"Video tanlanmagan",
+"Video fonni olib tashlash":"Video fonni olib tashlash",
+"Video ovozi":"Video ovozi",
+"Ovoz balandligi":"Ovoz balandligi",
+"Kirganda ijro":"Kirganda ijro",
+"Takrorlash":"Takrorlash",
+"Fon musiqasi tanlash":"Fon musiqasi tanlash",
+"Musiqa tanlanmagan":"Musiqa tanlanmagan",
+"Boshidan":"Boshidan",
+"Musiqani olib tashlash":"Musiqani olib tashlash",
+"Ovoz":"Ovoz",
+"Dizaynni saqlash":"Dizaynni saqlash",
+"Standart dizayn":"Standart dizayn",
+"Theme eksport":"Mavzuni eksport",
+"Theme import":"Mavzuni import",
+"Dizayn shu brauzerda saqlanadi. Theme eksport/import orqali boshqa qurilmaga ham olib o‘tishingiz mumkin.":"Dizayn shu brauzerda saqlanadi. Theme eksport/import orqali boshqa qurilmaga ham olib o‘tishingiz mumkin.",
+"Hisob amallari":"Hisob amallari",
+"Mahalliy sozlamalarni tozalash yoki hisobdan chiqish.":"Mahalliy sozlamalarni tozalash yoki hisobdan chiqish.",
+"Mahalliy sozlamalarni tiklash":"Mahalliy sozlamalarni tiklash",
+"Hisobdan chiqish":"Hisobdan chiqish",
+"Fon musiqasi":"Fon musiqasi",
+"Tayyor":"Tayyor",
+"Xavfsizlik kodi":"Xavfsizlik kodi",
+"6 xonali xavfsizlik kodini kiriting.":"6 xonali xavfsizlik kodini kiriting.",
+"Tasdiqlash":"Tasdiqlash",
+"Kodni unutdingizmi?":"Kodni unutdingizmi?",
+"Recovery Key kiriting":"Recovery Key kiriting",
+"Recovery Key yarating":"Recovery Key yarating",
+"To‘g‘ri kalit kiritilsa yangi 6 xonali kod o‘rnatasiz.":"To‘g‘ri kalit kiritilsa yangi 6 xonali kod o‘rnatasiz.",
+"Birinchi marta. O‘zingiz biladigan uzun Recovery Key kiriting.":"Birinchi marta. O‘zingiz biladigan uzun Recovery Key kiriting.",
+"Recovery Key saqlash":"Recovery Key saqlash",
+"Til":"Til"
+},
+ru:{
+"Hisobingizga kiring":"Войдите в аккаунт",
+"Kirish":"Войти",
+"Hisobingiz yo‘qmi? Ro‘yxatdan o‘ting":"Нет аккаунта? Зарегистрируйтесь",
+"Rasmni o‘zgartirish":"Изменить фото",
+"Rasmni o‘chirish":"Удалить фото",
+"Dashboard":"Главная",
+"Fayllarim":"Мои файлы",
+"Papkalar":"Папки",
+"Ilovalar":"Приложения",
+"Qurilmalar":"Устройства",
+"Sozlamalar":"Настройки",
+"Chiqish":"Выйти",
+"Storage":"Хранилище",
+"Ulanmagan":"Не подключено",
+"Fayllaringiz xavfsiz va bir joyda.":"Ваши файлы безопасны и собраны в одном месте.",
+"Fayllar":"Файлы",
+"+ faol fayllar":"+ активные файлы",
+"papkalar soni":"количество папок",
+"ishlatilgan xotira":"использовано",
+"hisob holati":"состояние аккаунта",
+"Fayl yuklash":"Загрузка файла",
+"Telefon yoki kompyuterdan istalgan faylni tanlang — EXE, MSI, APK, ZIP, RAR, 7Z va boshqa fayllar ham qo‘llanadi":"Выберите любой файл с телефона или компьютера — поддерживаются EXE, MSI, APK, ZIP, RAR, 7Z и другие форматы",
+"Fayl tanlash":"Выбрать файл",
+"Backblaze'ga yuklash":"Загрузить в Backblaze",
+"Supabase'ga yuklash":"Загрузить в Supabase",
+"Google Drive'ga yuklash":"Загрузить в Google Drive",
+"Papka tanlash":"Выбрать папку",
+"Kerakli servisni tez oching yoki o‘zingiz yangi ilova qo‘shing.":"Быстро открывайте сервисы или добавляйте свои приложения.",
+"Tiklash":"Восстановить",
+"Ilova qo‘shish":"Добавить приложение",
+"Tezkor Amallar":"Быстрые действия",
+"Fayl Yuklash":"Загрузить файл",
+"Papka Yaratish":"Создать папку",
+"Google Drive Ochish":"Открыть Google Drive",
+"So‘nggi Fayllar":"Последние файлы",
+"Nomi":"Название",
+"O‘lchami":"Размер",
+"Holati":"Статус",
+"Fayllar yuklanmoqda...":"Файлы загружаются...",
+"Mening SkyDriveX":"Мой SkyDriveX",
+"Fayllaringizni xavfsiz saqlang va istalgan qurilmadan foydalaning.":"Безопасно храните файлы и используйте их с любого устройства.",
+"SkyDriveX foydalanuvchisi":"Пользователь SkyDriveX",
+"Rasm yuklash":"Загрузить фото",
+"Almashtirish":"Заменить",
+"Yangi papka":"Новая папка",
+"Orqaga":"Назад",
+"Yangilash":"Обновить",
+"Bosh papka":"Главная папка",
+"Yuklanmoqda...":"Загрузка...",
+"Google Drive’ni ulash":"Подключить Google Drive",
+"Uzish":"Отключить",
+"Drive’ga yuklash":"Загрузить в Drive",
+"Google Drive’ni ulang.":"Подключите Google Drive.",
+"Ko‘chirish":"Переместить",
+"Shu papkaga ko‘chirish":"Переместить в эту папку",
+"Papkalar yuklanmoqda...":"Папки загружаются...",
+"Ko‘rish":"Открыть",
+"Ilova nomi":"Название приложения",
+"Link":"Ссылка",
+"Ikonka":"Иконка",
+"Ikonka sifatida emoji ishlatishingiz mumkin. Qo‘shgan ilovalaringiz shu brauzerda saqlanadi.":"Можно использовать emoji как иконку. Добавленные приложения сохраняются в этом браузере.",
+"Bekor qilish":"Отмена",
+"Saqlash":"Сохранить",
+"SkyDriveX hisobingiz va interfeysini boshqaring.":"Управляйте аккаунтом SkyDriveX и интерфейсом.",
+"Profil":"Профиль",
+"Ko‘rinadigan nomingizni o‘zgartiring.":"Измените отображаемое имя.",
+"Profil nomi":"Имя профиля",
+"Parol":"Пароль",
+"SkyDriveX hisobingiz uchun yangi parol o‘rnating.":"Установите новый пароль для аккаунта SkyDriveX.",
+"Yangi parol":"Новый пароль",
+"Parolni takrorlang":"Повторите пароль",
+"Parolni yangilash":"Обновить пароль",
+"Ko‘rinish":"Оформление",
+"Dark Blue Glass interfeysini o‘zingizga moslang.":"Настройте интерфейс под себя.",
+"Ixcham rejim":"Компактный режим",
+"Animatsiyalar":"Анимации",
+"Sozlamalar shu brauzerda saqlanadi.":"Настройки сохраняются в этом браузере.",
+"Launcher’ga yangi servis qo‘shing yoki o‘zingiz qo‘shganlarini boshqaring.":"Добавляйте сервисы в лаунчер и управляйте своими приложениями.",
+"Standart ilovalarni tiklash":"Восстановить стандартные приложения",
+"Custom ilovalarni tozalash":"Очистить пользовательские приложения",
+"Tayyor dizayn":"Готовый дизайн",
+"Fon joylashuvi":"Положение фона",
+"Markaz":"По центру",
+"Tepada":"Сверху",
+"Pastda":"Снизу",
+"Chapda":"Слева",
+"O‘ngda":"Справа",
+"Asosiy rang":"Основной цвет",
+"Ikkinchi rang":"Второй цвет",
+"Sayt foni":"Фон сайта",
+"Kartalar":"Карточки",
+"Matn":"Текст",
+"Yordamchi matn":"Дополнительный текст",
+"Border":"Граница",
+"Glass blur":"Размытие стекла",
+"Karta shaffofligi":"Прозрачность карточек",
+"Fon qoraytirish":"Затемнение фона",
+"Burchak yumaloqligi":"Скругление углов",
+"Shrift o‘lchami":"Размер шрифта",
+"Fon effektlari":"Эффекты фона",
+"Fon rasmi tanlash":"Выбрать фоновое изображение",
+"Fon rasmi tanlanmagan":"Фоновое изображение не выбрано",
+"Fon rasmini olib tashlash":"Удалить фоновое изображение",
+"Video Wallpaper tanlash":"Выбрать видеофон",
+"Video tanlanmagan":"Видео не выбрано",
+"Video fonni olib tashlash":"Удалить видеофон",
+"Video ovozi":"Звук видео",
+"Ovoz balandligi":"Громкость",
+"Kirganda ijro":"Воспроизводить при входе",
+"Takrorlash":"Повторять",
+"Fon musiqasi tanlash":"Выбрать фоновую музыку",
+"Musiqa tanlanmagan":"Музыка не выбрана",
+"Boshidan":"Сначала",
+"Musiqani olib tashlash":"Удалить музыку",
+"Ovoz":"Звук",
+"Dizaynni saqlash":"Сохранить дизайн",
+"Standart dizayn":"Стандартный дизайн",
+"Theme eksport":"Экспорт темы",
+"Theme import":"Импорт темы",
+"Dizayn shu brauzerda saqlanadi. Theme eksport/import orqali boshqa qurilmaga ham olib o‘tishingiz mumkin.":"Дизайн сохраняется в браузере. Через экспорт/импорт темы его можно перенести на другое устройство.",
+"Hisob amallari":"Действия аккаунта",
+"Mahalliy sozlamalarni tozalash yoki hisobdan chiqish.":"Очистите локальные настройки или выйдите из аккаунта.",
+"Mahalliy sozlamalarni tiklash":"Сбросить локальные настройки",
+"Hisobdan chiqish":"Выйти из аккаунта",
+"Fon musiqasi":"Фоновая музыка",
+"Tayyor":"Готово",
+"Xavfsizlik kodi":"Код безопасности",
+"6 xonali xavfsizlik kodini kiriting.":"Введите 6-значный код безопасности.",
+"Tasdiqlash":"Подтвердить",
+"Kodni unutdingizmi?":"Забыли код?",
+"Recovery Key kiriting":"Введите Recovery Key",
+"Recovery Key yarating":"Создайте Recovery Key",
+"To‘g‘ri kalit kiritilsa yangi 6 xonali kod o‘rnatasiz.":"После правильного ключа можно установить новый 6-значный код.",
+"Birinchi marta. O‘zingiz biladigan uzun Recovery Key kiriting.":"Первый раз: введите длинный Recovery Key, известный только вам.",
+"Recovery Key saqlash":"Сохранить Recovery Key",
+"Til":"Язык"
+},
+en:{
+"Hisobingizga kiring":"Sign in to your account",
+"Kirish":"Sign in",
+"Hisobingiz yo‘qmi? Ro‘yxatdan o‘ting":"No account? Create one",
+"Rasmni o‘zgartirish":"Change photo",
+"Rasmni o‘chirish":"Delete photo",
+"Dashboard":"Dashboard",
+"Fayllarim":"My files",
+"Papkalar":"Folders",
+"Ilovalar":"Apps",
+"Qurilmalar":"Devices",
+"Sozlamalar":"Settings",
+"Chiqish":"Sign out",
+"Storage":"Storage",
+"Ulanmagan":"Not connected",
+"Fayllaringiz xavfsiz va bir joyda.":"Your files are safe and in one place.",
+"Fayllar":"Files",
+"+ faol fayllar":"+ active files",
+"papkalar soni":"folder count",
+"ishlatilgan xotira":"storage used",
+"hisob holati":"account status",
+"Fayl yuklash":"Upload file",
+"Telefon yoki kompyuterdan istalgan faylni tanlang — EXE, MSI, APK, ZIP, RAR, 7Z va boshqa fayllar ham qo‘llanadi":"Choose any file from your phone or computer — EXE, MSI, APK, ZIP, RAR, 7Z and other formats are supported",
+"Fayl tanlash":"Choose file",
+"Backblaze'ga yuklash":"Upload to Backblaze",
+"Supabase'ga yuklash":"Upload to Supabase",
+"Google Drive'ga yuklash":"Upload to Google Drive",
+"Papka tanlash":"Choose folder",
+"Kerakli servisni tez oching yoki o‘zingiz yangi ilova qo‘shing.":"Quickly open services or add your own apps.",
+"Tiklash":"Restore",
+"Ilova qo‘shish":"Add app",
+"Tezkor Amallar":"Quick Actions",
+"Fayl Yuklash":"Upload File",
+"Papka Yaratish":"Create Folder",
+"Google Drive Ochish":"Open Google Drive",
+"So‘nggi Fayllar":"Recent Files",
+"Nomi":"Name",
+"O‘lchami":"Size",
+"Holati":"Status",
+"Fayllar yuklanmoqda...":"Loading files...",
+"Mening SkyDriveX":"My SkyDriveX",
+"Fayllaringizni xavfsiz saqlang va istalgan qurilmadan foydalaning.":"Keep your files safe and access them from any device.",
+"SkyDriveX foydalanuvchisi":"SkyDriveX user",
+"Rasm yuklash":"Upload photo",
+"Almashtirish":"Replace",
+"Yangi papka":"New folder",
+"Orqaga":"Back",
+"Yangilash":"Refresh",
+"Bosh papka":"Home folder",
+"Yuklanmoqda...":"Loading...",
+"Google Drive’ni ulash":"Connect Google Drive",
+"Uzish":"Disconnect",
+"Drive’ga yuklash":"Upload to Drive",
+"Google Drive’ni ulang.":"Connect Google Drive.",
+"Ko‘chirish":"Move",
+"Shu papkaga ko‘chirish":"Move to this folder",
+"Papkalar yuklanmoqda...":"Loading folders...",
+"Ko‘rish":"Open",
+"Ilova nomi":"App name",
+"Link":"Link",
+"Ikonka":"Icon",
+"Ikonka sifatida emoji ishlatishingiz mumkin. Qo‘shgan ilovalaringiz shu brauzerda saqlanadi.":"You can use an emoji as the icon. Added apps are saved in this browser.",
+"Bekor qilish":"Cancel",
+"Saqlash":"Save",
+"SkyDriveX hisobingiz va interfeysini boshqaring.":"Manage your SkyDriveX account and interface.",
+"Profil":"Profile",
+"Ko‘rinadigan nomingizni o‘zgartiring.":"Change your display name.",
+"Profil nomi":"Profile name",
+"Parol":"Password",
+"SkyDriveX hisobingiz uchun yangi parol o‘rnating.":"Set a new password for your SkyDriveX account.",
+"Yangi parol":"New password",
+"Parolni takrorlang":"Repeat password",
+"Parolni yangilash":"Update password",
+"Ko‘rinish":"Appearance",
+"Dark Blue Glass interfeysini o‘zingizga moslang.":"Customize the interface to your preference.",
+"Ixcham rejim":"Compact mode",
+"Animatsiyalar":"Animations",
+"Sozlamalar shu brauzerda saqlanadi.":"Settings are saved in this browser.",
+"Launcher’ga yangi servis qo‘shing yoki o‘zingiz qo‘shganlarini boshqaring.":"Add services to the launcher or manage your custom apps.",
+"Standart ilovalarni tiklash":"Restore default apps",
+"Custom ilovalarni tozalash":"Clear custom apps",
+"Tayyor dizayn":"Preset design",
+"Fon joylashuvi":"Background position",
+"Markaz":"Center",
+"Tepada":"Top",
+"Pastda":"Bottom",
+"Chapda":"Left",
+"O‘ngda":"Right",
+"Asosiy rang":"Primary color",
+"Ikkinchi rang":"Secondary color",
+"Sayt foni":"Site background",
+"Kartalar":"Cards",
+"Matn":"Text",
+"Yordamchi matn":"Secondary text",
+"Border":"Border",
+"Glass blur":"Glass blur",
+"Karta shaffofligi":"Card transparency",
+"Fon qoraytirish":"Background dimming",
+"Burchak yumaloqligi":"Corner radius",
+"Shrift o‘lchami":"Font size",
+"Fon effektlari":"Background effects",
+"Fon rasmi tanlash":"Choose background image",
+"Fon rasmi tanlanmagan":"No background image selected",
+"Fon rasmini olib tashlash":"Remove background image",
+"Video Wallpaper tanlash":"Choose video wallpaper",
+"Video tanlanmagan":"No video selected",
+"Video fonni olib tashlash":"Remove video wallpaper",
+"Video ovozi":"Video sound",
+"Ovoz balandligi":"Volume",
+"Kirganda ijro":"Play on login",
+"Takrorlash":"Loop",
+"Fon musiqasi tanlash":"Choose background music",
+"Musiqa tanlanmagan":"No music selected",
+"Boshidan":"Restart",
+"Musiqani olib tashlash":"Remove music",
+"Ovoz":"Sound",
+"Dizaynni saqlash":"Save design",
+"Standart dizayn":"Default design",
+"Theme eksport":"Export theme",
+"Theme import":"Import theme",
+"Dizayn shu brauzerda saqlanadi. Theme eksport/import orqali boshqa qurilmaga ham olib o‘tishingiz mumkin.":"The design is saved in this browser. Use theme export/import to move it to another device.",
+"Hisob amallari":"Account actions",
+"Mahalliy sozlamalarni tozalash yoki hisobdan chiqish.":"Clear local settings or sign out.",
+"Mahalliy sozlamalarni tiklash":"Reset local settings",
+"Hisobdan chiqish":"Sign out",
+"Fon musiqasi":"Background music",
+"Tayyor":"Done",
+"Xavfsizlik kodi":"Security code",
+"6 xonali xavfsizlik kodini kiriting.":"Enter the 6-digit security code.",
+"Tasdiqlash":"Confirm",
+"Kodni unutdingizmi?":"Forgot your code?",
+"Recovery Key kiriting":"Enter Recovery Key",
+"Recovery Key yarating":"Create Recovery Key",
+"To‘g‘ri kalit kiritilsa yangi 6 xonali kod o‘rnatasiz.":"After the correct key, you can set a new 6-digit code.",
+"Birinchi marta. O‘zingiz biladigan uzun Recovery Key kiriting.":"First time: enter a long Recovery Key known only to you.",
+"Recovery Key saqlash":"Save Recovery Key",
+"Til":"Language"
+}
+};
+
+/* aliases for texts that include emoji or whitespace */
+const aliases={
+"🖼 Rasmni o‘zgartirish":"Rasmni o‘zgartirish",
+"🗑 Rasmni o‘chirish":"Rasmni o‘chirish",
+"⬆️ Fayl yuklash":"Fayl yuklash",
+"📤 Fayl tanlash":"Fayl tanlash",
+"☁️ Backblaze'ga yuklash":"Backblaze'ga yuklash",
+"☁️ Supabase'ga yuklash":"Supabase'ga yuklash",
+"🔺 Google Drive'ga yuklash":"Google Drive'ga yuklash",
+"📁 Papka tanlash":"Papka tanlash",
+"🚀 Ilovalar":"Ilovalar",
+"↺ Tiklash":"Tiklash",
+"＋ Ilova qo‘shish":"Ilova qo‘shish",
+"⬆   Fayl Yuklash":"Fayl Yuklash",
+"▢   Papka Yaratish":"Papka Yaratish",
+"△   Google Drive Ochish":"Google Drive Ochish",
+"☁️ Mening SkyDriveX":"Mening SkyDriveX",
+"👤 Rasm yuklash":"Rasm yuklash",
+"🔄 Almashtirish":"Almashtirish",
+"🗑️ Rasmni o‘chirish":"Rasmni o‘chirish",
+"📁 Yangi papka":"Yangi papka",
+"↩️ Orqaga":"Orqaga",
+"🔄 Yangilash":"Yangilash",
+"🏠 Bosh papka":"Bosh papka",
+"⏳ Yuklanmoqda...":"Yuklanmoqda...",
+"🔗 Google Drive’ni ulash":"Google Drive’ni ulash",
+"⬆️ Drive’ga yuklash":"Drive’ga yuklash",
+"↔️ Ko‘chirish":"Ko‘chirish",
+"✅ Shu papkaga ko‘chirish":"Shu papkaga ko‘chirish",
+"⏳ Papkalar yuklanmoqda...":"Papkalar yuklanmoqda...",
+"⚙ Sozlamalar":"Sozlamalar",
+"👤 Profil":"Profil",
+"🔐 Parol":"Parol",
+"🎨 Ko‘rinish":"Ko‘rinish",
+"🖼️ Fon rasmi tanlash":"Fon rasmi tanlash",
+"🎬 Video Wallpaper tanlash":"Video Wallpaper tanlash",
+"🗑 Video fonni olib tashlash":"Video fonni olib tashlash",
+"🔊 Video ovozi":"Video ovozi",
+"▶ Kirganda ijro":"Kirganda ijro",
+"🔁 Takrorlash":"Takrorlash",
+"🎵 Fon musiqasi tanlash":"Fon musiqasi tanlash",
+"🗑 Musiqani olib tashlash":"Musiqani olib tashlash",
+"🔊 Ovoz":"Ovoz",
+"💾 Dizaynni saqlash":"Dizaynni saqlash",
+"↺ Standart dizayn":"Standart dizayn",
+"⬇ Theme eksport":"Theme eksport",
+"⬆ Theme import":"Theme import",
+"⚠ Hisob amallari":"Hisob amallari",
+"🎵 Fon musiqasi":"Fon musiqasi",
+"🔐 Xavfsizlik kodi":"Xavfsizlik kodi"
+};
+
+const placeholders={
+uz:{
+"Email":"Email","Parol":"Parol","Ismingiz":"Ismingiz","Kamida 6 ta belgi":"Kamida 6 ta belgi",
+"Yangi parolni qayta kiriting":"Yangi parolni qayta kiriting","Masalan: Pinterest":"Masalan: Pinterest",
+"Masalan: 📌":"Masalan: 📌","⌕  Qidirish...":"⌕  Qidirish...","🔍 Fayl yoki papka qidirish...":"🔍 Fayl yoki papka qidirish...",
+"Recovery Key":"Recovery Key"
+},
+ru:{
+"Email":"Email","Parol":"Пароль","Ismingiz":"Ваше имя","Kamida 6 ta belgi":"Минимум 6 символов",
+"Yangi parolni qayta kiriting":"Повторите новый пароль","Masalan: Pinterest":"Например: Pinterest",
+"Masalan: 📌":"Например: 📌","⌕  Qidirish...":"⌕  Поиск...","🔍 Fayl yoki papka qidirish...":"🔍 Поиск файла или папки...",
+"Recovery Key":"Recovery Key"
+},
+en:{
+"Email":"Email","Parol":"Password","Ismingiz":"Your name","Kamida 6 ta belgi":"At least 6 characters",
+"Yangi parolni qayta kiriting":"Repeat the new password","Masalan: Pinterest":"Example: Pinterest",
+"Masalan: 📌":"Example: 📌","⌕  Qidirish...":"⌕  Search...","🔍 Fayl yoki papka qidirish...":"🔍 Search file or folder...",
+"Recovery Key":"Recovery Key"
+}
+};
+
+const titles={
+uz:{
+"Profil rasmi menyusi":"Profil rasmi menyusi","Parolni ko‘rsatish":"Parolni ko‘rsatish","Video ovozini yoqish yoki o‘chirish":"Video ovozini yoqish yoki o‘chirish",
+"Fon musiqasi boshqaruvi":"Fon musiqasi boshqaruvi","O‘chirilgan standart ilovalarni qaytarish":"O‘chirilgan standart ilovalarni qaytarish"
+},
+ru:{
+"Profil rasmi menyusi":"Меню фото профиля","Parolni ko‘rsatish":"Показать пароль","Video ovozini yoqish yoki o‘chirish":"Включить или выключить звук видео",
+"Fon musiqasi boshqaruvi":"Управление фоновой музыкой","O‘chirilgan standart ilovalarni qaytarish":"Восстановить удалённые стандартные приложения"
+},
+en:{
+"Profil rasmi menyusi":"Profile photo menu","Parolni ko‘rsatish":"Show password","Video ovozini yoqish yoki o‘chirish":"Turn video sound on or off",
+"Fon musiqasi boshqaruvi":"Background music controls","O‘chirilgan standart ilovalarni qaytarish":"Restore removed default apps"
+}
+};
+
+let current = localStorage.getItem("ups_language") || "uz";
+let translating=false;
+
+function stripEmojiPrefix(s){
+  return s.replace(/^[\s\u2000-\u3300\u{1F000}-\u{1FAFF}▤▢▱△◈⚙◉☁⬆↺＋↩■▶🔊🔇🎵🔐🪄⚠💾]+/u,"").trim();
+}
+function translateString(str,lang){
+  if(!str || !str.trim()) return str;
+  const raw=str.trim();
+  const alias=aliases[raw];
+  const key=alias || raw;
+  let val=dict[lang][key];
+  if(!val){
+    const stripped=stripEmojiPrefix(raw);
+    val=dict[lang][stripped];
+    if(val){
+      const idx=raw.indexOf(stripped);
+      const prefix=idx>0?raw.slice(0,idx):"";
+      return prefix+val;
+    }
+  }
+  return val || str;
+}
+
+function rememberOriginal(el,attr,val){
+  const key="upsI18n"+attr[0].toUpperCase()+attr.slice(1);
+  if(!el.dataset[key]) el.dataset[key]=val;
+  return el.dataset[key];
+}
+function translateElement(el,lang){
+  if(!(el instanceof Element)) return;
+  if(el.closest && el.closest(".ups-language-box")) return;
+
+  ["placeholder","title","aria-label"].forEach(attr=>{
+    if(el.hasAttribute && el.hasAttribute(attr)){
+      const v=el.getAttribute(attr);
+      const orig=rememberOriginal(el,attr,v);
+      let nv=v;
+      if(attr==="placeholder") nv=(placeholders[lang]&&placeholders[lang][orig])||translateString(orig,lang);
+      else nv=(titles[lang]&&titles[lang][orig])||translateString(orig,lang);
+      if(nv!==v) el.setAttribute(attr,nv);
+    }
+  });
+
+  for(const node of [...el.childNodes]){
+    if(node.nodeType===Node.TEXT_NODE){
+      const txt=node.nodeValue;
+      if(!txt || !txt.trim()) continue;
+      if(!node.__upsOriginal) node.__upsOriginal=txt;
+      const source=node.__upsOriginal;
+      const lead=source.match(/^\s*/)?.[0]||"";
+      const trail=source.match(/\s*$/)?.[0]||"";
+      const core=source.trim();
+      const tr=translateString(core,lang);
+      node.nodeValue=lead+tr+trail;
+    }
+  }
+}
+function translateTree(root,lang){
+  if(translating) return;
+  translating=true;
+  try{
+    if(root instanceof Element) translateElement(root,lang);
+    const all=(root.querySelectorAll?root.querySelectorAll("*"):[]);
+    all.forEach(el=>translateElement(el,lang));
+    document.documentElement.lang=lang;
+  }finally{translating=false}
+}
+function applyLanguage(lang){
+  if(!dict[lang]) lang="uz";
+  current=lang;
+  localStorage.setItem("ups_language",lang);
+  translateTree(document.body,lang);
+  document.querySelectorAll(".ups-lang-btn").forEach(b=>b.classList.toggle("active",b.dataset.lang===lang));
+  const t=document.querySelector(".ups-language-title");
+  if(t) t.textContent=dict[lang]["Til"];
+}
+function mountLanguage(){
+  const nav=document.querySelector(".sdx-sidebar .sdx-nav");
+  const storage=document.querySelector(".sdx-sidebar .sdx-side-storage");
+  if(!nav || !storage || document.getElementById("upsLanguageBox")) return;
+  const box=document.createElement("div");
+  box.id="upsLanguageBox";
+  box.className="ups-language-box";
+  box.innerHTML=`
+    <div class="ups-language-title">Til</div>
+    <div class="ups-language-buttons">
+      <button type="button" class="ups-lang-btn" data-lang="uz">UZ</button>
+      <button type="button" class="ups-lang-btn" data-lang="ru">RU</button>
+      <button type="button" class="ups-lang-btn" data-lang="en">EN</button>
+    </div>`;
+  storage.parentNode.insertBefore(box,storage);
+  box.querySelectorAll(".ups-lang-btn").forEach(b=>b.addEventListener("click",()=>applyLanguage(b.dataset.lang)));
+  applyLanguage(current);
+}
+
+/* Translate dynamic content that appears later */
+const observer=new MutationObserver(muts=>{
+  if(translating) return;
+  mountLanguage();
+  for(const m of muts){
+    for(const n of m.addedNodes){
+      if(n.nodeType===Node.ELEMENT_NODE) translateTree(n,current);
+    }
+  }
+});
+observer.observe(document.documentElement,{subtree:true,childList:true});
+
+/* Translate standard dialogs where exact UI text is known */
+const nativeAlert=window.alert.bind(window);
+const nativeConfirm=window.confirm.bind(window);
+window.alert=function(msg){return nativeAlert(translateString(String(msg),current))};
+window.confirm=function(msg){return nativeConfirm(translateString(String(msg),current))};
+
+function boot(){
+  mountLanguage();
+  applyLanguage(current);
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);
+else boot();
+
+window.upsSetLanguage=applyLanguage;
+})();
+</script>
+
+
+<style id="ups-layout-editor-style">
+/* ==========================================================
+   FULL LAYOUT EDITOR
+   IMPORTANT: page/wallpaper/background is never selectable
+   and is never modified.
+========================================================== */
+#upsLayoutEditorToggle{
+  position:fixed!important;
+  right:18px!important;
+  bottom:18px!important;
+  z-index:2147483000!important;
+  width:auto!important;
+  min-width:48px!important;
+  height:44px!important;
+  padding:0 13px!important;
+  border-radius:14px!important;
+  border:1px solid rgba(115,215,226,.38)!important;
+  background:linear-gradient(135deg,rgba(22,152,184,.94),rgba(31,102,196,.94))!important;
+  color:#fff!important;
+  font:700 12px/1 system-ui,sans-serif!important;
+  box-shadow:0 12px 32px rgba(0,0,0,.28)!important;
+  backdrop-filter:blur(14px)!important;
+  -webkit-backdrop-filter:blur(14px)!important;
+  cursor:pointer!important;
+}
+#upsLayoutEditorToggle.active{
+  background:linear-gradient(135deg,#19b997,#1688c8)!important;
+}
+
+#upsLayoutEditorPanel{
+  position:fixed!important;
+  right:18px!important;
+  bottom:72px!important;
+  z-index:2147482999!important;
+  width:min(320px,calc(100vw - 28px))!important;
+  max-height:72vh!important;
+  overflow:auto!important;
+  padding:15px!important;
+  border-radius:18px!important;
+  border:1px solid rgba(115,215,226,.34)!important;
+  background:linear-gradient(145deg,rgba(13,38,52,.96),rgba(7,23,35,.96))!important;
+  color:#eefbfc!important;
+  box-shadow:0 22px 70px rgba(0,0,0,.38)!important;
+  backdrop-filter:blur(24px)!important;
+  -webkit-backdrop-filter:blur(24px)!important;
+  display:none!important;
+}
+#upsLayoutEditorPanel.show{display:block!important}
+#upsLayoutEditorPanel *{box-sizing:border-box}
+.ups-le-title{font:800 14px/1.2 system-ui,sans-serif;margin-bottom:4px}
+.ups-le-sub{font:500 11px/1.35 system-ui,sans-serif;color:#91b7bf;margin-bottom:12px}
+.ups-le-name{
+  padding:9px 10px;border-radius:11px;background:rgba(255,255,255,.045);
+  border:1px solid rgba(112,202,215,.18);font:700 11px/1.2 system-ui,sans-serif;
+  margin-bottom:10px;word-break:break-word;color:#c9f6f8;
+}
+.ups-le-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ups-le-field label{display:block;font:700 10px/1 system-ui,sans-serif;color:#8eb6bd;margin:0 0 5px 2px}
+.ups-le-field input{
+  width:100%!important;height:38px!important;padding:0 9px!important;
+  border-radius:10px!important;background:rgba(4,20,31,.62)!important;
+  border:1px solid rgba(105,199,212,.25)!important;color:#eefbfc!important;
+  font:700 12px system-ui,sans-serif!important;outline:none!important;
+}
+.ups-le-row{display:flex;gap:7px;margin-top:9px;flex-wrap:wrap}
+.ups-le-row button{
+  flex:1;min-width:82px;height:38px!important;padding:0 9px!important;border-radius:10px!important;
+  border:1px solid rgba(105,199,212,.24)!important;
+  background:rgba(28,91,110,.42)!important;color:#dffbfc!important;
+  font:700 11px system-ui,sans-serif!important;cursor:pointer!important;
+}
+.ups-le-row button.primary{
+  background:linear-gradient(135deg,#22b4cd,#2578cf)!important;color:#fff!important;
+}
+.ups-le-help{
+  margin-top:10px;padding:9px;border-radius:10px;background:rgba(255,255,255,.035);
+  color:#87adb4;font:500 10px/1.45 system-ui,sans-serif;
+}
+html.ups-layout-editing [data-ups-layout-editable="1"]{cursor:move!important}
+html.ups-layout-editing [data-ups-layout-editable="1"]:hover{
+  outline:1px dashed rgba(94,224,229,.58)!important;
+  outline-offset:2px!important;
+}
+html.ups-layout-editing .ups-layout-selected{
+  outline:2px solid #65e1e6!important;
+  outline-offset:3px!important;
+  box-shadow:0 0 0 4px rgba(63,211,218,.10)!important;
+}
+#upsLayoutResizeHandle{
+  position:fixed!important;z-index:2147482998!important;
+  width:18px!important;height:18px!important;border-radius:5px!important;
+  background:#67dce4!important;border:2px solid #08212d!important;
+  box-shadow:0 4px 12px rgba(0,0,0,.3)!important;cursor:nwse-resize!important;
+  display:none!important;
+}
+html.ups-layout-editing #upsLayoutResizeHandle.show{display:block!important}
+@media(max-width:650px){
+  #upsLayoutEditorToggle{right:10px!important;bottom:10px!important}
+  #upsLayoutEditorPanel{right:10px!important;bottom:62px!important;max-height:68vh!important}
+}
+</style>
+
+<script id="ups-layout-editor-script">
+(function(){
+  const STORE="ups_full_layout_v1";
+  const PROTECTED = new Set(["HTML","BODY"]);
+  const ROOT_IDS = new Set(["authPage","cloudPage"]);
+  let editing=false, selected=null, drag=null, resize=null;
+  let saved={};
+  try{saved=JSON.parse(localStorage.getItem(STORE)||"{}")||{}}catch(e){saved={}}
+
+  function isProtected(el){
+    if(!el || !(el instanceof Element)) return true;
+    if(PROTECTED.has(el.tagName)) return true;
+    if(ROOT_IDS.has(el.id)) return true;
+    if(el.closest("#upsLayoutEditorPanel,#upsLayoutEditorToggle,#upsLayoutResizeHandle")) return true;
+    if(el.matches("video,source,canvas")) return true;
+    const id=(el.id||"").toLowerCase();
+    const cls=(typeof el.className==="string"?el.className:"").toLowerCase();
+    if(id.includes("wallpaper")||id.includes("background")||id.includes("bgvideo")) return true;
+    if(cls.includes("wallpaper")||cls.includes("background")||cls.includes("bg-video")||cls.includes("bgvideo")) return true;
+    return false;
+  }
+
+  function selectorCandidates(){
+    return document.querySelectorAll([
+      "#authPage .auth-card",
+      "#authPage .auth-logo",
+      "#authPage .ups-united-script",
+      "#authPage .ups-profile-word",
+      "#authPage .ups-system-word",
+      "#authPage .ups-creator-divider",
+      "#authPage .ups-input-shell",
+      "#authPage input",
+      "#authPage button",
+      "#authPage .sdx-login-date",
+      ".ups-security-card",
+      ".ups-security-card h1,.ups-security-card h2,.ups-security-card h3,.ups-security-card p",
+      ".ups-security-card input,.ups-security-card button",
+      ".ups-security-card .ups-code-dot",
+      ".ups-recovery-box,.ups-recovery-box input,.ups-recovery-box button",
+      ".sdx-sidebar",
+      ".sdx-sidebar .sdx-user",
+      ".sdx-sidebar .sdx-nav a",
+      ".sdx-sidebar .sdx-side-storage",
+      ".sdx-sidebar .ups-language-box",
+      "#cloudPage .card,#cloudPage .panel,#cloudPage section",
+      "#cloudPage button,#cloudPage input,#cloudPage select,#cloudPage textarea",
+      "#cloudPage h1,#cloudPage h2,#cloudPage h3,#cloudPage h4,#cloudPage p,#cloudPage label",
+      "#cloudPage table,#cloudPage thead,#cloudPage tbody,#cloudPage tr,#cloudPage th,#cloudPage td",
+      "#cloudPage .badge,#cloudPage .tag,#cloudPage .status",
+      ".settings-modal,.settings-section,.settings-modal button,.settings-modal input,.settings-modal select,.settings-modal textarea",
+      ".modal-content,.dialog,.popup,.dropdown-menu"
+    ].join(","));
+  }
+
+  function pathKey(el){
+    if(el.id) return "id:"+el.id;
+    if(el.dataset.upsLayoutKey) return el.dataset.upsLayoutKey;
+    const parts=[];
+    let cur=el;
+    while(cur && cur!==document.body && parts.length<6){
+      let p=cur.tagName.toLowerCase();
+      if(cur.classList && cur.classList.length){
+        const safe=[...cur.classList].filter(c=>!c.startsWith("ups-layout")).slice(0,2);
+        if(safe.length) p+="."+safe.join(".");
+      }
+      if(cur.parentElement){
+        const same=[...cur.parentElement.children].filter(x=>x.tagName===cur.tagName);
+        if(same.length>1) p+=`:nth-of-type(${same.indexOf(cur)+1})`;
+      }
+      parts.unshift(p); cur=cur.parentElement;
+    }
+    return "path:"+parts.join(">");
+  }
+
+  function mark(){
+    selectorCandidates().forEach(el=>{
+      if(isProtected(el)) return;
+      el.dataset.upsLayoutEditable="1";
+      const k=pathKey(el);
+      el.dataset.upsLayoutKey=k;
+      applySaved(el,k);
+    });
+  }
+
+  function applySaved(el,k){
+    const s=saved[k]; if(!s)return;
+    if(s.left!=null) el.style.setProperty("left",s.left+"px","important");
+    if(s.top!=null) el.style.setProperty("top",s.top+"px","important");
+    if(s.width!=null) el.style.setProperty("width",s.width+"px","important");
+    if(s.height!=null) el.style.setProperty("height",s.height+"px","important");
+    if(s.fontSize!=null) el.style.setProperty("font-size",s.fontSize+"px","important");
+    if(s.padding!=null) el.style.setProperty("padding",s.padding+"px","important");
+    if(s.radius!=null) el.style.setProperty("border-radius",s.radius+"px","important");
+    if((s.left||s.top) && getComputedStyle(el).position==="static"){
+      el.style.setProperty("position","relative","important");
+    }
+  }
+
+  function saveSelected(){
+    if(!selected)return;
+    const k=selected.dataset.upsLayoutKey||pathKey(selected);
+    const cs=getComputedStyle(selected);
+    const r=selected.getBoundingClientRect();
+    saved[k]={
+      left:parseFloat(cs.left)||0,
+      top:parseFloat(cs.top)||0,
+      width:Math.round(r.width),
+      height:Math.round(r.height),
+      fontSize:parseFloat(cs.fontSize)||14,
+      padding:parseFloat(cs.paddingTop)||0,
+      radius:parseFloat(cs.borderTopLeftRadius)||0
+    };
+    localStorage.setItem(STORE,JSON.stringify(saved));
+  }
+
+  function ensurePositioned(el){
+    const cs=getComputedStyle(el);
+    if(cs.position==="static") el.style.setProperty("position","relative","important");
+    if(cs.left==="auto") el.style.setProperty("left","0px","important");
+    if(cs.top==="auto") el.style.setProperty("top","0px","important");
+  }
+
+  function labelFor(el){
+    const text=(el.innerText||el.getAttribute("placeholder")||el.id||el.className||el.tagName).toString().trim().replace(/\s+/g," ");
+    return text.slice(0,70)||el.tagName;
+  }
+
+  function select(el){
+    if(selected) selected.classList.remove("ups-layout-selected");
+    selected=el;
+    if(!selected){updatePanel();placeHandle();return}
+    selected.classList.add("ups-layout-selected");
+    ensurePositioned(selected);
+    updatePanel();placeHandle();
+  }
+
+  function val(id){return document.getElementById(id)}
+  function updatePanel(){
+    val("upsLEName").textContent=selected?labelFor(selected):"Element tanlanmagan";
+    const disabled=!selected;
+    ["upsLEX","upsLEY","upsLEW","upsLEH","upsLEFont","upsLEPad","upsLERadius"].forEach(id=>val(id).disabled=disabled);
+    if(!selected)return;
+    const cs=getComputedStyle(selected), r=selected.getBoundingClientRect();
+    val("upsLEX").value=Math.round(parseFloat(cs.left)||0);
+    val("upsLEY").value=Math.round(parseFloat(cs.top)||0);
+    val("upsLEW").value=Math.round(r.width);
+    val("upsLEH").value=Math.round(r.height);
+    val("upsLEFont").value=Math.round(parseFloat(cs.fontSize)||14);
+    val("upsLEPad").value=Math.round(parseFloat(cs.paddingTop)||0);
+    val("upsLERadius").value=Math.round(parseFloat(cs.borderTopLeftRadius)||0);
+  }
+
+  function applyInputs(){
+    if(!selected)return;
+    ensurePositioned(selected);
+    const x=Math.max(-2000,Math.min(2000,Number(val("upsLEX").value)||0));
+    const y=Math.max(-2000,Math.min(2000,Number(val("upsLEY").value)||0));
+    const w=Math.max(10,Math.min(3000,Number(val("upsLEW").value)||selected.getBoundingClientRect().width));
+    const h=Math.max(10,Math.min(3000,Number(val("upsLEH").value)||selected.getBoundingClientRect().height));
+    const fs=Math.max(6,Math.min(120,Number(val("upsLEFont").value)||14));
+    const pad=Math.max(0,Math.min(120,Number(val("upsLEPad").value)||0));
+    const rad=Math.max(0,Math.min(200,Number(val("upsLERadius").value)||0));
+    selected.style.setProperty("left",x+"px","important");
+    selected.style.setProperty("top",y+"px","important");
+    selected.style.setProperty("width",w+"px","important");
+    selected.style.setProperty("height",h+"px","important");
+    selected.style.setProperty("font-size",fs+"px","important");
+    selected.style.setProperty("padding",pad+"px","important");
+    selected.style.setProperty("border-radius",rad+"px","important");
+    saveSelected();placeHandle();
+  }
+
+  function resetSelected(){
+    if(!selected)return;
+    const k=selected.dataset.upsLayoutKey;
+    delete saved[k]; localStorage.setItem(STORE,JSON.stringify(saved));
+    ["left","top","width","height","font-size","padding","border-radius","position"].forEach(p=>selected.style.removeProperty(p));
+    select(selected);
+  }
+
+  function resetAll(){
+    if(!confirm("Barcha qo‘lda o‘zgartirilgan joylashuv va o‘lchamlarni tiklaysizmi?"))return;
+    localStorage.removeItem(STORE); saved={};
+    document.querySelectorAll("[data-ups-layout-editable='1']").forEach(el=>{
+      ["left","top","width","height","font-size","padding","border-radius","position"].forEach(p=>el.style.removeProperty(p));
+    });
+    select(null);
+  }
+
+  function placeHandle(){
+    const h=val("upsLayoutResizeHandle");
+    if(!editing||!selected){h.classList.remove("show");return}
+    const r=selected.getBoundingClientRect();
+    h.style.left=(r.right-9)+"px"; h.style.top=(r.bottom-9)+"px";
+    h.classList.add("show");
+  }
+
+  function createUI(){
+    if(val("upsLayoutEditorToggle"))return;
+    const b=document.createElement("button");
+    b.id="upsLayoutEditorToggle"; b.type="button"; b.textContent="✦ Layout";
+    document.body.appendChild(b);
+
+    const p=document.createElement("div");
+    p.id="upsLayoutEditorPanel";
+    p.innerHTML=`
+      <div class="ups-le-title">Layout Editor</div>
+      <div class="ups-le-sub">Istalgan elementni tanlang, sudrang yoki o‘lchamini o‘zgartiring.</div>
+      <div class="ups-le-name" id="upsLEName">Element tanlanmagan</div>
+      <div class="ups-le-grid">
+        <div class="ups-le-field"><label>Chap / X</label><input id="upsLEX" type="number"></div>
+        <div class="ups-le-field"><label>Tepa / Y</label><input id="upsLEY" type="number"></div>
+        <div class="ups-le-field"><label>Kenglik</label><input id="upsLEW" type="number" min="10"></div>
+        <div class="ups-le-field"><label>Balandlik</label><input id="upsLEH" type="number" min="10"></div>
+        <div class="ups-le-field"><label>Matn o‘lchami</label><input id="upsLEFont" type="number" min="6"></div>
+        <div class="ups-le-field"><label>Ichki bo‘shliq</label><input id="upsLEPad" type="number" min="0"></div>
+        <div class="ups-le-field"><label>Burchak</label><input id="upsLERadius" type="number" min="0"></div>
+      </div>
+      <div class="ups-le-row">
+        <button type="button" class="primary" id="upsLEApply">Qo‘llash</button>
+        <button type="button" id="upsLEReset">Elementni tiklash</button>
+      </div>
+      <div class="ups-le-row">
+        <button type="button" id="upsLEResetAll">Hammasini tiklash</button>
+        <button type="button" id="upsLEClose">Yopish</button>
+      </div>
+      <div class="ups-le-help">Edit rejimida element ustiga bosing. Sichqoncha bilan sudrab joyini almashtiring. Past-o‘ngdagi kichik tutqich bilan eni va bo‘yini o‘zgartiring. Orqa fon himoyalangan va o‘zgarmaydi.</div>`;
+    document.body.appendChild(p);
+
+    const h=document.createElement("div");h.id="upsLayoutResizeHandle";document.body.appendChild(h);
+
+    b.addEventListener("click",()=>toggle());
+    val("upsLEClose").addEventListener("click",()=>toggle(false));
+    val("upsLEApply").addEventListener("click",applyInputs);
+    val("upsLEReset").addEventListener("click",resetSelected);
+    val("upsLEResetAll").addEventListener("click",resetAll);
+    ["upsLEX","upsLEY","upsLEW","upsLEH","upsLEFont","upsLEPad","upsLERadius"].forEach(id=>{
+      val(id).addEventListener("change",applyInputs);
+    });
+
+    h.addEventListener("pointerdown",e=>{
+      if(!selected)return;
+      e.preventDefault(); e.stopPropagation();
+      const r=selected.getBoundingClientRect();
+      resize={x:e.clientX,y:e.clientY,w:r.width,h:r.height};
+      h.setPointerCapture(e.pointerId);
+    });
+    h.addEventListener("pointermove",e=>{
+      if(!resize||!selected)return;
+      const w=Math.max(10,resize.w+(e.clientX-resize.x));
+      const hh=Math.max(10,resize.h+(e.clientY-resize.y));
+      selected.style.setProperty("width",Math.round(w)+"px","important");
+      selected.style.setProperty("height",Math.round(hh)+"px","important");
+      updatePanel();placeHandle();
+    });
+    h.addEventListener("pointerup",()=>{if(resize){saveSelected();resize=null}});
+  }
+
+  function toggle(force){
+    editing=typeof force==="boolean"?force:!editing;
+    document.documentElement.classList.toggle("ups-layout-editing",editing);
+    val("upsLayoutEditorPanel").classList.toggle("show",editing);
+    val("upsLayoutEditorToggle").classList.toggle("active",editing);
+    val("upsLayoutEditorToggle").textContent=editing?"✓ Edit ON":"✦ Layout";
+    if(!editing) select(null);
+    else mark();
+  }
+
+  document.addEventListener("pointerdown",e=>{
+    if(!editing)return;
+    const el=e.target.closest("[data-ups-layout-editable='1']");
+    if(!el||isProtected(el))return;
+    if(e.target.closest("input,textarea,select") && e.target===el) {
+      // click once selects input; editing remains possible through panel
+    }
+    e.preventDefault();
+    e.stopPropagation();
+    select(el);
+    ensurePositioned(el);
+    const cs=getComputedStyle(el);
+    drag={
+      el,
+      x:e.clientX,y:e.clientY,
+      left:parseFloat(cs.left)||0,
+      top:parseFloat(cs.top)||0,
+      moved:false
+    };
+    try{el.setPointerCapture(e.pointerId)}catch(_){}
+  },true);
+
+  document.addEventListener("pointermove",e=>{
+    if(!editing||!drag||drag.el!==selected)return;
+    const dx=e.clientX-drag.x,dy=e.clientY-drag.y;
+    if(Math.abs(dx)+Math.abs(dy)>2)drag.moved=true;
+    selected.style.setProperty("left",(drag.left+dx)+"px","important");
+    selected.style.setProperty("top",(drag.top+dy)+"px","important");
+    updatePanel();placeHandle();
+  },true);
+
+  document.addEventListener("pointerup",()=>{
+    if(drag){saveSelected();drag=null}
+  },true);
+
+  window.addEventListener("resize",placeHandle);
+  document.addEventListener("scroll",placeHandle,true);
+
+  function boot(){
+    createUI();mark();
+  }
+  new MutationObserver(()=>mark()).observe(document.documentElement,{childList:true,subtree:true});
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);
+  else boot();
+
+  window.upsLayoutEditor={toggle,resetAll};
+})();
+</script>
+
+
+<style id="ups-hold-edit-style">
+/* Hold-to-edit floating controls. Background/wallpaper remains protected. */
+#upsHoldEditBar{
+  position:fixed!important;
+  z-index:2147483100!important;
+  display:none!important;
+  width:min(330px,calc(100vw - 20px))!important;
+  padding:10px!important;
+  border-radius:16px!important;
+  background:linear-gradient(145deg,rgba(12,38,52,.97),rgba(6,22,34,.97))!important;
+  border:1px solid rgba(111,211,220,.36)!important;
+  box-shadow:0 18px 55px rgba(0,0,0,.42)!important;
+  backdrop-filter:blur(22px)!important;
+  -webkit-backdrop-filter:blur(22px)!important;
+  color:#eefbfc!important;
+  font-family:system-ui,sans-serif!important;
+}
+#upsHoldEditBar.show{display:block!important}
+.ups-he-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.ups-he-name{flex:1;min-width:0;font-size:11px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#c9f7f8}
+.ups-he-close{
+  width:30px!important;height:30px!important;min-width:30px!important;padding:0!important;
+  border-radius:9px!important;border:1px solid rgba(111,211,220,.28)!important;
+  background:rgba(4,20,31,.6)!important;color:#dffbfc!important;cursor:pointer!important;
+}
+.ups-he-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.ups-he-btn{
+  min-width:0!important;height:38px!important;padding:0 5px!important;
+  border-radius:10px!important;border:1px solid rgba(111,211,220,.24)!important;
+  background:rgba(23,79,96,.45)!important;color:#e8feff!important;
+  font-size:11px!important;font-weight:800!important;cursor:pointer!important;
+}
+.ups-he-btn:hover{background:rgba(40,126,145,.56)!important}
+.ups-he-btn.danger{color:#ff9ba5!important}
+.ups-he-note{
+  margin-top:7px;font-size:9px;line-height:1.35;color:#89aeb5;
+}
+html.ups-hold-editing [data-ups-layout-editable="1"]{
+  -webkit-user-select:none!important;
+  user-select:none!important;
+}
+html.ups-hold-editing .ups-hold-selected{
+  outline:2px solid #67e0e6!important;
+  outline-offset:3px!important;
+}
+#upsHoldToast{
+  position:fixed!important;z-index:2147483200!important;left:50%!important;bottom:22px!important;
+  transform:translateX(-50%)!important;padding:9px 13px!important;border-radius:12px!important;
+  background:rgba(5,22,33,.94)!important;border:1px solid rgba(102,209,218,.3)!important;
+  color:#dffcff!important;font:700 11px system-ui,sans-serif!important;display:none!important;
+}
+#upsHoldToast.show{display:block!important}
+</style>
+
+<script id="ups-hold-edit-script">
+(function(){
+  const HOLD_MS=520;
+  let timer=null,startX=0,startY=0,target=null,selected=null;
+  let moveState=null;
+
+  function protectedEl(el){
+    if(!el || !(el instanceof Element)) return true;
+    if(el.closest("#upsLayoutEditorPanel,#upsLayoutEditorToggle,#upsLayoutResizeHandle,#upsHoldEditBar,#upsHoldToast")) return true;
+    if(el===document.body || el===document.documentElement) return true;
+    if(el.id==="authPage" || el.id==="cloudPage") return true;
+    if(el.matches("video,source,canvas")) return true;
+    const s=((el.id||"")+" "+(typeof el.className==="string"?el.className:"")).toLowerCase();
+    if(s.includes("wallpaper")||s.includes("background")||s.includes("bgvideo")||s.includes("bg-video")) return true;
+    return false;
+  }
+
+  function editableAncestor(el){
+    let cur=el;
+    while(cur && cur!==document.body){
+      if(cur.dataset && cur.dataset.upsLayoutEditable==="1" && !protectedEl(cur)) return cur;
+      cur=cur.parentElement;
+    }
+    return null;
+  }
+
+  function toast(t){
+    const x=document.getElementById("upsHoldToast");
+    if(!x)return;
+    x.textContent=t;x.classList.add("show");
+    clearTimeout(x._t);x._t=setTimeout(()=>x.classList.remove("show"),1000);
+  }
+
+  function label(el){
+    return ((el.innerText||el.placeholder||el.id||el.className||el.tagName)+"")
+      .trim().replace(/\s+/g," ").slice(0,55) || el.tagName;
+  }
+
+  function ensurePositioned(el){
+    const cs=getComputedStyle(el);
+    if(cs.position==="static") el.style.setProperty("position","relative","important");
+    if(cs.left==="auto") el.style.setProperty("left","0px","important");
+    if(cs.top==="auto") el.style.setProperty("top","0px","important");
+  }
+
+  function save(){
+    if(!selected)return;
+    try{
+      if(window.upsLayoutEditor && typeof window.upsLayoutEditor.saveSelected==="function"){
+        window.upsLayoutEditor.saveSelected();
+        return;
+      }
+    }catch(_){}
+    // Trigger existing editor's persistence by changing its fields if possible is not reliable.
+    // Persist in a companion map as fallback.
+    let m={};try{m=JSON.parse(localStorage.getItem("ups_hold_layout_v1")||"{}")}catch(_){}
+    const k=selected.dataset.upsLayoutKey || selected.id || ("hold:"+label(selected));
+    const cs=getComputedStyle(selected),r=selected.getBoundingClientRect();
+    m[k]={
+      left:parseFloat(cs.left)||0,top:parseFloat(cs.top)||0,
+      width:r.width,height:r.height,fontSize:parseFloat(cs.fontSize)||14,
+      padding:parseFloat(cs.paddingTop)||0,radius:parseFloat(cs.borderTopLeftRadius)||0
+    };
+    localStorage.setItem("ups_hold_layout_v1",JSON.stringify(m));
+  }
+
+  function showBar(el){
+    if(selected)selected.classList.remove("ups-hold-selected");
+    selected=el;selected.classList.add("ups-hold-selected");
+    ensurePositioned(selected);
+    const bar=document.getElementById("upsHoldEditBar");
+    document.getElementById("upsHEName").textContent=label(selected);
+    const r=selected.getBoundingClientRect();
+    const bw=Math.min(330,window.innerWidth-20),bh=210;
+    let x=Math.max(10,Math.min(window.innerWidth-bw-10,r.left));
+    let y=r.bottom+8;
+    if(y+bh>window.innerHeight-10)y=Math.max(10,r.top-bh-8);
+    bar.style.left=x+"px";bar.style.top=y+"px";
+    bar.classList.add("show");
+    document.documentElement.classList.add("ups-hold-editing");
+    toast("Element tanlandi");
+  }
+
+  function closeBar(){
+    document.getElementById("upsHoldEditBar")?.classList.remove("show");
+    if(selected)selected.classList.remove("ups-hold-selected");
+    selected=null;
+    document.documentElement.classList.remove("ups-hold-editing");
+  }
+
+  function tweak(kind,delta){
+    if(!selected)return;
+    ensurePositioned(selected);
+    const cs=getComputedStyle(selected);
+    const r=selected.getBoundingClientRect();
+    if(kind==="x"){
+      const v=(parseFloat(cs.left)||0)+delta;
+      selected.style.setProperty("left",v+"px","important");
+    } else if(kind==="y"){
+      const v=(parseFloat(cs.top)||0)+delta;
+      selected.style.setProperty("top",v+"px","important");
+    } else if(kind==="w"){
+      selected.style.setProperty("width",Math.max(10,r.width+delta)+"px","important");
+    } else if(kind==="h"){
+      selected.style.setProperty("height",Math.max(10,r.height+delta)+"px","important");
+    } else if(kind==="font"){
+      selected.style.setProperty("font-size",Math.max(6,(parseFloat(cs.fontSize)||14)+delta)+"px","important");
+    } else if(kind==="pad"){
+      selected.style.setProperty("padding",Math.max(0,(parseFloat(cs.paddingTop)||0)+delta)+"px","important");
+    } else if(kind==="rad"){
+      selected.style.setProperty("border-radius",Math.max(0,(parseFloat(cs.borderTopLeftRadius)||0)+delta)+"px","important");
+    }
+    save();
+  }
+
+  function resetOne(){
+    if(!selected)return;
+    const k=selected.dataset.upsLayoutKey;
+    try{
+      const m=JSON.parse(localStorage.getItem("ups_full_layout_v1")||"{}");
+      if(k && m[k]){delete m[k];localStorage.setItem("ups_full_layout_v1",JSON.stringify(m))}
+    }catch(_){}
+    try{
+      const m=JSON.parse(localStorage.getItem("ups_hold_layout_v1")||"{}");
+      const hk=k||selected.id||("hold:"+label(selected));
+      if(m[hk]){delete m[hk];localStorage.setItem("ups_hold_layout_v1",JSON.stringify(m))}
+    }catch(_){}
+    ["left","top","width","height","font-size","padding","border-radius","position"].forEach(p=>selected.style.removeProperty(p));
+    toast("Element tiklandi");
+  }
+
+  function create(){
+    if(document.getElementById("upsHoldEditBar"))return;
+    const bar=document.createElement("div");
+    bar.id="upsHoldEditBar";
+    bar.innerHTML=`
+      <div class="ups-he-head">
+        <div class="ups-he-name" id="upsHEName">Element</div>
+        <button type="button" class="ups-he-close" id="upsHEClose">×</button>
+      </div>
+      <div class="ups-he-grid">
+        <button class="ups-he-btn" data-k="x" data-d="-5">← Chap</button>
+        <button class="ups-he-btn" data-k="x" data-d="5">O‘ng →</button>
+        <button class="ups-he-btn" data-k="y" data-d="-5">↑ Tepa</button>
+        <button class="ups-he-btn" data-k="y" data-d="5">↓ Past</button>
+
+        <button class="ups-he-btn" data-k="w" data-d="-10">En −</button>
+        <button class="ups-he-btn" data-k="w" data-d="10">En +</button>
+        <button class="ups-he-btn" data-k="h" data-d="-10">Bo‘y −</button>
+        <button class="ups-he-btn" data-k="h" data-d="10">Bo‘y +</button>
+
+        <button class="ups-he-btn" data-k="font" data-d="-1">Matn −</button>
+        <button class="ups-he-btn" data-k="font" data-d="1">Matn +</button>
+        <button class="ups-he-btn" data-k="pad" data-d="-2">Padding −</button>
+        <button class="ups-he-btn" data-k="pad" data-d="2">Padding +</button>
+
+        <button class="ups-he-btn" data-k="rad" data-d="-2">Burchak −</button>
+        <button class="ups-he-btn" data-k="rad" data-d="2">Burchak +</button>
+        <button class="ups-he-btn danger" id="upsHEReset">Reset</button>
+        <button class="ups-he-btn" id="upsHEDrag">Sudrash</button>
+      </div>
+      <div class="ups-he-note">Element ustiga ~0.5 soniya bosib turing. “Sudrash”ni bosgach elementni erkin ko‘chirasiz.</div>`;
+    document.body.appendChild(bar);
+    const toastEl=document.createElement("div");toastEl.id="upsHoldToast";document.body.appendChild(toastEl);
+
+    bar.querySelectorAll("[data-k]").forEach(b=>b.addEventListener("click",()=>tweak(b.dataset.k,Number(b.dataset.d))));
+    document.getElementById("upsHEReset").addEventListener("click",resetOne);
+    document.getElementById("upsHEClose").addEventListener("click",closeBar);
+    document.getElementById("upsHEDrag").addEventListener("click",()=>{
+      if(!selected)return;
+      selected.dataset.upsHoldDrag="1";
+      toast("Endi elementni sudrang");
+    });
+  }
+
+  document.addEventListener("pointerdown",e=>{
+    if(e.button!==undefined && e.button!==0)return;
+    if(e.target.closest("#upsHoldEditBar,#upsLayoutEditorPanel,#upsLayoutEditorToggle,#upsLayoutResizeHandle"))return;
+    const el=editableAncestor(e.target);
+    if(!el)return;
+    target=el;startX=e.clientX;startY=e.clientY;
+    clearTimeout(timer);
+    timer=setTimeout(()=>{
+      if(target)showBar(target);
+      timer=null;
+    },HOLD_MS);
+
+    if(selected===el && el.dataset.upsHoldDrag==="1"){
+      e.preventDefault();
+      ensurePositioned(el);
+      const cs=getComputedStyle(el);
+      moveState={x:e.clientX,y:e.clientY,left:parseFloat(cs.left)||0,top:parseFloat(cs.top)||0};
+      try{el.setPointerCapture(e.pointerId)}catch(_){}
+    }
+  },true);
+
+  document.addEventListener("pointermove",e=>{
+    if(timer && Math.hypot(e.clientX-startX,e.clientY-startY)>8){clearTimeout(timer);timer=null}
+    if(moveState && selected){
+      e.preventDefault();
+      selected.style.setProperty("left",(moveState.left+e.clientX-moveState.x)+"px","important");
+      selected.style.setProperty("top",(moveState.top+e.clientY-moveState.y)+"px","important");
+    }
+  },true);
+
+  document.addEventListener("pointerup",()=>{
+    if(timer){clearTimeout(timer);timer=null}
+    target=null;
+    if(moveState && selected){
+      save();moveState=null;selected.dataset.upsHoldDrag="0";toast("Joylashuv saqlandi");
+    }
+  },true);
+  document.addEventListener("pointercancel",()=>{if(timer)clearTimeout(timer);timer=null;target=null;moveState=null},true);
+
+  function restoreFallback(){
+    let m={};try{m=JSON.parse(localStorage.getItem("ups_hold_layout_v1")||"{}")}catch(_){}
+    document.querySelectorAll("[data-ups-layout-editable='1']").forEach(el=>{
+      const k=el.dataset.upsLayoutKey||el.id||("hold:"+label(el));
+      const s=m[k]; if(!s)return;
+      ensurePositioned(el);
+      if(s.left!=null)el.style.setProperty("left",s.left+"px","important");
+      if(s.top!=null)el.style.setProperty("top",s.top+"px","important");
+      if(s.width!=null)el.style.setProperty("width",s.width+"px","important");
+      if(s.height!=null)el.style.setProperty("height",s.height+"px","important");
+      if(s.fontSize!=null)el.style.setProperty("font-size",s.fontSize+"px","important");
+      if(s.padding!=null)el.style.setProperty("padding",s.padding+"px","important");
+      if(s.radius!=null)el.style.setProperty("border-radius",s.radius+"px","important");
+    });
+  }
+
+  function boot(){create();setTimeout(restoreFallback,300)}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);else boot();
+})();
+</script>
+
+
+<style id="ups-keyword-login-style">
+#upsKeywordGate{
+  position:fixed!important;
+  inset:0!important;
+  z-index:2147483500!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  padding:18px!important;
+  background:transparent!important; /* existing background remains untouched */
+}
+#upsKeywordGate.hidden{display:none!important}
+.ups-key-card{
+  width:min(520px,calc(100vw - 30px))!important;
+  padding:34px 34px 30px!important;
+  border-radius:28px!important;
+  border:1px solid rgba(115,215,226,.30)!important;
+  background:linear-gradient(145deg,rgba(12,35,49,.78),rgba(7,21,32,.72))!important;
+  backdrop-filter:blur(24px)!important;
+  -webkit-backdrop-filter:blur(24px)!important;
+  box-shadow:0 24px 80px rgba(0,0,0,.34)!important;
+  color:#effcfd!important;
+  font-family:system-ui,sans-serif!important;
+}
+.ups-key-logo{
+  text-align:center!important;
+  margin-bottom:8px!important;
+}
+.ups-key-logo .u{
+  display:block!important;
+  font-family:"Brush Script MT","Segoe Script","Lucida Handwriting",cursive!important;
+  font-size:clamp(38px,8vw,60px)!important;
+  line-height:.95!important;
+  font-weight:700!important;
+  letter-spacing:.5px!important;
+  color:#e8ffff!important;
+  text-shadow:0 0 18px rgba(95,220,228,.23)!important;
+}
+.ups-key-logo .p{
+  display:block!important;
+  margin-top:7px!important;
+  font-size:16px!important;
+  font-weight:800!important;
+  letter-spacing:.18em!important;
+  text-transform:uppercase!important;
+  color:#a8cfd5!important;
+}
+.ups-key-sub{
+  text-align:center!important;
+  margin:20px 0 14px!important;
+  font-size:13px!important;
+  color:#91b5bc!important;
+}
+#upsKeywordInput{
+  width:100%!important;
+  min-height:56px!important;
+  padding:0 16px!important;
+  border-radius:15px!important;
+  border:1px solid rgba(103,207,217,.28)!important;
+  background:rgba(5,23,34,.58)!important;
+  color:#effeff!important;
+  font-size:18px!important;
+  font-weight:700!important;
+  text-align:center!important;
+  outline:none!important;
+}
+#upsKeywordInput:focus{
+  border-color:rgba(103,224,230,.62)!important;
+  box-shadow:0 0 0 4px rgba(75,210,218,.08)!important;
+}
+#upsKeywordSubmit{
+  width:100%!important;
+  min-height:56px!important;
+  margin-top:12px!important;
+  border:0!important;
+  border-radius:15px!important;
+  background:linear-gradient(135deg,#24b1c8,#2778cf)!important;
+  color:#fff!important;
+  font-size:15px!important;
+  font-weight:800!important;
+  cursor:pointer!important;
+}
+#upsKeywordSubmit:disabled{opacity:.65!important;cursor:wait!important}
+#upsKeywordMessage{
+  min-height:20px!important;
+  margin-top:10px!important;
+  text-align:center!important;
+  font-size:12px!important;
+  font-weight:700!important;
+  color:#8eb3ba!important;
+}
+#upsKeywordMessage.error{color:#ff8f9a!important}
+#upsKeywordMessage.ok{color:#6ee3b0!important}
+
+/* Hide existing auth surfaces while keyword gate is active */
+html.ups-keyword-locked #authPage,
+html.ups-keyword-locked .ups-security-card,
+html.ups-keyword-locked .ups-recovery-box,
+html.ups-keyword-locked #cloudPage{
+  visibility:hidden!important;
+}
+</style>
+
+<div id="upsKeywordGate">
+  <div class="ups-key-card">
+    <div class="ups-key-logo">
+      <span class="u">United</span>
+      <span class="p">Profile System</span>
+    </div>
+    <div class="ups-key-sub">Kalit so‘zni kiriting</div>
+    <input id="upsKeywordInput" type="password" inputmode="text" autocomplete="off" placeholder="Kalit so‘z">
+    <button id="upsKeywordSubmit" type="button">Kirish</button>
+    <div id="upsKeywordMessage"></div>
+  </div>
+</div>
+
+<script id="ups-keyword-login-script">
+(function(){
+  const SUPABASE_URL = "https://xfhxkdbwvhzdcbzlnnim.supabase.co";
+  const FUNCTION_URL = SUPABASE_URL + "/functions/v1/key-login";
+
+  const gate = document.getElementById("upsKeywordGate");
+  const input = document.getElementById("upsKeywordInput");
+  const btn = document.getElementById("upsKeywordSubmit");
+  const msg = document.getElementById("upsKeywordMessage");
+
+  function setMsg(text, type){
+    msg.textContent = text || "";
+    msg.className = type || "";
+  }
+
+  function getClient(){
+    try{
+      if(window.supabase && typeof window.supabase.createClient === "function"){
+        if(window.__upsKeywordClient) return window.__upsKeywordClient;
+        // Reuse anon key already present in current page where possible
+        const scripts = Array.from(document.scripts).map(s=>s.textContent||"").join("\n");
+        const m = scripts.match(/(?:SUPABASE_KEY|SUPABASE_ANON_KEY|supabaseKey|anonKey)\s*=\s*["'`]([^"'`]+)["'`]/);
+        if(m && m[1]){
+          window.__upsKeywordClient = window.supabase.createClient(SUPABASE_URL, m[1]);
+          return window.__upsKeywordClient;
+        }
+      }
+    }catch(_){}
+    return null;
+  }
+
+  async function unlockWithTokens(access_token, refresh_token){
+    // Prefer existing project client if discoverable
+    let client = null;
+    try{
+      if(typeof sb !== "undefined" && sb && sb.auth) client = sb;
+    }catch(_){}
+    try{
+      if(!client && typeof supabaseClient !== "undefined" && supabaseClient && supabaseClient.auth) client = supabaseClient;
+    }catch(_){}
+    if(!client) client = getClient();
+
+    if(!client || !client.auth){
+      throw new Error("Supabase client topilmadi");
+    }
+
+    const { data, error } = await client.auth.setSession({access_token, refresh_token});
+    if(error) throw error;
+
+    document.documentElement.classList.remove("ups-keyword-locked");
+    gate.classList.add("hidden");
+
+    // Let existing app initialize from the authenticated session
+    try{
+      if(typeof checkSession === "function") await checkSession();
+      else if(typeof showCloud === "function") showCloud();
+    }catch(_){}
+
+    return data;
+  }
+
+  async function submit(){
+    const key = input.value.trim();
+    if(!key){
+      setMsg("Kalit so‘zni kiriting", "error");
+      input.focus();
+      return;
+    }
+
+    btn.disabled = true;
+    setMsg("Tekshirilmoqda…");
+
+    try{
+      // Find the page's public anon key without exposing any server secret.
+      let anonKey = null;
+      const scripts = Array.from(document.scripts).map(s=>s.textContent||"").join("\n");
+      const patterns = [
+        /SUPABASE_ANON_KEY\s*=\s*["'`]([^"'`]+)["'`]/,
+        /SUPABASE_KEY\s*=\s*["'`]([^"'`]+)["'`]/,
+        /supabaseKey\s*=\s*["'`]([^"'`]+)["'`]/,
+        /anonKey\s*=\s*["'`]([^"'`]+)["'`]/
+      ];
+      for(const p of patterns){
+        const m=scripts.match(p);
+        if(m){anonKey=m[1];break}
+      }
+
+      // Supabase Functions usually accept the project anon key in apikey.
+      const headers = {"Content-Type":"application/json"};
+      if(anonKey) headers["apikey"]=anonKey;
+
+      const res = await fetch(FUNCTION_URL,{
+        method:"POST",
+        headers,
+        body:JSON.stringify({key})
+      });
+
+      const body = await res.json().catch(()=>({}));
+
+      if(!res.ok || !body.ok){
+        throw new Error(body.error || "Kalit so‘z noto‘g‘ri");
+      }
+      if(!body.access_token || !body.refresh_token){
+        throw new Error("Session token olinmadi");
+      }
+
+      setMsg("Kirish muvaffaqiyatli", "ok");
+      await unlockWithTokens(body.access_token, body.refresh_token);
+      input.value="";
+    }catch(err){
+      console.error("Keyword login:", err);
+      setMsg(err?.message || "Kirishda xatolik", "error");
+    }finally{
+      btn.disabled = false;
+    }
+  }
+
+  async function existingSessionCheck(){
+    document.documentElement.classList.add("ups-keyword-locked");
+    try{
+      let client=null;
+      try{ if(typeof sb!=="undefined" && sb?.auth) client=sb; }catch(_){}
+      try{ if(!client && typeof supabaseClient!=="undefined" && supabaseClient?.auth) client=supabaseClient; }catch(_){}
+      if(!client) client=getClient();
+      if(client?.auth){
+        const {data}=await client.auth.getSession();
+        if(data?.session){
+          document.documentElement.classList.remove("ups-keyword-locked");
+          gate.classList.add("hidden");
+          return;
+        }
+      }
+    }catch(_){}
+    gate.classList.remove("hidden");
+    setTimeout(()=>input.focus(),100);
+  }
+
+  btn.addEventListener("click",submit);
+  input.addEventListener("keydown",e=>{
+    if(e.key==="Enter") submit();
+  });
+
+  existingSessionCheck();
+})();
 </script>
 
 </body>
