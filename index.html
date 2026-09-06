@@ -5893,32 +5893,39 @@ document.addEventListener("visibilitychange",()=>{
 
 /* Dashboard visual sync */
 function syncDashboardStats(){
+  if(window.upsEditBusy) return;
   try{
     const files=(allItems||[]).filter(x=>x&&x.metadata).length;
     const folders=(allItems||[]).filter(x=>x&&!x.metadata).length;
     const a=document.getElementById('statFiles'),b=document.getElementById('statFolders');
-    if(a)a.textContent=files; if(b)b.textContent=folders;
+    if(a&&a.textContent!==String(files))a.textContent=String(files); if(b&&b.textContent!==String(folders))b.textContent=String(folders);
     /* Storage/Drive qiymatlarini sdxCalculateCombinedStorage boshqaradi. */
     const bar=document.getElementById('storageBar');
-    if(bar&&side){side.style.width=bar.style.width||'0%'; if(sideText)sideText.textContent=bar.style.width||'0%';}
+    if(bar&&side){const w=bar.style.width||'0%'; if(side.style.width!==w)side.style.width=w; if(sideText&&sideText.textContent!==w)sideText.textContent=w;}
   }catch(e){}
 }
-setInterval(syncDashboardStats,1000);
+setInterval(syncDashboardStats,1400);
 document.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('.sdx-nav a');if(a){document.querySelectorAll('.sdx-nav a').forEach(x=>x.classList.remove('active'));a.classList.add('active')}});
 
 
 
+let upsRecentDashboardHTML='';
 function syncExactDashboardRecent(){
+  if(window.upsEditBusy) return;
   const body=document.getElementById('xRecentBody');
   if(!body) return;
   const items=(allItems||[]).filter(x=>x&&x.name&&x.metadata).slice(0,4);
-  if(!items.length){body.innerHTML='<tr><td colspan="3" style="color:#7187a7">Hozircha fayl yo‘q</td></tr>';return;}
-  body.innerHTML=items.map(item=>{
-    const type=getFileType(item.name); const icon=getFileIcon(type); const size=formatSize(item.metadata?.size||0);
-    return `<tr><td><div class="x-recent-name"><span class="x-mini-file-icon">${icon}</span><span>${escapeHtml(item.name)}</span></div></td><td>${size}</td><td style="color:#8fa6c3">Cloud</td></tr>`;
-  }).join('');
+  const html=!items.length
+    ? '<tr><td colspan="3" style="color:#7187a7">Hozircha fayl yo‘q</td></tr>'
+    : items.map(item=>{
+        const type=getFileType(item.name); const icon=getFileIcon(type); const size=formatSize(item.metadata?.size||0);
+        return `<tr><td><div class="x-recent-name"><span class="x-mini-file-icon">${icon}</span><span>${escapeHtml(item.name)}</span></div></td><td>${size}</td><td style="color:#8fa6c3">Cloud</td></tr>`;
+      }).join('');
+  if(html===upsRecentDashboardHTML && body.innerHTML===html) return;
+  upsRecentDashboardHTML=html;
+  body.innerHTML=html;
 }
-setInterval(syncExactDashboardRecent,900);
+setInterval(syncExactDashboardRecent,1800);
 
 /* ===== SKYDRIVEX 74 FEATURES ===== */
 const F74=[
@@ -9678,8 +9685,10 @@ function mountLanguage(){
 }
 
 /* Translate dynamic content that appears later */
+let upsI18nPending=false;
 const observer=new MutationObserver(muts=>{
   if(translating) return;
+  if(window.upsEditBusy){upsI18nPending=true;return;}
   mountLanguage();
   for(const m of muts){
     for(const n of m.addedNodes){
@@ -9688,6 +9697,11 @@ const observer=new MutationObserver(muts=>{
   }
 });
 observer.observe(document.documentElement,{subtree:true,childList:true});
+document.addEventListener('ups-edit-idle',()=>{
+  if(!upsI18nPending)return;
+  upsI18nPending=false;
+  requestAnimationFrame(()=>{try{mountLanguage();translateTree(document.body,current)}catch(_){}});
+});
 
 /* Translate standard dialogs where exact UI text is known */
 const nativeAlert=window.alert.bind(window);
@@ -9751,6 +9765,21 @@ window.upsSetLanguage=applyLanguage;
   color:#e9ffff!important;font:800 11px system-ui,sans-serif!important;
   pointer-events:none!important;box-shadow:0 8px 22px rgba(0,0,0,.32)!important;
 }
+</style>
+<script id="ups-v26-edit-performance-manager">
+(function(){
+  let depth=0,idleTimer=0;
+  window.upsEditBusy=false;
+  window.upsSetEditBusy=function(on){
+    if(on){clearTimeout(idleTimer);depth++;window.upsEditBusy=true;document.documentElement.classList.add('ups-edit-busy');return;}
+    depth=Math.max(0,depth-1);if(depth)return;clearTimeout(idleTimer);
+    idleTimer=setTimeout(()=>{window.upsEditBusy=false;document.documentElement.classList.remove('ups-edit-busy');document.dispatchEvent(new CustomEvent('ups-edit-idle'));},90);
+  };
+})();
+</script>
+<style id="ups-v26-edit-performance-css">
+html.ups-edit-busy .sdx-main,html.ups-edit-busy .sdx-content{scroll-behavior:auto!important}
+html.ups-edit-busy .sdx-stats > .stat-glass{transition:none!important}
 </style>
 <script id="ups-fixed-card-scale-script">
 (function(){
@@ -9907,16 +9936,18 @@ window.upsSetLanguage=applyLanguage;
     if(resizing && e.pointerId===resizing.pointerId){
       applyScale(selected,getScale(selected),true);
       resizing=null;
+      try{window.upsSetEditBusy?.(false)}catch(_){}
     }
   },true);
   document.addEventListener('pointercancel',e=>{
     if(e.pointerId===holdPointerId)cancelHold();
-    if(resizing && e.pointerId===resizing.pointerId){resizing=null;requestAnimationFrame(position)}
+    if(resizing && e.pointerId===resizing.pointerId){resizing=null;requestAnimationFrame(position);try{window.upsSetEditBusy?.(false)}catch(_){}}
   },true);
 
   function beginResize(e){
     if(!selected)return;
     e.preventDefault();e.stopPropagation();
+    try{window.upsSetEditBusy?.(true)}catch(_){}
     const r=selected.getBoundingClientRect();
     const cx=r.left+r.width/2,cy=r.top+r.height/2;
     resizing={
@@ -9997,34 +10028,30 @@ window.upsSetLanguage=applyLanguage;
     return 'card:'+String(el?.className||'unknown').replace(/\s+/g,'.').slice(0,60)
   }
   function read(){try{return JSON.parse(localStorage.getItem(STORE)||'{}')||{}}catch(_){return {}}}
-  function save(el){if(!el)return;const cs=getComputedStyle(el),r=el.getBoundingClientRect(),m=read();m[key(el)]={left:parseFloat(cs.left)||0,top:parseFloat(cs.top)||0,width:parseFloat(el.style.width)||0,height:parseFloat(el.style.height)||0,font:parseFloat(cs.fontSize)||16,pad:parseFloat(cs.paddingTop)||0,rad:parseFloat(cs.borderTopLeftRadius)||0};try{localStorage.setItem(STORE,JSON.stringify(m))}catch(_){}}
-  function restore(){const all=read();document.querySelectorAll('#authPage .auth-card,.ups-security-card,.ups-recovery-box,.sdx-stats > .stat-glass').forEach(el=>{const m=all[key(el)];if(!m)return;ensurePos(el);if(Number.isFinite(m.left))el.style.setProperty('left',m.left+'px','important');if(Number.isFinite(m.top))el.style.setProperty('top',m.top+'px','important');if(m.width>0)el.style.setProperty('width',m.width+'px','important');if(m.height>0)el.style.setProperty('height',m.height+'px','important');if(m.font>0)el.style.setProperty('font-size',m.font+'px','important');if(m.pad>=0)el.style.setProperty('padding',m.pad+'px','important');if(m.rad>=0)el.style.setProperty('border-radius',m.rad+'px','important')})}
+  function save(el){if(!el)return;const cs=getComputedStyle(el),r=el.getBoundingClientRect(),m=read();m[key(el)]={left:parseFloat(cs.left)||0,top:parseFloat(cs.top)||0,width:parseFloat(el.style.width)||0,height:parseFloat(el.style.height)||0,font:parseFloat(cs.fontSize)||16,pad:parseFloat(cs.paddingTop)||0,rad:parseFloat(cs.borderTopLeftRadius)||0,sx:parseFloat(el.style.getPropertyValue('--ups2-stat-sx'))||1,sy:parseFloat(el.style.getPropertyValue('--ups2-stat-sy'))||1};try{localStorage.setItem(STORE,JSON.stringify(m))}catch(_){}}
+  function restore(){const all=read();document.querySelectorAll('#authPage .auth-card,.ups-security-card,.ups-recovery-box,.sdx-stats > .stat-glass').forEach(el=>{const m=all[key(el)];if(!m)return;ensurePos(el);if(Number.isFinite(m.left))el.style.setProperty('left',m.left+'px','important');if(Number.isFinite(m.top))el.style.setProperty('top',m.top+'px','important');if(el.matches('.sdx-stats > .stat-glass')){if((m.sx||1)!==1||(m.sy||1)!==1)applyStatAxis(el,Number(m.sx)||1,Number(m.sy)||1);}else{if(m.width>0)el.style.setProperty('width',m.width+'px','important');if(m.height>0)el.style.setProperty('height',m.height+'px','important');}if(m.font>0)el.style.setProperty('font-size',m.font+'px','important');if(m.pad>=0)el.style.setProperty('padding',m.pad+'px','important');if(m.rad>=0)el.style.setProperty('border-radius',m.rad+'px','important')})}
   function repositionScale(){try{window.ups2PositionScaleUI?.()}catch(_){}}
-  function tweak(kind,delta){const el=selected();if(!el)return;ensurePos(el);const cs=getComputedStyle(el);const raw=el.getBoundingClientRect();const sc=parseFloat(el.style.scale)||parseFloat(cs.scale)||1;const baseW=raw.width/(Number.isFinite(sc)&&sc>0?sc:1),baseH=raw.height/(Number.isFinite(sc)&&sc>0?sc:1);
+  function statAxis(el,name){const v=parseFloat(el.style.getPropertyValue(name)||'1');return Number.isFinite(v)&&v>0?v:1}
+  function applyStatAxis(el,sx,sy){sx=Math.max(.45,Math.min(2.5,sx));sy=Math.max(.45,Math.min(2.5,sy));el.style.setProperty('--ups2-stat-sx',String(sx));el.style.setProperty('--ups2-stat-sy',String(sy));el.style.setProperty('transform','scale(var(--ups2-stat-sx),var(--ups2-stat-sy))','important');el.style.setProperty('transform-origin','center center','important')}
+  function tweak(kind,delta){const el=selected();if(!el)return;try{window.upsSetEditBusy?.(true)}catch(_){};ensurePos(el);const cs=getComputedStyle(el);const raw=el.getBoundingClientRect();const sc=parseFloat(el.style.scale)||parseFloat(cs.scale)||1;const baseW=raw.width/(Number.isFinite(sc)&&sc>0?sc:1),baseH=raw.height/(Number.isFinite(sc)&&sc>0?sc:1);
     if(kind==='x')el.style.setProperty('left',((parseFloat(cs.left)||0)+delta)+'px','important');
     else if(kind==='y')el.style.setProperty('top',((parseFloat(cs.top)||0)+delta)+'px','important');
     else if(kind==='w'){
-      const isStat=el.matches('.stat-glass');
-      const minW=isStat?80:260;
-      const maxW=isStat?Math.max(120,Math.min(900,window.innerWidth-40)):Math.max(320,Math.min(1400,window.innerWidth-30));
-      const nextW=Math.max(minW,Math.min(maxW,baseW+delta));
-      if(isStat){el.style.setProperty('justify-self','start','important');el.style.setProperty('min-width','0','important');el.style.setProperty('max-width','none','important')}
-      el.style.setProperty('width',nextW+'px','important');
+      const isStat=el.matches('.sdx-stats > .stat-glass');
+      if(isStat){const lw=Math.max(1,el.offsetWidth||baseW),sx=statAxis(el,'--ups2-stat-sx'),sy=statAxis(el,'--ups2-stat-sy');applyStatAxis(el,sx+(delta/lw),sy)}
+      else{const maxW=Math.max(320,Math.min(1400,window.innerWidth-30));el.style.setProperty('width',Math.max(260,Math.min(maxW,baseW+delta))+'px','important')}
     }
     else if(kind==='h'){
-      const isStat=el.matches('.stat-glass');
-      const minH=isStat?50:260;
-      const maxH=isStat?500:1000;
-      const nextH=Math.max(minH,Math.min(maxH,baseH+delta));
-      if(isStat)el.style.setProperty('align-self','start','important');
-      el.style.setProperty('height',nextH+'px','important');
+      const isStat=el.matches('.sdx-stats > .stat-glass');
+      if(isStat){const lh=Math.max(1,el.offsetHeight||baseH),sx=statAxis(el,'--ups2-stat-sx'),sy=statAxis(el,'--ups2-stat-sy');applyStatAxis(el,sx,sy+(delta/lh))}
+      else{el.style.setProperty('height',Math.max(260,Math.min(1000,baseH+delta))+'px','important')}
     }
     else if(kind==='font')el.style.setProperty('font-size',Math.max(8,(parseFloat(cs.fontSize)||16)+delta)+'px','important');
     else if(kind==='pad')el.style.setProperty('padding',Math.max(0,(parseFloat(cs.paddingTop)||0)+delta)+'px','important');
     else if(kind==='rad')el.style.setProperty('border-radius',Math.max(0,(parseFloat(cs.borderTopLeftRadius)||0)+delta)+'px','important');
-    save(el);requestAnimationFrame(repositionScale)
+    save(el);requestAnimationFrame(()=>{repositionScale();try{window.upsSetEditBusy?.(false)}catch(_){}})
   }
-  function reset(){const el=selected();if(!el)return;const m=read();delete m[key(el)];try{localStorage.setItem(STORE,JSON.stringify(m))}catch(_){};['left','top','width','height','font-size','padding','border-radius','position','justify-self','align-self','min-width','max-width'].forEach(p=>el.style.removeProperty(p));requestAnimationFrame(repositionScale)}
+  function reset(){const el=selected();if(!el)return;const m=read();delete m[key(el)];try{localStorage.setItem(STORE,JSON.stringify(m))}catch(_){};['left','top','width','height','font-size','padding','border-radius','position','justify-self','align-self','min-width','max-width','transform','transform-origin','--ups2-stat-sx','--ups2-stat-sy'].forEach(p=>el.style.removeProperty(p));requestAnimationFrame(repositionScale)}
   function create(){if(document.getElementById('ups2CardEditBar')){bar=document.getElementById('ups2CardEditBar');return}bar=document.createElement('div');bar.id='ups2CardEditBar';bar.innerHTML=`<div class="ups2cp-head"><div class="ups2cp-name" id="ups2CPName">United Profile System</div><button class="ups2cp-close" id="ups2CPClose">×</button></div><div class="ups2cp-grid"><button class="ups2cp-btn" data-k="x" data-d="-5">← Chap</button><button class="ups2cp-btn" data-k="x" data-d="5">O‘ng →</button><button class="ups2cp-btn" data-k="y" data-d="-5">↑ Tepa</button><button class="ups2cp-btn" data-k="y" data-d="5">↓ Past</button><button class="ups2cp-btn" data-k="w" data-d="-10">En −</button><button class="ups2cp-btn" data-k="w" data-d="10">En +</button><button class="ups2cp-btn" data-k="h" data-d="-10">Bo‘y −</button><button class="ups2cp-btn" data-k="h" data-d="10">Bo‘y +</button><button class="ups2cp-btn" data-k="font" data-d="-1">Matn −</button><button class="ups2cp-btn" data-k="font" data-d="1">Matn +</button><button class="ups2cp-btn" data-k="pad" data-d="-2">Padding −</button><button class="ups2cp-btn" data-k="pad" data-d="2">Padding +</button><button class="ups2cp-btn" data-k="rad" data-d="-2">Burchak −</button><button class="ups2cp-btn" data-k="rad" data-d="2">Burchak +</button><button class="ups2cp-btn danger" id="ups2CPReset">Reset</button><button class="ups2cp-btn" id="ups2CPDrag">Sudrash</button></div><div class="ups2cp-note">Element ustiga ~0.5 soniya bosib turing. “Sudrash”ni bosgach elementni erkin ko‘chirasiz. 4 burchakdan esa butun oynani proporsional kichraytirib/kattalashtirasiz.</div>`;document.body.appendChild(bar);
     bar.querySelectorAll('[data-k]').forEach(b=>b.addEventListener('click',()=>tweak(b.dataset.k,Number(b.dataset.d))));
     bar.querySelector('#ups2CPClose').addEventListener('click',()=>{bar.classList.remove('show')});
@@ -10035,7 +10062,7 @@ window.upsSetLanguage=applyLanguage;
   function hide(){if(bar)bar.classList.remove('show');dragMode=false;move=null}
   window.ups2CardPanelShow=show;window.ups2CardPanelHide=hide;
 
-  document.addEventListener('pointerdown',e=>{if(!dragMode)return;const el=selected();if(!el || !(e.target instanceof Element) || !e.target.closest('#authPage .auth-card,.ups-security-card,.ups-recovery-box,.sdx-stats > .stat-glass'))return;ensurePos(el);const cs=getComputedStyle(el);move={id:e.pointerId,x:e.clientX,y:e.clientY,left:parseFloat(cs.left)||0,top:parseFloat(cs.top)||0};e.preventDefault()},true);
+  document.addEventListener('pointerdown',e=>{if(!dragMode)return;const el=selected();if(!el || !(e.target instanceof Element) || !e.target.closest('#authPage .auth-card,.ups-security-card,.ups-recovery-box,.sdx-stats > .stat-glass'))return;try{window.upsSetEditBusy?.(true)}catch(_){};ensurePos(el);const cs=getComputedStyle(el);move={id:e.pointerId,x:e.clientX,y:e.clientY,left:parseFloat(cs.left)||0,top:parseFloat(cs.top)||0};e.preventDefault()},true);
   let moveRAF=0,lastMoveEvent=null;
   document.addEventListener('pointermove',e=>{
     if(!move||e.pointerId!==move.id)return; e.preventDefault(); lastMoveEvent=e;
@@ -10047,8 +10074,8 @@ window.upsSetLanguage=applyLanguage;
       repositionScale();
     });
   }, {capture:true,passive:false});
-  document.addEventListener('pointerup',e=>{if(move&&e.pointerId===move.id){save(selected());move=null}},true);
-  document.addEventListener('pointercancel',()=>{move=null},true);
+  document.addEventListener('pointerup',e=>{if(move&&e.pointerId===move.id){save(selected());move=null;try{window.upsSetEditBusy?.(false)}catch(_){}}},true);
+  document.addEventListener('pointercancel',()=>{if(move){move=null;try{window.upsSetEditBusy?.(false)}catch(_){}}},true);
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{create();restore()});else{create();restore()}
 })();
 </script>
@@ -10083,11 +10110,12 @@ html.ups2-scale-editing .sdx-stats > .stat-glass.ups2-active-card{will-change:tr
   }
   async function user(){try{return (await supabaseClient.auth.getUser())?.data?.user||null}catch(_){return null}}
   async function push(){
-    if(applying)return;const u=await user();if(!u)return;currentUserId=u.id;
+    if(applying||window.upsEditBusy){queuePush();return;}const u=await user();if(!u)return;currentUserId=u.id;
     const payload={v:1,updatedAt:Date.now(),items:snapshot()};
     try{await supabaseClient.auth.updateUser({data:{[META_KEY]:payload}});lastCloudStamp=payload.updatedAt}catch(e){console.warn("UI Cloud Sync upload:",e)}
   }
-  function queuePush(){if(applying)return;clearTimeout(timer);timer=setTimeout(push,650)}
+  function queuePush(){if(applying)return;clearTimeout(timer);if(window.upsEditBusy){timer=setTimeout(queuePush,900);return;}timer=setTimeout(push,1100)}
+  document.addEventListener('ups-edit-idle',()=>{if(!applying)queuePush()});
 
   Storage.prototype.setItem=function(k,v){rawSet.call(this,k,v);if(this===localStorage&&SYNC_KEYS.has(String(k)))queuePush()};
   Storage.prototype.removeItem=function(k){rawRemove.call(this,k);if(this===localStorage&&SYNC_KEYS.has(String(k)))queuePush()};
@@ -10122,5 +10150,6 @@ html.ups2-scale-editing .sdx-stats > .stat-glass.ups2-active-card{will-change:tr
 })();
 </script>
 
+<!-- v26 dashboard no-freeze -->
 </body>
 </html>
