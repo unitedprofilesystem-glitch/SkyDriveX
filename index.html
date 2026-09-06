@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
 <title>SkyDriveX</title>
+<!-- v63 LOGIN + SECURITY CLEAN: original v51 design/features preserved -->
 
 <link rel="preconnect" href="https://xfhxkdbwvhzdcbzlnnim.supabase.co" crossorigin>
 <link rel="dns-prefetch" href="//xfhxkdbwvhzdcbzlnnim.supabase.co">
@@ -2276,6 +2277,73 @@ html,body{max-width:100%;overflow-x:hidden}
 }
 </style>
 
+
+<style id="ups-v64-profile-e-fix">
+/* v64: Keep the login brand exactly "United Profile System" and prevent the final e from being clipped/overlapped. */
+#authPage .ups-signature-logo{
+  overflow:visible!important;
+  column-gap:12px!important;
+}
+#authPage .ups-signature-logo > span{
+  flex:0 0 auto!important;
+  overflow:visible!important;
+}
+#authPage .ups-profile-word{
+  display:inline-block!important;
+  width:auto!important;
+  max-width:none!important;
+  min-width:max-content!important;
+  padding-right:.08em!important;
+  letter-spacing:-.015em!important;
+  white-space:nowrap!important;
+}
+</style>
+
+<style id="ups-v65-profile-full-fix">
+/* v65: force the complete word Profile to render, including the final e. */
+#authPage .ups-signature-logo{
+  display:flex!important;
+  align-items:flex-end!important;
+  justify-content:center!important;
+  gap:14px!important;
+  overflow:visible!important;
+}
+#authPage .ups-profile-word{
+  display:inline-flex!important;
+  align-items:baseline!important;
+  flex:0 0 auto!important;
+  width:auto!important;
+  min-width:0!important;
+  max-width:none!important;
+  overflow:visible!important;
+  white-space:nowrap!important;
+  letter-spacing:0!important;
+  padding:0!important;
+  margin:0!important;
+  position:relative!important;
+  z-index:3!important;
+}
+#authPage .ups-profile-base,
+#authPage .ups-profile-e{
+  display:inline!important;
+  color:inherit!important;
+  font:inherit!important;
+  font-weight:inherit!important;
+  line-height:inherit!important;
+  letter-spacing:0!important;
+  overflow:visible!important;
+}
+#authPage .ups-profile-e{
+  margin-left:0!important;
+  padding-right:2px!important;
+}
+#authPage .ups-system-word{
+  flex:0 0 auto!important;
+  margin-left:0!important;
+  position:relative!important;
+  z-index:2!important;
+}
+</style>
 </head>
 
 <body>
@@ -2348,7 +2416,7 @@ html,body{max-width:100%;overflow-x:hidden}
 
         <div class="auth-logo ups-signature-logo">
             <span class="ups-united-script">United</span>
-            <span class="ups-profile-word">Profile</span>
+            <span class="ups-profile-word"><span class="ups-profile-base">Profil</span><span class="ups-profile-e">e</span></span>
             <span class="ups-system-word">System</span>
         </div>
 
@@ -3222,25 +3290,38 @@ async function login(){
     }
 
     authButton.disabled = true;
+    showAuthMessage(registerMode ? "Hisob yaratilmoqda..." : "Kirilmoqda...", "#7dd3fc");
 
     try{
         if(registerMode){
             const {data,error} = await supabaseClient.auth.signUp({email,password});
             if(error) throw error;
 
-            showAuthMessage("Ro‘yxatdan o‘tildi.","green");
-
-            if(data.session){
-                await upsSecurityCodeGate(data.session.user);
+            if(!data?.session){
+                showAuthMessage("Ro‘yxatdan o‘tildi. Email tasdiqlangandan keyin kiring.","green");
+                return;
             }
+
+            window.currentUser = data.session.user;
+            showAuthMessage("Hisob yaratildi. Xavfsizlik tekshirilmoqda...", "#7dd3fc");
+            await upsSecurityCodeGate(data.session.user);
         }else{
             const {data,error} = await supabaseClient.auth.signInWithPassword({email,password});
             if(error) throw error;
+            if(!data?.user) throw new Error("Kirish amalga oshmadi: foydalanuvchi ma’lumoti olinmadi.");
 
+            window.currentUser = data.user;
+            showAuthMessage("Login muvaffaqiyatli. Xavfsizlik tekshirilmoqda...", "#7dd3fc");
             await upsSecurityCodeGate(data.user);
         }
     }catch(error){
-        showAuthMessage(error.message,"red");
+        console.error("SkyDriveX login:", error);
+        const raw = String(error?.message || error || "Noma’lum xatolik");
+        if(error instanceof TypeError && /failed to fetch/i.test(raw)){
+            showAuthMessage("Tarmoq so‘rovi uzildi (Failed to fetch). Email/parol xatosi emas — brauzer Supabase so‘rovini yakunlay olmadi.","red");
+        }else{
+            showAuthMessage(raw,"red");
+        }
     }finally{
         authButton.disabled = false;
     }
@@ -6202,7 +6283,23 @@ function bot74(){let i=document.getElementById('botInput74'),q=i.value.trim();if
 let deferredPwa74=null;window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPwa74=e});async function installPwa74(){if(!deferredPwa74)return alert('Brauzerda PWA install taklifi hozir mavjud emas. HTTPS va manifest/sw kerak.');deferredPwa74.prompt();await deferredPwa74.userChoice;deferredPwa74=null}
 window.addEventListener('keydown',e=>{if(e.key==='Escape')closeF74();if(e.ctrlKey&&e.key.toLowerCase()==='k'){e.preventDefault();openF74(68);setTimeout(()=>document.getElementById('uSearch74')?.focus(),50)}if(e.ctrlKey&&e.shiftKey&&e.key.toLowerCase()==='u'){e.preventDefault();document.getElementById('fileInput')?.click()}if(e.ctrlKey&&e.shiftKey&&e.key.toLowerCase()==='a'){e.preventDefault();document.querySelector('[onclick*=openAppsLauncher]')?.click()}});
 // wrap common actions for activity/notifications without changing original logic
-window.addEventListener('load',()=>{initF74();let th=f74Get('theme','dark');theme74(th);let w=f74Get('wallpaper','');if(w){document.body.style.backgroundImage=`linear-gradient(rgba(3,10,25,.72),rgba(3,10,25,.72)),url("${w.replace(/"/g,'')}")`;document.body.style.backgroundSize='cover';document.body.style.backgroundAttachment='fixed'};if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{})});
+window.addEventListener('load',()=>{
+  initF74();
+  let th=f74Get('theme','dark'); theme74(th);
+  let w=f74Get('wallpaper','');
+  if(w){
+    document.body.style.backgroundImage=`linear-gradient(rgba(3,10,25,.72),rgba(3,10,25,.72)),url("${w.replace(/"/g,'')}")`;
+    document.body.style.backgroundSize='cover';
+    document.body.style.backgroundAttachment='fixed';
+  }
+  /* v63: bu bitta HTML versiyada eski service-worker request/cache qatlamiga
+     aralashmasin. Mavjud registration bo‘lsa unregister qilinadi. */
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.getRegistrations().then(regs=>
+      Promise.all(regs.map(r=>r.unregister()))
+    ).catch(()=>{});
+  }
+});
 
 
 
@@ -8347,8 +8444,17 @@ async function upsSecurityCodeGate(user){
   upsSecurityUser=user;
 
   try{
-    if(await upsSecTrusted(user)){
+    /* Bitta so‘rov bilan security rule olinadi. Oldingi kod untrusted
+       qurilmada sdx_settings jadvaliga ikki marta ketma-ket murojaat qilardi. */
+    const rule=await upsSecGetRule(user);
+    const id=upsSecDeviceId();
+    const revoked=Array.isArray(rule._revoked_devices)?rule._revoked_devices:[];
+    const trusted=rule[UPS_TRUSTED_KEY]&&typeof rule[UPS_TRUSTED_KEY]==="object"
+      ? rule[UPS_TRUSTED_KEY]:{};
+
+    if(!revoked.includes(id) && !!trusted[id]){
       upsSecClose();
+      showAuthMessage("", "green");
       await showCloud(user);
       return;
     }
@@ -8356,15 +8462,19 @@ async function upsSecurityCodeGate(user){
     cloudPage.classList.add("hidden");
     authPage.classList.remove("hidden");
 
-    const rule=await upsSecGetRule(user);
     if(!rule[UPS_SECURITY_HASH_KEY] || !rule[UPS_SECURITY_SALT_KEY]){
       upsSecOpen("create");
     }else{
       upsSecOpen("verify");
     }
   }catch(e){
-    console.error(e);
-    showAuthMessage(e?.message||"Xavfsizlik kodini tekshirib bo‘lmadi.","red");
+    console.error("SkyDriveX security gate:",e);
+    const raw=String(e?.message||e||"Xavfsizlik kodini tekshirib bo‘lmadi.");
+    if(e instanceof TypeError && /failed to fetch/i.test(raw)){
+      showAuthMessage("Login sessiyasi yaratildi, lekin xavfsizlik sozlamasini Supabase’dan olishda tarmoq uzildi (Failed to fetch).","red");
+    }else{
+      showAuthMessage("Xavfsizlik tekshiruvi: "+raw,"red");
+    }
   }
 }
 window.upsSecurityCodeGate=upsSecurityCodeGate;
