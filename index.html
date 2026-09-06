@@ -5885,7 +5885,7 @@ setInterval(syncExactDashboardRecent,900);
 const F74=[
 ['🔔','Bildirishnomalar'],['🕒','Faoliyat tarixi'],['⭐','Sevimlilar'],['🗑️','Savat'],['🔒','Maxfiy papka'],['📊','Storage statistikasi'],['🌐','Til'],['🎨','Ko‘rinish sozlamalari'],['🧩','Apps kategoriyalari'],['↕️','Ilovalarni joylashtirish'],['📌','Ilovani sevimliga chiqarish'],['🔍','Umumiy qidiruv'],['👤','To‘liq profil'],['🛡️','Security'],['📤','Fayl ulashish'],['🔗','Quick Links'],['📅','Kalendar'],['📝','Notes'],['✅','Vazifalar'],['🔖','Bookmark'],['🖼️','Gallery'],['🎬','Media Center'],['📄','Documents'],['📱','Qurilmalar'],['☁️','Cloud Accounts'],['🧮','Storage Cleaner'],['📈','Dashboard statistikasi'],['🕐','Recently Opened'],['📌','Pinned Files'],['🧑‍💻','Admin panel'],['🔔','Notification Center'],['🖥️','Full Screen Apps Launcher'],['➕','Custom App'],['📂','App papkalari'],['🔐','App Lock'],['🗄️','Private Vault'],['📸','Telefon rasmlarini backup'],['📇','Kontakt backup'],['🧾','Muhim hujjatlar'],['💳','To‘lovlar paneli'],['🌤️','Ob-havo vidjeti'],['🕐','Soat va sana'],['📆','Tug‘ilgan kun/eslatmalar'],['📊','Internet/storage dashboard'],['🔄','Duplicate Finder'],['🏷️','Taglar'],['🎯','Smart Collections'],['🖱️','Right-click menyu'],['⌨️','Keyboard shortcuts'],['🧱','Widget tizimi'],['↔️','Drag & Drop Dashboard'],['👁️','Preview Center'],['🚀','Command Center'],['🏠','My Space'],['🤖','SkyDriveX Assistant'],['📥','Download Manager'],['📤','Upload Queue'],['🔄','Cloud Transfer'],['🗃️','Archive Center'],['🖼️','Photo Timeline'],['🎞️','Memories'],['📊','Storage Map'],['🔎','Advanced Search'],['🧹','Cleanup Center'],['🔔','Storage Warning'],['📋','Clipboard/Quick Notes'],['🔗','Saved Links'],['🧭','Universal Search'],['🖥️','Desktop Mode'],['📱','Installable Web App (PWA)'],['🎨','Wallpaper Center'],['🧩','Widget Store'],['🔐','Security Center'],['💾','Backup Center']];
 const f74Get=(k,d=[])=>{try{return JSON.parse(localStorage.getItem('sdx74_'+k))??d}catch{return d}};const f74Set=(k,v)=>localStorage.setItem('sdx74_'+k,JSON.stringify(v));
-function initF74(){const g=document.getElementById('feature74Grid');if(!g)return;g.innerHTML=F74.map((x,i)=>`<button class="feature74-btn" onclick="openF74(${i+1})"><span style="font-size:22px">${x[0]}</span><b>${i+1}. ${x[1]}</b><small>Ochish</small></button>`).join('');updateClock74();setInterval(updateClock74,1000)}
+function initF74(){const g=document.getElementById('feature74Grid');if(!g)return;g.innerHTML=F74.map((x,i)=>`<button class="feature74-btn" onclick="openF74(${i+1})"><span style="font-size:22px">${x[0]}</span><b>${i+1}. ${x[1]}</b><small>Ochish</small></button>`).join('');try{const l=localStorage.getItem('ups_language')||f74Get('lang','uz');f74Set('lang',l)}catch(_){}updateClock74();setInterval(updateClock74,1000)}
 function closeF74(){document.getElementById('feature74Modal').classList.add('hidden')}
 function openF74(n){let x=F74[n-1],m=document.getElementById('feature74Modal');document.getElementById('f74Title').textContent=`${x[0]} ${x[1]}`;document.getElementById('f74Sub').textContent=`SkyDriveX modul #${n}`;m.classList.remove('hidden');renderF74(n)}
 function f74List(items,empty='Hozircha ma’lumot yo‘q'){return items.length?`<div class="f74-list">${items.map((x,i)=>`<div class="f74-item"><span>${escapeHtml(String(x.text||x.name||x.title||x))}</span><button class="btn delete" onclick="f74Delete('${x._k||''}',${i})">🗑️</button></div>`).join('')}</div>`:`<div class="empty">${empty}</div>`}
@@ -5939,7 +5939,29 @@ else if(n===70){H=`<p>PWA uchun <b>manifest.webmanifest</b> va <b>sw.js</b> fayl
 else if(n===74){H=`<p>Backup Center muhim fayllarni ulangan cloud’ga nusxalash uchun.</p><div class="f74-row"><button class="action-btn blue" onclick="closeF74();document.getElementById('gdriveConnectBtn')?.click()">Google Drive’ni ochish</button></div>`}
 else H='<div class="empty">Modul tayyor.</div>';c.innerHTML=H}
 function setVaultPin74(){let v=document.getElementById('vaultPin74').value;if(v.length<4)return alert('Kamida 4 raqam/belgi');f74Set('vaultLock',true);localStorage.setItem('sdx74_vault_pin',btoa(unescape(encodeURIComponent(v))));alert('PIN saqlandi');renderF74(36)}
-function setLang74(v){f74Set('lang',v);alert('Til saqlandi: '+v)}
+function setLang74(v){
+  // 74 Features ichidagi Til tugmalari endi faqat saqlab qo'ymaydi —
+  // asosiy sayt tarjima dvigatelini ham darhol ishga tushiradi.
+  f74Set('lang',v);
+  localStorage.setItem('ups_language',v);
+
+  const apply=()=>{
+    if(typeof window.upsSetLanguage==='function'){
+      window.upsSetLanguage(v);
+      // Dynamic/modaldagi matnlar qayta chizilgandan keyin ham tilni saqlab qolish.
+      setTimeout(()=>window.upsSetLanguage && window.upsSetLanguage(v),0);
+      setTimeout(()=>window.upsSetLanguage && window.upsSetLanguage(v),250);
+    }
+  };
+  apply();
+
+  // Til modali ochiq bo'lsa, tanlov holatini yangilash.
+  const modal=document.getElementById('feature74Modal');
+  if(modal && !modal.classList.contains('hidden')){
+    renderF74(7);
+    apply();
+  }
+}
 function theme74(v){document.body.classList.remove('light74','amoled74');if(v==='light')document.body.classList.add('light74');if(v==='amoled')document.body.classList.add('amoled74');f74Set('theme',v)}
 function wallpaper74(){let u=document.getElementById('wall74').value.trim();if(!u)return;document.body.style.backgroundImage=`linear-gradient(rgba(3,10,25,.72),rgba(3,10,25,.72)),url("${u.replace(/"/g,'')}")`;document.body.style.backgroundSize='cover';document.body.style.backgroundAttachment='fixed';f74Set('wallpaper',u)}
 async function share74(){let p=document.getElementById('sharePath74').value.trim(),sec=Number(document.getElementById('shareSec74').value);if(!p)return;try{let {data,error}=await supabaseClient.storage.from(BUCKET).createSignedUrl(p,sec);if(error)throw error;document.getElementById('shareOut74').textContent=data.signedUrl;log74('Fayl uchun vaqtinchalik link yaratildi')}catch(e){document.getElementById('shareOut74').textContent='Xato: '+e.message}}
@@ -9132,7 +9154,9 @@ uz:{
 "To‘g‘ri kalit kiritilsa yangi 6 xonali kod o‘rnatasiz.":"To‘g‘ri kalit kiritilsa yangi 6 xonali kod o‘rnatasiz.",
 "Birinchi marta. O‘zingiz biladigan uzun Recovery Key kiriting.":"Birinchi marta. O‘zingiz biladigan uzun Recovery Key kiriting.",
 "Recovery Key saqlash":"Recovery Key saqlash",
-"Til":"Til"
+"Til":"Til",
+"Ochish":"Ochish",
+"Tanlangan til:":"Tanlangan til:"
 },
 ru:{
 "Hisobingizga kiring":"Войдите в аккаунт",
@@ -9270,7 +9294,9 @@ ru:{
 "To‘g‘ri kalit kiritilsa yangi 6 xonali kod o‘rnatasiz.":"После правильного ключа можно установить новый 6-значный код.",
 "Birinchi marta. O‘zingiz biladigan uzun Recovery Key kiriting.":"Первый раз: введите длинный Recovery Key, известный только вам.",
 "Recovery Key saqlash":"Сохранить Recovery Key",
-"Til":"Язык"
+"Til":"Язык",
+"Ochish":"Открыть",
+"Tanlangan til:":"Выбранный язык:"
 },
 en:{
 "Hisobingizga kiring":"Sign in to your account",
@@ -9408,7 +9434,9 @@ en:{
 "To‘g‘ri kalit kiritilsa yangi 6 xonali kod o‘rnatasiz.":"After the correct key, you can set a new 6-digit code.",
 "Birinchi marta. O‘zingiz biladigan uzun Recovery Key kiriting.":"First time: enter a long Recovery Key known only to you.",
 "Recovery Key saqlash":"Save Recovery Key",
-"Til":"Language"
+"Til":"Language",
+"Ochish":"Open",
+"Tanlangan til:":"Selected language:"
 }
 };
 
@@ -10152,7 +10180,7 @@ html.ups-hold-editing .ups-hold-selected{
   function editableAncestor(el){
     /* Whole login/security cards are handled by the lightweight 4-corner scaler below.
        Do not open the old floating editor at the same time. */
-    if(el && el.closest && el.closest("#authPage .auth-card,.ups-security-card,.ups-recovery-box")) return null;
+    if(el && el.closest && el.closest("#authPage .auth-card,.ups-security-card,.ups-recovery-box,.sdx-stats > .stat-glass")) return null;
     let cur=el;
     while(cur && cur!==document.body){
       if(cur.dataset && cur.dataset.upsLayoutEditable==="1" && !protectedEl(cur)) return cur;
@@ -10627,6 +10655,11 @@ html.ups-hold-editing #upsScalePercent{display:block!important}
   let startX=0,startY=0;
   let resizing=null;
   let frame=null,badge=null,handles=[];
+  let posRAF=0;
+  function schedulePosition(){
+    if(posRAF)return;
+    posRAF=requestAnimationFrame(()=>{posRAF=0;position()});
+  }
 
   function targetCard(node){
     if(!(node instanceof Element)) return null;
@@ -10637,6 +10670,12 @@ html.ups-hold-editing #upsScalePercent{display:block!important}
   function keyFor(el){
     if(el.matches('#authPage .auth-card')) return 'auth-card';
     if(el.id) return 'id:'+el.id;
+    if(el.matches('.sdx-stats > .stat-glass')){
+      const cards=[...document.querySelectorAll('.sdx-stats > .stat-glass')];
+      const i=Math.max(0,cards.indexOf(el));
+      const title=(el.querySelector('small')?.textContent||'stat').trim().toLowerCase().replace(/[^a-z0-9_-]+/g,'-').slice(0,32);
+      return 'stat:'+i+':'+title;
+    }
     return 'class:'+String(el.className||'card').replace(/\s+/g,'.').slice(0,80);
   }
 
@@ -10659,7 +10698,7 @@ html.ups-hold-editing #upsScalePercent{display:block!important}
     el.style.setProperty('scale',String(s),'important');
     el.style.setProperty('transform-origin','center center','important');
     if(save)saveScale(el,s);
-    requestAnimationFrame(position);
+    schedulePosition();
   }
 
   function createUI(){
@@ -10696,7 +10735,7 @@ html.ups-hold-editing #upsScalePercent{display:block!important}
     window.ups2SelectedCard=el;
     if(window.ups2CardPanelShow) window.ups2CardPanelShow(el);
     document.documentElement.classList.add('ups2-scale-editing');
-    requestAnimationFrame(position);
+    schedulePosition();
   }
 
   function position(){
@@ -10789,8 +10828,8 @@ html.ups-hold-editing #upsScalePercent{display:block!important}
     /* A couple of delayed restores cover dynamically shown auth/security cards without a permanent observer. */
     setTimeout(restore,500);setTimeout(restore,1600);
   }
-  window.addEventListener('resize',()=>requestAnimationFrame(position));
-  document.addEventListener('scroll',()=>requestAnimationFrame(position),true);
+  window.addEventListener('resize',schedulePosition);
+  document.addEventListener('scroll',schedulePosition,true);
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
 </script>
@@ -10826,7 +10865,17 @@ html.ups-hold-editing #upsScalePercent{display:block!important}
   function selected(){return window.ups2SelectedCard||null}
   function label(el){if(el?.matches?.('#authPage .auth-card'))return 'United Profile System';if(el?.matches?.('.stat-glass'))return ((el.querySelector('small')?.textContent||el.id||'Dashboard karta')+'').trim();return ((el?.innerText||el?.id||'Element')+'').trim().replace(/\s+/g,' ').slice(0,48)}
   function ensurePos(el){if(!el)return;const cs=getComputedStyle(el);if(cs.position==='static')el.style.setProperty('position','relative','important');if(cs.left==='auto')el.style.setProperty('left','0px','important');if(cs.top==='auto')el.style.setProperty('top','0px','important')}
-  function key(el){if(el?.matches?.('#authPage .auth-card'))return 'auth-card';return el?.id?('id:'+el.id):'card'}
+  function key(el){
+    if(el?.matches?.('#authPage .auth-card'))return 'auth-card';
+    if(el?.id)return 'id:'+el.id;
+    if(el?.matches?.('.sdx-stats > .stat-glass')){
+      const cards=[...document.querySelectorAll('.sdx-stats > .stat-glass')];
+      const i=Math.max(0,cards.indexOf(el));
+      const title=(el.querySelector('small')?.textContent||'stat').trim().toLowerCase().replace(/[^a-z0-9_-]+/g,'-').slice(0,32);
+      return 'stat:'+i+':'+title;
+    }
+    return 'card:'+String(el?.className||'unknown').replace(/\s+/g,'.').slice(0,60)
+  }
   function read(){try{return JSON.parse(localStorage.getItem(STORE)||'{}')||{}}catch(_){return {}}}
   function save(el){if(!el)return;const cs=getComputedStyle(el),r=el.getBoundingClientRect(),m=read();m[key(el)]={left:parseFloat(cs.left)||0,top:parseFloat(cs.top)||0,width:parseFloat(el.style.width)||0,height:parseFloat(el.style.height)||0,font:parseFloat(cs.fontSize)||16,pad:parseFloat(cs.paddingTop)||0,rad:parseFloat(cs.borderTopLeftRadius)||0};try{localStorage.setItem(STORE,JSON.stringify(m))}catch(_){}}
   function restore(){const all=read();document.querySelectorAll('#authPage .auth-card,.ups-security-card,.ups-recovery-box,.sdx-stats > .stat-glass').forEach(el=>{const m=all[key(el)];if(!m)return;ensurePos(el);if(Number.isFinite(m.left))el.style.setProperty('left',m.left+'px','important');if(Number.isFinite(m.top))el.style.setProperty('top',m.top+'px','important');if(m.width>0)el.style.setProperty('width',m.width+'px','important');if(m.height>0)el.style.setProperty('height',m.height+'px','important');if(m.font>0)el.style.setProperty('font-size',m.font+'px','important');if(m.pad>=0)el.style.setProperty('padding',m.pad+'px','important');if(m.rad>=0)el.style.setProperty('border-radius',m.rad+'px','important')})}
@@ -10834,14 +10883,28 @@ html.ups-hold-editing #upsScalePercent{display:block!important}
   function tweak(kind,delta){const el=selected();if(!el)return;ensurePos(el);const cs=getComputedStyle(el);const raw=el.getBoundingClientRect();const sc=parseFloat(el.style.scale)||parseFloat(cs.scale)||1;const baseW=raw.width/(Number.isFinite(sc)&&sc>0?sc:1),baseH=raw.height/(Number.isFinite(sc)&&sc>0?sc:1);
     if(kind==='x')el.style.setProperty('left',((parseFloat(cs.left)||0)+delta)+'px','important');
     else if(kind==='y')el.style.setProperty('top',((parseFloat(cs.top)||0)+delta)+'px','important');
-    else if(kind==='w')el.style.setProperty('width',Math.max(el.matches('.stat-glass')?80:260,baseW+delta)+'px','important');
-    else if(kind==='h')el.style.setProperty('height',Math.max(el.matches('.stat-glass')?50:260,baseH+delta)+'px','important');
+    else if(kind==='w'){
+      const isStat=el.matches('.stat-glass');
+      const minW=isStat?80:260;
+      const maxW=isStat?Math.max(120,Math.min(900,window.innerWidth-40)):Math.max(320,Math.min(1400,window.innerWidth-30));
+      const nextW=Math.max(minW,Math.min(maxW,baseW+delta));
+      if(isStat){el.style.setProperty('justify-self','start','important');el.style.setProperty('min-width','0','important');el.style.setProperty('max-width','none','important')}
+      el.style.setProperty('width',nextW+'px','important');
+    }
+    else if(kind==='h'){
+      const isStat=el.matches('.stat-glass');
+      const minH=isStat?50:260;
+      const maxH=isStat?500:1000;
+      const nextH=Math.max(minH,Math.min(maxH,baseH+delta));
+      if(isStat)el.style.setProperty('align-self','start','important');
+      el.style.setProperty('height',nextH+'px','important');
+    }
     else if(kind==='font')el.style.setProperty('font-size',Math.max(8,(parseFloat(cs.fontSize)||16)+delta)+'px','important');
     else if(kind==='pad')el.style.setProperty('padding',Math.max(0,(parseFloat(cs.paddingTop)||0)+delta)+'px','important');
     else if(kind==='rad')el.style.setProperty('border-radius',Math.max(0,(parseFloat(cs.borderTopLeftRadius)||0)+delta)+'px','important');
     save(el);requestAnimationFrame(repositionScale)
   }
-  function reset(){const el=selected();if(!el)return;const m=read();delete m[key(el)];try{localStorage.setItem(STORE,JSON.stringify(m))}catch(_){};['left','top','width','height','font-size','padding','border-radius','position'].forEach(p=>el.style.removeProperty(p));requestAnimationFrame(repositionScale)}
+  function reset(){const el=selected();if(!el)return;const m=read();delete m[key(el)];try{localStorage.setItem(STORE,JSON.stringify(m))}catch(_){};['left','top','width','height','font-size','padding','border-radius','position','justify-self','align-self','min-width','max-width'].forEach(p=>el.style.removeProperty(p));requestAnimationFrame(repositionScale)}
   function create(){if(document.getElementById('ups2CardEditBar')){bar=document.getElementById('ups2CardEditBar');return}bar=document.createElement('div');bar.id='ups2CardEditBar';bar.innerHTML=`<div class="ups2cp-head"><div class="ups2cp-name" id="ups2CPName">United Profile System</div><button class="ups2cp-close" id="ups2CPClose">×</button></div><div class="ups2cp-grid"><button class="ups2cp-btn" data-k="x" data-d="-5">← Chap</button><button class="ups2cp-btn" data-k="x" data-d="5">O‘ng →</button><button class="ups2cp-btn" data-k="y" data-d="-5">↑ Tepa</button><button class="ups2cp-btn" data-k="y" data-d="5">↓ Past</button><button class="ups2cp-btn" data-k="w" data-d="-10">En −</button><button class="ups2cp-btn" data-k="w" data-d="10">En +</button><button class="ups2cp-btn" data-k="h" data-d="-10">Bo‘y −</button><button class="ups2cp-btn" data-k="h" data-d="10">Bo‘y +</button><button class="ups2cp-btn" data-k="font" data-d="-1">Matn −</button><button class="ups2cp-btn" data-k="font" data-d="1">Matn +</button><button class="ups2cp-btn" data-k="pad" data-d="-2">Padding −</button><button class="ups2cp-btn" data-k="pad" data-d="2">Padding +</button><button class="ups2cp-btn" data-k="rad" data-d="-2">Burchak −</button><button class="ups2cp-btn" data-k="rad" data-d="2">Burchak +</button><button class="ups2cp-btn danger" id="ups2CPReset">Reset</button><button class="ups2cp-btn" id="ups2CPDrag">Sudrash</button></div><div class="ups2cp-note">Element ustiga ~0.5 soniya bosib turing. “Sudrash”ni bosgach elementni erkin ko‘chirasiz. 4 burchakdan esa butun oynani proporsional kichraytirib/kattalashtirasiz.</div>`;document.body.appendChild(bar);
     bar.querySelectorAll('[data-k]').forEach(b=>b.addEventListener('click',()=>tweak(b.dataset.k,Number(b.dataset.d))));
     bar.querySelector('#ups2CPClose').addEventListener('click',()=>{bar.classList.remove('show')});
@@ -10859,6 +10922,19 @@ html.ups-hold-editing #upsScalePercent{display:block!important}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{create();restore()});else{create();restore()}
 })();
 </script>
+
+
+<style id="ups-v23-stat-resize-performance-fix">
+/* v23: dashboard kartalarini alohida va silliq resize qilish */
+.sdx-stats > .stat-glass{
+  min-width:0;
+  contain:paint;
+  will-change:width,height,scale,left,top;
+}
+html.ups2-scale-editing .sdx-stats > .stat-glass{
+  transition:none!important;
+}
+</style>
 
 </body>
 </html>
