@@ -2231,6 +2231,51 @@ html,body{max-width:100%;overflow-x:hidden}
 @media(max-width:900px){.ups-drive-fast-head{align-items:stretch}.ups-drive-fast-head .btn{width:100%}.ups-drive-video-shell{min-height:200px}}
 </style>
 
+
+
+<style id="ups-v51-pc-horizontal-scroll">
+/* PC + TV: if the fixed desktop canvas is wider than the browser window,
+   show a real horizontal scrollbar at the bottom so the whole screen can move left/right. */
+@media (min-width:901px){
+  html{
+    overflow-x:auto!important;
+    overflow-y:auto!important;
+    max-width:none!important;
+  }
+  body{
+    overflow-x:visible!important;
+    overflow-y:visible!important;
+    max-width:none!important;
+  }
+  #cloudPage,
+  #authPage{
+    overflow-x:visible!important;
+    max-width:none!important;
+  }
+
+  /* Keep the PC/TV canvas width. When viewport is smaller, browser scrolls it. */
+  html,body,#cloudPage,#authPage{
+    min-width:1600px!important;
+  }
+
+  /* Make the scrollbar easy to see on desktop Chromium/Edge. */
+  html::-webkit-scrollbar{height:14px;width:14px}
+  html::-webkit-scrollbar-track{background:#07111f}
+  html::-webkit-scrollbar-thumb{background:#2b78c9;border:3px solid #07111f;border-radius:999px}
+  html::-webkit-scrollbar-thumb:hover{background:#3f93e8}
+  html{scrollbar-color:#2b78c9 #07111f;scrollbar-width:auto}
+}
+
+/* Phone + tablet remain exactly as before: no sideways page movement. */
+@media (max-width:900px){
+  html,body,#cloudPage,#authPage{
+    overflow-x:hidden!important;
+    min-width:0!important;
+    max-width:100%!important;
+  }
+}
+</style>
+
 </head>
 
 <body>
