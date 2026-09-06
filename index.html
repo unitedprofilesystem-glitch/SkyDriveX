@@ -9795,6 +9795,8 @@ html.ups-edit-busy .sdx-stats > .stat-glass{transition:none!important}
 #upsUPanel .upsUHead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:9px;font-weight:850;font-size:13px}#upsUPanel .upsUClose{width:30px;height:30px;border:0;border-radius:8px;background:rgba(255,255,255,.08);color:#fff;cursor:pointer}
 #upsUPanel .upsUGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}#upsUPanel button.upsUBtn{min-width:0;padding:9px 5px;border-radius:9px;border:1px solid rgba(120,237,242,.22);background:rgba(21,55,77,.88);color:#eaffff;font:750 11px system-ui;cursor:pointer}#upsUPanel button.upsUBtn:hover{background:rgba(36,86,114,.95)}#upsUPanel button.upsUWide{grid-column:span 2}#upsUPanel button.upsUFull{grid-column:1/-1;background:rgba(112,44,57,.92);border-color:rgba(255,132,151,.42)}#upsUPanel button.upsUActive{background:#1586a4;border-color:#7ceff3}
 html.ups-edit-busy *{animation-play-state:paused!important}
+/* v34: mouse bosib turilganda boshqa barcha CSS harakatlari to'xtaydi */
+html.ups-press-stop *{animation-play-state:paused!important;transition:none!important}
 .upsUSelected{cursor:move!important;touch-action:none!important}
 .upsUTextTarget{cursor:move!important}
 @media(max-width:650px){#upsUPanel{right:8px;top:8px;width:min(355px,calc(100vw - 16px));padding:9px}#upsUPanel .upsUGrid{gap:5px}#upsUPanel button.upsUBtn{padding:8px 4px;font-size:10px}}
@@ -9861,7 +9863,7 @@ html.ups-edit-busy *{animation-play-state:paused!important}
   function show(){if(!active||!document.contains(active)){hide();return}const r=active.getBoundingClientRect();if(!r.width&&!r.height){hide();return}frame.style.display='block';frame.style.left=(r.left-2)+'px';frame.style.top=(r.top-2)+'px';frame.style.width=r.width+'px';frame.style.height=r.height+'px';const cx=r.left+r.width/2,cy=r.top+r.height/2;const pts={tl:[r.left,r.top],t:[cx,r.top],tr:[r.right,r.top],r:[r.right,cy],br:[r.right,r.bottom],b:[cx,r.bottom],bl:[r.left,r.bottom],l:[r.left,cy]};handles.forEach(h=>{const p=pts[h.dataset.corner];h.style.display='block';h.style.left=(p[0]-10)+'px';h.style.top=(p[1]-10)+'px'});rotateStem.style.display='block';rotateStem.style.left=cx+'px';rotateStem.style.top=(r.top-30)+'px';rotateHandle.style.display='flex';rotateHandle.style.left=(cx-12)+'px';rotateHandle.style.top=(r.top-54)+'px';panel.style.display='block'}
   function scheduleShow(){if(raf)return;raf=requestAnimationFrame(()=>{raf=0;show()})}
   function hide(){if(active)active.classList.remove('upsUSelected');active=null;dragMode=false;moveState=null;resizeState=null;rotateState=null;frame.style.display='none';handles.forEach(h=>h.style.display='none');rotateStem.style.display='none';rotateHandle.style.display='none';panel.style.display='none'}
-  function select(el){if(!el)return;if(active&&active!==el)active.classList.remove('upsUSelected');active=el;dragMode=true;active.classList.add('upsUSelected');document.getElementById('upsUTitle').textContent=label(el);const db=panel.querySelector('[data-act="drag"]');db.classList.add('upsUActive');db.textContent='Sudrash ✓';show()}
+  function select(el){if(!el)return;if(active&&active!==el)active.classList.remove('upsUSelected');active=el;dragMode=false;active.classList.add('upsUSelected');document.getElementById('upsUTitle').textContent=label(el);const db=panel.querySelector('[data-act="drag"]');if(db){db.classList.remove('upsUActive');db.textContent='Sudrash'}show()}
   function metric(el){const cs=getComputedStyle(el),r=el.getBoundingClientRect();const sp=String(el.style.scale||'1').trim().split(/\s+/);const sx=parseFloat(sp[0])||1,sy=parseFloat(sp[1])||sx;const rot=parseFloat(String(el.style.rotate||'0').replace('deg',''))||0;return {tx:parseFloat(el.style.translate?.split(' ')[0])||0,ty:parseFloat(el.style.translate?.split(' ')[1])||0,w:parseFloat(el.style.width)||Math.max(1,r.width/sx),h:parseFloat(el.style.height)||Math.max(1,r.height/sy),font:parseFloat(cs.fontSize)||16,pad:parseFloat(cs.paddingTop)||0,rad:parseFloat(cs.borderTopLeftRadius)||0,sx,sy,rot,scale:sx}}
   function save(el){if(!el)return;const m=read();m[key(el)]=metric(el);write(m)}
   function apply(el,m){if(!el||!m)return;if(Number.isFinite(m.tx)||Number.isFinite(m.ty))el.style.setProperty('translate',(Number(m.tx)||0)+'px '+(Number(m.ty)||0)+'px','important');if(m.w>0)el.style.setProperty('width',m.w+'px','important');if(m.h>0)el.style.setProperty('height',m.h+'px','important');if(m.font>0)el.style.setProperty('font-size',m.font+'px','important');if(m.pad>=0)el.style.setProperty('padding',m.pad+'px','important');if(m.rad>=0)el.style.setProperty('border-radius',m.rad+'px','important');const sx=Number(m.sx)||Number(m.scale)||1,sy=Number(m.sy)||Number(m.scale)||sx;if(sx!==1||sy!==1)el.style.setProperty('scale',sx+' '+sy,'important');if(Number(m.rot))el.style.setProperty('rotate',Number(m.rot)+'deg','important')}
@@ -9885,9 +9887,22 @@ html.ups-edit-busy *{animation-play-state:paused!important}
 
   panel.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.classList.contains('upsUClose')){hide();return}const a=b.dataset.act;if(!a)return;if(a==='reset'){reset();return}if(a==='reset-all'){resetAll();return}if(a==='drag'){dragMode=true;b.classList.add('upsUActive');b.textContent='Sudrash ✓';return}tweak(a)});
 
+  function isNormalInteractiveTarget(node){
+    return node instanceof Element && !!node.closest('button,a,input,select,textarea,label,[role=\"button\"],[contenteditable=\"true\"]');
+  }
+  function pressStopOn(){document.documentElement.classList.add('ups-press-stop')}
+  function pressStopOff(){document.documentElement.classList.remove('ups-press-stop')}
+
   document.addEventListener('pointerdown',e=>{
     if(e.button!==undefined&&e.button!==0)return;
+    pressStopOn();
     if(e.target instanceof Element&&e.target.closest('#upsUPanel,.upsUHandle,#upsURotate'))return;
+
+    /* Oddiy knopka/link/inputlar endi uzoq bosishda universal editorga tushmaydi.
+       Faqat oldindan tanlangan elementda Sudrash rejimi yoqilgan bo'lsa drag ishlaydi. */
+    if(isNormalInteractiveTarget(e.target) && !(dragMode&&active&&e.target instanceof Element&&(e.target===active||active.contains(e.target)))){
+      clearTimeout(holdTimer);holdStart=null;return;
+    }
     const candidate=targetFrom(e.target);
     if(dragMode&&active&&e.target instanceof Element&&(e.target===active||active.contains(e.target))){
       // Long-pressing a nested text element selects that text independently; otherwise drag the current element immediately.
@@ -9896,8 +9911,9 @@ html.ups-edit-busy *{animation-play-state:paused!important}
     const el=candidate;if(!el)return;holdStart={id:e.pointerId,x:e.clientX,y:e.clientY,el};clearTimeout(holdTimer);holdTimer=setTimeout(()=>{if(!holdStart)return;suppressClick=true;select(holdStart.el);holdStart=null},HOLD_MS)
   },true);
   document.addEventListener('pointermove',e=>{if(moveState&&e.pointerId===moveState.id){pendingPos={tx:moveState.tx+(e.clientX-moveState.x),ty:moveState.ty+(e.clientY-moveState.y)};if(!raf)raf=requestAnimationFrame(()=>{raf=0;if(active&&pendingPos){active.style.setProperty('translate',pendingPos.tx+'px '+pendingPos.ty+'px','important');pendingPos=null;show()}});e.preventDefault();return}if(holdStart&&e.pointerId===holdStart.id&&Math.hypot(e.clientX-holdStart.x,e.clientY-holdStart.y)>9){clearTimeout(holdTimer);holdStart=null}},true);
-  function endPointer(e){clearTimeout(holdTimer);holdStart=null;if(moveState&&e.pointerId===moveState.id){save(active);moveState=null;busy(false);scheduleShow()}}
+  function endPointer(e){clearTimeout(holdTimer);holdStart=null;pressStopOff();if(moveState&&e.pointerId===moveState.id){save(active);moveState=null;busy(false);scheduleShow()}}
   document.addEventListener('pointerup',endPointer,true);document.addEventListener('pointercancel',endPointer,true);
+  window.addEventListener('blur',pressStopOff);
   document.addEventListener('click',e=>{if(suppressClick){suppressClick=false;e.preventDefault();e.stopImmediatePropagation()}},true);
 
   handles.forEach(h=>h.addEventListener('pointerdown',e=>{if(!active)return;busy(true);const m=metric(active),r=active.getBoundingClientRect();
@@ -10114,9 +10130,10 @@ html.ups-edit-busy .settings-section{
   function replay(el,cls='ups-v32-enter'){
     if(!el)return;
     el.classList.remove(cls);
-    void el.offsetWidth;
-    el.classList.add(cls);
-    setTimeout(()=>el.classList.remove(cls),500);
+    requestAnimationFrame(()=>{
+      el.classList.add(cls);
+      setTimeout(()=>el.classList.remove(cls),500);
+    });
   }
 
   function animateCurrentView(){
@@ -10132,10 +10149,17 @@ html.ups-edit-busy .settings-section{
   document.addEventListener('click',e=>{
     const hit=e.target.closest?.('button,.btn,.auth-btn,.switch-btn,.sdx-nav a,.app-tile,.file');
     if(hit && !document.documentElement.classList.contains('ups-edit-busy')){
-      hit.classList.remove('ups-v32-clicked');
-      void hit.offsetWidth;
-      hit.classList.add('ups-v32-clicked');
-      setTimeout(()=>hit.classList.remove('ups-v32-clicked'),220);
+      try{
+        hit.getAnimations?.().forEach(a=>{ if(a.effect?.target===hit && a.id==='ups-v33-click') a.cancel(); });
+        const a=hit.animate(
+          [{filter:'brightness(1)'},{filter:'brightness(1.18)'},{filter:'brightness(1)'}],
+          {duration:180,easing:'ease-out'}
+        );
+        a.id='ups-v33-click';
+      }catch(_){
+        hit.classList.add('ups-v32-clicked');
+        setTimeout(()=>hit.classList.remove('ups-v32-clicked'),180);
+      }
     }
     if(e.target.closest?.('.sdx-nav a')){
       requestAnimationFrame(()=>requestAnimationFrame(animateCurrentView));
@@ -10204,3 +10228,85 @@ html.ups-edit-busy .settings-section{
 
 </body>
 </html>
+<!-- ===== UPS v35 HARD PRESS FREEZE: knopka bosib turilganda HAMMA dvijeniya to'xtaydi ===== -->
+<style id="ups-v35-hard-press-freeze-style">
+html.ups-hard-press-freeze *,
+html.ups-hard-press-freeze *::before,
+html.ups-hard-press-freeze *::after{
+  animation-play-state:paused!important;
+  transition:none!important;
+  scroll-behavior:auto!important;
+}
+</style>
+<script id="ups-v35-hard-press-freeze-script">
+(()=>{
+  if(window.__upsV35HardPressFreeze)return;
+  window.__upsV35HardPressFreeze=true;
+
+  let held=false;
+  let pausedAnimations=[];
+
+  const isPressable=(node)=> node instanceof Element && !!node.closest(
+    'button,.btn,.auth-btn,.switch-btn,.action-btn,.small-btn,.gdrive-btn,.apps-add,.app-tile,.sdx-nav a,a,[role="button"],label,input[type="button"],input[type="submit"]'
+  );
+
+  function freezeAll(){
+    if(held)return;
+    held=true;
+    document.documentElement.classList.add('ups-hard-press-freeze');
+
+    // CSS animationlardan tashqari Web Animations API bilan ishlayotgan
+    // barcha animatsiyalarni ham bosib turish davomida pauza qilamiz.
+    pausedAnimations=[];
+    try{
+      document.getAnimations({subtree:true}).forEach(anim=>{
+        try{
+          if(anim.playState==='running'){
+            anim.pause();
+            pausedAnimations.push(anim);
+          }
+        }catch(_){}
+      });
+    }catch(_){}
+  }
+
+  function unfreezeAll(){
+    if(!held)return;
+    held=false;
+    document.documentElement.classList.remove('ups-hard-press-freeze');
+    const list=pausedAnimations;
+    pausedAnimations=[];
+    list.forEach(anim=>{
+      try{
+        if(anim.playState==='paused')anim.play();
+      }catch(_){}
+    });
+  }
+
+  // MUHIM: bu listener hech qachon preventDefault/stopPropagation qilmaydi.
+  // Shuning uchun knopkaning click funksiyasi ishlashda davom etadi.
+  document.addEventListener('pointerdown',e=>{
+    if(e.button!==undefined && e.button!==0)return;
+    if(!isPressable(e.target))return;
+    freezeAll();
+  },true);
+
+  document.addEventListener('pointerup',unfreezeAll,true);
+  document.addEventListener('pointercancel',unfreezeAll,true);
+  window.addEventListener('blur',unfreezeAll,true);
+
+  // Sichqoncha oynadan chiqib ketib qo'yib yuborilsa ham freeze qolib ketmasin.
+  document.addEventListener('mouseleave',e=>{
+    if(e.buttons===0)unfreezeAll();
+  },true);
+
+  // Universal editor interactive knopkani bosganda drag/long-press holatini
+  // butunlay tozalaymiz; clickni bloklamaymiz.
+  document.addEventListener('pointerdown',e=>{
+    if(!isPressable(e.target))return;
+    try{
+      if(typeof holdTimer!=='undefined')clearTimeout(holdTimer);
+    }catch(_){}
+  },true);
+})();
+</script>
