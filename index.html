@@ -2,7 +2,7 @@
 <html lang="uz">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=1600, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
 <title>SkyDriveX</title>
 
@@ -2127,6 +2127,79 @@ html,body{min-width:1600px!important;width:1600px!important;}
 #cloudPage .sdx-sidebar{width:215px!important;}
 #cloudPage .header{left:215px!important;width:1385px!important;}
 #cloudPage .container{margin-left:215px!important;width:1385px!important;max-width:1385px!important;box-sizing:border-box!important;}
+</style>
+
+<style id="ups-responsive-device-modes">
+/* ===== Device responsive modes: mobile + tablet + TV ===== */
+html,body{max-width:100%;overflow-x:hidden}
+
+/* PHONE / SMALL TABLET */
+@media (max-width: 900px){
+  html,body,#authPage,#cloudPage{width:100%!important;min-width:0!important;max-width:100%!important}
+  #authPage{padding:16px!important;min-height:100dvh!important;align-items:center!important;justify-content:center!important}
+  .auth-card{width:min(100%,430px)!important;max-width:430px!important;margin:auto!important;padding:24px 18px!important;border-radius:20px!important}
+  .auth-logo{font-size:26px!important}
+  .auth-title{font-size:13px!important;margin-bottom:18px!important}
+  .input,.auth-btn{font-size:16px!important}
+
+  .sdx-sidebar{left:0!important;right:0!important;top:auto!important;bottom:0!important;width:100%!important;height:68px!important;min-width:0!important;display:flex!important;flex-direction:row!important;padding:8px 10px!important;border-right:0!important;border-top:1px solid var(--sdx-line)!important;z-index:200!important}
+  .sdx-brand,.sdx-side-storage{display:none!important}
+  .sdx-nav{width:100%!important;display:flex!important;flex-direction:row!important;justify-content:space-around!important;gap:2px!important;overflow-x:auto!important}
+  .sdx-nav a{flex:1 0 auto!important;min-width:54px!important;justify-content:center!important;padding:9px 6px!important;font-size:18px!important}
+  .sdx-nav a span{display:none!important}
+
+  .header{left:0!important;width:100%!important;max-width:100%!important;height:58px!important;padding:0 12px!important;position:sticky!important;top:0!important}
+  .header-right{gap:8px!important}
+  .x-top-search{width:min(44vw,210px)!important}
+  .container{margin:0!important;margin-left:0!important;width:100%!important;max-width:100%!important;padding:14px 12px 88px!important}
+
+  .x-greeting{gap:10px!important}.x-greeting h1{font-size:15px!important}.x-badge{display:none!important}
+  .sdx-stats{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+  .stat-glass{min-height:78px!important;padding:12px!important}
+  .x-dashboard-grid,.x-bottom-grid{grid-template-columns:1fr!important}
+  .apps-card.x-top-apps .apps-grid,.apps-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .app-tile{min-height:92px!important}
+  .feature74-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .f74-statgrid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .settings-grid{grid-template-columns:1fr!important}
+  .settings-section.full{grid-column:auto!important}
+  .settings-row{flex-direction:column!important}.settings-row>*{width:100%!important}
+  .video-audio-settings,.music-wallpaper-settings{grid-template-columns:1fr!important}
+  .video-audio-toggle,.music-toggle{justify-content:space-between!important}
+  .toolbar{flex-direction:column!important}.search,.action-btn{width:100%!important;min-width:0!important}
+  .file{align-items:flex-start!important;flex-direction:column!important}.file-left,.file-actions{width:100%!important}.file-actions .btn{flex:1!important}
+  .files-header{align-items:flex-start!important}
+  .upload-btn{display:block!important;width:100%!important;margin:6px 0!important}
+  .sdx-video-sound-float{right:10px!important;top:66px!important;width:34px!important;height:34px!important;font-size:15px!important}
+}
+
+/* VERY SMALL PHONES */
+@media (max-width: 480px){
+  .auth-card{padding:22px 16px!important}
+  .auth-logo{font-size:23px!important}
+  .x-top-search{width:42vw!important}
+  .sdx-stats{grid-template-columns:1fr 1fr!important}
+  .apps-card.x-top-apps .apps-grid,.apps-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .feature74-grid,.f74-statgrid{grid-template-columns:1fr!important}
+  .modal,.feature74-box{padding-left:10px!important;padding-right:10px!important}
+}
+
+/* TV / VERY LARGE SCREENS */
+@media (min-width: 1900px){
+  #authPage{min-height:100vh!important;padding:40px!important}
+  .auth-card{max-width:560px!important;padding:44px!important;border-radius:28px!important}
+  .auth-logo{font-size:40px!important}.auth-title{font-size:18px!important}.input,.auth-btn{font-size:20px!important;padding:18px!important}
+  .sdx-sidebar{width:280px!important;padding:34px 24px!important}
+  .sdx-brand{font-size:25px!important}.sdx-nav a{font-size:16px!important;padding:15px 16px!important}
+  .header{left:280px!important;width:calc(100% - 280px)!important;height:84px!important;padding:0 40px!important}
+  .container{margin-left:280px!important;padding:34px 42px 84px!important}
+  .x-greeting h1{font-size:24px!important}.x-greeting p{font-size:15px!important}.x-badge{font-size:13px!important;padding:9px 14px!important}
+  .sdx-stats{gap:14px!important}.stat-glass{min-height:116px!important;padding:20px!important}.stat-glass small{font-size:14px!important}.stat-glass strong{font-size:25px!important}.stat-sub{font-size:12px!important}
+  .x-card-title,.apps-card.x-top-apps .apps-head h2,.files-header h2,.gdrive-head h2{font-size:18px!important}
+  .app-tile{min-height:130px!important}.app-icon{font-size:38px!important}.app-name{font-size:13px!important}
+  .x-recent-table{font-size:14px!important}.x-recent-table th{font-size:12px!important}
+  .sdx-video-sound-float{width:42px!important;height:42px!important;font-size:19px!important;right:20px!important;top:96px!important}
+}
 </style>
 </head>
 
@@ -10012,16 +10085,33 @@ html.ups-edit-busy *{animation-play-state:paused!important}
       }
     }finally{applying=false}
     if(changed){
-      /* Barcha yopiq editorlar ham cloud qiymatlarini to‘liq qayta o‘qishi uchun faqat bir marta refresh. */
-      const token=`ups_ui_cloud_${u.id}_${lastCloudStamp}`;
-      if(sessionStorage.getItem(token)!=="1"){sessionStorage.setItem(token,"1");location.reload();return;}
+      /* v41: cloud sozlamalari kelganda sahifani reload QILMAYMIZ.
+         Ko‘rinishni shu zahoti mavjud funksiyalar orqali yangilaymiz. */
+      try{if(typeof applyVisualSettings==="function")applyVisualSettings()}catch(_){ }
+      try{if(typeof applyCustomTheme==="function")applyCustomTheme()}catch(_){ }
+      try{if(typeof window.upsUniversalEditRestore==="function")window.upsUniversalEditRestore()}catch(_){ }
     }
     try{if(typeof applyLanguage==="function")applyLanguage(localStorage.getItem("ups_language")||"uz")}catch(_){ }
   }
 
+  let authPullTimer=0,lastAuthPullAt=0;
+  function queueAuthPull(){
+    clearTimeout(authPullTimer);
+    authPullTimer=setTimeout(async()=>{
+      const now=Date.now();
+      if(now-lastAuthPullAt<1200)return;
+      lastAuthPullAt=now;
+      try{await pull()}catch(_){ }
+    },180);
+  }
   async function boot(){
-    try{const {data:{session}}=await supabaseClient.auth.getSession();if(session?.user)await pull()}catch(_){ }
-    try{supabaseClient.auth.onAuthStateChange((event,session)=>{if(session?.user && (event==="SIGNED_IN"||event==="INITIAL_SESSION"||event==="TOKEN_REFRESHED"))setTimeout(pull,60)})}catch(_){ }
+    try{const {data:{session}}=await supabaseClient.auth.getSession();if(session?.user){lastAuthPullAt=Date.now();await pull()}}catch(_){ }
+    /* SIGNED_IN / INITIAL_SESSION bir vaqtda ketma-ket kelishi mumkin.
+       Debounce qilamiz va hech qachon location.reload() ishlatmaymiz. */
+    try{supabaseClient.auth.onAuthStateChange((event,session)=>{
+      if(!session?.user)return;
+      if(event==="SIGNED_IN"||event==="INITIAL_SESSION"||event==="TOKEN_REFRESHED")queueAuthPull();
+    })}catch(_){ }
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot,{once:true});else boot();
   window.upsCloudSyncNow=push;
@@ -10090,6 +10180,10 @@ html.ups-edit-busy *{animation-play-state:paused!important}
   const mo=new MutationObserver(()=>hide());
   mo.observe(document.documentElement,{subtree:true,childList:true});
 })();
+</script>
+
+<script id="ups-v41-no-login-refresh-marker">
+window.UPS_NO_LOGIN_AUTO_REFRESH_V41=true;
 </script>
 </body>
 </html>
