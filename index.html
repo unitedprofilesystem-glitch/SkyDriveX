@@ -2221,35 +2221,71 @@ html,body{max-width:100%;overflow-x:hidden}
 }
 </style>
 
+
+<style id="ups-v49-fast-drive-player-style">
+.ups-drive-fast-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px;padding:10px 12px;border:1px solid rgba(96,165,250,.18);border-radius:12px;background:rgba(12,29,55,.62)}
+.ups-drive-fast-head b{display:block;font-size:13px}.ups-drive-fast-head small{display:block;color:#8fa3c2;font-size:11px;margin-top:4px}
+.ups-drive-fast-head .btn{text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+.ups-drive-video-shell{width:100%;aspect-ratio:16/9;min-height:220px;border-radius:14px;overflow:hidden;background:#000;border:1px solid rgba(96,165,250,.16)}
+.ups-drive-video-frame{display:block;width:100%;height:100%;border:0;background:#000}
+@media(max-width:900px){.ups-drive-fast-head{align-items:stretch}.ups-drive-fast-head .btn{width:100%}.ups-drive-video-shell{min-height:200px}}
+</style>
+
 </head>
 
 <body>
 
 <!-- ===== v24 FAST VIDEO WALLPAPER BOOT ===== -->
 <video id="ctVideoWallpaper" muted autoplay loop playsinline preload="auto" aria-hidden="true"></video>
-<script id="ups-v24-fast-video-boot">
+<script id="ups-v49-ultra-fast-video-boot">
 (function(){
   try{
     if(localStorage.getItem("sdx_video_wallpaper_enabled")!=="1")return;
     const v=document.getElementById("ctVideoWallpaper"); if(!v)return;
     const a=(()=>{try{return JSON.parse(localStorage.getItem("sdx_video_audio_settings_v1")||"{}")||{}}catch(_){return {}}})();
-    /* Muted first = Chrome/TV autoplay uchun eng tez va ishonchli start. Engine yuklangach user sozlamasi qayta qo‘llanadi. */
-    v.muted=true; v.defaultMuted=true; v.volume=Math.max(0,Math.min(1,(Number(a.volume)||50)/100));
+    v.muted=true; v.defaultMuted=true;
+    v.volume=Math.max(0,Math.min(1,(Number(a.volume)||50)/100));
     v.autoplay=true; v.loop=a.loop!==false; v.playsInline=true; v.preload="auto";
+    v.setAttribute("playsinline",""); v.setAttribute("webkit-playsinline","");
     document.body.classList.add("ct-video-active");
+
+    let localWon=false, cloudTimer=null;
+    const tryPlay=()=>{try{const p=v.play();if(p&&p.catch)p.catch(()=>{});}catch(_){}};
+
+    // Oldingi sessiyadan qolgan 24 soatlik signed URL: IDB kechiksa ham fon video tarmoqdan darrov boshlanadi.
+    let fastCloud=null;
+    try{
+      const x=JSON.parse(localStorage.getItem("sdx_video_fast_cloud_v1")||"null");
+      if(x&&x.url&&Number(x.expiresAt)>Date.now()+60000) fastCloud=x;
+    }catch(_){ }
+
+    const useCloud=()=>{
+      if(localWon||!fastCloud||v.src)return;
+      v.src=fastCloud.url;
+      window.__upsFastCloudVideo=true;
+      tryPlay();
+    };
+
+    // Lokal IndexedDB odatda eng tez. 35ms ichida kelmasa, signed URL bilan kutmasdan stream boshlaymiz.
+    if(fastCloud) cloudTimer=setTimeout(useCloud,35);
+
     const req=indexedDB.open("sdx_video_wallpaper_db_v1",1);
     req.onupgradeneeded=()=>{const db=req.result;if(!db.objectStoreNames.contains("wallpapers"))db.createObjectStore("wallpapers")};
+    req.onerror=()=>useCloud();
     req.onsuccess=()=>{
       const db=req.result, tx=db.transaction("wallpapers","readonly"), get=tx.objectStore("wallpapers").get("main");
       get.onsuccess=()=>{
         const rec=get.result;
         if(rec&&rec.blob){
+          localWon=true;
+          if(cloudTimer)clearTimeout(cloudTimer);
           const url=URL.createObjectURL(rec.blob);
           window.__upsFastVideoUrl=url; window.__upsFastVideoLoaded=true;
-          v.src=url; v.load();
-          const p=v.play(); if(p&&p.catch)p.catch(()=>{});
-        }
+          if(v.src!==url){v.src=url;}
+          tryPlay();
+        }else useCloud();
       };
+      get.onerror=()=>useCloud();
       tx.oncomplete=()=>db.close();
     };
   }catch(_){ }
@@ -5920,6 +5956,24 @@ async function openGoogleDriveFile(file){
   modal.classList.remove("hidden");
 
   try{
+    // KATTA GOOGLE DRIVE VIDEO: blob() bilan 3 GB ni to‘liq RAM'ga yuklamaymiz.
+    // Google Drive'ning o‘z preview player'i stream/transcode qiladi va video tezroq boshlanadi.
+    if(mime.startsWith("video/")){
+      const drivePreview=`https://drive.google.com/file/d/${encodeURIComponent(file.id)}/preview?autoplay=1`;
+      const driveOpen=file.webViewLink||`https://drive.google.com/file/d/${encodeURIComponent(file.id)}/view`;
+      const sizeText=file.size?formatSize(Number(file.size)):"Video";
+      content.innerHTML=`
+        <div class="ups-drive-fast-head">
+          <div><b>⚡ Tezkor Google Drive Player</b><small>${escapeHtml(sizeText)} · fayl to‘liq yuklanishini kutmaydi</small></div>
+          <a class="btn" href="${escapeHtml(driveOpen)}" target="_blank" rel="noopener noreferrer">Drive'da ochish ↗</a>
+        </div>
+        <div class="ups-drive-video-shell">
+          <iframe class="ups-drive-video-frame" src="${drivePreview}" title="${escapeHtml(file.name||'Google Drive video')}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="eager" referrerpolicy="no-referrer"></iframe>
+        </div>`;
+      return;
+    }
+
+    // Rasm/audio/PDF uchun eski API preview saqlanadi.
     const response=await gdriveFetch(`https://www.googleapis.com/drive/v3/files/${encodeURIComponent(file.id)}?alt=media`);
     if(!response.ok){
       const data=await response.json().catch(()=>({}));
@@ -5930,9 +5984,7 @@ async function openGoogleDriveFile(file){
     googleDrivePreviewObjectUrl=URL.createObjectURL(blob);
     const safeUrl=googleDrivePreviewObjectUrl;
 
-    if(mime.startsWith("video/")){
-      content.innerHTML=`<video class="preview-video" controls autoplay playsinline src="${safeUrl}"></video>`;
-    }else if(mime.startsWith("image/")){
+    if(mime.startsWith("image/")){
       content.innerHTML=`<img class="preview-image" src="${safeUrl}" alt="">`;
     }else if(mime.startsWith("audio/")){
       content.innerHTML=`<audio class="preview-audio" controls autoplay src="${safeUrl}"></audio>`;
@@ -6286,6 +6338,7 @@ async function sdxLoadWallpaperFromCloud(){
         localStorage.setItem(CT_VIDEO_AUDIO_SETTINGS_KEY,JSON.stringify(cloudSettings));
       }
       localStorage.setItem("sdx_video_wallpaper_enabled","1");
+      try{localStorage.setItem("sdx_video_fast_cloud_v1",JSON.stringify({url:signed,name,expiresAt:Date.now()+23*60*60*1000}));}catch(_){ }
       await ctApplyVideoUrl(signed,name);
       /* Keyingi kirishda login ekranidayoq kutmasdan chiqishi uchun shu qurilmaga ham cache qilamiz. */
       try{
@@ -6743,6 +6796,7 @@ async function ctRemoveVideoWallpaper(ask=true){
   if(ask&&!confirm("Video wallpaper barcha qurilmalardan olib tashlansinmi?"))return;
   ctDeactivateVideoWallpaper();
   localStorage.removeItem("sdx_video_wallpaper_enabled");
+  localStorage.removeItem("sdx_video_fast_cloud_v1");
   try{await ctVideoDbDelete()}catch(_){}
   try{await sdxRemoveCloudWallpaper("video")}catch(_){}
   if(ctVideoObjectUrl){URL.revokeObjectURL(ctVideoObjectUrl);ctVideoObjectUrl="";}
@@ -10733,5 +10787,288 @@ window.UPS45ToggleMenu=function(ev){
 
 
 <!-- v47 DEVICE DESIGN GROUPS: PC+TV share desktop store; Phone+Tablet share mobile store. -->
+
+
+<!-- ===== v48 ENHANCED VIDEO + SECURE SHARE WRAPPER + EXPIRY + QR ===== -->
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+<style id="ups-v48-video-share-style">
+.ups-v48-video-shell{display:grid;gap:10px}
+.ups-v48-video-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px;border:1px solid rgba(96,165,250,.16);border-radius:14px;background:rgba(7,22,45,.72)}
+.ups-v48-video-tools button,.ups-v48-video-tools select{min-height:38px;border:1px solid rgba(96,165,250,.18);border-radius:10px;background:#10233f;color:#eef6ff;padding:8px 11px;font:inherit}
+.ups-v48-video-tools button{cursor:pointer}.ups-v48-video-tools .ups-v48-grow{flex:1;min-width:120px}.ups-v48-video-time{color:#9fb2cd;font-size:12px;min-width:98px;text-align:center}
+.ups-v48-share-modal{position:fixed;inset:0;z-index:2147482000;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(2,7,18,.76);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.ups-v48-share-modal.open{display:flex}
+.ups-v48-share-box{width:min(620px,96vw);max-height:92vh;overflow:auto;border:1px solid rgba(96,165,250,.24);border-radius:22px;background:linear-gradient(145deg,#07172f,#0a1d39);box-shadow:0 30px 90px rgba(0,0,0,.48);padding:20px;color:#f3f8ff}
+.ups-v48-share-head{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:14px}.ups-v48-share-head h3{margin:0;font-size:19px}.ups-v48-close{border:0;border-radius:10px;background:#33171d;color:#ffb2b2;padding:9px 12px;cursor:pointer}
+.ups-v48-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.ups-v48-field{display:grid;gap:6px}.ups-v48-field.full{grid-column:1/-1}.ups-v48-field label{font-size:12px;color:#9fb2cd}.ups-v48-field input,.ups-v48-field select{width:100%;min-height:44px;border:1px solid rgba(96,165,250,.18);border-radius:11px;background:#061327;color:#f4f8ff;padding:10px 12px;font-size:14px;outline:none}
+.ups-v48-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}.ups-v48-actions button{flex:1;min-width:130px;min-height:44px;border:0;border-radius:11px;background:#146fe0;color:#fff;font-weight:800;padding:10px 14px;cursor:pointer}.ups-v48-actions button.secondary{background:#142844}.ups-v48-status{min-height:18px;margin-top:10px;color:#8fe7f3;font-size:12px;line-height:1.5}.ups-v48-link-row{display:none;margin-top:12px;gap:8px;align-items:stretch}.ups-v48-link-row.show{display:flex}.ups-v48-link-row input{flex:1;min-width:0;border:1px solid rgba(96,165,250,.18);border-radius:11px;background:#061327;color:#dcecff;padding:10px;font-size:12px}.ups-v48-link-row button{border:0;border-radius:11px;background:#18385f;color:#fff;padding:0 14px;cursor:pointer}.ups-v48-qr-wrap{display:none;margin-top:14px;text-align:center}.ups-v48-qr-wrap.show{display:block}.ups-v48-qr-wrap canvas{background:#fff;padding:8px;border-radius:14px;max-width:100%;height:auto}.ups-v48-note{margin-top:10px;color:#7f96b6;font-size:11px;line-height:1.45}
+.ups-v48-share-view{position:fixed;inset:0;z-index:2147483000;display:none;overflow:auto;padding:24px 14px;background:radial-gradient(circle at 80% 0,rgba(24,126,255,.16),transparent 36%),#030a16;color:#f3f8ff}.ups-v48-share-view.open{display:block}.ups-v48-share-view-inner{width:min(860px,96vw);margin:6vh auto 30px;border:1px solid rgba(96,165,250,.20);border-radius:24px;background:rgba(7,23,47,.92);padding:22px;box-shadow:0 30px 90px rgba(0,0,0,.44)}.ups-v48-share-view h2{margin:0 0 6px}.ups-v48-share-view p{color:#9fb2cd}.ups-v48-share-password{display:grid;gap:10px;max-width:420px;margin:18px 0}.ups-v48-share-password input{min-height:46px;border:1px solid rgba(96,165,250,.20);border-radius:12px;background:#061327;color:#fff;padding:10px 12px;font-size:16px}.ups-v48-share-password button,.ups-v48-share-download{display:inline-flex;align-items:center;justify-content:center;min-height:44px;border:0;border-radius:12px;background:#1478ef;color:#fff;padding:10px 16px;font-weight:800;text-decoration:none;cursor:pointer}.ups-v48-shared-media{width:100%;max-height:72vh;border-radius:16px;background:#000;margin-top:14px}.ups-v48-shared-image{display:block;max-width:100%;max-height:72vh;margin:14px auto 0;border-radius:16px}.ups-v48-expiry{font-size:12px;color:#7dd3fc;margin-top:8px}
+@media(max-width:700px){.ups-v48-grid{grid-template-columns:1fr}.ups-v48-field.full{grid-column:auto}.ups-v48-share-box{padding:16px;border-radius:18px}.ups-v48-actions{flex-direction:column}.ups-v48-actions button{width:100%}.ups-v48-video-tools{display:grid;grid-template-columns:repeat(3,1fr)}.ups-v48-video-tools .ups-v48-grow{grid-column:1/-1;width:100%}.ups-v48-video-time{grid-column:1/-1;width:100%}.ups-v48-share-view-inner{margin-top:2vh;padding:16px}}
+</style>
+
+<div id="upsV48ShareModal" class="ups-v48-share-modal" aria-hidden="true">
+  <div class="ups-v48-share-box" role="dialog" aria-modal="true" aria-labelledby="upsV48ShareTitle">
+    <div class="ups-v48-share-head"><h3 id="upsV48ShareTitle">🔗 Faylni ulashish</h3><button id="upsV48ShareClose" class="ups-v48-close" type="button">✕</button></div>
+    <div class="ups-v48-grid">
+      <div class="ups-v48-field full"><label>Fayl</label><input id="upsV48ShareName" readonly></div>
+      <div class="ups-v48-field"><label>Link muddati</label><select id="upsV48ShareExpiry"><option value="3600">1 soat</option><option value="21600">6 soat</option><option value="86400" selected>24 soat</option><option value="259200">3 kun</option><option value="604800">7 kun</option><option value="2592000">30 kun</option></select></div>
+      <div class="ups-v48-field"><label>Parol (ixtiyoriy)</label><input id="upsV48SharePassword" type="password" minlength="4" placeholder="Masalan: 2486"></div>
+    </div>
+    <div class="ups-v48-actions"><button id="upsV48CreateShare" type="button">🔗 Link yaratish</button><button id="upsV48ShowQr" class="secondary" type="button" disabled>▦ QR code</button></div>
+    <div id="upsV48ShareStatus" class="ups-v48-status"></div>
+    <div id="upsV48LinkRow" class="ups-v48-link-row"><input id="upsV48ShareLink" readonly><button id="upsV48CopyShare" type="button">Nusxa</button></div>
+    <div id="upsV48QrWrap" class="ups-v48-qr-wrap"><canvas id="upsV48QrCanvas"></canvas></div>
+    <div class="ups-v48-note">Parol qo‘yilsa, share URL AES‑GCM bilan shifrlanadi. Muddat tugaganda asl signed URL ham ishlamay qoladi.</div>
+  </div>
+</div>
+
+<div id="upsV48ShareView" class="ups-v48-share-view" aria-hidden="true"><div class="ups-v48-share-view-inner"><div id="upsV48ShareViewBody"></div></div></div>
+
+<script id="ups-v48-video-share-script">
+(function(){
+  const $=id=>document.getElementById(id);
+  const modal=$('upsV48ShareModal'), closeBtn=$('upsV48ShareClose'), createBtn=$('upsV48CreateShare'), qrBtn=$('upsV48ShowQr'), copyBtn=$('upsV48CopyShare');
+  let pendingShare=null, currentShareUrl='';
+
+  function b64url(bytes){let s='';bytes.forEach(b=>s+=String.fromCharCode(b));return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
+  function fromB64url(s){s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';const bin=atob(s),out=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)out[i]=bin.charCodeAt(i);return out}
+  function encObj(o){return b64url(new TextEncoder().encode(JSON.stringify(o)))}
+  function decObj(s){return JSON.parse(new TextDecoder().decode(fromB64url(s)))}
+  async function deriveKey(password,salt){const base=await crypto.subtle.importKey('raw',new TextEncoder().encode(password),'PBKDF2',false,['deriveKey']);return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:120000,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['encrypt','decrypt'])}
+  async function encryptUrl(url,password){const salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12)),key=await deriveKey(password,salt),ct=await crypto.subtle.encrypt({name:'AES-GCM',iv},key,new TextEncoder().encode(url));return {s:b64url(salt),i:b64url(iv),c:b64url(new Uint8Array(ct))}}
+  async function decryptUrl(payload,password){const salt=fromB64url(payload.s),iv=fromB64url(payload.i),ct=fromB64url(payload.c),key=await deriveKey(password,salt),plain=await crypto.subtle.decrypt({name:'AES-GCM',iv},key,ct);return new TextDecoder().decode(plain)}
+  function fileKind(name=''){const ext=(name.split('.').pop()||'').toLowerCase();if(['mp4','webm','mov','m4v','ogv'].includes(ext))return 'video';if(['jpg','jpeg','png','gif','webp','bmp','svg'].includes(ext))return 'image';if(['mp3','wav','ogg','m4a','aac','flac'].includes(ext))return 'audio';return 'file'}
+  function basePageUrl(){const u=new URL(location.href);u.searchParams.delete('sdxshare');u.hash='';return u.origin+u.pathname}
+  function formatExpiry(ts){try{return new Date(ts).toLocaleString()}catch{return ''}}
+
+  async function getSignedUrl(storage,path,fileId,seconds){
+    if(storage==='b2'){
+      if(typeof b2Json!=='function')throw new Error('Backblaze share funksiyasi topilmadi');
+      const d=await b2Json('/share',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fileId,expiresIn:seconds})});
+      if(!d?.url)throw new Error('Backblaze link qaytarmadi');
+      return d.url;
+    }
+    const {data,error}=await supabaseClient.storage.from(BUCKET).createSignedUrl(path,seconds);if(error)throw error;return data.signedUrl;
+  }
+
+  function openShare(storage,path,fileId,name){pendingShare={storage,path,fileId,name};currentShareUrl='';$('upsV48ShareName').value=name||'Fayl';$('upsV48SharePassword').value='';$('upsV48ShareStatus').textContent='';$('upsV48ShareLink').value='';$('upsV48LinkRow').classList.remove('show');$('upsV48QrWrap').classList.remove('show');qrBtn.disabled=true;modal.classList.add('open');modal.setAttribute('aria-hidden','false')}
+  function closeShare(){modal.classList.remove('open');modal.setAttribute('aria-hidden','true')}
+  closeBtn?.addEventListener('click',closeShare);modal?.addEventListener('click',e=>{if(e.target===modal)closeShare()});
+
+  createBtn?.addEventListener('click',async()=>{
+    if(!pendingShare)return;
+    const seconds=Math.max(60,Number($('upsV48ShareExpiry').value)||86400),password=$('upsV48SharePassword').value||'';
+    if(password && password.length<4){$('upsV48ShareStatus').textContent='Parol kamida 4 ta belgidan iborat bo‘lsin.';return}
+    createBtn.disabled=true;$('upsV48ShareStatus').textContent='⏳ Share link tayyorlanmoqda...';
+    try{
+      const signed=await getSignedUrl(pendingShare.storage,pendingShare.path,pendingShare.fileId,seconds),expires=Date.now()+seconds*1000;
+      let payload={v:2,n:pendingShare.name||'Fayl',k:fileKind(pendingShare.name),e:expires,p:password?1:0};
+      if(password)Object.assign(payload,await encryptUrl(signed,password));else payload.u=signed;
+      currentShareUrl=basePageUrl()+'?sdxshare='+encodeURIComponent(encObj(payload));
+      $('upsV48ShareLink').value=currentShareUrl;$('upsV48LinkRow').classList.add('show');qrBtn.disabled=false;$('upsV48ShareStatus').textContent=`✅ Tayyor · ${formatExpiry(expires)} gacha ishlaydi${password?' · 🔒 Parolli':''}`;
+      try{const u=await currentUser();if(u&&typeof dbInsert==='function')await dbInsert('sdx_shares',{user_id:u.id,storage:pendingShare.storage,path:pendingShare.storage==='supabase'?pendingShare.path.split('/').slice(1).join('/'):pendingShare.path,name:pendingShare.name,expires_at:new Date(expires).toISOString()})}catch(_){ }
+      try{if(typeof logActivity==='function')await logActivity('share',pendingShare.storage,pendingShare.path,{name:pendingShare.name,seconds,password:!!password})}catch(_){ }
+    }catch(e){console.error(e);$('upsV48ShareStatus').textContent='❌ '+(e?.message||'Share link yaratilmadi')}
+    finally{createBtn.disabled=false}
+  });
+  copyBtn?.addEventListener('click',async()=>{if(!currentShareUrl)return;try{await navigator.clipboard.writeText(currentShareUrl);$('upsV48ShareStatus').textContent='✅ Link nusxalandi'}catch{$('upsV48ShareLink').select();document.execCommand('copy')}});
+  qrBtn?.addEventListener('click',async()=>{if(!currentShareUrl)return;const wrap=$('upsV48QrWrap'),canvas=$('upsV48QrCanvas');wrap.classList.add('show');try{if(!window.QRCode?.toCanvas)throw new Error('QR kutubxonasi yuklanmadi');await window.QRCode.toCanvas(canvas,currentShareUrl,{width:240,margin:1,errorCorrectionLevel:'M'})}catch(e){wrap.innerHTML='<div style="color:#ffb4b4">QR yaratilmadi: '+String(e.message||e)+'</div>'}});
+
+  // Replace old basic share dialog with the new share modal.
+  window.sdxShareItem=function(storage,path,fileId,name){openShare(storage,path,fileId,name)};
+
+  function enhanceVideo(v){
+    if(!v || v.dataset.upsV48==='1')return;v.dataset.upsV48='1';v.setAttribute('playsinline','');v.setAttribute('preload','metadata');
+    const shell=document.createElement('div');shell.className='ups-v48-video-shell';v.parentNode.insertBefore(shell,v);shell.appendChild(v);
+    const tools=document.createElement('div');tools.className='ups-v48-video-tools';tools.innerHTML='<button type="button" data-a="back">↶ 10s</button><button type="button" data-a="play">⏯</button><button type="button" data-a="fwd">10s ↷</button><select data-a="speed" aria-label="Tezlik"><option value="0.5">0.5×</option><option value="0.75">0.75×</option><option value="1" selected>1×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option><option value="2">2×</option></select><button type="button" data-a="pip">PiP</button><button type="button" data-a="full">⛶</button><input class="ups-v48-grow" data-a="seek" type="range" min="0" max="1000" value="0" aria-label="Video joyi"><span class="ups-v48-video-time">00:00 / 00:00</span>';
+    shell.appendChild(tools);
+    const q=a=>tools.querySelector(`[data-a="${a}"]`),time=tools.querySelector('.ups-v48-video-time');
+    q('back').onclick=()=>v.currentTime=Math.max(0,v.currentTime-10);q('fwd').onclick=()=>v.currentTime=Math.min(v.duration||Infinity,v.currentTime+10);q('play').onclick=()=>v.paused?v.play():v.pause();q('speed').onchange=e=>v.playbackRate=Number(e.target.value)||1;
+    q('full').onclick=()=>{const el=shell;if(el.requestFullscreen)el.requestFullscreen();else if(v.webkitEnterFullscreen)v.webkitEnterFullscreen()};
+    q('pip').onclick=async()=>{try{if(document.pictureInPictureElement)await document.exitPictureInPicture();else if(document.pictureInPictureEnabled&&v.requestPictureInPicture)await v.requestPictureInPicture()}catch(_){}};
+    if(!(document.pictureInPictureEnabled&&v.requestPictureInPicture))q('pip').style.display='none';
+    const fmt=x=>{if(!Number.isFinite(x))return '00:00';x=Math.max(0,Math.floor(x));const h=Math.floor(x/3600),m=Math.floor((x%3600)/60),s=x%60;return h?`${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`:`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`};
+    const sync=()=>{const d=v.duration||0,c=v.currentTime||0;q('seek').value=d?Math.round(c/d*1000):0;time.textContent=`${fmt(c)} / ${fmt(d)}`};v.addEventListener('timeupdate',sync);v.addEventListener('durationchange',sync);q('seek').oninput=e=>{if(v.duration)v.currentTime=(Number(e.target.value)/1000)*v.duration};
+  }
+  function scanVideos(){document.querySelectorAll('.preview-video').forEach(enhanceVideo)}
+  const mo=new MutationObserver(scanVideos);mo.observe(document.documentElement,{subtree:true,childList:true});scanVideos();
+
+  async function showSharedFile(url,payload){
+    const view=$('upsV48ShareView'),body=$('upsV48ShareViewBody');view.classList.add('open');view.setAttribute('aria-hidden','false');
+    let media='';if(payload.k==='video')media=`<video class="ups-v48-shared-media" controls playsinline preload="metadata" src="${url.replace(/"/g,'&quot;')}"></video>`;else if(payload.k==='image')media=`<img class="ups-v48-shared-image" src="${url.replace(/"/g,'&quot;')}" alt="">`;else if(payload.k==='audio')media=`<audio class="ups-v48-shared-media" controls src="${url.replace(/"/g,'&quot;')}"></audio>`;
+    body.innerHTML=`<h2>📄 ${String(payload.n||'Ulashilgan fayl').replace(/[<>&]/g,m=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[m]))}</h2><p>United Profile System orqali ulashilgan fayl.</p><div class="ups-v48-expiry">⏱ Muddati: ${formatExpiry(payload.e)}</div>${media}<div style="margin-top:14px"><a class="ups-v48-share-download" href="${url.replace(/"/g,'&quot;')}" target="_blank" rel="noopener">⬇️ Ochish / yuklab olish</a></div>`;scanVideos();
+  }
+  async function initShareViewer(){
+    const token=new URL(location.href).searchParams.get('sdxshare');if(!token)return;
+    let p;try{p=decObj(token)}catch{$('upsV48ShareView').classList.add('open');$('upsV48ShareViewBody').innerHTML='<h2>❌ Share link noto‘g‘ri</h2>';return}
+    const view=$('upsV48ShareView'),body=$('upsV48ShareViewBody');view.classList.add('open');view.setAttribute('aria-hidden','false');
+    if(p.e && Date.now()>Number(p.e)){body.innerHTML='<h2>⌛ Link muddati tugagan</h2><p>Bu share link endi ishlamaydi.</p>';return}
+    if(!p.p){await showSharedFile(p.u,p);return}
+    body.innerHTML=`<h2>🔒 ${String(p.n||'Ulashilgan fayl').replace(/[<>&]/g,m=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[m]))}</h2><p>Bu fayl parol bilan himoyalangan.</p><div class="ups-v48-expiry">⏱ Muddati: ${formatExpiry(p.e)}</div><div class="ups-v48-share-password"><input id="upsV48ViewerPassword" type="password" placeholder="Parolni kiriting"><button id="upsV48ViewerOpen" type="button">Ochish</button><div id="upsV48ViewerStatus" style="color:#ffb4b4;font-size:12px"></div></div>`;
+    const run=async()=>{const pw=$('upsV48ViewerPassword').value||'';$('upsV48ViewerStatus').textContent='';try{const url=await decryptUrl(p,pw);await showSharedFile(url,p)}catch{$('upsV48ViewerStatus').textContent='Parol noto‘g‘ri'}};$('upsV48ViewerOpen').onclick=run;$('upsV48ViewerPassword').addEventListener('keydown',e=>{if(e.key==='Enter')run()});
+  }
+  initShareViewer();
+})();
+</script>
+
+
+
+<!-- ===== v50 VIDEO RESUME + PRIVATE VAULT ===== -->
+<style id="ups-v50-resume-vault-style">
+.ups-v50-resume-note{display:flex;gap:9px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:10px 12px;margin-top:8px;border:1px solid rgba(96,165,250,.16);border-radius:12px;background:rgba(9,29,57,.78);color:#cfe5ff;font-size:12px}
+.ups-v50-resume-note button{border:1px solid rgba(96,165,250,.20);border-radius:9px;background:#13345f;color:#fff;padding:8px 11px;cursor:pointer}
+.ups-v50-vault-modal{position:fixed;inset:0;z-index:2147482500;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(2,7,18,.80);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.ups-v50-vault-modal.open{display:flex}
+.ups-v50-vault-box{width:min(900px,96vw);max-height:92vh;overflow:auto;border:1px solid rgba(106,170,255,.24);border-radius:24px;background:linear-gradient(145deg,#06152c,#0a1d39);box-shadow:0 30px 100px rgba(0,0,0,.52);padding:20px;color:#f3f8ff}
+.ups-v50-vault-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}.ups-v50-vault-head h2{margin:0;font-size:20px}.ups-v50-vault-close{border:0;border-radius:10px;background:#34171d;color:#ffb7b7;padding:9px 12px;cursor:pointer}
+.ups-v50-vault-lock{max-width:440px;margin:22px auto;display:grid;gap:11px;text-align:center}.ups-v50-vault-lock .lock-icon{font-size:48px}.ups-v50-vault-lock p{color:#96aac7;font-size:13px;line-height:1.5;margin:0}.ups-v50-vault-lock input{width:100%;min-height:48px;border:1px solid rgba(96,165,250,.20);border-radius:12px;background:#061327;color:#fff;padding:10px 12px;font-size:17px;text-align:center;letter-spacing:3px;outline:none}.ups-v50-vault-lock button{min-height:46px;border:0;border-radius:12px;background:linear-gradient(135deg,#176fe4,#2b95ff);color:#fff;font-weight:800;padding:10px 14px;cursor:pointer}.ups-v50-vault-lock .secondary{background:#152a48}.ups-v50-vault-status{min-height:18px;color:#8de9f2;font-size:12px}
+.ups-v50-vault-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}.ups-v50-vault-tools button,.ups-v50-vault-tools label{min-height:42px;border:1px solid rgba(96,165,250,.18);border-radius:11px;background:#122c4d;color:#fff;padding:10px 13px;font-weight:700;cursor:pointer}.ups-v50-vault-tools .primary{background:linear-gradient(135deg,#176fe4,#2b95ff)}.ups-v50-vault-tools input[type=file]{display:none}.ups-v50-vault-path{flex:1;min-width:180px;color:#9eb6d5;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ups-v50-vault-list{display:grid;gap:8px}.ups-v50-vault-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;border:1px solid rgba(96,165,250,.13);border-radius:14px;background:rgba(8,27,54,.68)}.ups-v50-vault-left{display:flex;align-items:center;gap:11px;min-width:0}.ups-v50-vault-icon{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:rgba(36,115,220,.14);flex:0 0 42px}.ups-v50-vault-meta{min-width:0}.ups-v50-vault-name{font-size:14px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ups-v50-vault-size{font-size:11px;color:#899fbd;margin-top:4px}.ups-v50-vault-actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}.ups-v50-vault-actions button{border:0;border-radius:9px;background:#17345a;color:#fff;padding:8px 10px;cursor:pointer}.ups-v50-vault-actions button.danger{background:#3a1b25;color:#ffb0b7}.ups-v50-vault-empty{text-align:center;padding:34px 12px;color:#8499b8}.ups-v50-vault-foot{margin-top:12px;padding-top:12px;border-top:1px solid rgba(96,165,250,.10);color:#7890af;font-size:10px;line-height:1.5}
+@media(max-width:700px){.ups-v50-vault-modal{padding:8px}.ups-v50-vault-box{width:100%;max-height:96vh;border-radius:18px;padding:14px}.ups-v50-vault-row{align-items:flex-start;flex-direction:column}.ups-v50-vault-left,.ups-v50-vault-actions{width:100%}.ups-v50-vault-actions{display:grid;grid-template-columns:1fr 1fr}.ups-v50-vault-actions button{min-height:42px}.ups-v50-vault-tools{display:grid;grid-template-columns:1fr 1fr}.ups-v50-vault-path{grid-column:1/-1;width:100%}}
+</style>
+
+<div id="upsV50VaultModal" class="ups-v50-vault-modal" aria-hidden="true">
+  <div class="ups-v50-vault-box" role="dialog" aria-modal="true" aria-labelledby="upsV50VaultTitle">
+    <div class="ups-v50-vault-head"><h2 id="upsV50VaultTitle">🔐 Private Vault</h2><button id="upsV50VaultClose" class="ups-v50-vault-close" type="button">✕</button></div>
+    <div id="upsV50VaultBody"></div>
+  </div>
+</div>
+
+<script id="ups-v50-resume-vault-script">
+(function(){
+  const $=id=>document.getElementById(id);
+  const VAULT_ROOT='.skydrivex/vault';
+  const PIN_META_KEY='ups_vault_pin_hash_v1';
+  const RESUME_PREFIX='ups_video_resume_v1:';
+  let vaultUnlocked=false, vaultFolder='';
+
+  function esc(s=''){return String(s).replace(/[&<>\"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[m]))}
+  function fmtBytes(n=0){n=Number(n)||0;const u=['B','KB','MB','GB','TB'];let i=0;while(n>=1024&&i<u.length-1){n/=1024;i++}return `${n.toFixed(i?1:0)} ${u[i]}`}
+  function fmtTime(x){x=Math.max(0,Math.floor(Number(x)||0));const h=Math.floor(x/3600),m=Math.floor((x%3600)/60),s=x%60;return h?`${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`:`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`}
+  async function user(){const {data}=await supabaseClient.auth.getSession();return data?.session?.user||null}
+  async function sha256(v){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(String(v)));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
+  function resumeKey(key){return RESUME_PREFIX+key}
+  function saveResume(key,time,duration){if(!key||!Number.isFinite(time)||time<1)return;try{localStorage.setItem(resumeKey(key),JSON.stringify({t:time,d:duration||0,at:Date.now()}))}catch(_){}}
+  function readResume(key){try{return JSON.parse(localStorage.getItem(resumeKey(key))||'null')}catch{return null}}
+  function clearResume(key){try{localStorage.removeItem(resumeKey(key))}catch(_){}}
+
+  function attachResume(v,key,label='Video'){
+    if(!v||!key||v.dataset.upsV50Resume==='1')return;
+    v.dataset.upsV50Resume='1';v.dataset.upsResumeKey=key;
+    let lastSave=0,note=null;
+    const ensureNote=()=>{
+      const shell=v.closest('.ups-v48-video-shell')||v.parentElement;if(!shell)return null;
+      let n=shell.querySelector('.ups-v50-resume-note');if(!n){n=document.createElement('div');n.className='ups-v50-resume-note';shell.appendChild(n)}return n;
+    };
+    const restore=()=>{
+      const r=readResume(key),d=v.duration||0;if(!r||!Number.isFinite(r.t)||r.t<5)return;
+      if(d&&r.t>=d-10){clearResume(key);return}
+      try{v.currentTime=Math.min(r.t,Math.max(0,(d||r.t+1)-1))}catch(_){ }
+      note=ensureNote();if(note){note.innerHTML=`<span>▶️ <b>${esc(label)}</b> · ${fmtTime(r.t)} joyidan davom ettirildi</span><button type="button">↺ Boshidan</button>`;note.querySelector('button').onclick=()=>{clearResume(key);try{v.currentTime=0;v.play?.()}catch(_){ }note.remove();note=null}}
+    };
+    v.addEventListener('loadedmetadata',restore,{once:true});
+    v.addEventListener('timeupdate',()=>{const now=Date.now();if(now-lastSave<3000)return;lastSave=now;saveResume(key,v.currentTime,v.duration)});
+    v.addEventListener('pause',()=>saveResume(key,v.currentTime,v.duration));
+    v.addEventListener('ended',()=>{clearResume(key);if(note)note.remove()});
+    window.addEventListener('pagehide',()=>saveResume(key,v.currentTime,v.duration),{once:true});
+  }
+
+  // Native Supabase / Backblaze video previewlariga stable resume key biriktiramiz.
+  const oldSdxPreview=window.sdxPreview;
+  if(typeof oldSdxPreview==='function'){
+    window.sdxPreview=async function(storage,path,fileId,type,name){
+      const out=await oldSdxPreview.apply(this,arguments);
+      if(type==='video')setTimeout(()=>{const v=document.querySelector('#previewContent .preview-video');if(v)attachResume(v,`${storage}:${path||fileId}`,name||'Video')},0);
+      return out;
+    };
+  }
+
+  // Eski previewFile ishlatiladigan joylar uchun ham resume.
+  const oldPreviewFile=window.previewFile;
+  if(typeof oldPreviewFile==='function'){
+    window.previewFile=async function(path,type,name){const out=await oldPreviewFile.apply(this,arguments);if(type==='video')setTimeout(()=>{const v=document.querySelector('#previewContent .preview-video');if(v)attachResume(v,`supabase:${path}`,name||'Video')},0);return out};
+  }
+
+  // Google Drive preview iframe cross-origin bo'lgani sabab sayt currentTime ni o'qiy olmaydi.
+  // Drive fayli uchun ochilgan vaqtni eslab qolamiz, lekin aniq sekund resume faqat native playerlarda ishlaydi.
+  const oldDriveOpen=window.openGoogleDriveFile;
+  if(typeof oldDriveOpen==='function'){
+    window.openGoogleDriveFile=async function(file){
+      const out=await oldDriveOpen.apply(this,arguments);
+      try{if(String(file?.mimeType||'').toLowerCase().startsWith('video/'))localStorage.setItem('ups_drive_video_last_open:'+file.id,JSON.stringify({at:Date.now(),name:file.name||'Video'}))}catch(_){ }
+      return out;
+    };
+  }
+
+  async function currentPinHash(){
+    const u=await user();if(!u)return '';
+    const fresh=await supabaseClient.auth.getUser().catch(()=>null);const meta=fresh?.data?.user?.user_metadata||u.user_metadata||{};
+    return String(meta[PIN_META_KEY]||'');
+  }
+  async function setPinHash(hash){
+    const {error}=await supabaseClient.auth.updateUser({data:{[PIN_META_KEY]:hash}});if(error)throw error;
+  }
+
+  function lockScreen(hasPin){
+    const b=$('upsV50VaultBody');
+    if(!hasPin){
+      b.innerHTML=`<div class="ups-v50-vault-lock"><div class="lock-icon">🔐</div><h3>Private Vault PIN yarating</h3><p>Vault oddiy fayllar ro‘yxatida ko‘rinmaydi. Keyingi kirishda shu PIN so‘raladi.</p><input id="upsV50PinNew" type="password" inputmode="numeric" minlength="4" maxlength="32" placeholder="Yangi PIN / parol"><input id="upsV50PinNew2" type="password" inputmode="numeric" minlength="4" maxlength="32" placeholder="Qayta kiriting"><button id="upsV50PinCreate" type="button">🔐 Vault yaratish</button><div id="upsV50VaultStatus" class="ups-v50-vault-status"></div></div>`;
+      $('upsV50PinCreate').onclick=async()=>{const a=$('upsV50PinNew').value,b2=$('upsV50PinNew2').value,s=$('upsV50VaultStatus');if(a.length<4){s.textContent='PIN/parol kamida 4 ta belgi bo‘lsin.';return}if(a!==b2){s.textContent='Ikkala PIN bir xil emas.';return}s.textContent='⏳ Saqlanmoqda...';try{await setPinHash(await sha256(a));vaultUnlocked=true;vaultFolder='';await renderVault()}catch(e){s.textContent='❌ '+(e.message||e)}};
+    }else{
+      b.innerHTML=`<div class="ups-v50-vault-lock"><div class="lock-icon">🔒</div><h3>Private Vault qulflangan</h3><p>Vault ichidagi fayllarni ko‘rish uchun PIN/parolni kiriting.</p><input id="upsV50PinOpen" type="password" inputmode="numeric" maxlength="32" placeholder="PIN / parol"><button id="upsV50PinUnlock" type="button">Ochish</button><div id="upsV50VaultStatus" class="ups-v50-vault-status"></div></div>`;
+      const run=async()=>{const s=$('upsV50VaultStatus'),p=$('upsV50PinOpen').value||'';s.textContent='';if(!p)return;const h=await currentPinHash();if(await sha256(p)!==h){s.textContent='❌ PIN/parol noto‘g‘ri';return}vaultUnlocked=true;vaultFolder='';await renderVault()};
+      $('upsV50PinUnlock').onclick=run;$('upsV50PinOpen').addEventListener('keydown',e=>{if(e.key==='Enter')run()});setTimeout(()=>$('upsV50PinOpen')?.focus(),50);
+    }
+  }
+
+  async function vaultList(){
+    const u=await user();if(!u)throw new Error('Avval hisobga kiring.');
+    const rel=[VAULT_ROOT,vaultFolder].filter(Boolean).join('/');
+    const path=`${u.id}/${rel}`;
+    const {data,error}=await supabaseClient.storage.from(BUCKET).list(path,{limit:1000,offset:0,sortBy:{column:'name',order:'asc'}});if(error)throw error;
+    return (data||[]).filter(x=>x?.name&&x.name!=='.keep');
+  }
+  function vaultRelative(name){return [VAULT_ROOT,vaultFolder,name].filter(Boolean).join('/')}
+  async function renderVault(){
+    if(!vaultUnlocked)return;
+    const body=$('upsV50VaultBody');
+    body.innerHTML=`<div class="ups-v50-vault-tools"><button id="upsV50VaultBack" type="button">← Orqaga</button><label class="primary" for="upsV50VaultUpload">⬆️ Fayl yuklash</label><input id="upsV50VaultUpload" type="file" multiple><button id="upsV50VaultFolder" type="button">＋ Papka</button><button id="upsV50VaultLock" type="button">🔒 Qulflash</button><div class="ups-v50-vault-path">🔐 Vault${vaultFolder?' / '+esc(vaultFolder):''}</div></div><div id="upsV50VaultList" class="ups-v50-vault-list"><div class="ups-v50-vault-empty">⏳ Yuklanmoqda...</div></div><div class="ups-v50-vault-foot">Vault fayllari oddiy fayllar ro‘yxatidan yashiriladi va Supabase hisobingizning RLS himoyasi ostida saqlanadi. PIN — sayt ichidagi qo‘shimcha kirish himoyasi.</div>`;
+    $('upsV50VaultLock').onclick=()=>{vaultUnlocked=false;vaultFolder='';lockScreen(true)};
+    $('upsV50VaultBack').onclick=()=>{if(!vaultFolder){vaultUnlocked=false;lockScreen(true);return}const p=vaultFolder.split('/');p.pop();vaultFolder=p.join('/');renderVault()};
+    $('upsV50VaultUpload').onchange=async function(){const fs=[...this.files||[]];if(!fs.length)return;const u=await user();let ok=0;for(const f of fs){const name=String(f.name||'file').replace(/[\\/]+/g,'_');const rel=vaultRelative(name);const {error}=await supabaseClient.storage.from(BUCKET).upload(`${u.id}/${rel}`,f,{upsert:false,contentType:f.type||'application/octet-stream'});if(!error)ok++;else console.warn(error)}this.value='';await renderVault();alert(`🔐 Vault: ${ok} ta fayl yuklandi.`)};
+    $('upsV50VaultFolder').onclick=async()=>{const raw=prompt('Yangi papka nomi:');if(!raw)return;const name=raw.trim().replace(/[\\/]+/g,'_');if(!name)return;const u=await user();const rel=vaultRelative(name+'/.keep');const {error}=await supabaseClient.storage.from(BUCKET).upload(`${u.id}/${rel}`,new Blob([''],{type:'text/plain'}),{upsert:true});if(error)alert(error.message);else renderVault()};
+    try{
+      const items=await vaultList(),list=$('upsV50VaultList');list.innerHTML='';if(!items.length){list.innerHTML='<div class="ups-v50-vault-empty">🔐 Vault bo‘sh</div>';return}
+      const u=await user();
+      for(const it of items){const isFolder=!it.metadata;const row=document.createElement('div');row.className='ups-v50-vault-row';const name=it.name,size=isFolder?'Papka':fmtBytes(it.metadata?.size||0);row.innerHTML=`<div class="ups-v50-vault-left"><div class="ups-v50-vault-icon">${isFolder?'📁':'📄'}</div><div class="ups-v50-vault-meta"><div class="ups-v50-vault-name">${esc(name)}</div><div class="ups-v50-vault-size">${esc(size)}</div></div></div><div class="ups-v50-vault-actions"></div>`;const a=row.querySelector('.ups-v50-vault-actions');
+        if(isFolder){const open=document.createElement('button');open.textContent='📂 Kirish';open.onclick=()=>{vaultFolder=[vaultFolder,name].filter(Boolean).join('/');renderVault()};a.appendChild(open)}
+        else{
+          const rel=vaultRelative(name),full=`${u.id}/${rel}`,ext=(name.split('.').pop()||'').toLowerCase();const type=['mp4','webm','mov','m4v','ogv'].includes(ext)?'video':['jpg','jpeg','png','gif','webp','bmp','svg'].includes(ext)?'image':['mp3','wav','ogg','m4a','aac','flac'].includes(ext)?'audio':'other';
+          const open=document.createElement('button');open.textContent='👁️ Ochish';open.onclick=async()=>{if(type==='other'){const {data,error}=await supabaseClient.storage.from(BUCKET).download(full);if(error){alert(error.message);return}const url=URL.createObjectURL(data),win=window.open(url,'_blank','noopener');setTimeout(()=>URL.revokeObjectURL(url),60000);return}await window.sdxPreview?.('supabase',full,'',type,name)};a.appendChild(open);
+          const dl=document.createElement('button');dl.textContent='⬇️';dl.onclick=async()=>{const {data,error}=await supabaseClient.storage.from(BUCKET).download(full);if(error){alert(error.message);return}const url=URL.createObjectURL(data),x=document.createElement('a');x.href=url;x.download=name;document.body.appendChild(x);x.click();x.remove();setTimeout(()=>URL.revokeObjectURL(url),2000)};a.appendChild(dl);
+        }
+        const del=document.createElement('button');del.className='danger';del.textContent='🗑️';del.onclick=async()=>{if(!confirm(`“${name}” Vault'dan o‘chirilsinmi?`))return;const rel=vaultRelative(name),base=`${u.id}/${rel}`;try{if(isFolder){const paths=[];async function walk(p){const {data,error}=await supabaseClient.storage.from(BUCKET).list(p,{limit:1000});if(error)throw error;for(const x of data||[]){const c=p+'/'+x.name;if(x.metadata)paths.push(c);else await walk(c)}}await walk(base);if(paths.length){const {error}=await supabaseClient.storage.from(BUCKET).remove(paths);if(error)throw error}}else{const {error}=await supabaseClient.storage.from(BUCKET).remove([base]);if(error)throw error}await renderVault()}catch(e){alert(e.message)}};a.appendChild(del);list.appendChild(row)}
+    }catch(e){$('upsV50VaultList').innerHTML=`<div class="ups-v50-vault-empty">❌ ${esc(e.message||e)}</div>`}
+  }
+
+  async function openVault(){
+    const modal=$('upsV50VaultModal');modal.classList.add('open');modal.setAttribute('aria-hidden','false');vaultUnlocked=false;vaultFolder='';
+    try{lockScreen(!!(await currentPinHash()))}catch(e){$('upsV50VaultBody').innerHTML=`<div class="ups-v50-vault-empty">❌ ${esc(e.message||e)}</div>`}
+  }
+  function closeVault(){vaultUnlocked=false;vaultFolder='';const m=$('upsV50VaultModal');m.classList.remove('open');m.setAttribute('aria-hidden','true');$('upsV50VaultBody').innerHTML=''}
+  window.openPrivateVault=openVault;window.closePrivateVault=closeVault;
+  $('upsV50VaultClose')?.addEventListener('click',closeVault);$('upsV50VaultModal')?.addEventListener('click',e=>{if(e.target===$('upsV50VaultModal'))closeVault()});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden&&vaultUnlocked)closeVault()});
+
+  function addVaultNav(){
+    const nav=document.querySelector('.sdx-sidebar .sdx-nav');if(!nav||document.getElementById('upsV50VaultNav'))return;
+    const a=document.createElement('a');a.id='upsV50VaultNav';a.href='javascript:void(0)';a.innerHTML='🔐 <span>Private Vault</span>';a.addEventListener('click',e=>{e.preventDefault();openVault()});
+    const settings=[...nav.querySelectorAll('a')].find(x=>(x.textContent||'').toLowerCase().includes('sozlamalar')||(x.textContent||'').toLowerCase().includes('settings'));
+    nav.insertBefore(a,settings||null);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',addVaultNav,{once:true});else addVaultNav();
+})();
+</script>
+
 </body>
 </html>
