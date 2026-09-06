@@ -9592,183 +9592,158 @@ en:{
 
 let current = localStorage.getItem("ups_language") || "uz";
 let translating=false;
+let observerTimer=0;
 
 function stripEmojiPrefix(s){
-  return s.replace(/^[\s\u2000-\u3300\u{1F000}-\u{1FAFF}▤▢▱△◈⚙◉☁⬆↺＋↩■▶🔊🔇🎵🔐🪄⚠💾]+/u,"").trim();
+  return String(s||"").replace(/^[\s\u2000-\u3300\u{1F000}-\u{1FAFF}▤▢▱△◈⚙◉☁⬆↺＋↩■▶🔊🔇🎵🔐🪄⚠💾]+/u,"").trim();
 }
-const upsI18nReverse={uz:new Map(),ru:new Map(),en:new Map()};
+
+/* Reverse maps let us switch RU -> EN, EN -> UZ, etc. directly from whatever is visible now. */
+const reverseText=new Map();
 for(const code of ["uz","ru","en"]){
   for(const [key,val] of Object.entries(dict[code]||{})){
-    upsI18nReverse[code].set(String(val).trim(),key);
-    upsI18nReverse[code].set(String(key).trim(),key);
+    reverseText.set(String(key).trim(),key);
+    reverseText.set(String(val).trim(),key);
   }
 }
-function canonicalLanguageKey(text){
-  const raw=String(text||"").trim();
-  if(!raw) return raw;
-  if(aliases[raw]) return aliases[raw];
-  if(dict.uz[raw]!==undefined) return raw;
-  for(const code of ["uz","ru","en"]){
-    const hit=upsI18nReverse[code].get(raw);
-    if(hit) return hit;
+for(const [raw,key] of Object.entries(aliases||{})) reverseText.set(String(raw).trim(),key);
+
+const reversePlaceholder=new Map();
+for(const code of ["uz","ru","en"]){
+  for(const [key,val] of Object.entries(placeholders[code]||{})){
+    reversePlaceholder.set(String(key).trim(),key);
+    reversePlaceholder.set(String(val).trim(),key);
   }
+}
+const reverseTitle=new Map();
+for(const code of ["uz","ru","en"]){
+  for(const [key,val] of Object.entries(titles[code]||{})){
+    reverseTitle.set(String(key).trim(),key);
+    reverseTitle.set(String(val).trim(),key);
+  }
+}
+
+function canonicalKey(raw){
+  raw=String(raw||"").trim();
+  if(!raw)return raw;
+  if(reverseText.has(raw))return reverseText.get(raw);
+  const stripped=stripEmojiPrefix(raw);
+  if(reverseText.has(stripped))return reverseText.get(stripped);
   return raw;
 }
 function translateString(str,lang){
-  if(!str || !str.trim()) return str;
-  const raw=str.trim();
-  let key=canonicalLanguageKey(raw);
-  let val=dict[lang]?.[key];
-  if(!val){
-    const stripped=stripEmojiPrefix(raw);
-    key=canonicalLanguageKey(stripped);
-    val=dict[lang]?.[key];
-    if(val){
-      const idx=raw.indexOf(stripped);
-      const prefix=idx>0?raw.slice(0,idx):"";
-      return prefix+val;
-    }
+  if(!str||!String(str).trim())return str;
+  const full=String(str), raw=full.trim();
+  let key=canonicalKey(raw), val=dict[lang]?.[key];
+  if(val!==undefined)return full.replace(raw,String(val));
+  const stripped=stripEmojiPrefix(raw);
+  key=canonicalKey(stripped); val=dict[lang]?.[key];
+  if(val!==undefined){
+    const idx=raw.indexOf(stripped), prefix=idx>0?raw.slice(0,idx):"";
+    return full.replace(raw,prefix+String(val));
   }
-  return val || str;
+  return str;
 }
-
-function rememberOriginal(el,attr,val){
-  const key="upsI18n"+attr[0].toUpperCase()+attr.slice(1);
-  if(!el.dataset[key]){
-    const raw=String(val||"");
-    const canonical=canonicalLanguageKey(raw);
-    el.dataset[key]=(dict.uz[canonical]!==undefined)?canonical:raw;
-  }
-  return el.dataset[key];
+function translateAttr(el,attr,lang){
+  if(!el.hasAttribute?.(attr))return;
+  const cur=el.getAttribute(attr)||"";
+  let rev=reverseText, table=dict[lang]||{};
+  if(attr==='placeholder'){rev=reversePlaceholder;table=placeholders[lang]||{}}
+  else if(attr==='title'||attr==='aria-label'){rev=reverseTitle;table=titles[lang]||{}}
+  const raw=cur.trim();
+  const key=rev.get(raw)||canonicalKey(raw);
+  const next=table[key]!==undefined?table[key]:(dict[lang]?.[key]!==undefined?dict[lang][key]:cur);
+  if(String(next)!==cur)el.setAttribute(attr,String(next));
 }
 function translateElement(el,lang){
-  if(!(el instanceof Element)) return;
-  if(el.closest && el.closest(".ups-language-box")) return;
-
-  ["placeholder","title","aria-label"].forEach(attr=>{
-    if(el.hasAttribute && el.hasAttribute(attr)){
-      const v=el.getAttribute(attr);
-      const orig=rememberOriginal(el,attr,v);
-      let nv=v;
-      if(attr==="placeholder") nv=(placeholders[lang]&&placeholders[lang][orig])||translateString(orig,lang);
-      else nv=(titles[lang]&&titles[lang][orig])||translateString(orig,lang);
-      if(nv!==v) el.setAttribute(attr,nv);
-    }
-  });
-
-  for(const node of [...el.childNodes]){
-    if(node.nodeType===Node.TEXT_NODE){
-      const txt=node.nodeValue;
-      if(!txt || !txt.trim()) continue;
-      if(!node.__upsOriginal){
-        const rawOriginal=txt.trim();
-        const canonical=canonicalLanguageKey(stripEmojiPrefix(rawOriginal));
-        if(canonical && dict.uz[canonical]!==undefined){
-          const stripped=stripEmojiPrefix(rawOriginal);
-          const idx=rawOriginal.indexOf(stripped);
-          const prefix=idx>0?rawOriginal.slice(0,idx):"";
-          node.__upsOriginal=txt.replace(rawOriginal,prefix+canonical);
-        }else node.__upsOriginal=txt;
-      }
-      const source=node.__upsOriginal;
-      const lead=source.match(/^\s*/)?.[0]||"";
-      const trail=source.match(/\s*$/)?.[0]||"";
-      const core=source.trim();
-      const tr=translateString(core,lang);
-      node.nodeValue=lead+tr+trail;
-    }
+  if(!(el instanceof Element))return;
+  if(el.closest?.('#upsLanguageBox'))return;
+  translateAttr(el,'placeholder',lang);
+  translateAttr(el,'title',lang);
+  translateAttr(el,'aria-label',lang);
+  for(const node of el.childNodes){
+    if(node.nodeType!==Node.TEXT_NODE)continue;
+    const txt=node.nodeValue||"";
+    if(!txt.trim())continue;
+    const next=translateString(txt,lang);
+    if(next!==txt)node.nodeValue=next;
   }
 }
 function translateTree(root,lang){
-  if(translating) return;
+  if(translating||!root)return;
   translating=true;
   try{
-    if(root instanceof Element) translateElement(root,lang);
-    const all=(root.querySelectorAll?root.querySelectorAll("*"):[]);
-    all.forEach(el=>translateElement(el,lang));
+    if(root instanceof Element)translateElement(root,lang);
+    root.querySelectorAll?.('*').forEach(el=>translateElement(el,lang));
     document.documentElement.lang=lang;
   }finally{translating=false}
 }
 function updateLanguageIndicator(lang){
-  const names={uz:"O‘zbek",ru:"Русский",en:"English"};
-  document.querySelectorAll(".ups-lang-btn").forEach(b=>{
+  const names={uz:'O‘zbek',ru:'Русский',en:'English'};
+  document.querySelectorAll('.ups-lang-btn').forEach(b=>{
     const on=b.dataset.lang===lang;
-    b.classList.toggle("active",on);
-    b.setAttribute("aria-pressed",on?"true":"false");
+    b.classList.toggle('active',on);
+    b.setAttribute('aria-pressed',on?'true':'false');
+    const base=(b.dataset.lang||'').toUpperCase();
+    b.textContent=(on?'✓ ':'')+base;
   });
-  const t=document.querySelector(".ups-language-title");
-  if(t) t.textContent=dict[lang]["Til"]||"Til";
-  const c=document.querySelector(".ups-language-current");
-  if(c){
-    const label=dict[lang]["Tanlangan til:"]||"Tanlangan til:";
-    c.textContent=label+" "+names[lang];
-  }
+  const t=document.querySelector('.ups-language-title');
+  if(t)t.textContent=dict[lang]?.['Til']||'Til';
+  const c=document.querySelector('.ups-language-current');
+  if(c){const label=dict[lang]?.['Tanlangan til:']||'Tanlangan til:';c.textContent=label+' '+names[lang]}
 }
 function applyLanguage(lang){
-  if(!dict[lang]) lang="uz";
+  if(!dict[lang])lang='uz';
   current=lang;
-  localStorage.setItem("ups_language",lang);
+  localStorage.setItem('ups_language',lang);
   translateTree(document.body,lang);
   updateLanguageIndicator(lang);
   try{f74Set('lang',lang)}catch(_){}
   window.dispatchEvent(new CustomEvent('ups-language-changed',{detail:{lang}}));
-  setTimeout(()=>{
-    try{translateTree(document.body,lang);updateLanguageIndicator(lang)}catch(_){}
-  },80);
+  /* Dynamic sections can render right after the click; rescan a few times without reload. */
+  [50,180,500].forEach(ms=>setTimeout(()=>{try{translateTree(document.body,current);updateLanguageIndicator(current)}catch(_){}},ms));
 }
 function mountLanguage(){
-  const nav=document.querySelector(".sdx-sidebar .sdx-nav");
-  const storage=document.querySelector(".sdx-sidebar .sdx-side-storage");
-  if(!nav || !storage || document.getElementById("upsLanguageBox")) return;
-  const box=document.createElement("div");
-  box.id="upsLanguageBox";
-  box.className="ups-language-box";
-  box.innerHTML=`
-    <div class="ups-language-title">Til</div>
-    <div class="ups-language-buttons">
-      <button type="button" class="ups-lang-btn" data-lang="uz">UZ</button>
-      <button type="button" class="ups-lang-btn" data-lang="ru">RU</button>
-      <button type="button" class="ups-lang-btn" data-lang="en">EN</button>
-    </div>
-    <div class="ups-language-current" aria-live="polite"></div>`;
-  storage.parentNode.insertBefore(box,storage);
-  box.querySelectorAll(".ups-lang-btn").forEach(b=>b.addEventListener("click",()=>applyLanguage(b.dataset.lang)));
-  applyLanguage(current);
+  const nav=document.querySelector('.sdx-sidebar .sdx-nav');
+  const storage=document.querySelector('.sdx-sidebar .sdx-side-storage');
+  if(!nav||!storage)return;
+  let box=document.getElementById('upsLanguageBox');
+  if(!box){
+    box=document.createElement('div');box.id='upsLanguageBox';box.className='ups-language-box';
+    box.innerHTML=`<div class="ups-language-title">Til</div><div class="ups-language-buttons"><button type="button" class="ups-lang-btn" data-lang="uz">UZ</button><button type="button" class="ups-lang-btn" data-lang="ru">RU</button><button type="button" class="ups-lang-btn" data-lang="en">EN</button></div><div class="ups-language-current" aria-live="polite"></div>`;
+    storage.parentNode.insertBefore(box,storage);
+  }
+  updateLanguageIndicator(current);
 }
 
-/* Translate dynamic content that appears later */
-let upsI18nPending=false;
+/* Capture-phase language click: the universal editor can never swallow UZ/RU/EN clicks. */
+document.addEventListener('click',function(e){
+  const b=e.target instanceof Element?e.target.closest('.ups-lang-btn'):null;
+  if(!b)return;
+  e.preventDefault();e.stopImmediatePropagation();
+  applyLanguage(b.dataset.lang||'uz');
+},true);
+
 const observer=new MutationObserver(muts=>{
-  if(translating) return;
-  if(window.upsEditBusy){upsI18nPending=true;return;}
-  mountLanguage();
-  for(const m of muts){
-    for(const n of m.addedNodes){
-      if(n.nodeType===Node.ELEMENT_NODE) translateTree(n,current);
-    }
-  }
+  if(translating||window.upsEditBusy)return;
+  let hasAdded=false;
+  for(const m of muts){if(m.addedNodes?.length){hasAdded=true;break}}
+  if(!hasAdded)return;
+  clearTimeout(observerTimer);
+  observerTimer=setTimeout(()=>{try{mountLanguage();translateTree(document.body,current);updateLanguageIndicator(current)}catch(_){}},120);
 });
 observer.observe(document.documentElement,{subtree:true,childList:true});
-document.addEventListener('ups-edit-idle',()=>{
-  if(!upsI18nPending)return;
-  upsI18nPending=false;
-  requestAnimationFrame(()=>{try{mountLanguage();translateTree(document.body,current)}catch(_){}});
-});
 
-/* Translate standard dialogs where exact UI text is known */
-const nativeAlert=window.alert.bind(window);
-const nativeConfirm=window.confirm.bind(window);
+document.addEventListener('ups-edit-idle',()=>setTimeout(()=>{try{translateTree(document.body,current);updateLanguageIndicator(current)}catch(_){}},60));
+
+const nativeAlert=window.alert.bind(window), nativeConfirm=window.confirm.bind(window);
 window.alert=function(msg){return nativeAlert(translateString(String(msg),current))};
 window.confirm=function(msg){return nativeConfirm(translateString(String(msg),current))};
 
-function boot(){
-  mountLanguage();
-  applyLanguage(current);
-}
-if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);
-else boot();
-
+function boot(){mountLanguage();applyLanguage(current)}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 window.upsSetLanguage=applyLanguage;
+window.upsGetLanguage=()=>current;
 })();
 </script>
 
@@ -9809,7 +9784,7 @@ html.ups-edit-busy .sdx-stats > .stat-glass{transition:none!important}
 </style>
 <!-- ===== UPS WHOLE CARD CONTROL PANEL — ADDED ONLY, BACKGROUND UNCHANGED ===== -->
 
-<style id="ups-v27-universal-editor-style">
+<style id="ups-v31-universal-editor-style">
 #upsUFrame{position:fixed;display:none;z-index:2147483600;border:2px dashed #78edf2;border-radius:9px;pointer-events:none;box-shadow:0 0 0 2px rgba(120,237,242,.14),0 0 22px rgba(79,220,231,.18)}
 .upsUHandle{position:fixed;display:none;z-index:2147483610;width:20px;height:20px;border-radius:6px;background:#7ceff3;border:3px solid #06232d;box-shadow:0 0 0 2px rgba(124,239,243,.30),0 6px 18px rgba(0,0,0,.40);touch-action:none;user-select:none;-webkit-user-select:none}
 .upsUHandle[data-corner="tl"],.upsUHandle[data-corner="br"]{cursor:nwse-resize}.upsUHandle[data-corner="tr"],.upsUHandle[data-corner="bl"]{cursor:nesw-resize}
@@ -9818,12 +9793,14 @@ html.ups-edit-busy .sdx-stats > .stat-glass{transition:none!important}
 #upsURotate{position:fixed;display:none;z-index:2147483612;width:24px;height:24px;border-radius:50%;background:#7ceff3;border:3px solid #06232d;box-shadow:0 0 0 2px rgba(124,239,243,.30),0 6px 18px rgba(0,0,0,.40);cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;display:none;align-items:center;justify-content:center;color:#06232d;font:bold 15px/1 system-ui}#upsURotate:active{cursor:grabbing}
 #upsUPanel{position:fixed;right:14px;top:14px;z-index:2147483640;width:min(365px,calc(100vw - 28px));display:none;padding:12px;border:1px solid rgba(120,237,242,.42);border-radius:14px;background:rgba(4,18,31,.97);box-shadow:0 18px 50px rgba(0,0,0,.48);backdrop-filter:blur(14px);font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#efffff}
 #upsUPanel .upsUHead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:9px;font-weight:850;font-size:13px}#upsUPanel .upsUClose{width:30px;height:30px;border:0;border-radius:8px;background:rgba(255,255,255,.08);color:#fff;cursor:pointer}
-#upsUPanel .upsUGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}#upsUPanel button.upsUBtn{min-width:0;padding:9px 5px;border-radius:9px;border:1px solid rgba(120,237,242,.22);background:rgba(21,55,77,.88);color:#eaffff;font:750 11px system-ui;cursor:pointer}#upsUPanel button.upsUBtn:hover{background:rgba(36,86,114,.95)}#upsUPanel button.upsUWide{grid-column:span 2}#upsUPanel button.upsUActive{background:#1586a4;border-color:#7ceff3}
+#upsUPanel .upsUGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}#upsUPanel button.upsUBtn{min-width:0;padding:9px 5px;border-radius:9px;border:1px solid rgba(120,237,242,.22);background:rgba(21,55,77,.88);color:#eaffff;font:750 11px system-ui;cursor:pointer}#upsUPanel button.upsUBtn:hover{background:rgba(36,86,114,.95)}#upsUPanel button.upsUWide{grid-column:span 2}#upsUPanel button.upsUFull{grid-column:1/-1;background:rgba(112,44,57,.92);border-color:rgba(255,132,151,.42)}#upsUPanel button.upsUActive{background:#1586a4;border-color:#7ceff3}
 html.ups-edit-busy *{animation-play-state:paused!important}
+.upsUSelected{cursor:move!important;touch-action:none!important}
+.upsUTextTarget{cursor:move!important}
 @media(max-width:650px){#upsUPanel{right:8px;top:8px;width:min(355px,calc(100vw - 16px));padding:9px}#upsUPanel .upsUGrid{gap:5px}#upsUPanel button.upsUBtn{padding:8px 4px;font-size:10px}}
 </style>
 
-<script id="ups-v27-universal-editor-script">
+<script id="ups-v31-universal-editor-script">
 (function(){
   'use strict';
   const STORE='ups_universal_element_edit_v1';
@@ -9838,12 +9815,13 @@ html.ups-edit-busy *{animation-play-state:paused!important}
   const rotateStem=document.createElement('div');rotateStem.id='upsURotateStem';document.body.appendChild(rotateStem);
   const rotateHandle=document.createElement('div');rotateHandle.id='upsURotate';rotateHandle.textContent='↻';document.body.appendChild(rotateHandle);
   const panel=document.createElement('div');panel.id='upsUPanel';panel.innerHTML=`
-    <div class="upsUHead"><span id="upsUTitle">Element</span><button class="upsUClose" type="button">✕</button></div>
+    <div class="upsUHead"><span id="upsUTitle">Element</span><button class="upsUClose" type="button">✕</button></div><div style="font:650 10px system-ui;color:#9fd7df;margin:-2px 0 8px">Elementni sichqoncha bilan bevosita sudrang. Ichki yozuvni uzoq bosib alohida tanlang.</div>
     <div class="upsUGrid">
       <button class="upsUBtn" data-act="left">← Chap</button><button class="upsUBtn" data-act="right">O‘ng →</button><button class="upsUBtn" data-act="up">↑ Tepa</button><button class="upsUBtn" data-act="down">↓ Past</button>
       <button class="upsUBtn" data-act="w-">En −</button><button class="upsUBtn" data-act="w+">En +</button><button class="upsUBtn" data-act="h-">Bo‘y −</button><button class="upsUBtn" data-act="h+">Bo‘y +</button>
       <button class="upsUBtn" data-act="font-">Matn −</button><button class="upsUBtn" data-act="font+">Matn +</button><button class="upsUBtn" data-act="pad-">Padding −</button><button class="upsUBtn" data-act="pad+">Padding +</button>
       <button class="upsUBtn" data-act="rad-">Burchak −</button><button class="upsUBtn" data-act="rad+">Burchak +</button><button class="upsUBtn upsUWide" data-act="reset">Reset</button><button class="upsUBtn upsUWide" data-act="drag">Sudrash</button>
+      <button class="upsUBtn upsUFull" data-act="reset-all">Hammasini joyiga qaytarish</button>
     </div>`;document.body.appendChild(panel);
 
   function read(){try{return JSON.parse(localStorage.getItem(STORE)||'{}')||{}}catch(_){return {}}}
@@ -9867,10 +9845,12 @@ html.ups-edit-busy *{animation-play-state:paused!important}
     const inAuth=node.closest('#authPage');
     const inCloud=node.closest('#cloudPage');
     if(!inAuth&&!inCloud)return null;
-    let el=node.closest('button,a,label,input,select,textarea')||node.closest(TARGETS);
+    const textSel='span,strong,small,p,h1,h2,h3,h4';
+    let el=node.closest(textSel);
+    if(!el)el=node.closest('button,a,label,input,select,textarea')||node.closest(TARGETS);
     if(!el)return null;
     if(el.matches('html,body,main,nav,header')||ROOT_EXCLUDE.has(el.id)||el.classList.contains('sdx-sidebar')||el.classList.contains('header'))return null;
-    if(el.matches('input[type="file"],script,style'))return null;
+    if(el.matches('input[type="file"],script,style,.ups-lang-btn'))return null;
     if(el.closest('#upsLanguageBox')&&el===document.getElementById('upsLanguageBox'))return el;
     return el;
   }
@@ -9880,32 +9860,55 @@ html.ups-edit-busy *{animation-play-state:paused!important}
   }
   function show(){if(!active||!document.contains(active)){hide();return}const r=active.getBoundingClientRect();if(!r.width&&!r.height){hide();return}frame.style.display='block';frame.style.left=(r.left-2)+'px';frame.style.top=(r.top-2)+'px';frame.style.width=r.width+'px';frame.style.height=r.height+'px';const cx=r.left+r.width/2,cy=r.top+r.height/2;const pts={tl:[r.left,r.top],t:[cx,r.top],tr:[r.right,r.top],r:[r.right,cy],br:[r.right,r.bottom],b:[cx,r.bottom],bl:[r.left,r.bottom],l:[r.left,cy]};handles.forEach(h=>{const p=pts[h.dataset.corner];h.style.display='block';h.style.left=(p[0]-10)+'px';h.style.top=(p[1]-10)+'px'});rotateStem.style.display='block';rotateStem.style.left=cx+'px';rotateStem.style.top=(r.top-30)+'px';rotateHandle.style.display='flex';rotateHandle.style.left=(cx-12)+'px';rotateHandle.style.top=(r.top-54)+'px';panel.style.display='block'}
   function scheduleShow(){if(raf)return;raf=requestAnimationFrame(()=>{raf=0;show()})}
-  function hide(){active=null;dragMode=false;moveState=null;resizeState=null;rotateState=null;frame.style.display='none';handles.forEach(h=>h.style.display='none');rotateStem.style.display='none';rotateHandle.style.display='none';panel.style.display='none'}
-  function select(el){if(!el)return;active=el;dragMode=false;document.getElementById('upsUTitle').textContent=label(el);panel.querySelector('[data-act="drag"]').classList.remove('upsUActive');show()}
+  function hide(){if(active)active.classList.remove('upsUSelected');active=null;dragMode=false;moveState=null;resizeState=null;rotateState=null;frame.style.display='none';handles.forEach(h=>h.style.display='none');rotateStem.style.display='none';rotateHandle.style.display='none';panel.style.display='none'}
+  function select(el){if(!el)return;if(active&&active!==el)active.classList.remove('upsUSelected');active=el;dragMode=true;active.classList.add('upsUSelected');document.getElementById('upsUTitle').textContent=label(el);const db=panel.querySelector('[data-act="drag"]');db.classList.add('upsUActive');db.textContent='Sudrash ✓';show()}
   function metric(el){const cs=getComputedStyle(el),r=el.getBoundingClientRect();const sp=String(el.style.scale||'1').trim().split(/\s+/);const sx=parseFloat(sp[0])||1,sy=parseFloat(sp[1])||sx;const rot=parseFloat(String(el.style.rotate||'0').replace('deg',''))||0;return {tx:parseFloat(el.style.translate?.split(' ')[0])||0,ty:parseFloat(el.style.translate?.split(' ')[1])||0,w:parseFloat(el.style.width)||Math.max(1,r.width/sx),h:parseFloat(el.style.height)||Math.max(1,r.height/sy),font:parseFloat(cs.fontSize)||16,pad:parseFloat(cs.paddingTop)||0,rad:parseFloat(cs.borderTopLeftRadius)||0,sx,sy,rot,scale:sx}}
   function save(el){if(!el)return;const m=read();m[key(el)]=metric(el);write(m)}
   function apply(el,m){if(!el||!m)return;if(Number.isFinite(m.tx)||Number.isFinite(m.ty))el.style.setProperty('translate',(Number(m.tx)||0)+'px '+(Number(m.ty)||0)+'px','important');if(m.w>0)el.style.setProperty('width',m.w+'px','important');if(m.h>0)el.style.setProperty('height',m.h+'px','important');if(m.font>0)el.style.setProperty('font-size',m.font+'px','important');if(m.pad>=0)el.style.setProperty('padding',m.pad+'px','important');if(m.rad>=0)el.style.setProperty('border-radius',m.rad+'px','important');const sx=Number(m.sx)||Number(m.scale)||1,sy=Number(m.sy)||Number(m.scale)||sx;if(sx!==1||sy!==1)el.style.setProperty('scale',sx+' '+sy,'important');if(Number(m.rot))el.style.setProperty('rotate',Number(m.rot)+'deg','important')}
   function restore(root=document){const all=read();let els=[];try{els=[...root.querySelectorAll?.(TARGETS)||[]]}catch(_){return}for(const el of els){const m=all[key(el)];if(m)apply(el,m)}}
   function busy(on){try{window.upsSetEditBusy?.(on)}catch(_){}}
-  function tweak(act){if(!active)return;busy(true);const m=metric(active);switch(act){case'left':m.tx-=STEP;break;case'right':m.tx+=STEP;break;case'up':m.ty-=STEP;break;case'down':m.ty+=STEP;break;case'w-':m.w=Math.max(24,m.w-STEP*2);break;case'w+':m.w=Math.min(innerWidth*1.8,m.w+STEP*2);break;case'h-':m.h=Math.max(20,m.h-STEP*2);break;case'h+':m.h=Math.min(innerHeight*1.8,m.h+STEP*2);break;case'font-':m.font=Math.max(6,m.font-1);break;case'font+':m.font=Math.min(80,m.font+1);break;case'pad-':m.pad=Math.max(0,m.pad-2);break;case'pad+':m.pad=Math.min(120,m.pad+2);break;case'rad-':m.rad=Math.max(0,m.rad-2);break;case'rad+':m.rad=Math.min(100,m.rad+2);break;}
+  function tweak(act){if(!active)return;busy(true);const m=metric(active);
+    if(act==='w-'||act==='w+'||act==='h-'||act==='h+'){const r=active.getBoundingClientRect();active.style.removeProperty('scale');m.sx=1;m.sy=1;m.scale=1;m.w=r.width;m.h=r.height}
+    switch(act){case'left':m.tx-=STEP;break;case'right':m.tx+=STEP;break;case'up':m.ty-=STEP;break;case'down':m.ty+=STEP;break;case'w-':m.w=Math.max(24,m.w-STEP*2);break;case'w+':m.w=Math.min(innerWidth*1.8,m.w+STEP*2);break;case'h-':m.h=Math.max(20,m.h-STEP*2);break;case'h+':m.h=Math.min(innerHeight*1.8,m.h+STEP*2);break;case'font-':m.font=Math.max(6,m.font-1);break;case'font+':m.font=Math.min(80,m.font+1);break;case'pad-':m.pad=Math.max(0,m.pad-2);break;case'pad+':m.pad=Math.min(120,m.pad+2);break;case'rad-':m.rad=Math.max(0,m.rad-2);break;case'rad+':m.rad=Math.min(100,m.rad+2);break;}
     apply(active,m);save(active);scheduleShow();busy(false)}
   function reset(){if(!active)return;busy(true);const m=read();delete m[key(active)];write(m);['translate','scale','rotate','width','height','font-size','padding','border-radius'].forEach(p=>active.style.removeProperty(p));scheduleShow();busy(false)}
+  async function resetAll(){
+    const ok=window.confirm('Ekrandagi barcha elementlarni standart joyiga qaytaraymi?');
+    if(!ok)return;
+    hide();busy(true);
+    const keys=['ups_universal_element_edit_v1','ups_full_layout_v1','ups_hold_layout_v1','ups_hold_scale_v1','ups_whole_login_card_scale_v3','ups_whole_login_card_panel_props_v1','ups_hold_bar_size_v1'];
+    try{keys.forEach(k=>localStorage.removeItem(k))}catch(_){}
+    busy(false);
+    try{if(typeof window.upsCloudSyncNow==='function')await window.upsCloudSyncNow()}catch(_){}
+    setTimeout(()=>location.reload(),120);
+  }
 
-  panel.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.classList.contains('upsUClose')){hide();return}const a=b.dataset.act;if(!a)return;if(a==='reset'){reset();return}if(a==='drag'){dragMode=!dragMode;b.classList.toggle('upsUActive',dragMode);return}tweak(a)});
+  panel.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.classList.contains('upsUClose')){hide();return}const a=b.dataset.act;if(!a)return;if(a==='reset'){reset();return}if(a==='reset-all'){resetAll();return}if(a==='drag'){dragMode=true;b.classList.add('upsUActive');b.textContent='Sudrash ✓';return}tweak(a)});
 
   document.addEventListener('pointerdown',e=>{
     if(e.button!==undefined&&e.button!==0)return;
     if(e.target instanceof Element&&e.target.closest('#upsUPanel,.upsUHandle,#upsURotate'))return;
-    if(dragMode&&active&&e.target instanceof Element&&(e.target===active||e.target.closest('*')&&active.contains(e.target))){busy(true);const m=metric(active);moveState={id:e.pointerId,x:e.clientX,y:e.clientY,tx:m.tx,ty:m.ty};try{active.setPointerCapture?.(e.pointerId)}catch(_){};e.preventDefault();return}
-    const el=targetFrom(e.target);if(!el)return;holdStart={id:e.pointerId,x:e.clientX,y:e.clientY,el};clearTimeout(holdTimer);holdTimer=setTimeout(()=>{if(!holdStart)return;suppressClick=true;select(holdStart.el);holdStart=null},HOLD_MS)
+    const candidate=targetFrom(e.target);
+    if(dragMode&&active&&e.target instanceof Element&&(e.target===active||active.contains(e.target))){
+      // Long-pressing a nested text element selects that text independently; otherwise drag the current element immediately.
+      if(candidate&&candidate!==active&&active.contains(candidate)&&candidate.matches('span,strong,small,p,h1,h2,h3,h4')){holdStart={id:e.pointerId,x:e.clientX,y:e.clientY,el:candidate};clearTimeout(holdTimer);holdTimer=setTimeout(()=>{if(!holdStart)return;suppressClick=true;select(holdStart.el);holdStart=null},HOLD_MS);return}
+      busy(true);const m=metric(active);moveState={id:e.pointerId,x:e.clientX,y:e.clientY,tx:m.tx,ty:m.ty};try{active.setPointerCapture?.(e.pointerId)}catch(_){};e.preventDefault();return}
+    const el=candidate;if(!el)return;holdStart={id:e.pointerId,x:e.clientX,y:e.clientY,el};clearTimeout(holdTimer);holdTimer=setTimeout(()=>{if(!holdStart)return;suppressClick=true;select(holdStart.el);holdStart=null},HOLD_MS)
   },true);
   document.addEventListener('pointermove',e=>{if(moveState&&e.pointerId===moveState.id){pendingPos={tx:moveState.tx+(e.clientX-moveState.x),ty:moveState.ty+(e.clientY-moveState.y)};if(!raf)raf=requestAnimationFrame(()=>{raf=0;if(active&&pendingPos){active.style.setProperty('translate',pendingPos.tx+'px '+pendingPos.ty+'px','important');pendingPos=null;show()}});e.preventDefault();return}if(holdStart&&e.pointerId===holdStart.id&&Math.hypot(e.clientX-holdStart.x,e.clientY-holdStart.y)>9){clearTimeout(holdTimer);holdStart=null}},true);
   function endPointer(e){clearTimeout(holdTimer);holdStart=null;if(moveState&&e.pointerId===moveState.id){save(active);moveState=null;busy(false);scheduleShow()}}
   document.addEventListener('pointerup',endPointer,true);document.addEventListener('pointercancel',endPointer,true);
   document.addEventListener('click',e=>{if(suppressClick){suppressClick=false;e.preventDefault();e.stopImmediatePropagation()}},true);
 
-  handles.forEach(h=>h.addEventListener('pointerdown',e=>{if(!active)return;busy(true);const m=metric(active),r=active.getBoundingClientRect();resizeState={id:e.pointerId,corner:h.dataset.corner,x:e.clientX,y:e.clientY,sx:m.sx,sy:m.sy,w:r.width,h:r.height};try{h.setPointerCapture(e.pointerId)}catch(_){};e.preventDefault();e.stopPropagation()}));
-  handles.forEach(h=>h.addEventListener('pointermove',e=>{if(!resizeState||e.pointerId!==resizeState.id||!active)return;const c=resizeState.corner,dx=e.clientX-resizeState.x,dy=e.clientY-resizeState.y;let sx=resizeState.sx,sy=resizeState.sy;if(c.includes('l'))sx=resizeState.sx*Math.max(.15,1-dx/Math.max(30,resizeState.w));if(c.includes('r'))sx=resizeState.sx*Math.max(.15,1+dx/Math.max(30,resizeState.w));if(c.includes('t'))sy=resizeState.sy*Math.max(.15,1-dy/Math.max(24,resizeState.h));if(c.includes('b'))sy=resizeState.sy*Math.max(.15,1+dy/Math.max(24,resizeState.h));sx=Math.max(.15,Math.min(5,sx));sy=Math.max(.15,Math.min(5,sy));active.style.setProperty('scale',sx+' '+sy,'important');scheduleShow();e.preventDefault()}));
+  handles.forEach(h=>h.addEventListener('pointerdown',e=>{if(!active)return;busy(true);const m=metric(active),r=active.getBoundingClientRect();
+    // Convert any old visual scale to real box size first so child text/icons never shrink with the box.
+    if(m.sx!==1||m.sy!==1){active.style.removeProperty('scale');active.style.setProperty('width',Math.max(1,r.width)+'px','important');active.style.setProperty('height',Math.max(1,r.height)+'px','important')}
+    const rr=active.getBoundingClientRect();resizeState={id:e.pointerId,corner:h.dataset.corner,x:e.clientX,y:e.clientY,w:rr.width,h:rr.height,tx:metric(active).tx,ty:metric(active).ty};try{h.setPointerCapture(e.pointerId)}catch(_){};e.preventDefault();e.stopPropagation()}));
+  handles.forEach(h=>h.addEventListener('pointermove',e=>{if(!resizeState||e.pointerId!==resizeState.id||!active)return;const c=resizeState.corner,dx=e.clientX-resizeState.x,dy=e.clientY-resizeState.y;let w=resizeState.w,hgt=resizeState.h,tx=resizeState.tx,ty=resizeState.ty;
+    if(c.includes('r'))w=resizeState.w+dx;if(c.includes('l')){w=resizeState.w-dx;tx=resizeState.tx+dx}
+    if(c.includes('b'))hgt=resizeState.h+dy;if(c.includes('t')){hgt=resizeState.h-dy;ty=resizeState.ty+dy}
+    w=Math.max(24,Math.min(innerWidth*1.8,w));hgt=Math.max(18,Math.min(innerHeight*1.8,hgt));
+    active.style.setProperty('scale','1 1','important');active.style.setProperty('width',w+'px','important');active.style.setProperty('height',hgt+'px','important');active.style.setProperty('translate',tx+'px '+ty+'px','important');scheduleShow();e.preventDefault()}));
   handles.forEach(h=>{const done=e=>{if(!resizeState||e.pointerId!==resizeState.id)return;save(active);resizeState=null;busy(false);scheduleShow()};h.addEventListener('pointerup',done);h.addEventListener('pointercancel',done)});
 
   rotateHandle.addEventListener('pointerdown',e=>{if(!active)return;busy(true);const r=active.getBoundingClientRect(),m=metric(active),cx=r.left+r.width/2,cy=r.top+r.height/2;rotateState={id:e.pointerId,cx,cy,start:Math.atan2(e.clientY-cy,e.clientX-cx)*180/Math.PI,rot:m.rot};try{rotateHandle.setPointerCapture(e.pointerId)}catch(_){};e.preventDefault();e.stopPropagation()});
@@ -9982,5 +9985,222 @@ html.ups-edit-busy *{animation-play-state:paused!important}
 </script>
 
 <!-- v26 dashboard no-freeze -->
+
+<style id="ups-v30-language-reset-fix-style">
+.ups-lang-btn.active{outline:2px solid #61e7ef!important;box-shadow:0 0 0 3px rgba(97,231,239,.16),0 0 18px rgba(97,231,239,.22)!important;background:#1484a2!important;color:#fff!important}
+.ups-language-current{display:block!important;margin-top:8px!important;text-align:center!important;font-size:11px!important;font-weight:800!important;color:#8feff4!important}
+</style>
+
+
+<!-- UPS v32: Full UI motion system — menu/page/modal/login/refresh/button animations -->
+<style id="ups-v32-full-motion">
+:root{
+  --ups-motion-fast:140ms;
+  --ups-motion-med:240ms;
+  --ups-motion-slow:360ms;
+  --ups-motion-ease:cubic-bezier(.22,.75,.22,1);
+}
+
+/* Buttons and menu items: immediate tactile motion without fighting the editor transform. */
+button,.btn,.auth-btn,.switch-btn,.sdx-nav a,.app-tile,.file,.stat-glass,.x-glass-card,.settings-section{
+  transition:
+    opacity var(--ups-motion-med) var(--ups-motion-ease),
+    translate var(--ups-motion-fast) var(--ups-motion-ease),
+    scale var(--ups-motion-fast) var(--ups-motion-ease),
+    filter var(--ups-motion-fast) var(--ups-motion-ease),
+    background-color var(--ups-motion-med) var(--ups-motion-ease),
+    border-color var(--ups-motion-med) var(--ups-motion-ease),
+    box-shadow var(--ups-motion-med) var(--ups-motion-ease)!important;
+}
+button:active,.btn:active,.auth-btn:active,.switch-btn:active,.sdx-nav a:active,.app-tile:active{
+  translate:0 1px;
+  scale:.975;
+}
+.sdx-nav a.active{translate:4px 0;}
+input,.input,select,textarea{
+  transition:border-color var(--ups-motion-med) var(--ups-motion-ease),box-shadow var(--ups-motion-med) var(--ups-motion-ease),background-color var(--ups-motion-med) var(--ups-motion-ease)!important;
+}
+
+/* Open/close animation that can animate display:none in current Chromium. */
+.modal,#feature74Modal,#authPage,#cloudPage,#dashboardTop > section,.sdx-avatar-menu{
+  transition:
+    opacity var(--ups-motion-med) var(--ups-motion-ease),
+    scale var(--ups-motion-med) var(--ups-motion-ease),
+    translate var(--ups-motion-med) var(--ups-motion-ease),
+    display var(--ups-motion-med) allow-discrete!important;
+}
+.modal:not(.hidden),#feature74Modal:not(.hidden),#authPage:not(.hidden),#cloudPage:not(.hidden),#dashboardTop > section:not(.sdx-view-hidden){
+  opacity:1;
+  scale:1;
+  translate:0 0;
+}
+.modal.hidden,#feature74Modal.hidden,#authPage.hidden,#cloudPage.hidden,#dashboardTop > section.sdx-view-hidden{
+  opacity:0;
+  scale:.985;
+  translate:0 10px;
+}
+@starting-style{
+  .modal:not(.hidden),#feature74Modal:not(.hidden),#authPage:not(.hidden),#cloudPage:not(.hidden),#dashboardTop > section:not(.sdx-view-hidden){
+    opacity:0;
+    scale:.985;
+    translate:0 12px;
+  }
+}
+
+/* Modal contents have their own soft pop. */
+.modal:not(.hidden) .modal-box,
+.modal:not(.hidden) .settings-modal-box,
+#feature74Modal:not(.hidden) .feature74-box{
+  animation:upsV32Pop var(--ups-motion-med) var(--ups-motion-ease) both;
+}
+@keyframes upsV32Pop{
+  from{opacity:0;translate:0 16px;scale:.97}
+  to{opacity:1;translate:0 0;scale:1}
+}
+
+/* Dashboard/menu view entrance. */
+.ups-v32-enter{
+  animation:upsV32Enter var(--ups-motion-slow) var(--ups-motion-ease) both!important;
+}
+@keyframes upsV32Enter{
+  from{opacity:0;translate:0 14px;filter:blur(2px)}
+  to{opacity:1;translate:0 0;filter:blur(0)}
+}
+
+/* Login -> account transition feedback. */
+#authPage.ups-v32-login-pending .auth-card{
+  animation:upsV32LoginPending .9s ease-in-out infinite alternate!important;
+}
+@keyframes upsV32LoginPending{
+  from{filter:brightness(1);scale:1}
+  to{filter:brightness(1.08);scale:1.012}
+}
+
+/* Tiny click flash, drawn independently from the element's own transform. */
+.ups-v32-clicked{animation:upsV32Click var(--ups-motion-fast) ease-out!important}
+@keyframes upsV32Click{0%{filter:brightness(1)}45%{filter:brightness(1.22)}100%{filter:brightness(1)}}
+
+/* Do not animate layout properties while the universal editor is actively dragging/resizing. */
+html.ups-edit-busy button,
+html.ups-edit-busy .btn,
+html.ups-edit-busy .auth-btn,
+html.ups-edit-busy .switch-btn,
+html.ups-edit-busy .sdx-nav a,
+html.ups-edit-busy .app-tile,
+html.ups-edit-busy .file,
+html.ups-edit-busy .stat-glass,
+html.ups-edit-busy .x-glass-card,
+html.ups-edit-busy .settings-section{
+  transition:none!important;
+  animation-play-state:paused!important;
+}
+
+@media (prefers-reduced-motion: reduce){
+  .ups-v32-enter,.ups-v32-clicked,
+  .modal:not(.hidden) .modal-box,
+  .modal:not(.hidden) .settings-modal-box,
+  #feature74Modal:not(.hidden) .feature74-box,
+  #authPage.ups-v32-login-pending .auth-card{animation:none!important}
+}
+</style>
+<script id="ups-v32-full-motion-script">
+(()=>{
+  if(window.__upsV32Motion)return;
+  window.__upsV32Motion=true;
+
+  const qsa=(s,r=document)=>Array.from(r.querySelectorAll(s));
+  const visibleSections=()=>qsa('#dashboardTop > section').filter(el=>!el.classList.contains('sdx-view-hidden'));
+
+  function replay(el,cls='ups-v32-enter'){
+    if(!el)return;
+    el.classList.remove(cls);
+    void el.offsetWidth;
+    el.classList.add(cls);
+    setTimeout(()=>el.classList.remove(cls),500);
+  }
+
+  function animateCurrentView(){
+    const cloud=document.getElementById('cloudPage');
+    if(cloud && !cloud.classList.contains('hidden')){
+      const secs=visibleSections();
+      if(secs.length)secs.forEach(s=>replay(s));
+      else replay(document.querySelector('.container')||cloud);
+    }
+  }
+
+  // Every menu/button press gets a short response. Then animate the newly visible view.
+  document.addEventListener('click',e=>{
+    const hit=e.target.closest?.('button,.btn,.auth-btn,.switch-btn,.sdx-nav a,.app-tile,.file');
+    if(hit && !document.documentElement.classList.contains('ups-edit-busy')){
+      hit.classList.remove('ups-v32-clicked');
+      void hit.offsetWidth;
+      hit.classList.add('ups-v32-clicked');
+      setTimeout(()=>hit.classList.remove('ups-v32-clicked'),220);
+    }
+    if(e.target.closest?.('.sdx-nav a')){
+      requestAnimationFrame(()=>requestAnimationFrame(animateCurrentView));
+    }
+  },true);
+
+  // Login button: show motion while authentication is in progress.
+  const loginBtn=document.querySelector('#authPage .auth-btn');
+  if(loginBtn){
+    loginBtn.addEventListener('click',()=>{
+      const auth=document.getElementById('authPage');
+      if(auth)auth.classList.add('ups-v32-login-pending');
+      setTimeout(()=>auth?.classList.remove('ups-v32-login-pending'),7000);
+    },true);
+  }
+
+  // Watch only high-level page/modal visibility classes; this stays light and avoids the old freeze problem.
+  const watched=new Set();
+  function watch(el){
+    if(!el||watched.has(el))return;
+    watched.add(el);
+    new MutationObserver(muts=>{
+      for(const m of muts){
+        if(m.attributeName!=='class')continue;
+        const isHidden=el.classList.contains('hidden')||el.classList.contains('sdx-view-hidden');
+        if(!isHidden){
+          requestAnimationFrame(()=>replay(el));
+          if(el.id==='cloudPage'){
+            document.getElementById('authPage')?.classList.remove('ups-v32-login-pending');
+            requestAnimationFrame(()=>requestAnimationFrame(animateCurrentView));
+          }
+        }else if(el.id==='authPage'){
+          el.classList.remove('ups-v32-login-pending');
+        }
+      }
+    }).observe(el,{attributes:true,attributeFilter:['class']});
+  }
+
+  function attachWatchers(){
+    qsa('.modal,#feature74Modal,#authPage,#cloudPage,#dashboardTop > section').forEach(watch);
+  }
+  attachWatchers();
+
+  // Dynamic menu pages (Favorites/Devices/Settings) are added later, so only watch child additions under dashboardTop.
+  const dash=document.getElementById('dashboardTop');
+  if(dash){
+    new MutationObserver(muts=>{
+      for(const m of muts)for(const n of m.addedNodes){
+        if(n.nodeType===1){
+          if(n.matches?.('section'))watch(n);
+          n.querySelectorAll?.('section').forEach(watch);
+        }
+      }
+    }).observe(dash,{childList:true,subtree:false});
+  }
+
+  // Refresh/reload entrance animation.
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    const auth=document.getElementById('authPage');
+    const cloud=document.getElementById('cloudPage');
+    if(auth && !auth.classList.contains('hidden'))replay(auth.querySelector('.auth-card')||auth);
+    if(cloud && !cloud.classList.contains('hidden'))animateCurrentView();
+  }));
+})();
+</script>
+
 </body>
 </html>
