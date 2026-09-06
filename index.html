@@ -2116,6 +2116,38 @@ small{
 
 <body>
 
+<!-- ===== v24 FAST VIDEO WALLPAPER BOOT ===== -->
+<video id="ctVideoWallpaper" muted autoplay loop playsinline preload="auto" aria-hidden="true"></video>
+<script id="ups-v24-fast-video-boot">
+(function(){
+  try{
+    if(localStorage.getItem("sdx_video_wallpaper_enabled")!=="1")return;
+    const v=document.getElementById("ctVideoWallpaper"); if(!v)return;
+    const a=(()=>{try{return JSON.parse(localStorage.getItem("sdx_video_audio_settings_v1")||"{}")||{}}catch(_){return {}}})();
+    /* Muted first = Chrome/TV autoplay uchun eng tez va ishonchli start. Engine yuklangach user sozlamasi qayta qo‘llanadi. */
+    v.muted=true; v.defaultMuted=true; v.volume=Math.max(0,Math.min(1,(Number(a.volume)||50)/100));
+    v.autoplay=true; v.loop=a.loop!==false; v.playsInline=true; v.preload="auto";
+    document.body.classList.add("ct-video-active");
+    const req=indexedDB.open("sdx_video_wallpaper_db_v1",1);
+    req.onupgradeneeded=()=>{const db=req.result;if(!db.objectStoreNames.contains("wallpapers"))db.createObjectStore("wallpapers")};
+    req.onsuccess=()=>{
+      const db=req.result, tx=db.transaction("wallpapers","readonly"), get=tx.objectStore("wallpapers").get("main");
+      get.onsuccess=()=>{
+        const rec=get.result;
+        if(rec&&rec.blob){
+          const url=URL.createObjectURL(rec.blob);
+          window.__upsFastVideoUrl=url; window.__upsFastVideoLoaded=true;
+          v.src=url; v.load();
+          const p=v.play(); if(p&&p.catch)p.catch(()=>{});
+        }
+      };
+      tx.oncomplete=()=>db.close();
+    };
+  }catch(_){ }
+})();
+</script>
+
+
 <!-- =====================================================
      AUTH
 ===================================================== -->
@@ -6157,6 +6189,12 @@ async function sdxLoadWallpaperFromCloud(){
       }
       localStorage.setItem("sdx_video_wallpaper_enabled","1");
       await ctApplyVideoUrl(signed,name);
+      /* Keyingi kirishda login ekranidayoq kutmasdan chiqishi uchun shu qurilmaga ham cache qilamiz. */
+      try{
+        fetch(signed,{cache:"force-cache"}).then(r=>r.ok?r.blob():null).then(blob=>{
+          if(blob)ctVideoDbPut({blob,name,type:blob.type||"video/mp4",size:blob.size,updatedAt:Date.now()}).catch(()=>{});
+        }).catch(()=>{});
+      }catch(_){ }
       return true;
     }
 
@@ -6329,7 +6367,7 @@ function ctImport(ev){
 const CT_VIDEO_DB="sdx_video_wallpaper_db_v1";
 const CT_VIDEO_STORE="wallpapers";
 const CT_VIDEO_KEY="main";
-let ctVideoObjectUrl="";
+let ctVideoObjectUrl=window.__upsFastVideoUrl||"";
 const CT_VIDEO_AUDIO_SETTINGS_KEY="sdx_video_audio_settings_v1";
 
 function ctGetVideoAudioSettings(){
@@ -6591,6 +6629,14 @@ async function ctVideoWallpaperPicked(ev){
 async function ctLoadVideoWallpaper(){
   if(localStorage.getItem("sdx_video_wallpaper_enabled")!=="1")return;
   try{
+    const existing=document.getElementById("ctVideoWallpaper");
+    if(window.__upsFastVideoLoaded && existing?.src){
+      existing.style.display="block";document.body.classList.add("ct-video-active");
+      ctSyncVideoAudioControls();
+      const st=ctGetVideoAudioSettings();
+      if(st.autoplay!==false && existing.paused){try{await existing.play()}catch(_){}}
+      return;
+    }
     const rec=await ctVideoDbGet();
     if(rec?.blob)await ctApplyVideoBlob(rec.blob,rec.name||"Video wallpaper");
   }catch(e){console.warn("Video wallpaper lokal yuklanmadi",e)}
@@ -10483,6 +10529,8 @@ html.ups-hold-editing #upsScalePercent{display:block!important}
 
 <script id="ups-four-corner-scale-script">
 (function(){
+  /* v24: eski yashirin scaler o‘chirildi — yangi lightweight scaler ishlaydi. */
+  return;
   const STORE="ups_hold_scale_v1";
   const MIN=.30, MAX=2.00;
   let handles=[], badge=null, active=null;
@@ -10721,6 +10769,7 @@ html.ups-hold-editing #upsScalePercent{display:block!important}
 
   function hideUI(){
     window.ups2SelectedCard=null;
+    if(selected)selected.classList.remove('ups2-active-card');
     if(window.ups2CardPanelHide) window.ups2CardPanelHide();
     selected=null;
     if(frame)frame.style.display='none';
@@ -10731,7 +10780,8 @@ html.ups-hold-editing #upsScalePercent{display:block!important}
 
   function activate(el){
     createUI();
-    selected=el;
+    document.querySelectorAll('.ups2-active-card').forEach(x=>x.classList.remove('ups2-active-card'));
+    selected=el; selected.classList.add('ups2-active-card');
     window.ups2SelectedCard=el;
     if(window.ups2CardPanelShow) window.ups2CardPanelShow(el);
     document.documentElement.classList.add('ups2-scale-editing');
@@ -10916,7 +10966,17 @@ html.ups-hold-editing #upsScalePercent{display:block!important}
   window.ups2CardPanelShow=show;window.ups2CardPanelHide=hide;
 
   document.addEventListener('pointerdown',e=>{if(!dragMode)return;const el=selected();if(!el || !(e.target instanceof Element) || !e.target.closest('#authPage .auth-card,.ups-security-card,.ups-recovery-box,.sdx-stats > .stat-glass'))return;ensurePos(el);const cs=getComputedStyle(el);move={id:e.pointerId,x:e.clientX,y:e.clientY,left:parseFloat(cs.left)||0,top:parseFloat(cs.top)||0};e.preventDefault()},true);
-  document.addEventListener('pointermove',e=>{if(!move||e.pointerId!==move.id)return;const el=selected();if(!el)return;el.style.setProperty('left',(move.left+e.clientX-move.x)+'px','important');el.style.setProperty('top',(move.top+e.clientY-move.y)+'px','important');requestAnimationFrame(repositionScale);e.preventDefault()}, {capture:true,passive:false});
+  let moveRAF=0,lastMoveEvent=null;
+  document.addEventListener('pointermove',e=>{
+    if(!move||e.pointerId!==move.id)return; e.preventDefault(); lastMoveEvent=e;
+    if(moveRAF)return;
+    moveRAF=requestAnimationFrame(()=>{
+      moveRAF=0;const ev=lastMoveEvent,el=selected();if(!ev||!el||!move)return;
+      el.style.setProperty('left',(move.left+ev.clientX-move.x)+'px','important');
+      el.style.setProperty('top',(move.top+ev.clientY-move.y)+'px','important');
+      repositionScale();
+    });
+  }, {capture:true,passive:false});
   document.addEventListener('pointerup',e=>{if(move&&e.pointerId===move.id){save(selected());move=null}},true);
   document.addEventListener('pointercancel',()=>{move=null},true);
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{create();restore()});else{create();restore()}
@@ -10925,16 +10985,72 @@ html.ups-hold-editing #upsScalePercent{display:block!important}
 
 
 <style id="ups-v23-stat-resize-performance-fix">
-/* v23: dashboard kartalarini alohida va silliq resize qilish */
-.sdx-stats > .stat-glass{
-  min-width:0;
-  contain:paint;
-  will-change:width,height,scale,left,top;
-}
-html.ups2-scale-editing .sdx-stats > .stat-glass{
-  transition:none!important;
-}
+/* v24: faqat edit paytida compositor optimizatsiyasi — doimiy GPU layer yo‘q. */
+.sdx-stats > .stat-glass{min-width:0;contain:layout paint;}
+html.ups2-scale-editing .sdx-stats > .stat-glass{transition:none!important;}
+html.ups2-scale-editing .sdx-stats > .stat-glass.ups2-active-card{will-change:transform,width,height,left,top;}
 </style>
+
+
+
+<!-- ===== v24 ACCOUNT UI CLOUD SYNC ===== -->
+<script id="ups-v24-ui-cloud-sync">
+(function(){
+  const META_KEY="ups_ui_sync_v1";
+  const SYNC_KEYS=new Set([
+    "ups_language","sdx_full_custom_theme_v1","sdx_visual_settings","ups_full_site_theme","ups_sidebar_icon_theme",
+    "ups_full_layout_v1","ups_hold_layout_v1","ups_hold_scale_v1","ups_whole_login_card_scale_v3",
+    "ups_whole_login_card_panel_props_v1","ups_hold_bar_size_v1","sdx_video_audio_settings_v1",
+    "sdx_background_music_settings_v1","sdx_custom_apps","sdx_hidden_default_apps"
+  ]);
+  let applying=false,timer=0,currentUserId="",lastCloudStamp=0;
+  const rawSet=Storage.prototype.setItem,rawRemove=Storage.prototype.removeItem;
+
+  function snapshot(){
+    const items={};
+    for(const k of SYNC_KEYS){const v=localStorage.getItem(k);if(v!==null)items[k]=v;}
+    return items;
+  }
+  async function user(){try{return (await supabaseClient.auth.getUser())?.data?.user||null}catch(_){return null}}
+  async function push(){
+    if(applying)return;const u=await user();if(!u)return;currentUserId=u.id;
+    const payload={v:1,updatedAt:Date.now(),items:snapshot()};
+    try{await supabaseClient.auth.updateUser({data:{[META_KEY]:payload}});lastCloudStamp=payload.updatedAt}catch(e){console.warn("UI Cloud Sync upload:",e)}
+  }
+  function queuePush(){if(applying)return;clearTimeout(timer);timer=setTimeout(push,650)}
+
+  Storage.prototype.setItem=function(k,v){rawSet.call(this,k,v);if(this===localStorage&&SYNC_KEYS.has(String(k)))queuePush()};
+  Storage.prototype.removeItem=function(k){rawRemove.call(this,k);if(this===localStorage&&SYNC_KEYS.has(String(k)))queuePush()};
+
+  async function pull(){
+    const u=await user();if(!u)return;currentUserId=u.id;
+    const remote=u.user_metadata?.[META_KEY];
+    if(!remote||!remote.items||typeof remote.items!=="object") {queuePush();return;}
+    lastCloudStamp=Number(remote.updatedAt)||0;
+    let changed=false;applying=true;
+    try{
+      for(const k of SYNC_KEYS){
+        const rv=Object.prototype.hasOwnProperty.call(remote.items,k)?remote.items[k]:null;
+        const lv=localStorage.getItem(k);
+        if(rv!==null && String(rv)!==String(lv)){rawSet.call(localStorage,k,String(rv));changed=true;}
+      }
+    }finally{applying=false}
+    if(changed){
+      /* Barcha yopiq editorlar ham cloud qiymatlarini to‘liq qayta o‘qishi uchun faqat bir marta refresh. */
+      const token=`ups_ui_cloud_${u.id}_${lastCloudStamp}`;
+      if(sessionStorage.getItem(token)!=="1"){sessionStorage.setItem(token,"1");location.reload();return;}
+    }
+    try{if(typeof applyLanguage==="function")applyLanguage(localStorage.getItem("ups_language")||"uz")}catch(_){ }
+  }
+
+  async function boot(){
+    try{const {data:{session}}=await supabaseClient.auth.getSession();if(session?.user)await pull()}catch(_){ }
+    try{supabaseClient.auth.onAuthStateChange((event,session)=>{if(session?.user && (event==="SIGNED_IN"||event==="INITIAL_SESSION"||event==="TOKEN_REFRESHED"))setTimeout(pull,60)})}catch(_){ }
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot,{once:true});else boot();
+  window.upsCloudSyncNow=push;
+})();
+</script>
 
 </body>
 </html>
