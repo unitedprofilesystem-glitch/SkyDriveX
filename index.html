@@ -10312,5 +10312,268 @@ window.UPS_NO_LOGIN_AUTO_REFRESH_V41=true;
 })();
 </script>
 
+
+
+<style id="ups-v44-phone-ideal-ui">
+@media (max-width: 900px){
+  body.ups-mobile-menu-open{overflow:hidden!important;}
+  body.ups-mobile-menu-open #cloudPage{overflow:hidden!important;}
+
+  #cloudPage{
+    min-height:100dvh!important;
+    overflow-x:hidden!important;
+    background-attachment:scroll!important;
+  }
+
+  #cloudPage .header{
+    height:auto!important;
+    min-height:64px!important;
+    padding:calc(8px + env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) 10px max(12px,env(safe-area-inset-left))!important;
+    display:block!important;
+    background:rgba(2,11,26,.72)!important;
+    border-bottom:1px solid rgba(78,140,219,.18)!important;
+    backdrop-filter:blur(16px)!important;
+    -webkit-backdrop-filter:blur(16px)!important;
+  }
+
+  #cloudPage .header-right{
+    display:grid!important;
+    grid-template-columns:42px minmax(0,1fr) 42px!important;
+    align-items:center!important;
+    gap:10px!important;
+    width:100%!important;
+    min-width:0!important;
+  }
+
+  #cloudPage .x-top-icon{display:none!important;}
+
+  #cloudPage .x-top-search{
+    order:2!important;
+    width:100%!important;
+    max-width:none!important;
+    min-width:0!important;
+    height:42px!important;
+    border-radius:14px!important;
+    font-size:15px!important;
+    padding:0 14px!important;
+    background:rgba(4,18,39,.92)!important;
+    border:1px solid rgba(84,152,238,.22)!important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.04)!important;
+  }
+
+  #upsMobileMenuToggle,
+  #cloudPage .x-user-chip{
+    width:42px!important;
+    height:42px!important;
+    min-width:42px!important;
+    border-radius:14px!important;
+    display:grid!important;
+    place-items:center!important;
+    padding:0!important;
+    margin:0!important;
+    font-size:16px!important;
+    line-height:1!important;
+  }
+
+  #upsMobileMenuToggle{
+    order:1!important;
+    border:1px solid rgba(84,152,238,.24)!important;
+    background:rgba(4,18,39,.92)!important;
+    color:#f2f8ff!important;
+    box-shadow:none!important;
+    appearance:none!important;
+    -webkit-appearance:none!important;
+    flex:none!important;
+  }
+
+  #cloudPage .x-user-chip{
+    order:3!important;
+    font-size:12px!important;
+    font-weight:800!important;
+    background:linear-gradient(145deg,rgba(7,26,56,.96),rgba(10,44,94,.92))!important;
+    border:1px solid rgba(58,139,239,.40)!important;
+    box-shadow:0 0 0 2px rgba(20,134,255,.08)!important;
+  }
+
+  #upsMobileMenuBackdrop{
+    background:rgba(2,9,20,.44)!important;
+    backdrop-filter:none!important;
+    -webkit-backdrop-filter:none!important;
+  }
+
+  #cloudPage .sdx-sidebar{
+    width:min(84vw,310px)!important;
+    max-width:310px!important;
+    padding:calc(16px + env(safe-area-inset-top)) 14px calc(20px + env(safe-area-inset-bottom)) 14px!important;
+    background:linear-gradient(180deg,rgba(3,18,38,.98),rgba(4,14,31,.98))!important;
+    border-right:1px solid rgba(77,141,223,.22)!important;
+    box-shadow:20px 0 60px rgba(0,0,0,.32)!important;
+    transform:translateX(-105%)!important;
+  }
+  body.ups-mobile-menu-open #cloudPage .sdx-sidebar{transform:translateX(0)!important;}
+
+  #cloudPage .sdx-brand{
+    display:flex!important;
+    padding:0 4px 16px!important;
+    margin-bottom:4px!important;
+    border-bottom:1px solid rgba(77,141,223,.14)!important;
+  }
+  #cloudPage .sdx-mini-name{max-width:140px!important;font-size:13px!important;}
+  #cloudPage .sdx-avatar-menu{z-index:340!important;}
+
+  #cloudPage .sdx-nav{
+    display:flex!important;
+    flex-direction:column!important;
+    gap:8px!important;
+    width:100%!important;
+    padding-top:8px!important;
+  }
+
+  #cloudPage .sdx-nav a{
+    width:100%!important;
+    min-width:0!important;
+    flex:none!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:flex-start!important;
+    gap:12px!important;
+    padding:12px 13px!important;
+    border-radius:14px!important;
+    font-size:14px!important;
+    color:#d8e9ff!important;
+    background:rgba(10,31,59,.34)!important;
+    border:1px solid rgba(77,141,223,.12)!important;
+  }
+  #cloudPage .sdx-nav a span{display:inline!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;}
+  #cloudPage .sdx-nav a.active{
+    background:linear-gradient(135deg,#157eff,#3b97ff)!important;
+    border-color:rgba(107,180,255,.42)!important;
+    box-shadow:0 10px 24px rgba(21,126,255,.20)!important;
+  }
+  #cloudPage .sdx-side-storage{display:block!important;margin-top:16px!important;border-radius:16px!important;}
+
+  #cloudPage .container{
+    padding:16px max(14px,env(safe-area-inset-right)) calc(30px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left))!important;
+  }
+
+  #cloudPage .x-greeting{
+    display:block!important;
+    margin:4px 0 16px!important;
+    padding:0!important;
+  }
+  #cloudPage .x-greeting h1{font-size:17px!important;line-height:1.2!important;margin-bottom:6px!important;}
+  #cloudPage .x-greeting p{font-size:13px!important;line-height:1.45!important;color:#a9bbd6!important;}
+
+  #cloudPage .sdx-stats{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;margin-bottom:14px!important;}
+  #cloudPage .stat-glass{min-height:74px!important;padding:11px 12px!important;border-radius:16px!important;}
+  #cloudPage .stat-glass strong{font-size:16px!important;}
+  #cloudPage .stat-glass small{font-size:11px!important;}
+  #cloudPage .stat-sub{font-size:10px!important;}
+
+  #cloudPage .upload-box,
+  #cloudPage .files-card,
+  #cloudPage .toolbar,
+  #cloudPage .gdrive-card,
+  #cloudPage .apps-card,
+  #cloudPage .x-glass-card{
+    border-radius:20px!important;
+    padding:18px 14px!important;
+    overflow:visible!important;
+  }
+
+  #cloudPage .upload-box{margin-top:0!important;}
+  #cloudPage .upload-box h2{font-size:18px!important;margin-bottom:10px!important;}
+  #cloudPage .upload-box p{font-size:13px!important;line-height:1.5!important;margin-bottom:16px!important;}
+
+  #cloudPage .upload-btn,
+  #cloudPage .action-btn,
+  #cloudPage .btn,
+  #cloudPage .small-btn{
+    border-radius:14px!important;
+    min-height:52px!important;
+    padding:14px 16px!important;
+    font-size:16px!important;
+    font-weight:700!important;
+  }
+
+  #cloudPage .upload-btn{margin:8px 0!important;}
+  #cloudPage .toolbar{gap:10px!important;}
+  #cloudPage .search{height:46px!important;font-size:15px!important;border-radius:14px!important;}
+
+  #cloudPage .file{
+    padding:14px 0!important;
+    gap:12px!important;
+  }
+  #cloudPage .file-left{align-items:flex-start!important;gap:10px!important;}
+  #cloudPage .file-icon{width:44px!important;height:44px!important;border-radius:14px!important;}
+  #cloudPage .file-name{font-size:15px!important;line-height:1.35!important;}
+  #cloudPage .file-size{font-size:12px!important;line-height:1.4!important;}
+  #cloudPage .file-actions{display:grid!important;grid-template-columns:1fr 1fr!important;gap:10px!important;width:100%!important;}
+  #cloudPage .file-actions .btn{width:100%!important;min-height:48px!important;}
+
+  .sdx-video-sound-float{
+    width:38px!important;
+    height:38px!important;
+    top:84px!important;
+    right:12px!important;
+    border-radius:14px!important;
+  }
+}
+
+@media (max-width: 480px){
+  #cloudPage .header-right{grid-template-columns:40px minmax(0,1fr) 40px!important;gap:8px!important;}
+  #upsMobileMenuToggle,#cloudPage .x-user-chip{width:40px!important;height:40px!important;min-width:40px!important;border-radius:13px!important;}
+  #cloudPage .container{padding-left:12px!important;padding-right:12px!important;}
+  #cloudPage .sdx-stats{grid-template-columns:1fr 1fr!important;}
+  #cloudPage .upload-box h2{font-size:17px!important;}
+  #cloudPage .upload-box p{font-size:12px!important;}
+  #cloudPage .upload-btn{min-height:50px!important;font-size:15px!important;}
+  #cloudPage .file-actions{grid-template-columns:1fr!important;}
+}
+</style>
+
+<script id="ups-v44-phone-ideal-ui-script">
+(function(){
+  function improvePhoneUI(){
+    const btn=document.getElementById('upsMobileMenuToggle');
+    const search=document.querySelector('#cloudPage .x-top-search');
+    const userChip=document.querySelector('#cloudPage .x-user-chip');
+    const backdrop=document.getElementById('upsMobileMenuBackdrop');
+    const sidebar=document.querySelector('#cloudPage .sdx-sidebar');
+    if(btn){
+      btn.textContent='☰';
+      btn.classList.remove('upload-btn','folder-btn','blue');
+      btn.style.width='42px';
+      btn.style.height='42px';
+      btn.style.minWidth='42px';
+      btn.style.padding='0';
+      btn.style.flex='0 0 42px';
+      btn.style.background='rgba(4,18,39,.92)';
+      btn.style.border='1px solid rgba(84,152,238,.24)';
+      btn.style.borderRadius='14px';
+    }
+    if(search){
+      search.placeholder='Qidirish...';
+    }
+    if(userChip){
+      userChip.textContent=(userChip.textContent||'US').trim().slice(0,2).toUpperCase() || 'US';
+      userChip.setAttribute('title','Profil');
+    }
+    if(backdrop){
+      backdrop.addEventListener('click',()=>document.body.classList.remove('ups-mobile-menu-open'));
+    }
+    if(sidebar){
+      sidebar.querySelectorAll('a').forEach(a=>{
+        if(a.dataset.upsV44==='1') return;
+        a.dataset.upsV44='1';
+        a.addEventListener('click',()=>{ if(window.matchMedia('(max-width: 900px)').matches) document.body.classList.remove('ups-mobile-menu-open'); });
+      });
+    }
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', improvePhoneUI, {once:true});
+  else improvePhoneUI();
+})();
+</script>
+
 </body>
 </html>
