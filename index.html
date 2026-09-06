@@ -5945,7 +5945,7 @@ else if(n===3||n===29){let k=n===3?'favorites':'pins',a=f74Get(k,[]);H=`<div cla
 else if(n===4){H=`<p>Savat Supabase’da xavfsiz ishlashi uchun fayllarni <b>trash/</b> papkasiga ko‘chirish kerak. Hozirgi fayl ro‘yxatidan o‘chirish hali original remove() funksiyasidan foydalanadi.</p><div class="f74-pre">Keyingi server bosqichi: copy → trash → restore/permanent delete.</div>`}
 else if(n===5||n===36){let locked=!!f74Get('vaultLock',false);H=`<div class="f74-row"><input id="vaultPin74" class="input" type="password" placeholder="PIN"><button class="action-btn blue" onclick="setVaultPin74()">PIN saqlash</button></div><p class="f74-muted">Brauzer ichidagi PIN qulaylik uchun. Juda maxfiy fayllar uchun server-side himoya va shifrlash kerak.</p><div class="f74-item"><span>Vault holati</span><b>${locked?'🔒 PIN o‘rnatilgan':'🔓 PIN yo‘q'}</b></div>`}
 else if(n===6||n===44||n===62){H=`<div class="f74-statgrid"><div class="f74-stat"><span>Fayllar</span><strong>${files.length}</strong></div><div class="f74-stat"><span>Papkalar</span><strong>${folders.length}</strong></div><div class="f74-stat"><span>Jami</span><strong>${formatSize(total)}</strong></div><div class="f74-stat"><span>Drive</span><strong>${typeof googleDriveTokenValid==='function'&&googleDriveTokenValid()?'Ulangan':'Ulanmagan'}</strong></div></div>`}
-else if(n===7){H=`<div class="f74-row"><button class="action-btn" onclick="setLang74('uz')">O‘zbek</button><button class="action-btn" onclick="setLang74('ru')">Русский</button><button class="action-btn" onclick="setLang74('en')">English</button></div><p>Tanlangan til: <b>${f74Get('lang','uz')}</b></p>`}
+else if(n===7){const lg=f74Get('lang',localStorage.getItem('ups_language')||'uz');const nm={uz:'O‘zbek',ru:'Русский',en:'English'};H=`<div class="f74-row"><button class="action-btn ${lg==='uz'?'active':''}" onclick="setLang74('uz')">${lg==='uz'?'✓ ':''}O‘zbek</button><button class="action-btn ${lg==='ru'?'active':''}" onclick="setLang74('ru')">${lg==='ru'?'✓ ':''}Русский</button><button class="action-btn ${lg==='en'?'active':''}" onclick="setLang74('en')">${lg==='en'?'✓ ':''}English</button></div><p>Tanlangan til: <b>${nm[lg]||lg}</b></p>`}
 else if(n===8||n===71){H=`<div class="f74-row"><button class="action-btn" onclick="theme74('dark')">Dark Blue Glass</button><button class="action-btn" onclick="theme74('light')">Light</button><button class="action-btn" onclick="theme74('amoled')">AMOLED</button></div><div class="f74-row"><input id="wall74" class="input" placeholder="Fon rasmi URL"><button class="action-btn blue" onclick="wallpaper74()">Fon qo‘yish</button></div>`}
 else if([9,10,11,32,33,34].includes(n)){H=`<p>Apps Launcher sozlamalari mavjud. Yangi ilova qo‘shish, kategoriyalash va sevimliga chiqarish uchun Apps bo‘limidan foydalaning.</p><div class="f74-row"><button class="action-btn blue" onclick="closeF74();document.querySelector('[onclick*=openAppsLauncher]')?.click()">Apps Launcher</button></div>`}
 else if([12,53,68,63].includes(n)){H=`<div class="f74-row"><input id="uSearch74" class="input" placeholder="Fayl, papka yoki ilova qidirish..." oninput="search74(this.value)"></div><div id="uSearchRes74" class="f74-list"></div>`}
@@ -5986,28 +5986,15 @@ else if(n===74){H=`<p>Backup Center muhim fayllarni ulangan cloud’ga nusxalash
 else H='<div class="empty">Modul tayyor.</div>';c.innerHTML=H}
 function setVaultPin74(){let v=document.getElementById('vaultPin74').value;if(v.length<4)return alert('Kamida 4 raqam/belgi');f74Set('vaultLock',true);localStorage.setItem('sdx74_vault_pin',btoa(unescape(encodeURIComponent(v))));alert('PIN saqlandi');renderF74(36)}
 function setLang74(v){
-  // 74 Features ichidagi Til tugmalari endi faqat saqlab qo'ymaydi —
-  // asosiy sayt tarjima dvigatelini ham darhol ishga tushiradi.
+  if(!['uz','ru','en'].includes(v))v='uz';
   f74Set('lang',v);
   localStorage.setItem('ups_language',v);
-
-  const apply=()=>{
-    if(typeof window.upsSetLanguage==='function'){
-      window.upsSetLanguage(v);
-      // Dynamic/modaldagi matnlar qayta chizilgandan keyin ham tilni saqlab qolish.
-      setTimeout(()=>window.upsSetLanguage && window.upsSetLanguage(v),0);
-      setTimeout(()=>window.upsSetLanguage && window.upsSetLanguage(v),250);
-    }
-  };
-  apply();
-
-  // Til modali ochiq bo'lsa, tanlov holatini yangilash.
+  if(typeof window.upsSetLanguage==='function') window.upsSetLanguage(v);
+  setTimeout(()=>{if(typeof window.upsSetLanguage==='function')window.upsSetLanguage(v)},50);
   const modal=document.getElementById('feature74Modal');
-  if(modal && !modal.classList.contains('hidden')){
-    renderF74(7);
-    apply();
-  }
+  if(modal && !modal.classList.contains('hidden')) renderF74(7);
 }
+
 function theme74(v){document.body.classList.remove('light74','amoled74');if(v==='light')document.body.classList.add('light74');if(v==='amoled')document.body.classList.add('amoled74');f74Set('theme',v)}
 function wallpaper74(){let u=document.getElementById('wall74').value.trim();if(!u)return;document.body.style.backgroundImage=`linear-gradient(rgba(3,10,25,.72),rgba(3,10,25,.72)),url("${u.replace(/"/g,'')}")`;document.body.style.backgroundSize='cover';document.body.style.backgroundAttachment='fixed';f74Set('wallpaper',u)}
 async function share74(){let p=document.getElementById('sharePath74').value.trim(),sec=Number(document.getElementById('shareSec74').value);if(!p)return;try{let {data,error}=await supabaseClient.storage.from(BUCKET).createSignedUrl(p,sec);if(error)throw error;document.getElementById('shareOut74').textContent=data.signedUrl;log74('Fayl uchun vaqtinchalik link yaratildi')}catch(e){document.getElementById('shareOut74').textContent='Xato: '+e.message}}
@@ -9070,6 +9057,21 @@ html[data-ups-full-family="vision"]{
   border-color:transparent!important;
   box-shadow:var(--ups-glow,0 0 0 transparent)!important;
 }
+
+.ups-language-current{
+  margin-top:9px;
+  padding:7px 8px;
+  border-radius:9px;
+  text-align:center;
+  font-size:10px;
+  font-weight:800;
+  color:var(--ups-text,#eefbfc);
+  background:rgba(5,23,35,.30);
+  border:1px solid rgba(105,199,212,.18);
+}
+.ups-lang-btn.active::after{
+  content:" ✓";
+}
 @media(max-width:800px){
   .ups-language-box{margin-top:10px}
 }
@@ -9594,15 +9596,33 @@ let translating=false;
 function stripEmojiPrefix(s){
   return s.replace(/^[\s\u2000-\u3300\u{1F000}-\u{1FAFF}▤▢▱△◈⚙◉☁⬆↺＋↩■▶🔊🔇🎵🔐🪄⚠💾]+/u,"").trim();
 }
+const upsI18nReverse={uz:new Map(),ru:new Map(),en:new Map()};
+for(const code of ["uz","ru","en"]){
+  for(const [key,val] of Object.entries(dict[code]||{})){
+    upsI18nReverse[code].set(String(val).trim(),key);
+    upsI18nReverse[code].set(String(key).trim(),key);
+  }
+}
+function canonicalLanguageKey(text){
+  const raw=String(text||"").trim();
+  if(!raw) return raw;
+  if(aliases[raw]) return aliases[raw];
+  if(dict.uz[raw]!==undefined) return raw;
+  for(const code of ["uz","ru","en"]){
+    const hit=upsI18nReverse[code].get(raw);
+    if(hit) return hit;
+  }
+  return raw;
+}
 function translateString(str,lang){
   if(!str || !str.trim()) return str;
   const raw=str.trim();
-  const alias=aliases[raw];
-  const key=alias || raw;
-  let val=dict[lang][key];
+  let key=canonicalLanguageKey(raw);
+  let val=dict[lang]?.[key];
   if(!val){
     const stripped=stripEmojiPrefix(raw);
-    val=dict[lang][stripped];
+    key=canonicalLanguageKey(stripped);
+    val=dict[lang]?.[key];
     if(val){
       const idx=raw.indexOf(stripped);
       const prefix=idx>0?raw.slice(0,idx):"";
@@ -9614,7 +9634,11 @@ function translateString(str,lang){
 
 function rememberOriginal(el,attr,val){
   const key="upsI18n"+attr[0].toUpperCase()+attr.slice(1);
-  if(!el.dataset[key]) el.dataset[key]=val;
+  if(!el.dataset[key]){
+    const raw=String(val||"");
+    const canonical=canonicalLanguageKey(raw);
+    el.dataset[key]=(dict.uz[canonical]!==undefined)?canonical:raw;
+  }
   return el.dataset[key];
 }
 function translateElement(el,lang){
@@ -9636,7 +9660,16 @@ function translateElement(el,lang){
     if(node.nodeType===Node.TEXT_NODE){
       const txt=node.nodeValue;
       if(!txt || !txt.trim()) continue;
-      if(!node.__upsOriginal) node.__upsOriginal=txt;
+      if(!node.__upsOriginal){
+        const rawOriginal=txt.trim();
+        const canonical=canonicalLanguageKey(stripEmojiPrefix(rawOriginal));
+        if(canonical && dict.uz[canonical]!==undefined){
+          const stripped=stripEmojiPrefix(rawOriginal);
+          const idx=rawOriginal.indexOf(stripped);
+          const prefix=idx>0?rawOriginal.slice(0,idx):"";
+          node.__upsOriginal=txt.replace(rawOriginal,prefix+canonical);
+        }else node.__upsOriginal=txt;
+      }
       const source=node.__upsOriginal;
       const lead=source.match(/^\s*/)?.[0]||"";
       const trail=source.match(/\s*$/)?.[0]||"";
@@ -9656,14 +9689,32 @@ function translateTree(root,lang){
     document.documentElement.lang=lang;
   }finally{translating=false}
 }
+function updateLanguageIndicator(lang){
+  const names={uz:"O‘zbek",ru:"Русский",en:"English"};
+  document.querySelectorAll(".ups-lang-btn").forEach(b=>{
+    const on=b.dataset.lang===lang;
+    b.classList.toggle("active",on);
+    b.setAttribute("aria-pressed",on?"true":"false");
+  });
+  const t=document.querySelector(".ups-language-title");
+  if(t) t.textContent=dict[lang]["Til"]||"Til";
+  const c=document.querySelector(".ups-language-current");
+  if(c){
+    const label=dict[lang]["Tanlangan til:"]||"Tanlangan til:";
+    c.textContent=label+" "+names[lang];
+  }
+}
 function applyLanguage(lang){
   if(!dict[lang]) lang="uz";
   current=lang;
   localStorage.setItem("ups_language",lang);
   translateTree(document.body,lang);
-  document.querySelectorAll(".ups-lang-btn").forEach(b=>b.classList.toggle("active",b.dataset.lang===lang));
-  const t=document.querySelector(".ups-language-title");
-  if(t) t.textContent=dict[lang]["Til"];
+  updateLanguageIndicator(lang);
+  try{f74Set('lang',lang)}catch(_){}
+  window.dispatchEvent(new CustomEvent('ups-language-changed',{detail:{lang}}));
+  setTimeout(()=>{
+    try{translateTree(document.body,lang);updateLanguageIndicator(lang)}catch(_){}
+  },80);
 }
 function mountLanguage(){
   const nav=document.querySelector(".sdx-sidebar .sdx-nav");
@@ -9678,7 +9729,8 @@ function mountLanguage(){
       <button type="button" class="ups-lang-btn" data-lang="uz">UZ</button>
       <button type="button" class="ups-lang-btn" data-lang="ru">RU</button>
       <button type="button" class="ups-lang-btn" data-lang="en">EN</button>
-    </div>`;
+    </div>
+    <div class="ups-language-current" aria-live="polite"></div>`;
   storage.parentNode.insertBefore(box,storage);
   box.querySelectorAll(".ups-lang-btn").forEach(b=>b.addEventListener("click",()=>applyLanguage(b.dataset.lang)));
   applyLanguage(current);
@@ -9740,32 +9792,6 @@ window.upsSetLanguage=applyLanguage;
 
 
 <!-- ===== UPS FIXED LONG-PRESS WHOLE LOGIN CARD SCALE ===== -->
-<style id="ups-fixed-card-scale-style">
-/* Eski 4-corner tutqichlarni yashiramiz; yangi universal tutqichlar ishlaydi. */
-.ups-scale-handle,#upsScalePercent{display:none!important}
-#ups2ScaleFrame{
-  position:fixed!important;z-index:2147483600!important;display:none;
-  border:2px dashed #78edf2!important;border-radius:10px!important;
-  box-shadow:0 0 0 2px rgba(120,237,242,.16),0 0 24px rgba(79,220,231,.18)!important;
-  pointer-events:none!important;
-}
-.ups2-scale-handle{
-  position:fixed!important;z-index:2147483610!important;display:none;
-  width:22px!important;height:22px!important;border-radius:6px!important;
-  background:#7ceff3!important;border:3px solid #06232d!important;
-  box-shadow:0 0 0 2px rgba(124,239,243,.35),0 6px 18px rgba(0,0,0,.45)!important;
-  touch-action:none!important;user-select:none!important;-webkit-user-select:none!important;
-}
-.ups2-scale-handle[data-corner="tl"],.ups2-scale-handle[data-corner="br"]{cursor:nwse-resize!important}
-.ups2-scale-handle[data-corner="tr"],.ups2-scale-handle[data-corner="bl"]{cursor:nesw-resize!important}
-#ups2ScaleBadge{
-  position:fixed!important;z-index:2147483615!important;display:none;
-  padding:5px 9px!important;border-radius:9px!important;
-  background:rgba(5,25,35,.97)!important;border:1px solid rgba(124,239,243,.45)!important;
-  color:#e9ffff!important;font:800 11px system-ui,sans-serif!important;
-  pointer-events:none!important;box-shadow:0 8px 22px rgba(0,0,0,.32)!important;
-}
-</style>
 <script id="ups-v26-edit-performance-manager">
 (function(){
   let depth=0,idleTimer=0;
@@ -9781,314 +9807,119 @@ window.upsSetLanguage=applyLanguage;
 html.ups-edit-busy .sdx-main,html.ups-edit-busy .sdx-content{scroll-behavior:auto!important}
 html.ups-edit-busy .sdx-stats > .stat-glass{transition:none!important}
 </style>
-<script id="ups-fixed-card-scale-script">
+<!-- ===== UPS WHOLE CARD CONTROL PANEL — ADDED ONLY, BACKGROUND UNCHANGED ===== -->
+
+<style id="ups-v27-universal-editor-style">
+#upsUFrame{position:fixed;display:none;z-index:2147483600;border:2px dashed #78edf2;border-radius:9px;pointer-events:none;box-shadow:0 0 0 2px rgba(120,237,242,.14),0 0 22px rgba(79,220,231,.18)}
+.upsUHandle{position:fixed;display:none;z-index:2147483610;width:20px;height:20px;border-radius:6px;background:#7ceff3;border:3px solid #06232d;box-shadow:0 0 0 2px rgba(124,239,243,.30),0 6px 18px rgba(0,0,0,.40);touch-action:none;user-select:none;-webkit-user-select:none}
+.upsUHandle[data-corner="tl"],.upsUHandle[data-corner="br"]{cursor:nwse-resize}.upsUHandle[data-corner="tr"],.upsUHandle[data-corner="bl"]{cursor:nesw-resize}
+.upsUHandle[data-corner="t"],.upsUHandle[data-corner="b"]{cursor:ns-resize}.upsUHandle[data-corner="l"],.upsUHandle[data-corner="r"]{cursor:ew-resize}
+#upsURotateStem{position:fixed;display:none;z-index:2147483605;width:2px;height:28px;background:#7ceff3;transform:translateX(-1px);pointer-events:none;box-shadow:0 0 8px rgba(124,239,243,.55)}
+#upsURotate{position:fixed;display:none;z-index:2147483612;width:24px;height:24px;border-radius:50%;background:#7ceff3;border:3px solid #06232d;box-shadow:0 0 0 2px rgba(124,239,243,.30),0 6px 18px rgba(0,0,0,.40);cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;display:none;align-items:center;justify-content:center;color:#06232d;font:bold 15px/1 system-ui}#upsURotate:active{cursor:grabbing}
+#upsUPanel{position:fixed;right:14px;top:14px;z-index:2147483640;width:min(365px,calc(100vw - 28px));display:none;padding:12px;border:1px solid rgba(120,237,242,.42);border-radius:14px;background:rgba(4,18,31,.97);box-shadow:0 18px 50px rgba(0,0,0,.48);backdrop-filter:blur(14px);font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#efffff}
+#upsUPanel .upsUHead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:9px;font-weight:850;font-size:13px}#upsUPanel .upsUClose{width:30px;height:30px;border:0;border-radius:8px;background:rgba(255,255,255,.08);color:#fff;cursor:pointer}
+#upsUPanel .upsUGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}#upsUPanel button.upsUBtn{min-width:0;padding:9px 5px;border-radius:9px;border:1px solid rgba(120,237,242,.22);background:rgba(21,55,77,.88);color:#eaffff;font:750 11px system-ui;cursor:pointer}#upsUPanel button.upsUBtn:hover{background:rgba(36,86,114,.95)}#upsUPanel button.upsUWide{grid-column:span 2}#upsUPanel button.upsUActive{background:#1586a4;border-color:#7ceff3}
+html.ups-edit-busy *{animation-play-state:paused!important}
+@media(max-width:650px){#upsUPanel{right:8px;top:8px;width:min(355px,calc(100vw - 16px));padding:9px}#upsUPanel .upsUGrid{gap:5px}#upsUPanel button.upsUBtn{padding:8px 4px;font-size:10px}}
+</style>
+
+<script id="ups-v27-universal-editor-script">
 (function(){
-  /* Lightweight whole-card scaler: one pointer system, no MutationObserver loop. */
-  const HOLD_MS=430;
-  const MIN=.40, MAX=1.70;
-  const STORE='ups_whole_login_card_scale_v3';
+  'use strict';
+  const STORE='ups_universal_element_edit_v1';
+  const HOLD_MS=460;
+  const STEP=6;
+  const TARGETS='section,div,article,aside,a,button,label,input,select,textarea,img,video,table,tr,td,th,h1,h2,h3,h4,p,small,strong,span';
+  const ROOT_EXCLUDE=new Set(['cloudPage','dashboardTop']);
+  let active=null, holdTimer=0, holdStart=null, suppressClick=false, dragMode=false, moveState=null, resizeState=null, rotateState=null, raf=0, pendingPos=null;
 
-  let selected=null;
-  let holdTimer=null;
-  let holdPointerId=null;
-  let startX=0,startY=0;
-  let resizing=null;
-  let frame=null,badge=null,handles=[];
-  let posRAF=0;
-  function schedulePosition(){
-    if(posRAF)return;
-    posRAF=requestAnimationFrame(()=>{posRAF=0;position()});
-  }
+  const frame=document.createElement('div');frame.id='upsUFrame';document.body.appendChild(frame);
+  const handles=['tl','t','tr','r','br','b','bl','l'].map(c=>{const h=document.createElement('div');h.className='upsUHandle';h.dataset.corner=c;document.body.appendChild(h);return h});
+  const rotateStem=document.createElement('div');rotateStem.id='upsURotateStem';document.body.appendChild(rotateStem);
+  const rotateHandle=document.createElement('div');rotateHandle.id='upsURotate';rotateHandle.textContent='↻';document.body.appendChild(rotateHandle);
+  const panel=document.createElement('div');panel.id='upsUPanel';panel.innerHTML=`
+    <div class="upsUHead"><span id="upsUTitle">Element</span><button class="upsUClose" type="button">✕</button></div>
+    <div class="upsUGrid">
+      <button class="upsUBtn" data-act="left">← Chap</button><button class="upsUBtn" data-act="right">O‘ng →</button><button class="upsUBtn" data-act="up">↑ Tepa</button><button class="upsUBtn" data-act="down">↓ Past</button>
+      <button class="upsUBtn" data-act="w-">En −</button><button class="upsUBtn" data-act="w+">En +</button><button class="upsUBtn" data-act="h-">Bo‘y −</button><button class="upsUBtn" data-act="h+">Bo‘y +</button>
+      <button class="upsUBtn" data-act="font-">Matn −</button><button class="upsUBtn" data-act="font+">Matn +</button><button class="upsUBtn" data-act="pad-">Padding −</button><button class="upsUBtn" data-act="pad+">Padding +</button>
+      <button class="upsUBtn" data-act="rad-">Burchak −</button><button class="upsUBtn" data-act="rad+">Burchak +</button><button class="upsUBtn upsUWide" data-act="reset">Reset</button><button class="upsUBtn upsUWide" data-act="drag">Sudrash</button>
+    </div>`;document.body.appendChild(panel);
 
-  function targetCard(node){
-    if(!(node instanceof Element)) return null;
-    if(node.closest('.ups2-scale-handle,#upsHoldEditBar,#upsLayoutEditorPanel,#upsLayoutEditorToggle,#upsLayoutResizeHandle')) return null;
-    return node.closest('#authPage .auth-card,.ups-security-card,.ups-recovery-box,.sdx-stats > .stat-glass');
-  }
-
-  function keyFor(el){
-    if(el.matches('#authPage .auth-card')) return 'auth-card';
-    if(el.id) return 'id:'+el.id;
-    if(el.matches('.sdx-stats > .stat-glass')){
-      const cards=[...document.querySelectorAll('.sdx-stats > .stat-glass')];
-      const i=Math.max(0,cards.indexOf(el));
-      const title=(el.querySelector('small')?.textContent||'stat').trim().toLowerCase().replace(/[^a-z0-9_-]+/g,'-').slice(0,32);
-      return 'stat:'+i+':'+title;
+  function read(){try{return JSON.parse(localStorage.getItem(STORE)||'{}')||{}}catch(_){return {}}}
+  function write(v){try{localStorage.setItem(STORE,JSON.stringify(v))}catch(_){}}
+  function esc(s){return (window.CSS&&CSS.escape)?CSS.escape(s):String(s).replace(/[^a-zA-Z0-9_-]/g,'\\$&')}
+  function key(el){
+    if(!el)return '';
+    if(el.id)return 'id:'+el.id;
+    const parts=[];let n=el;
+    while(n&&n instanceof Element&&n.id!=='cloudPage'&&n.id!=='authPage'){
+      let p=n.tagName.toLowerCase();
+      const cls=[...n.classList].filter(x=>!x.startsWith('upsU')).slice(0,2);if(cls.length)p+='.'+cls.map(esc).join('.');
+      if(n.parentElement){const same=[...n.parentElement.children].filter(x=>x.tagName===n.tagName);if(same.length>1)p+=':nth-of-type('+(same.indexOf(n)+1)+')'}
+      parts.unshift(p);n=n.parentElement;
     }
-    return 'class:'+String(el.className||'card').replace(/\s+/g,'.').slice(0,80);
+    return 'path:'+parts.join('>');
   }
+  function targetFrom(node){
+    if(!(node instanceof Element))return null;
+    if(node.closest('#upsUPanel,.upsUHandle,#upsURotate,#upsUFrame,.modal:not(.hidden)'))return null;
+    const inAuth=node.closest('#authPage');
+    const inCloud=node.closest('#cloudPage');
+    if(!inAuth&&!inCloud)return null;
+    let el=node.closest('button,a,label,input,select,textarea')||node.closest(TARGETS);
+    if(!el)return null;
+    if(el.matches('html,body,main,nav,header')||ROOT_EXCLUDE.has(el.id)||el.classList.contains('sdx-sidebar')||el.classList.contains('header'))return null;
+    if(el.matches('input[type="file"],script,style'))return null;
+    if(el.closest('#upsLanguageBox')&&el===document.getElementById('upsLanguageBox'))return el;
+    return el;
+  }
+  function label(el){
+    const txt=(el.getAttribute('aria-label')||el.getAttribute('title')||el.textContent||el.id||el.className||el.tagName).replace(/\s+/g,' ').trim();
+    return (txt||el.tagName).slice(0,38);
+  }
+  function show(){if(!active||!document.contains(active)){hide();return}const r=active.getBoundingClientRect();if(!r.width&&!r.height){hide();return}frame.style.display='block';frame.style.left=(r.left-2)+'px';frame.style.top=(r.top-2)+'px';frame.style.width=r.width+'px';frame.style.height=r.height+'px';const cx=r.left+r.width/2,cy=r.top+r.height/2;const pts={tl:[r.left,r.top],t:[cx,r.top],tr:[r.right,r.top],r:[r.right,cy],br:[r.right,r.bottom],b:[cx,r.bottom],bl:[r.left,r.bottom],l:[r.left,cy]};handles.forEach(h=>{const p=pts[h.dataset.corner];h.style.display='block';h.style.left=(p[0]-10)+'px';h.style.top=(p[1]-10)+'px'});rotateStem.style.display='block';rotateStem.style.left=cx+'px';rotateStem.style.top=(r.top-30)+'px';rotateHandle.style.display='flex';rotateHandle.style.left=(cx-12)+'px';rotateHandle.style.top=(r.top-54)+'px';panel.style.display='block'}
+  function scheduleShow(){if(raf)return;raf=requestAnimationFrame(()=>{raf=0;show()})}
+  function hide(){active=null;dragMode=false;moveState=null;resizeState=null;rotateState=null;frame.style.display='none';handles.forEach(h=>h.style.display='none');rotateStem.style.display='none';rotateHandle.style.display='none';panel.style.display='none'}
+  function select(el){if(!el)return;active=el;dragMode=false;document.getElementById('upsUTitle').textContent=label(el);panel.querySelector('[data-act="drag"]').classList.remove('upsUActive');show()}
+  function metric(el){const cs=getComputedStyle(el),r=el.getBoundingClientRect();const sp=String(el.style.scale||'1').trim().split(/\s+/);const sx=parseFloat(sp[0])||1,sy=parseFloat(sp[1])||sx;const rot=parseFloat(String(el.style.rotate||'0').replace('deg',''))||0;return {tx:parseFloat(el.style.translate?.split(' ')[0])||0,ty:parseFloat(el.style.translate?.split(' ')[1])||0,w:parseFloat(el.style.width)||Math.max(1,r.width/sx),h:parseFloat(el.style.height)||Math.max(1,r.height/sy),font:parseFloat(cs.fontSize)||16,pad:parseFloat(cs.paddingTop)||0,rad:parseFloat(cs.borderTopLeftRadius)||0,sx,sy,rot,scale:sx}}
+  function save(el){if(!el)return;const m=read();m[key(el)]=metric(el);write(m)}
+  function apply(el,m){if(!el||!m)return;if(Number.isFinite(m.tx)||Number.isFinite(m.ty))el.style.setProperty('translate',(Number(m.tx)||0)+'px '+(Number(m.ty)||0)+'px','important');if(m.w>0)el.style.setProperty('width',m.w+'px','important');if(m.h>0)el.style.setProperty('height',m.h+'px','important');if(m.font>0)el.style.setProperty('font-size',m.font+'px','important');if(m.pad>=0)el.style.setProperty('padding',m.pad+'px','important');if(m.rad>=0)el.style.setProperty('border-radius',m.rad+'px','important');const sx=Number(m.sx)||Number(m.scale)||1,sy=Number(m.sy)||Number(m.scale)||sx;if(sx!==1||sy!==1)el.style.setProperty('scale',sx+' '+sy,'important');if(Number(m.rot))el.style.setProperty('rotate',Number(m.rot)+'deg','important')}
+  function restore(root=document){const all=read();let els=[];try{els=[...root.querySelectorAll?.(TARGETS)||[]]}catch(_){return}for(const el of els){const m=all[key(el)];if(m)apply(el,m)}}
+  function busy(on){try{window.upsSetEditBusy?.(on)}catch(_){}}
+  function tweak(act){if(!active)return;busy(true);const m=metric(active);switch(act){case'left':m.tx-=STEP;break;case'right':m.tx+=STEP;break;case'up':m.ty-=STEP;break;case'down':m.ty+=STEP;break;case'w-':m.w=Math.max(24,m.w-STEP*2);break;case'w+':m.w=Math.min(innerWidth*1.8,m.w+STEP*2);break;case'h-':m.h=Math.max(20,m.h-STEP*2);break;case'h+':m.h=Math.min(innerHeight*1.8,m.h+STEP*2);break;case'font-':m.font=Math.max(6,m.font-1);break;case'font+':m.font=Math.min(80,m.font+1);break;case'pad-':m.pad=Math.max(0,m.pad-2);break;case'pad+':m.pad=Math.min(120,m.pad+2);break;case'rad-':m.rad=Math.max(0,m.rad-2);break;case'rad+':m.rad=Math.min(100,m.rad+2);break;}
+    apply(active,m);save(active);scheduleShow();busy(false)}
+  function reset(){if(!active)return;busy(true);const m=read();delete m[key(active)];write(m);['translate','scale','rotate','width','height','font-size','padding','border-radius'].forEach(p=>active.style.removeProperty(p));scheduleShow();busy(false)}
 
-  function readStore(){
-    try{return JSON.parse(localStorage.getItem(STORE)||'{}')||{}}catch(_){return {}}
-  }
-  function saveScale(el,s){
-    const m=readStore();m[keyFor(el)]=s;
-    try{localStorage.setItem(STORE,JSON.stringify(m))}catch(_){}
-  }
-  function getScale(el){
-    const a=parseFloat(el?.style?.scale||'');
-    if(Number.isFinite(a)&&a>0)return a;
-    try{const b=parseFloat(getComputedStyle(el).scale);if(Number.isFinite(b)&&b>0)return b}catch(_){}
-    return 1;
-  }
-  function applyScale(el,s,save=false){
-    if(!el)return;
-    s=Math.max(MIN,Math.min(MAX,s));
-    el.style.setProperty('scale',String(s),'important');
-    el.style.setProperty('transform-origin','center center','important');
-    if(save)saveScale(el,s);
-    schedulePosition();
-  }
-
-  function createUI(){
-    if(document.getElementById('ups2ScaleFrame')){
-      frame=document.getElementById('ups2ScaleFrame');
-      badge=document.getElementById('ups2ScaleBadge');
-      handles=[...document.querySelectorAll('.ups2-scale-handle')];
-      return;
-    }
-    frame=document.createElement('div');frame.id='ups2ScaleFrame';document.body.appendChild(frame);
-    ['tl','tr','bl','br'].forEach(c=>{
-      const h=document.createElement('div');
-      h.className='ups2-scale-handle';h.dataset.corner=c;
-      h.title='Butun oynani kichraytirish / kattalashtirish';
-      document.body.appendChild(h);handles.push(h);
-      h.addEventListener('pointerdown',beginResize,{capture:true});
-    });
-    badge=document.createElement('div');badge.id='ups2ScaleBadge';document.body.appendChild(badge);
-  }
-
-  function hideUI(){
-    window.ups2SelectedCard=null;
-    if(selected)selected.classList.remove('ups2-active-card');
-    if(window.ups2CardPanelHide) window.ups2CardPanelHide();
-    selected=null;
-    if(frame)frame.style.display='none';
-    handles.forEach(h=>h.style.display='none');
-    if(badge)badge.style.display='none';
-    document.documentElement.classList.remove('ups2-scale-editing');
-  }
-
-  function activate(el){
-    createUI();
-    document.querySelectorAll('.ups2-active-card').forEach(x=>x.classList.remove('ups2-active-card'));
-    selected=el; selected.classList.add('ups2-active-card');
-    window.ups2SelectedCard=el;
-    if(window.ups2CardPanelShow) window.ups2CardPanelShow(el);
-    document.documentElement.classList.add('ups2-scale-editing');
-    schedulePosition();
-  }
-
-  function position(){
-    window.ups2PositionScaleUI=position;
-    if(!selected || !selected.isConnected){hideUI();return}
-    const r=selected.getBoundingClientRect();
-    if(!r.width||!r.height)return;
-    frame.style.cssText += `;display:block;left:${Math.round(r.left)}px;top:${Math.round(r.top)}px;width:${Math.round(r.width)}px;height:${Math.round(r.height)}px`;
-    const half=11;
-    const pts={tl:[r.left-half,r.top-half],tr:[r.right-half,r.top-half],bl:[r.left-half,r.bottom-half],br:[r.right-half,r.bottom-half]};
-    handles.forEach(h=>{
-      const p=pts[h.dataset.corner];
-      h.style.left=Math.round(p[0])+'px';
-      h.style.top=Math.round(p[1])+'px';
-      h.style.display='block';
-    });
-    badge.textContent=Math.round(getScale(selected)*100)+'%';
-    badge.style.left=Math.round(Math.max(8,Math.min(innerWidth-64,r.right-54)))+'px';
-    badge.style.top=Math.round(Math.max(8,r.top-34))+'px';
-    badge.style.display='block';
-  }
-
-  function cancelHold(){
-    if(holdTimer)clearTimeout(holdTimer);
-    holdTimer=null;holdPointerId=null;
-  }
+  panel.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.classList.contains('upsUClose')){hide();return}const a=b.dataset.act;if(!a)return;if(a==='reset'){reset();return}if(a==='drag'){dragMode=!dragMode;b.classList.toggle('upsUActive',dragMode);return}tweak(a)});
 
   document.addEventListener('pointerdown',e=>{
-    if(e.pointerType==='mouse' && e.button!==0)return;
-    const el=targetCard(e.target);if(!el)return;
-    startX=e.clientX;startY=e.clientY;holdPointerId=e.pointerId;
-    if(holdTimer)clearTimeout(holdTimer);
-    holdTimer=setTimeout(()=>{
-      holdTimer=null;
-      activate(el);
-    },HOLD_MS);
+    if(e.button!==undefined&&e.button!==0)return;
+    if(e.target instanceof Element&&e.target.closest('#upsUPanel,.upsUHandle,#upsURotate'))return;
+    if(dragMode&&active&&e.target instanceof Element&&(e.target===active||e.target.closest('*')&&active.contains(e.target))){busy(true);const m=metric(active);moveState={id:e.pointerId,x:e.clientX,y:e.clientY,tx:m.tx,ty:m.ty};try{active.setPointerCapture?.(e.pointerId)}catch(_){};e.preventDefault();return}
+    const el=targetFrom(e.target);if(!el)return;holdStart={id:e.pointerId,x:e.clientX,y:e.clientY,el};clearTimeout(holdTimer);holdTimer=setTimeout(()=>{if(!holdStart)return;suppressClick=true;select(holdStart.el);holdStart=null},HOLD_MS)
   },true);
+  document.addEventListener('pointermove',e=>{if(moveState&&e.pointerId===moveState.id){pendingPos={tx:moveState.tx+(e.clientX-moveState.x),ty:moveState.ty+(e.clientY-moveState.y)};if(!raf)raf=requestAnimationFrame(()=>{raf=0;if(active&&pendingPos){active.style.setProperty('translate',pendingPos.tx+'px '+pendingPos.ty+'px','important');pendingPos=null;show()}});e.preventDefault();return}if(holdStart&&e.pointerId===holdStart.id&&Math.hypot(e.clientX-holdStart.x,e.clientY-holdStart.y)>9){clearTimeout(holdTimer);holdStart=null}},true);
+  function endPointer(e){clearTimeout(holdTimer);holdStart=null;if(moveState&&e.pointerId===moveState.id){save(active);moveState=null;busy(false);scheduleShow()}}
+  document.addEventListener('pointerup',endPointer,true);document.addEventListener('pointercancel',endPointer,true);
+  document.addEventListener('click',e=>{if(suppressClick){suppressClick=false;e.preventDefault();e.stopImmediatePropagation()}},true);
 
-  let resizeRAF=0,lastResizeEvent=null;
-  document.addEventListener('pointermove',e=>{
-    if(holdTimer && e.pointerId===holdPointerId && Math.hypot(e.clientX-startX,e.clientY-startY)>10)cancelHold();
-    if(!resizing || e.pointerId!==resizing.pointerId || !selected)return;
-    e.preventDefault();
-    lastResizeEvent=e;
-    if(resizeRAF)return;
-    resizeRAF=requestAnimationFrame(()=>{
-      resizeRAF=0;
-      const ev=lastResizeEvent;
-      if(!ev||!resizing||!selected)return;
-      const d=Math.max(8,Math.hypot(ev.clientX-resizing.cx,ev.clientY-resizing.cy));
-      applyScale(selected,resizing.startScale*(d/resizing.startDistance),false);
-    });
-  },{capture:true,passive:false});
+  handles.forEach(h=>h.addEventListener('pointerdown',e=>{if(!active)return;busy(true);const m=metric(active),r=active.getBoundingClientRect();resizeState={id:e.pointerId,corner:h.dataset.corner,x:e.clientX,y:e.clientY,sx:m.sx,sy:m.sy,w:r.width,h:r.height};try{h.setPointerCapture(e.pointerId)}catch(_){};e.preventDefault();e.stopPropagation()}));
+  handles.forEach(h=>h.addEventListener('pointermove',e=>{if(!resizeState||e.pointerId!==resizeState.id||!active)return;const c=resizeState.corner,dx=e.clientX-resizeState.x,dy=e.clientY-resizeState.y;let sx=resizeState.sx,sy=resizeState.sy;if(c.includes('l'))sx=resizeState.sx*Math.max(.15,1-dx/Math.max(30,resizeState.w));if(c.includes('r'))sx=resizeState.sx*Math.max(.15,1+dx/Math.max(30,resizeState.w));if(c.includes('t'))sy=resizeState.sy*Math.max(.15,1-dy/Math.max(24,resizeState.h));if(c.includes('b'))sy=resizeState.sy*Math.max(.15,1+dy/Math.max(24,resizeState.h));sx=Math.max(.15,Math.min(5,sx));sy=Math.max(.15,Math.min(5,sy));active.style.setProperty('scale',sx+' '+sy,'important');scheduleShow();e.preventDefault()}));
+  handles.forEach(h=>{const done=e=>{if(!resizeState||e.pointerId!==resizeState.id)return;save(active);resizeState=null;busy(false);scheduleShow()};h.addEventListener('pointerup',done);h.addEventListener('pointercancel',done)});
 
-  document.addEventListener('pointerup',e=>{
-    if(e.pointerId===holdPointerId)cancelHold();
-    if(resizing && e.pointerId===resizing.pointerId){
-      applyScale(selected,getScale(selected),true);
-      resizing=null;
-      try{window.upsSetEditBusy?.(false)}catch(_){}
-    }
-  },true);
-  document.addEventListener('pointercancel',e=>{
-    if(e.pointerId===holdPointerId)cancelHold();
-    if(resizing && e.pointerId===resizing.pointerId){resizing=null;requestAnimationFrame(position);try{window.upsSetEditBusy?.(false)}catch(_){}}
-  },true);
+  rotateHandle.addEventListener('pointerdown',e=>{if(!active)return;busy(true);const r=active.getBoundingClientRect(),m=metric(active),cx=r.left+r.width/2,cy=r.top+r.height/2;rotateState={id:e.pointerId,cx,cy,start:Math.atan2(e.clientY-cy,e.clientX-cx)*180/Math.PI,rot:m.rot};try{rotateHandle.setPointerCapture(e.pointerId)}catch(_){};e.preventDefault();e.stopPropagation()});
+  rotateHandle.addEventListener('pointermove',e=>{if(!rotateState||e.pointerId!==rotateState.id||!active)return;const a=Math.atan2(e.clientY-rotateState.cy,e.clientX-rotateState.cx)*180/Math.PI;let rot=rotateState.rot+(a-rotateState.start);if(e.shiftKey)rot=Math.round(rot/15)*15;rot=((rot+180)%360+360)%360-180;active.style.setProperty('rotate',rot.toFixed(2)+'deg','important');scheduleShow();e.preventDefault()});
+  function endRotate(e){if(!rotateState||e.pointerId!==rotateState.id)return;save(active);rotateState=null;busy(false);scheduleShow()}
+  rotateHandle.addEventListener('pointerup',endRotate);rotateHandle.addEventListener('pointercancel',endRotate);
 
-  function beginResize(e){
-    if(!selected)return;
-    e.preventDefault();e.stopPropagation();
-    try{window.upsSetEditBusy?.(true)}catch(_){}
-    const r=selected.getBoundingClientRect();
-    const cx=r.left+r.width/2,cy=r.top+r.height/2;
-    resizing={
-      pointerId:e.pointerId,
-      cx,cy,
-      startDistance:Math.max(20,Math.hypot(e.clientX-cx,e.clientY-cy)),
-      startScale:getScale(selected)
-    };
-    try{e.currentTarget.setPointerCapture(e.pointerId)}catch(_){}
-  }
-
-  /* Click/tap outside only closes handles; it does not alter the card. */
-  document.addEventListener('click',e=>{
-    if(!selected)return;
-    if(e.target instanceof Element && (e.target.closest('.ups2-scale-handle,#ups2CardEditBar') || e.target.closest('#authPage .auth-card,.ups-security-card,.ups-recovery-box,.sdx-stats > .stat-glass')))return;
-    hideUI();
-  },true);
-
-  function restore(){
-    const m=readStore();
-    document.querySelectorAll('#authPage .auth-card,.ups-security-card,.ups-recovery-box,.sdx-stats > .stat-glass').forEach(el=>{
-      const s=parseFloat(m[keyFor(el)]);
-      if(Number.isFinite(s)&&s>0)applyScale(el,s,false);
-    });
-  }
-
-  function boot(){
-    createUI();restore();
-    /* A couple of delayed restores cover dynamically shown auth/security cards without a permanent observer. */
-    setTimeout(restore,500);setTimeout(restore,1600);
-  }
-  window.addEventListener('resize',schedulePosition);
-  document.addEventListener('scroll',schedulePosition,true);
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+  window.addEventListener('scroll',scheduleShow,true);window.addEventListener('resize',scheduleShow);
+  // Debounced child-list restore only. No attribute observer, so editing does not create feedback loops.
+  let restoreTimer=0;const mo=new MutationObserver(muts=>{if(window.upsEditBusy)return;let added=false;for(const m of muts){if(m.addedNodes&&m.addedNodes.length){added=true;break}}if(!added)return;clearTimeout(restoreTimer);restoreTimer=setTimeout(()=>{if(!window.upsEditBusy)restore(document)},700)});mo.observe(document.documentElement,{subtree:true,childList:true});
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(()=>restore(document),150));else setTimeout(()=>restore(document),150);
+  window.upsUniversalEditRestore=()=>restore(document);
 })();
 </script>
-
-
-
-<!-- ===== UPS WHOLE CARD CONTROL PANEL — ADDED ONLY, BACKGROUND UNCHANGED ===== -->
-<style id="ups2-card-control-panel-style">
-#ups2CardEditBar{
-  position:fixed!important;z-index:2147483650!important;display:none!important;
-  width:min(414px,calc(100vw - 20px))!important;padding:12px!important;
-  border-radius:18px!important;background:linear-gradient(145deg,rgba(12,38,52,.98),rgba(6,22,34,.98))!important;
-  border:1px solid rgba(111,211,220,.38)!important;box-shadow:0 18px 55px rgba(0,0,0,.44)!important;
-  backdrop-filter:blur(22px)!important;-webkit-backdrop-filter:blur(22px)!important;
-  color:#eefbfc!important;font-family:system-ui,sans-serif!important;
-}
-#ups2CardEditBar.show{display:block!important}
-.ups2cp-head{display:flex;align-items:center;gap:9px;margin-bottom:10px}
-.ups2cp-name{flex:1;min-width:0;font-size:12px;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#c9f7f8}
-.ups2cp-close{width:38px!important;height:38px!important;min-width:38px!important;padding:0!important;border-radius:13px!important;border:1px solid rgba(111,211,220,.28)!important;background:rgba(4,20,31,.60)!important;color:#dffbfc!important;font-size:18px!important}
-.ups2cp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
-.ups2cp-btn{min-width:0!important;height:47px!important;padding:0 6px!important;border-radius:14px!important;border:1px solid rgba(111,211,220,.25)!important;background:rgba(23,79,96,.48)!important;color:#e8feff!important;font-size:12px!important;font-weight:850!important;cursor:pointer!important}
-.ups2cp-btn:hover{background:rgba(40,126,145,.60)!important}.ups2cp-btn.danger{color:#ff929e!important}
-.ups2cp-note{margin-top:9px;font-size:10px;line-height:1.4;color:#8eb4bb}
-#ups2CardEditBar.ups2cp-dragging{cursor:grabbing!important;user-select:none!important}
-@media(max-width:520px){#ups2CardEditBar{width:calc(100vw - 16px)!important;padding:9px!important}.ups2cp-btn{height:42px!important;font-size:11px!important}}
-</style>
-<script id="ups2-card-control-panel-script">
-(function(){
-  let bar=null, dragMode=false, move=null;
-  const STORE='ups_whole_login_card_panel_props_v1';
-
-  function selected(){return window.ups2SelectedCard||null}
-  function label(el){if(el?.matches?.('#authPage .auth-card'))return 'United Profile System';if(el?.matches?.('.stat-glass'))return ((el.querySelector('small')?.textContent||el.id||'Dashboard karta')+'').trim();return ((el?.innerText||el?.id||'Element')+'').trim().replace(/\s+/g,' ').slice(0,48)}
-  function ensurePos(el){if(!el)return;const cs=getComputedStyle(el);if(cs.position==='static')el.style.setProperty('position','relative','important');if(cs.left==='auto')el.style.setProperty('left','0px','important');if(cs.top==='auto')el.style.setProperty('top','0px','important')}
-  function key(el){
-    if(el?.matches?.('#authPage .auth-card'))return 'auth-card';
-    if(el?.id)return 'id:'+el.id;
-    if(el?.matches?.('.sdx-stats > .stat-glass')){
-      const cards=[...document.querySelectorAll('.sdx-stats > .stat-glass')];
-      const i=Math.max(0,cards.indexOf(el));
-      const title=(el.querySelector('small')?.textContent||'stat').trim().toLowerCase().replace(/[^a-z0-9_-]+/g,'-').slice(0,32);
-      return 'stat:'+i+':'+title;
-    }
-    return 'card:'+String(el?.className||'unknown').replace(/\s+/g,'.').slice(0,60)
-  }
-  function read(){try{return JSON.parse(localStorage.getItem(STORE)||'{}')||{}}catch(_){return {}}}
-  function save(el){if(!el)return;const cs=getComputedStyle(el),r=el.getBoundingClientRect(),m=read();m[key(el)]={left:parseFloat(cs.left)||0,top:parseFloat(cs.top)||0,width:parseFloat(el.style.width)||0,height:parseFloat(el.style.height)||0,font:parseFloat(cs.fontSize)||16,pad:parseFloat(cs.paddingTop)||0,rad:parseFloat(cs.borderTopLeftRadius)||0,sx:parseFloat(el.style.getPropertyValue('--ups2-stat-sx'))||1,sy:parseFloat(el.style.getPropertyValue('--ups2-stat-sy'))||1};try{localStorage.setItem(STORE,JSON.stringify(m))}catch(_){}}
-  function restore(){const all=read();document.querySelectorAll('#authPage .auth-card,.ups-security-card,.ups-recovery-box,.sdx-stats > .stat-glass').forEach(el=>{const m=all[key(el)];if(!m)return;ensurePos(el);if(Number.isFinite(m.left))el.style.setProperty('left',m.left+'px','important');if(Number.isFinite(m.top))el.style.setProperty('top',m.top+'px','important');if(el.matches('.sdx-stats > .stat-glass')){if((m.sx||1)!==1||(m.sy||1)!==1)applyStatAxis(el,Number(m.sx)||1,Number(m.sy)||1);}else{if(m.width>0)el.style.setProperty('width',m.width+'px','important');if(m.height>0)el.style.setProperty('height',m.height+'px','important');}if(m.font>0)el.style.setProperty('font-size',m.font+'px','important');if(m.pad>=0)el.style.setProperty('padding',m.pad+'px','important');if(m.rad>=0)el.style.setProperty('border-radius',m.rad+'px','important')})}
-  function repositionScale(){try{window.ups2PositionScaleUI?.()}catch(_){}}
-  function statAxis(el,name){const v=parseFloat(el.style.getPropertyValue(name)||'1');return Number.isFinite(v)&&v>0?v:1}
-  function applyStatAxis(el,sx,sy){sx=Math.max(.45,Math.min(2.5,sx));sy=Math.max(.45,Math.min(2.5,sy));el.style.setProperty('--ups2-stat-sx',String(sx));el.style.setProperty('--ups2-stat-sy',String(sy));el.style.setProperty('transform','scale(var(--ups2-stat-sx),var(--ups2-stat-sy))','important');el.style.setProperty('transform-origin','center center','important')}
-  function tweak(kind,delta){const el=selected();if(!el)return;try{window.upsSetEditBusy?.(true)}catch(_){};ensurePos(el);const cs=getComputedStyle(el);const raw=el.getBoundingClientRect();const sc=parseFloat(el.style.scale)||parseFloat(cs.scale)||1;const baseW=raw.width/(Number.isFinite(sc)&&sc>0?sc:1),baseH=raw.height/(Number.isFinite(sc)&&sc>0?sc:1);
-    if(kind==='x')el.style.setProperty('left',((parseFloat(cs.left)||0)+delta)+'px','important');
-    else if(kind==='y')el.style.setProperty('top',((parseFloat(cs.top)||0)+delta)+'px','important');
-    else if(kind==='w'){
-      const isStat=el.matches('.sdx-stats > .stat-glass');
-      if(isStat){const lw=Math.max(1,el.offsetWidth||baseW),sx=statAxis(el,'--ups2-stat-sx'),sy=statAxis(el,'--ups2-stat-sy');applyStatAxis(el,sx+(delta/lw),sy)}
-      else{const maxW=Math.max(320,Math.min(1400,window.innerWidth-30));el.style.setProperty('width',Math.max(260,Math.min(maxW,baseW+delta))+'px','important')}
-    }
-    else if(kind==='h'){
-      const isStat=el.matches('.sdx-stats > .stat-glass');
-      if(isStat){const lh=Math.max(1,el.offsetHeight||baseH),sx=statAxis(el,'--ups2-stat-sx'),sy=statAxis(el,'--ups2-stat-sy');applyStatAxis(el,sx,sy+(delta/lh))}
-      else{el.style.setProperty('height',Math.max(260,Math.min(1000,baseH+delta))+'px','important')}
-    }
-    else if(kind==='font')el.style.setProperty('font-size',Math.max(8,(parseFloat(cs.fontSize)||16)+delta)+'px','important');
-    else if(kind==='pad')el.style.setProperty('padding',Math.max(0,(parseFloat(cs.paddingTop)||0)+delta)+'px','important');
-    else if(kind==='rad')el.style.setProperty('border-radius',Math.max(0,(parseFloat(cs.borderTopLeftRadius)||0)+delta)+'px','important');
-    save(el);requestAnimationFrame(()=>{repositionScale();try{window.upsSetEditBusy?.(false)}catch(_){}})
-  }
-  function reset(){const el=selected();if(!el)return;const m=read();delete m[key(el)];try{localStorage.setItem(STORE,JSON.stringify(m))}catch(_){};['left','top','width','height','font-size','padding','border-radius','position','justify-self','align-self','min-width','max-width','transform','transform-origin','--ups2-stat-sx','--ups2-stat-sy'].forEach(p=>el.style.removeProperty(p));requestAnimationFrame(repositionScale)}
-  function create(){if(document.getElementById('ups2CardEditBar')){bar=document.getElementById('ups2CardEditBar');return}bar=document.createElement('div');bar.id='ups2CardEditBar';bar.innerHTML=`<div class="ups2cp-head"><div class="ups2cp-name" id="ups2CPName">United Profile System</div><button class="ups2cp-close" id="ups2CPClose">×</button></div><div class="ups2cp-grid"><button class="ups2cp-btn" data-k="x" data-d="-5">← Chap</button><button class="ups2cp-btn" data-k="x" data-d="5">O‘ng →</button><button class="ups2cp-btn" data-k="y" data-d="-5">↑ Tepa</button><button class="ups2cp-btn" data-k="y" data-d="5">↓ Past</button><button class="ups2cp-btn" data-k="w" data-d="-10">En −</button><button class="ups2cp-btn" data-k="w" data-d="10">En +</button><button class="ups2cp-btn" data-k="h" data-d="-10">Bo‘y −</button><button class="ups2cp-btn" data-k="h" data-d="10">Bo‘y +</button><button class="ups2cp-btn" data-k="font" data-d="-1">Matn −</button><button class="ups2cp-btn" data-k="font" data-d="1">Matn +</button><button class="ups2cp-btn" data-k="pad" data-d="-2">Padding −</button><button class="ups2cp-btn" data-k="pad" data-d="2">Padding +</button><button class="ups2cp-btn" data-k="rad" data-d="-2">Burchak −</button><button class="ups2cp-btn" data-k="rad" data-d="2">Burchak +</button><button class="ups2cp-btn danger" id="ups2CPReset">Reset</button><button class="ups2cp-btn" id="ups2CPDrag">Sudrash</button></div><div class="ups2cp-note">Element ustiga ~0.5 soniya bosib turing. “Sudrash”ni bosgach elementni erkin ko‘chirasiz. 4 burchakdan esa butun oynani proporsional kichraytirib/kattalashtirasiz.</div>`;document.body.appendChild(bar);
-    bar.querySelectorAll('[data-k]').forEach(b=>b.addEventListener('click',()=>tweak(b.dataset.k,Number(b.dataset.d))));
-    bar.querySelector('#ups2CPClose').addEventListener('click',()=>{bar.classList.remove('show')});
-    bar.querySelector('#ups2CPReset').addEventListener('click',reset);
-    bar.querySelector('#ups2CPDrag').addEventListener('click',()=>{dragMode=!dragMode;bar.querySelector('#ups2CPDrag').textContent=dragMode?'Sudrash ✓':'Sudrash'});
-  }
-  function show(el){create();document.getElementById('ups2CPName').textContent=label(el);const bw=Math.min(414,innerWidth-20);let x=10,y=10;const r=el.getBoundingClientRect();if(r.left>bw+25)x=10;else if(innerWidth-r.right>bw+25)x=innerWidth-bw-10;else{x=Math.max(10,Math.min(innerWidth-bw-10,r.left));y=Math.max(10,Math.min(innerHeight-300,r.top-310))}bar.style.left=x+'px';bar.style.top=y+'px';bar.classList.add('show')}
-  function hide(){if(bar)bar.classList.remove('show');dragMode=false;move=null}
-  window.ups2CardPanelShow=show;window.ups2CardPanelHide=hide;
-
-  document.addEventListener('pointerdown',e=>{if(!dragMode)return;const el=selected();if(!el || !(e.target instanceof Element) || !e.target.closest('#authPage .auth-card,.ups-security-card,.ups-recovery-box,.sdx-stats > .stat-glass'))return;try{window.upsSetEditBusy?.(true)}catch(_){};ensurePos(el);const cs=getComputedStyle(el);move={id:e.pointerId,x:e.clientX,y:e.clientY,left:parseFloat(cs.left)||0,top:parseFloat(cs.top)||0};e.preventDefault()},true);
-  let moveRAF=0,lastMoveEvent=null;
-  document.addEventListener('pointermove',e=>{
-    if(!move||e.pointerId!==move.id)return; e.preventDefault(); lastMoveEvent=e;
-    if(moveRAF)return;
-    moveRAF=requestAnimationFrame(()=>{
-      moveRAF=0;const ev=lastMoveEvent,el=selected();if(!ev||!el||!move)return;
-      el.style.setProperty('left',(move.left+ev.clientX-move.x)+'px','important');
-      el.style.setProperty('top',(move.top+ev.clientY-move.y)+'px','important');
-      repositionScale();
-    });
-  }, {capture:true,passive:false});
-  document.addEventListener('pointerup',e=>{if(move&&e.pointerId===move.id){save(selected());move=null;try{window.upsSetEditBusy?.(false)}catch(_){}}},true);
-  document.addEventListener('pointercancel',()=>{if(move){move=null;try{window.upsSetEditBusy?.(false)}catch(_){}}},true);
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{create();restore()});else{create();restore()}
-})();
-</script>
-
-
-<style id="ups-v23-stat-resize-performance-fix">
-/* v25: faqat edit paytida compositor optimizatsiyasi — doimiy GPU layer yo‘q. */
-.sdx-stats > .stat-glass{min-width:0;contain:layout paint;}
-html.ups2-scale-editing .sdx-stats > .stat-glass{transition:none!important;}
-html.ups2-scale-editing .sdx-stats > .stat-glass.ups2-active-card{will-change:transform,width,height,left,top;}
-</style>
-
-
 
 <!-- ===== v24 ACCOUNT UI CLOUD SYNC ===== -->
 <script id="ups-v24-ui-cloud-sync">
@@ -10097,7 +9928,7 @@ html.ups2-scale-editing .sdx-stats > .stat-glass.ups2-active-card{will-change:tr
   const SYNC_KEYS=new Set([
     "ups_language","sdx_full_custom_theme_v1","sdx_visual_settings","ups_full_site_theme","ups_sidebar_icon_theme",
     "ups_full_layout_v1","ups_hold_layout_v1","ups_hold_scale_v1","ups_whole_login_card_scale_v3",
-    "ups_whole_login_card_panel_props_v1","ups_hold_bar_size_v1","sdx_video_audio_settings_v1",
+    "ups_whole_login_card_panel_props_v1","ups_universal_element_edit_v1","ups_hold_bar_size_v1","sdx_video_audio_settings_v1",
     "sdx_background_music_settings_v1","sdx_custom_apps","sdx_hidden_default_apps"
   ]);
   let applying=false,timer=0,currentUserId="",lastCloudStamp=0;
