@@ -2121,12 +2121,14 @@ html.ups2-scale-editing .sdx-stats > .stat-glass.ups2-active-card{transition:non
 </style>
 
 <style id="ups-pc-same-layout-only">
-/* Exact 1600px desktop canvas on every device: positions stay identical. */
-html,body{min-width:1600px!important;width:1600px!important;}
-#cloudPage,#authPage{min-width:1600px!important;width:1600px!important;}
-#cloudPage .sdx-sidebar{width:215px!important;}
-#cloudPage .header{left:215px!important;width:1385px!important;}
-#cloudPage .container{margin-left:215px!important;width:1385px!important;max-width:1385px!important;box-sizing:border-box!important;}
+/* Desktop canvas only. Mobile/tablet must stay fluid. */
+@media (min-width: 901px) and (max-width: 1899px){
+  html,body{min-width:1600px!important;width:1600px!important;}
+  #cloudPage,#authPage{min-width:1600px!important;width:1600px!important;}
+  #cloudPage .sdx-sidebar{width:215px!important;}
+  #cloudPage .header{left:215px!important;width:1385px!important;}
+  #cloudPage .container{margin-left:215px!important;width:1385px!important;max-width:1385px!important;box-sizing:border-box!important;}
+}
 </style>
 
 <style id="ups-responsive-device-modes">
@@ -2142,16 +2144,16 @@ html,body{max-width:100%;overflow-x:hidden}
   .auth-title{font-size:13px!important;margin-bottom:18px!important}
   .input,.auth-btn{font-size:16px!important}
 
-  .sdx-sidebar{left:0!important;right:0!important;top:auto!important;bottom:0!important;width:100%!important;height:68px!important;min-width:0!important;display:flex!important;flex-direction:row!important;padding:8px 10px!important;border-right:0!important;border-top:1px solid var(--sdx-line)!important;z-index:200!important}
+  #cloudPage .sdx-sidebar{left:0!important;right:0!important;top:auto!important;bottom:0!important;width:100%!important;height:calc(68px + env(safe-area-inset-bottom))!important;min-width:0!important;display:flex!important;flex-direction:row!important;padding:8px 10px calc(8px + env(safe-area-inset-bottom))!important;border-right:0!important;border-top:1px solid var(--sdx-line)!important;z-index:200!important}
   .sdx-brand,.sdx-side-storage{display:none!important}
   .sdx-nav{width:100%!important;display:flex!important;flex-direction:row!important;justify-content:space-around!important;gap:2px!important;overflow-x:auto!important}
   .sdx-nav a{flex:1 0 auto!important;min-width:54px!important;justify-content:center!important;padding:9px 6px!important;font-size:18px!important}
   .sdx-nav a span{display:none!important}
 
-  .header{left:0!important;width:100%!important;max-width:100%!important;height:58px!important;padding:0 12px!important;position:sticky!important;top:0!important}
+  #cloudPage .header{left:0!important;right:0!important;width:100%!important;max-width:100%!important;height:58px!important;padding:0 12px!important;position:sticky!important;top:0!important}
   .header-right{gap:8px!important}
   .x-top-search{width:min(44vw,210px)!important}
-  .container{margin:0!important;margin-left:0!important;width:100%!important;max-width:100%!important;padding:14px 12px 88px!important}
+  #cloudPage .container{margin:0!important;margin-left:0!important;width:100%!important;max-width:100%!important;min-width:0!important;padding:14px 12px calc(88px + env(safe-area-inset-bottom))!important;box-sizing:border-box!important}
 
   .x-greeting{gap:10px!important}.x-greeting h1{font-size:15px!important}.x-badge{display:none!important}
   .sdx-stats{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
@@ -2175,6 +2177,14 @@ html,body{max-width:100%;overflow-x:hidden}
 
 /* VERY SMALL PHONES */
 @media (max-width: 480px){
+  #cloudPage{overflow-x:hidden!important}
+  #cloudPage .header-right{min-width:0!important;width:100%!important;justify-content:flex-end!important}
+  #cloudPage .x-top-search{width:min(46vw,170px)!important;min-width:0!important}
+  #cloudPage .x-top-icon,#cloudPage .x-user-chip{flex:0 0 auto!important}
+  #cloudPage .files-card,#cloudPage .apps-card,#cloudPage .gdrive-card,#cloudPage .upload-box,#cloudPage .toolbar{width:100%!important;max-width:100%!important;min-width:0!important;overflow:hidden!important}
+  #cloudPage .file-left,#cloudPage .file-info{min-width:0!important;max-width:100%!important}
+  #cloudPage .file-name{max-width:calc(100vw - 95px)!important}
+
   .auth-card{padding:22px 16px!important}
   .auth-logo{font-size:23px!important}
   .x-top-search{width:42vw!important}
