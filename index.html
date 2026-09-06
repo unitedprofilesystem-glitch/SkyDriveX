@@ -2250,10 +2250,10 @@ small{
   <div class="x-badge">VARIANT 5 · DARK BLUE GLASS</div>
 </section>
 <section class="sdx-stats">
-  <div class="stat-glass"><div class="stat-icon">▤</div><div><small>Fayllar</small><strong id="statFiles">—</strong><div class="stat-sub">+ faol fayllar</div></div></div>
-  <div class="stat-glass"><div class="stat-icon">📁</div><div><small>Papkalar</small><strong id="statFolders">—</strong><div class="stat-sub">papkalar soni</div></div></div>
-  <div class="stat-glass"><div class="stat-icon">☁</div><div><small>Storage</small><strong id="statStorage">0 B</strong><div class="stat-sub muted">ishlatilgan xotira</div></div></div>
-  <div class="stat-glass"><div class="stat-icon">△</div><div><small>Google Drive</small><strong id="statDrive">Ulanmagan</strong><div class="stat-sub muted">hisob holati</div></div></div>
+  <div class="stat-glass" id="upsStatFilesCard"><div class="stat-icon">▤</div><div><small>Fayllar</small><strong id="statFiles">—</strong><div class="stat-sub">+ faol fayllar</div></div></div>
+  <div class="stat-glass" id="upsStatFoldersCard"><div class="stat-icon">📁</div><div><small>Papkalar</small><strong id="statFolders">—</strong><div class="stat-sub">papkalar soni</div></div></div>
+  <div class="stat-glass" id="upsStatStorageCard"><div class="stat-icon">☁</div><div><small>Storage</small><strong id="statStorage">0 B</strong><div class="stat-sub muted">ishlatilgan xotira</div></div></div>
+  <div class="stat-glass" id="upsStatDriveCard"><div class="stat-icon">△</div><div><small>Google Drive</small><strong id="statDrive">Ulanmagan</strong><div class="stat-sub muted">hisob holati</div></div></div>
 </section>
 <!-- =====================================================
      UPLOAD
@@ -10150,6 +10150,9 @@ html.ups-hold-editing .ups-hold-selected{
   }
 
   function editableAncestor(el){
+    /* Whole login/security cards are handled by the lightweight 4-corner scaler below.
+       Do not open the old floating editor at the same time. */
+    if(el && el.closest && el.closest("#authPage .auth-card,.ups-security-card,.ups-recovery-box")) return null;
     let cur=el;
     while(cur && cur!==document.body){
       if(cur.dataset && cur.dataset.upsLayoutEditable==="1" && !protectedEl(cur)) return cur;
@@ -10407,6 +10410,453 @@ html.ups-hold-editing .ups-hold-selected{
 
   function boot(){create();setTimeout(restoreFallback,300)}
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);else boot();
+})();
+</script>
+
+
+
+<!-- ===== UPS 4-CORNER PROPORTIONAL SCALE HANDLES — BACKGROUND UNTOUCHED ===== -->
+<style id="ups-four-corner-scale-style">
+.ups-scale-handle{
+  position:fixed!important;
+  z-index:2147483190!important;
+  display:none;
+  width:18px!important;
+  height:18px!important;
+  border-radius:5px!important;
+  background:#77e9ee!important;
+  border:2px solid #06222d!important;
+  box-shadow:0 0 0 2px rgba(119,233,238,.32),0 4px 14px rgba(0,0,0,.42)!important;
+  touch-action:none!important;
+  user-select:none!important;
+}
+html.ups-hold-editing .ups-scale-handle{display:block!important}
+.ups-scale-handle[data-corner="tl"]{cursor:nwse-resize!important}
+.ups-scale-handle[data-corner="tr"]{cursor:nesw-resize!important}
+.ups-scale-handle[data-corner="bl"]{cursor:nesw-resize!important}
+.ups-scale-handle[data-corner="br"]{cursor:nwse-resize!important}
+#upsScalePercent{
+  position:fixed!important;
+  z-index:2147483191!important;
+  display:none!important;
+  min-width:52px!important;
+  padding:5px 8px!important;
+  border-radius:9px!important;
+  background:rgba(5,24,34,.95)!important;
+  border:1px solid rgba(119,233,238,.36)!important;
+  color:#dffcff!important;
+  font:800 10px system-ui,sans-serif!important;
+  text-align:center!important;
+  pointer-events:none!important;
+  box-shadow:0 8px 20px rgba(0,0,0,.28)!important;
+}
+html.ups-hold-editing #upsScalePercent{display:block!important}
+</style>
+
+<script id="ups-four-corner-scale-script">
+(function(){
+  const STORE="ups_hold_scale_v1";
+  const MIN=.30, MAX=2.00;
+  let handles=[], badge=null, active=null;
+
+  function label(el){
+    return ((el?.innerText||el?.getAttribute?.("placeholder")||el?.id||el?.className||el?.tagName||"")+"")
+      .trim().replace(/\s+/g," ").slice(0,55) || el?.tagName || "element";
+  }
+  function keyFor(el){
+    return el?.dataset?.upsLayoutKey || el?.id || ("hold:"+label(el));
+  }
+  function readMap(){try{return JSON.parse(localStorage.getItem(STORE)||"{}")||{}}catch(_){return {}}}
+  function writeMap(m){try{localStorage.setItem(STORE,JSON.stringify(m))}catch(_){}}
+  function currentScale(el){
+    const own=parseFloat(el?.style?.scale||"");
+    if(Number.isFinite(own)&&own>0)return own;
+    try{
+      const cs=getComputedStyle(el);
+      const v=parseFloat(cs.scale);
+      if(Number.isFinite(v)&&v>0)return v;
+    }catch(_){}
+    return 1;
+  }
+  function applyScale(el,s,save=true){
+    if(!el)return;
+    s=Math.max(MIN,Math.min(MAX,s));
+    el.style.setProperty("scale",String(s),"important");
+    el.style.setProperty("transform-origin","center center","important");
+    if(save){const m=readMap();m[keyFor(el)]=s;writeMap(m)}
+    position();
+  }
+  function selected(){return document.querySelector(".ups-hold-selected")}
+
+  function create(){
+    if(document.querySelector(".ups-scale-handle"))return;
+    ["tl","tr","bl","br"].forEach(c=>{
+      const h=document.createElement("div");
+      h.className="ups-scale-handle";
+      h.dataset.corner=c;
+      h.title="Umumiy kichraytirish / kattalashtirish";
+      document.body.appendChild(h);
+      handles.push(h);
+      h.addEventListener("pointerdown",start,true);
+      h.addEventListener("pointermove",move,true);
+      h.addEventListener("pointerup",finish,true);
+      h.addEventListener("pointercancel",finish,true);
+    });
+    badge=document.createElement("div");
+    badge.id="upsScalePercent";
+    document.body.appendChild(badge);
+  }
+
+  function position(){
+    const el=selected();
+    if(!el || !document.documentElement.classList.contains("ups-hold-editing")){
+      handles.forEach(h=>h.style.display="none");
+      if(badge)badge.style.display="none";
+      return;
+    }
+    const r=el.getBoundingClientRect();
+    if(!r.width||!r.height)return;
+    const half=9;
+    const pts={
+      tl:[r.left-half,r.top-half],
+      tr:[r.right-half,r.top-half],
+      bl:[r.left-half,r.bottom-half],
+      br:[r.right-half,r.bottom-half]
+    };
+    handles.forEach(h=>{
+      const p=pts[h.dataset.corner];
+      h.style.left=Math.round(p[0])+"px";
+      h.style.top=Math.round(p[1])+"px";
+      h.style.display="block";
+    });
+    if(badge){
+      badge.textContent=Math.round(currentScale(el)*100)+"%";
+      badge.style.left=Math.round(Math.max(6,Math.min(innerWidth-62,r.right-52)))+"px";
+      badge.style.top=Math.round(Math.max(6,r.top-34))+"px";
+      badge.style.display="block";
+    }
+  }
+
+  function start(e){
+    const el=selected(); if(!el)return;
+    e.preventDefault();e.stopPropagation();
+    const r=el.getBoundingClientRect();
+    const cx=r.left+r.width/2, cy=r.top+r.height/2;
+    const d=Math.max(20,Math.hypot(e.clientX-cx,e.clientY-cy));
+    active={el,cx,cy,d,scale:currentScale(el),pointerId:e.pointerId,handle:e.currentTarget};
+    try{e.currentTarget.setPointerCapture(e.pointerId)}catch(_){}
+  }
+  function move(e){
+    if(!active || e.pointerId!==active.pointerId)return;
+    e.preventDefault();e.stopPropagation();
+    const d=Math.max(8,Math.hypot(e.clientX-active.cx,e.clientY-active.cy));
+    const next=active.scale*(d/active.d);
+    applyScale(active.el,next,false);
+  }
+  function finish(e){
+    if(!active || (e.pointerId!=null && e.pointerId!==active.pointerId))return;
+    const el=active.el;
+    active=null;
+    const m=readMap();m[keyFor(el)]=currentScale(el);writeMap(m);
+    position();
+  }
+
+  function restore(){
+    const m=readMap();
+    document.querySelectorAll("[data-ups-layout-editable='1']").forEach(el=>{
+      const s=parseFloat(m[keyFor(el)]);
+      if(Number.isFinite(s)&&s>0){
+        el.style.setProperty("scale",String(Math.max(MIN,Math.min(MAX,s))),"important");
+        el.style.setProperty("transform-origin","center center","important");
+      }
+    });
+  }
+
+  const mo=new MutationObserver(()=>{restore();position()});
+  function boot(){
+    create();restore();position();
+    mo.observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:["class"]});
+    window.addEventListener("resize",position);
+    document.addEventListener("scroll",position,true);
+    document.addEventListener("pointerup",()=>setTimeout(position,0),true);
+    document.addEventListener("pointermove",()=>{if(active)position()},true);
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);else boot();
+})();
+</script>
+
+
+
+<!-- ===== UPS FIXED LONG-PRESS WHOLE LOGIN CARD SCALE ===== -->
+<style id="ups-fixed-card-scale-style">
+/* Eski 4-corner tutqichlarni yashiramiz; yangi universal tutqichlar ishlaydi. */
+.ups-scale-handle,#upsScalePercent{display:none!important}
+#ups2ScaleFrame{
+  position:fixed!important;z-index:2147483600!important;display:none;
+  border:2px dashed #78edf2!important;border-radius:10px!important;
+  box-shadow:0 0 0 2px rgba(120,237,242,.16),0 0 24px rgba(79,220,231,.18)!important;
+  pointer-events:none!important;
+}
+.ups2-scale-handle{
+  position:fixed!important;z-index:2147483610!important;display:none;
+  width:22px!important;height:22px!important;border-radius:6px!important;
+  background:#7ceff3!important;border:3px solid #06232d!important;
+  box-shadow:0 0 0 2px rgba(124,239,243,.35),0 6px 18px rgba(0,0,0,.45)!important;
+  touch-action:none!important;user-select:none!important;-webkit-user-select:none!important;
+}
+.ups2-scale-handle[data-corner="tl"],.ups2-scale-handle[data-corner="br"]{cursor:nwse-resize!important}
+.ups2-scale-handle[data-corner="tr"],.ups2-scale-handle[data-corner="bl"]{cursor:nesw-resize!important}
+#ups2ScaleBadge{
+  position:fixed!important;z-index:2147483615!important;display:none;
+  padding:5px 9px!important;border-radius:9px!important;
+  background:rgba(5,25,35,.97)!important;border:1px solid rgba(124,239,243,.45)!important;
+  color:#e9ffff!important;font:800 11px system-ui,sans-serif!important;
+  pointer-events:none!important;box-shadow:0 8px 22px rgba(0,0,0,.32)!important;
+}
+</style>
+<script id="ups-fixed-card-scale-script">
+(function(){
+  /* Lightweight whole-card scaler: one pointer system, no MutationObserver loop. */
+  const HOLD_MS=430;
+  const MIN=.40, MAX=1.70;
+  const STORE='ups_whole_login_card_scale_v3';
+
+  let selected=null;
+  let holdTimer=null;
+  let holdPointerId=null;
+  let startX=0,startY=0;
+  let resizing=null;
+  let frame=null,badge=null,handles=[];
+
+  function targetCard(node){
+    if(!(node instanceof Element)) return null;
+    if(node.closest('.ups2-scale-handle,#upsHoldEditBar,#upsLayoutEditorPanel,#upsLayoutEditorToggle,#upsLayoutResizeHandle')) return null;
+    return node.closest('#authPage .auth-card,.ups-security-card,.ups-recovery-box,.sdx-stats > .stat-glass');
+  }
+
+  function keyFor(el){
+    if(el.matches('#authPage .auth-card')) return 'auth-card';
+    if(el.id) return 'id:'+el.id;
+    return 'class:'+String(el.className||'card').replace(/\s+/g,'.').slice(0,80);
+  }
+
+  function readStore(){
+    try{return JSON.parse(localStorage.getItem(STORE)||'{}')||{}}catch(_){return {}}
+  }
+  function saveScale(el,s){
+    const m=readStore();m[keyFor(el)]=s;
+    try{localStorage.setItem(STORE,JSON.stringify(m))}catch(_){}
+  }
+  function getScale(el){
+    const a=parseFloat(el?.style?.scale||'');
+    if(Number.isFinite(a)&&a>0)return a;
+    try{const b=parseFloat(getComputedStyle(el).scale);if(Number.isFinite(b)&&b>0)return b}catch(_){}
+    return 1;
+  }
+  function applyScale(el,s,save=false){
+    if(!el)return;
+    s=Math.max(MIN,Math.min(MAX,s));
+    el.style.setProperty('scale',String(s),'important');
+    el.style.setProperty('transform-origin','center center','important');
+    if(save)saveScale(el,s);
+    requestAnimationFrame(position);
+  }
+
+  function createUI(){
+    if(document.getElementById('ups2ScaleFrame')){
+      frame=document.getElementById('ups2ScaleFrame');
+      badge=document.getElementById('ups2ScaleBadge');
+      handles=[...document.querySelectorAll('.ups2-scale-handle')];
+      return;
+    }
+    frame=document.createElement('div');frame.id='ups2ScaleFrame';document.body.appendChild(frame);
+    ['tl','tr','bl','br'].forEach(c=>{
+      const h=document.createElement('div');
+      h.className='ups2-scale-handle';h.dataset.corner=c;
+      h.title='Butun oynani kichraytirish / kattalashtirish';
+      document.body.appendChild(h);handles.push(h);
+      h.addEventListener('pointerdown',beginResize,{capture:true});
+    });
+    badge=document.createElement('div');badge.id='ups2ScaleBadge';document.body.appendChild(badge);
+  }
+
+  function hideUI(){
+    window.ups2SelectedCard=null;
+    if(window.ups2CardPanelHide) window.ups2CardPanelHide();
+    selected=null;
+    if(frame)frame.style.display='none';
+    handles.forEach(h=>h.style.display='none');
+    if(badge)badge.style.display='none';
+    document.documentElement.classList.remove('ups2-scale-editing');
+  }
+
+  function activate(el){
+    createUI();
+    selected=el;
+    window.ups2SelectedCard=el;
+    if(window.ups2CardPanelShow) window.ups2CardPanelShow(el);
+    document.documentElement.classList.add('ups2-scale-editing');
+    requestAnimationFrame(position);
+  }
+
+  function position(){
+    window.ups2PositionScaleUI=position;
+    if(!selected || !selected.isConnected){hideUI();return}
+    const r=selected.getBoundingClientRect();
+    if(!r.width||!r.height)return;
+    frame.style.cssText += `;display:block;left:${Math.round(r.left)}px;top:${Math.round(r.top)}px;width:${Math.round(r.width)}px;height:${Math.round(r.height)}px`;
+    const half=11;
+    const pts={tl:[r.left-half,r.top-half],tr:[r.right-half,r.top-half],bl:[r.left-half,r.bottom-half],br:[r.right-half,r.bottom-half]};
+    handles.forEach(h=>{
+      const p=pts[h.dataset.corner];
+      h.style.left=Math.round(p[0])+'px';
+      h.style.top=Math.round(p[1])+'px';
+      h.style.display='block';
+    });
+    badge.textContent=Math.round(getScale(selected)*100)+'%';
+    badge.style.left=Math.round(Math.max(8,Math.min(innerWidth-64,r.right-54)))+'px';
+    badge.style.top=Math.round(Math.max(8,r.top-34))+'px';
+    badge.style.display='block';
+  }
+
+  function cancelHold(){
+    if(holdTimer)clearTimeout(holdTimer);
+    holdTimer=null;holdPointerId=null;
+  }
+
+  document.addEventListener('pointerdown',e=>{
+    if(e.pointerType==='mouse' && e.button!==0)return;
+    const el=targetCard(e.target);if(!el)return;
+    startX=e.clientX;startY=e.clientY;holdPointerId=e.pointerId;
+    if(holdTimer)clearTimeout(holdTimer);
+    holdTimer=setTimeout(()=>{
+      holdTimer=null;
+      activate(el);
+    },HOLD_MS);
+  },true);
+
+  document.addEventListener('pointermove',e=>{
+    if(holdTimer && e.pointerId===holdPointerId && Math.hypot(e.clientX-startX,e.clientY-startY)>10)cancelHold();
+    if(!resizing || e.pointerId!==resizing.pointerId || !selected)return;
+    e.preventDefault();
+    const d=Math.max(8,Math.hypot(e.clientX-resizing.cx,e.clientY-resizing.cy));
+    applyScale(selected,resizing.startScale*(d/resizing.startDistance),false);
+  },{capture:true,passive:false});
+
+  document.addEventListener('pointerup',e=>{
+    if(e.pointerId===holdPointerId)cancelHold();
+    if(resizing && e.pointerId===resizing.pointerId){
+      applyScale(selected,getScale(selected),true);
+      resizing=null;
+    }
+  },true);
+  document.addEventListener('pointercancel',e=>{
+    if(e.pointerId===holdPointerId)cancelHold();
+    if(resizing && e.pointerId===resizing.pointerId){resizing=null;requestAnimationFrame(position)}
+  },true);
+
+  function beginResize(e){
+    if(!selected)return;
+    e.preventDefault();e.stopPropagation();
+    const r=selected.getBoundingClientRect();
+    const cx=r.left+r.width/2,cy=r.top+r.height/2;
+    resizing={
+      pointerId:e.pointerId,
+      cx,cy,
+      startDistance:Math.max(20,Math.hypot(e.clientX-cx,e.clientY-cy)),
+      startScale:getScale(selected)
+    };
+    try{e.currentTarget.setPointerCapture(e.pointerId)}catch(_){}
+  }
+
+  /* Click/tap outside only closes handles; it does not alter the card. */
+  document.addEventListener('click',e=>{
+    if(!selected)return;
+    if(e.target instanceof Element && (e.target.closest('.ups2-scale-handle,#ups2CardEditBar') || e.target.closest('#authPage .auth-card,.ups-security-card,.ups-recovery-box,.sdx-stats > .stat-glass')))return;
+    hideUI();
+  },true);
+
+  function restore(){
+    const m=readStore();
+    document.querySelectorAll('#authPage .auth-card,.ups-security-card,.ups-recovery-box,.sdx-stats > .stat-glass').forEach(el=>{
+      const s=parseFloat(m[keyFor(el)]);
+      if(Number.isFinite(s)&&s>0)applyScale(el,s,false);
+    });
+  }
+
+  function boot(){
+    createUI();restore();
+    /* A couple of delayed restores cover dynamically shown auth/security cards without a permanent observer. */
+    setTimeout(restore,500);setTimeout(restore,1600);
+  }
+  window.addEventListener('resize',()=>requestAnimationFrame(position));
+  document.addEventListener('scroll',()=>requestAnimationFrame(position),true);
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+})();
+</script>
+
+
+
+<!-- ===== UPS WHOLE CARD CONTROL PANEL — ADDED ONLY, BACKGROUND UNCHANGED ===== -->
+<style id="ups2-card-control-panel-style">
+#ups2CardEditBar{
+  position:fixed!important;z-index:2147483650!important;display:none!important;
+  width:min(414px,calc(100vw - 20px))!important;padding:12px!important;
+  border-radius:18px!important;background:linear-gradient(145deg,rgba(12,38,52,.98),rgba(6,22,34,.98))!important;
+  border:1px solid rgba(111,211,220,.38)!important;box-shadow:0 18px 55px rgba(0,0,0,.44)!important;
+  backdrop-filter:blur(22px)!important;-webkit-backdrop-filter:blur(22px)!important;
+  color:#eefbfc!important;font-family:system-ui,sans-serif!important;
+}
+#ups2CardEditBar.show{display:block!important}
+.ups2cp-head{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+.ups2cp-name{flex:1;min-width:0;font-size:12px;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#c9f7f8}
+.ups2cp-close{width:38px!important;height:38px!important;min-width:38px!important;padding:0!important;border-radius:13px!important;border:1px solid rgba(111,211,220,.28)!important;background:rgba(4,20,31,.60)!important;color:#dffbfc!important;font-size:18px!important}
+.ups2cp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.ups2cp-btn{min-width:0!important;height:47px!important;padding:0 6px!important;border-radius:14px!important;border:1px solid rgba(111,211,220,.25)!important;background:rgba(23,79,96,.48)!important;color:#e8feff!important;font-size:12px!important;font-weight:850!important;cursor:pointer!important}
+.ups2cp-btn:hover{background:rgba(40,126,145,.60)!important}.ups2cp-btn.danger{color:#ff929e!important}
+.ups2cp-note{margin-top:9px;font-size:10px;line-height:1.4;color:#8eb4bb}
+#ups2CardEditBar.ups2cp-dragging{cursor:grabbing!important;user-select:none!important}
+@media(max-width:520px){#ups2CardEditBar{width:calc(100vw - 16px)!important;padding:9px!important}.ups2cp-btn{height:42px!important;font-size:11px!important}}
+</style>
+<script id="ups2-card-control-panel-script">
+(function(){
+  let bar=null, dragMode=false, move=null;
+  const STORE='ups_whole_login_card_panel_props_v1';
+
+  function selected(){return window.ups2SelectedCard||null}
+  function label(el){if(el?.matches?.('#authPage .auth-card'))return 'United Profile System';if(el?.matches?.('.stat-glass'))return ((el.querySelector('small')?.textContent||el.id||'Dashboard karta')+'').trim();return ((el?.innerText||el?.id||'Element')+'').trim().replace(/\s+/g,' ').slice(0,48)}
+  function ensurePos(el){if(!el)return;const cs=getComputedStyle(el);if(cs.position==='static')el.style.setProperty('position','relative','important');if(cs.left==='auto')el.style.setProperty('left','0px','important');if(cs.top==='auto')el.style.setProperty('top','0px','important')}
+  function key(el){if(el?.matches?.('#authPage .auth-card'))return 'auth-card';return el?.id?('id:'+el.id):'card'}
+  function read(){try{return JSON.parse(localStorage.getItem(STORE)||'{}')||{}}catch(_){return {}}}
+  function save(el){if(!el)return;const cs=getComputedStyle(el),r=el.getBoundingClientRect(),m=read();m[key(el)]={left:parseFloat(cs.left)||0,top:parseFloat(cs.top)||0,width:parseFloat(el.style.width)||0,height:parseFloat(el.style.height)||0,font:parseFloat(cs.fontSize)||16,pad:parseFloat(cs.paddingTop)||0,rad:parseFloat(cs.borderTopLeftRadius)||0};try{localStorage.setItem(STORE,JSON.stringify(m))}catch(_){}}
+  function restore(){const all=read();document.querySelectorAll('#authPage .auth-card,.ups-security-card,.ups-recovery-box,.sdx-stats > .stat-glass').forEach(el=>{const m=all[key(el)];if(!m)return;ensurePos(el);if(Number.isFinite(m.left))el.style.setProperty('left',m.left+'px','important');if(Number.isFinite(m.top))el.style.setProperty('top',m.top+'px','important');if(m.width>0)el.style.setProperty('width',m.width+'px','important');if(m.height>0)el.style.setProperty('height',m.height+'px','important');if(m.font>0)el.style.setProperty('font-size',m.font+'px','important');if(m.pad>=0)el.style.setProperty('padding',m.pad+'px','important');if(m.rad>=0)el.style.setProperty('border-radius',m.rad+'px','important')})}
+  function repositionScale(){try{window.ups2PositionScaleUI?.()}catch(_){}}
+  function tweak(kind,delta){const el=selected();if(!el)return;ensurePos(el);const cs=getComputedStyle(el);const raw=el.getBoundingClientRect();const sc=parseFloat(el.style.scale)||parseFloat(cs.scale)||1;const baseW=raw.width/(Number.isFinite(sc)&&sc>0?sc:1),baseH=raw.height/(Number.isFinite(sc)&&sc>0?sc:1);
+    if(kind==='x')el.style.setProperty('left',((parseFloat(cs.left)||0)+delta)+'px','important');
+    else if(kind==='y')el.style.setProperty('top',((parseFloat(cs.top)||0)+delta)+'px','important');
+    else if(kind==='w')el.style.setProperty('width',Math.max(el.matches('.stat-glass')?80:260,baseW+delta)+'px','important');
+    else if(kind==='h')el.style.setProperty('height',Math.max(el.matches('.stat-glass')?50:260,baseH+delta)+'px','important');
+    else if(kind==='font')el.style.setProperty('font-size',Math.max(8,(parseFloat(cs.fontSize)||16)+delta)+'px','important');
+    else if(kind==='pad')el.style.setProperty('padding',Math.max(0,(parseFloat(cs.paddingTop)||0)+delta)+'px','important');
+    else if(kind==='rad')el.style.setProperty('border-radius',Math.max(0,(parseFloat(cs.borderTopLeftRadius)||0)+delta)+'px','important');
+    save(el);requestAnimationFrame(repositionScale)
+  }
+  function reset(){const el=selected();if(!el)return;const m=read();delete m[key(el)];try{localStorage.setItem(STORE,JSON.stringify(m))}catch(_){};['left','top','width','height','font-size','padding','border-radius','position'].forEach(p=>el.style.removeProperty(p));requestAnimationFrame(repositionScale)}
+  function create(){if(document.getElementById('ups2CardEditBar')){bar=document.getElementById('ups2CardEditBar');return}bar=document.createElement('div');bar.id='ups2CardEditBar';bar.innerHTML=`<div class="ups2cp-head"><div class="ups2cp-name" id="ups2CPName">United Profile System</div><button class="ups2cp-close" id="ups2CPClose">×</button></div><div class="ups2cp-grid"><button class="ups2cp-btn" data-k="x" data-d="-5">← Chap</button><button class="ups2cp-btn" data-k="x" data-d="5">O‘ng →</button><button class="ups2cp-btn" data-k="y" data-d="-5">↑ Tepa</button><button class="ups2cp-btn" data-k="y" data-d="5">↓ Past</button><button class="ups2cp-btn" data-k="w" data-d="-10">En −</button><button class="ups2cp-btn" data-k="w" data-d="10">En +</button><button class="ups2cp-btn" data-k="h" data-d="-10">Bo‘y −</button><button class="ups2cp-btn" data-k="h" data-d="10">Bo‘y +</button><button class="ups2cp-btn" data-k="font" data-d="-1">Matn −</button><button class="ups2cp-btn" data-k="font" data-d="1">Matn +</button><button class="ups2cp-btn" data-k="pad" data-d="-2">Padding −</button><button class="ups2cp-btn" data-k="pad" data-d="2">Padding +</button><button class="ups2cp-btn" data-k="rad" data-d="-2">Burchak −</button><button class="ups2cp-btn" data-k="rad" data-d="2">Burchak +</button><button class="ups2cp-btn danger" id="ups2CPReset">Reset</button><button class="ups2cp-btn" id="ups2CPDrag">Sudrash</button></div><div class="ups2cp-note">Element ustiga ~0.5 soniya bosib turing. “Sudrash”ni bosgach elementni erkin ko‘chirasiz. 4 burchakdan esa butun oynani proporsional kichraytirib/kattalashtirasiz.</div>`;document.body.appendChild(bar);
+    bar.querySelectorAll('[data-k]').forEach(b=>b.addEventListener('click',()=>tweak(b.dataset.k,Number(b.dataset.d))));
+    bar.querySelector('#ups2CPClose').addEventListener('click',()=>{bar.classList.remove('show')});
+    bar.querySelector('#ups2CPReset').addEventListener('click',reset);
+    bar.querySelector('#ups2CPDrag').addEventListener('click',()=>{dragMode=!dragMode;bar.querySelector('#ups2CPDrag').textContent=dragMode?'Sudrash ✓':'Sudrash'});
+  }
+  function show(el){create();document.getElementById('ups2CPName').textContent=label(el);const bw=Math.min(414,innerWidth-20);let x=10,y=10;const r=el.getBoundingClientRect();if(r.left>bw+25)x=10;else if(innerWidth-r.right>bw+25)x=innerWidth-bw-10;else{x=Math.max(10,Math.min(innerWidth-bw-10,r.left));y=Math.max(10,Math.min(innerHeight-300,r.top-310))}bar.style.left=x+'px';bar.style.top=y+'px';bar.classList.add('show')}
+  function hide(){if(bar)bar.classList.remove('show');dragMode=false;move=null}
+  window.ups2CardPanelShow=show;window.ups2CardPanelHide=hide;
+
+  document.addEventListener('pointerdown',e=>{if(!dragMode)return;const el=selected();if(!el || !(e.target instanceof Element) || !e.target.closest('#authPage .auth-card,.ups-security-card,.ups-recovery-box,.sdx-stats > .stat-glass'))return;ensurePos(el);const cs=getComputedStyle(el);move={id:e.pointerId,x:e.clientX,y:e.clientY,left:parseFloat(cs.left)||0,top:parseFloat(cs.top)||0};e.preventDefault()},true);
+  document.addEventListener('pointermove',e=>{if(!move||e.pointerId!==move.id)return;const el=selected();if(!el)return;el.style.setProperty('left',(move.left+e.clientX-move.x)+'px','important');el.style.setProperty('top',(move.top+e.clientY-move.y)+'px','important');requestAnimationFrame(repositionScale);e.preventDefault()}, {capture:true,passive:false});
+  document.addEventListener('pointerup',e=>{if(move&&e.pointerId===move.id){save(selected());move=null}},true);
+  document.addEventListener('pointercancel',()=>{move=null},true);
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{create();restore()});else{create();restore()}
 })();
 </script>
 
