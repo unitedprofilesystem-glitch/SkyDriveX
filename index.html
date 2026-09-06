@@ -10195,5 +10195,122 @@ html.ups-edit-busy *{animation-play-state:paused!important}
 <script id="ups-v41-no-login-refresh-marker">
 window.UPS_NO_LOGIN_AUTO_REFRESH_V41=true;
 </script>
+
+
+<style id="ups-v43-mobile-menu-full-fix">
+@media (max-width: 900px){
+  html,body{width:100%!important;min-width:0!important;max-width:100%!important;overflow-x:hidden!important;}
+  body{padding-bottom:0!important;}
+  #cloudPage{min-height:100dvh!important;overflow-x:hidden!important;overflow-y:visible!important;}
+  #cloudPage .header{height:60px!important;padding:0 max(12px,env(safe-area-inset-right)) 0 max(12px,env(safe-area-inset-left))!important;}
+  #cloudPage .header-right{display:flex!important;align-items:center!important;gap:8px!important;min-width:0!important;width:100%!important;justify-content:flex-end!important;}
+  #cloudPage .container{margin-left:0!important;width:100%!important;max-width:100%!important;min-width:0!important;padding:14px max(12px,env(safe-area-inset-right)) calc(28px + env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))!important;box-sizing:border-box!important;}
+
+  #upsMobileMenuToggle{display:grid!important;place-items:center;width:40px;height:40px;padding:0;border-radius:12px;border:1px solid rgba(82,153,245,.28)!important;background:rgba(5,20,43,.74)!important;color:#eaf4ff!important;font-size:18px;line-height:1;box-shadow:0 8px 24px rgba(0,0,0,.18);flex:0 0 auto;}
+  #upsMobileMenuBackdrop{position:fixed;inset:0;background:rgba(1,8,20,.54);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:250;opacity:0;pointer-events:none;transition:opacity .2s ease;}
+  body.ups-mobile-menu-open #upsMobileMenuBackdrop{opacity:1;pointer-events:auto;}
+
+  #cloudPage .sdx-sidebar{
+    left:0!important;right:auto!important;top:0!important;bottom:0!important;
+    width:min(86vw,320px)!important;max-width:320px!important;min-width:0!important;
+    height:100dvh!important;min-height:100dvh!important;
+    padding:calc(16px + env(safe-area-inset-top)) 14px calc(18px + env(safe-area-inset-bottom)) 14px!important;
+    display:flex!important;flex-direction:column!important;
+    border-top:0!important;border-right:1px solid rgba(82,153,245,.22)!important;
+    transform:translateX(-108%)!important;transition:transform .22s ease!important;
+    overflow-y:auto!important;overflow-x:hidden!important;z-index:300!important;
+    box-shadow:18px 0 60px rgba(0,0,0,.30)!important;
+  }
+  body.ups-mobile-menu-open #cloudPage .sdx-sidebar{transform:translateX(0)!important;}
+  #cloudPage .sdx-brand{display:flex!important;padding:0 4px 14px!important;}
+  #cloudPage .sdx-side-storage{display:block!important;margin-top:14px!important;}
+  #cloudPage .sdx-nav{width:100%!important;display:flex!important;flex-direction:column!important;justify-content:flex-start!important;gap:8px!important;overflow:visible!important;}
+  #cloudPage .sdx-nav a{display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:12px!important;flex:none!important;width:100%!important;min-width:0!important;padding:12px 14px!important;font-size:14px!important;border-radius:12px!important;}
+  #cloudPage .sdx-nav a span{display:inline!important;white-space:nowrap!important;}
+
+  #cloudPage .files-card,#cloudPage .apps-card,#cloudPage .gdrive-card,#cloudPage .upload-box,#cloudPage .toolbar,#cloudPage .x-glass-card{width:100%!important;max-width:100%!important;min-width:0!important;overflow:visible!important;}
+  #cloudPage .x-dashboard-grid,#cloudPage .x-bottom-grid{grid-template-columns:1fr!important;gap:12px!important;}
+  #cloudPage .file-left,#cloudPage .file-info{min-width:0!important;max-width:100%!important;}
+  #cloudPage .file-name{max-width:100%!important;white-space:normal!important;word-break:break-word!important;}
+  #cloudPage .file-actions{width:100%!important;display:grid!important;grid-template-columns:1fr 1fr!important;gap:10px!important;}
+  #cloudPage .file-actions .btn{width:100%!important;min-width:0!important;}
+  #cloudPage .upload-btn{display:block!important;width:100%!important;}
+
+  .sdx-video-sound-float{top:72px!important;right:12px!important;z-index:210!important;}
+}
+
+@media (max-width: 480px){
+  #cloudPage .x-top-search{flex:1 1 auto!important;width:auto!important;max-width:none!important;min-width:0!important;}
+  #cloudPage .file-actions{grid-template-columns:1fr!important;}
+  #cloudPage .sdx-sidebar{width:min(90vw,320px)!important;}
+}
+
+@media (min-width: 901px){
+  #upsMobileMenuToggle,#upsMobileMenuBackdrop{display:none!important;}
+}
+</style>
+
+<script id="ups-v43-mobile-menu-full-fix-script">
+(function(){
+  function setupMobileMenuFix(){
+    const cloud=document.getElementById('cloudPage');
+    const headerRight=document.querySelector('#cloudPage .header-right');
+    const sidebar=document.querySelector('#cloudPage .sdx-sidebar');
+    if(!cloud || !headerRight || !sidebar) return;
+
+    let btn=document.getElementById('upsMobileMenuToggle');
+    if(!btn){
+      btn=document.createElement('button');
+      btn.type='button';
+      btn.id='upsMobileMenuToggle';
+      btn.className='action-btn';
+      btn.innerHTML='☰';
+      btn.setAttribute('aria-label','Glavni menyu');
+      btn.setAttribute('aria-expanded','false');
+      headerRight.prepend(btn);
+    }
+
+    let backdrop=document.getElementById('upsMobileMenuBackdrop');
+    if(!backdrop){
+      backdrop=document.createElement('div');
+      backdrop.id='upsMobileMenuBackdrop';
+      document.body.appendChild(backdrop);
+    }
+
+    const isMobile=()=>window.matchMedia('(max-width: 900px)').matches;
+    const closeMenu=()=>{
+      document.body.classList.remove('ups-mobile-menu-open');
+      btn.setAttribute('aria-expanded','false');
+    };
+    const toggleMenu=()=>{
+      if(!isMobile()) return;
+      const open=!document.body.classList.contains('ups-mobile-menu-open');
+      document.body.classList.toggle('ups-mobile-menu-open', open);
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    };
+
+    btn.onclick=toggleMenu;
+    backdrop.onclick=closeMenu;
+
+    sidebar.querySelectorAll('a,button').forEach(el=>{
+      if(el.dataset.upsMobileMenuBound==='1') return;
+      el.dataset.upsMobileMenuBound='1';
+      el.addEventListener('click',()=>{ if(isMobile()) setTimeout(closeMenu, 0); });
+    });
+
+    document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeMenu(); }, {passive:true});
+    window.addEventListener('resize',()=>{ if(!isMobile()) closeMenu(); }, {passive:true});
+
+    const content=document.getElementById('dashboardTop');
+    if(content && !content.dataset.upsMobileMenuCloseBound){
+      content.dataset.upsMobileMenuCloseBound='1';
+      content.addEventListener('click',()=>{ if(isMobile()) closeMenu(); });
+    }
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', setupMobileMenuFix, {once:true});
+  else setupMobileMenuFix();
+})();
+</script>
+
 </body>
 </html>
