@@ -2211,6 +2211,16 @@ html,body{max-width:100%;overflow-x:hidden}
   .sdx-video-sound-float{width:42px!important;height:42px!important;font-size:19px!important;right:20px!important;top:96px!important}
 }
 </style>
+
+<!-- ===== v46 DESKTOP DESIGN / MOBILE DESIGN SEPARATION ===== -->
+<style id="ups-v46-device-design-separation">
+/* PC visual-editor changes are stored, but only applied above 900px.
+   Phone/tablet always follows its own responsive CSS. */
+@media (max-width:900px){
+  #upsUPanel,#upsUFrame,.upsUHandle,#upsURotate,#upsURotateStem{display:none!important;}
+}
+</style>
+
 </head>
 
 <body>
@@ -9933,7 +9943,9 @@ html.ups-edit-busy *{animation-play-state:paused!important}
 <script id="ups-v31-universal-editor-script">
 (function(){
   'use strict';
-  const STORE='ups_universal_element_edit_v1';
+  const DESKTOP_STORE='ups_universal_element_edit_v1';
+  const MOBILE_STORE='ups_universal_element_edit_mobile_v1';
+  const storeKey=()=>window.matchMedia('(max-width: 900px)').matches?MOBILE_STORE:DESKTOP_STORE;
   const HOLD_MS=460;
   const STEP=6;
   const TARGETS='section,div,article,aside,a,button,label,input,select,textarea,img,video,table,tr,td,th,h1,h2,h3,h4,p,small,strong,span';
@@ -9945,7 +9957,7 @@ html.ups-edit-busy *{animation-play-state:paused!important}
   const rotateStem=document.createElement('div');rotateStem.id='upsURotateStem';document.body.appendChild(rotateStem);
   const rotateHandle=document.createElement('div');rotateHandle.id='upsURotate';rotateHandle.textContent='↻';document.body.appendChild(rotateHandle);
   const panel=document.createElement('div');panel.id='upsUPanel';panel.innerHTML=`
-    <div class="upsUHead"><span id="upsUTitle">Element</span><button class="upsUClose" type="button">✕</button></div><div style="font:650 10px system-ui;color:#9fd7df;margin:-2px 0 8px">Elementni sichqoncha bilan bevosita sudrang. Ichki yozuvni uzoq bosib alohida tanlang.</div>
+    <div class="upsUHead"><span id="upsUTitle">Element</span><button class="upsUClose" type="button">✕</button></div><div id="upsUDeviceGroup" style="font:800 10px system-ui;color:#78edf2;margin:-2px 0 4px"></div><div style="font:650 10px system-ui;color:#9fd7df;margin:-2px 0 8px">Elementni sudrang yoki o‘lchamini o‘zgartiring. Har bir qurilma guruhi alohida saqlanadi.</div>
     <div class="upsUGrid">
       <button class="upsUBtn" data-act="left">← Chap</button><button class="upsUBtn" data-act="right">O‘ng →</button><button class="upsUBtn" data-act="up">↑ Tepa</button><button class="upsUBtn" data-act="down">↓ Past</button>
       <button class="upsUBtn" data-act="w-">En −</button><button class="upsUBtn" data-act="w+">En +</button><button class="upsUBtn" data-act="h-">Bo‘y −</button><button class="upsUBtn" data-act="h+">Bo‘y +</button>
@@ -9954,8 +9966,8 @@ html.ups-edit-busy *{animation-play-state:paused!important}
       <button class="upsUBtn upsUFull" data-act="reset-all">Hammasini joyiga qaytarish</button>
     </div>`;document.body.appendChild(panel);
 
-  function read(){try{return JSON.parse(localStorage.getItem(STORE)||'{}')||{}}catch(_){return {}}}
-  function write(v){try{localStorage.setItem(STORE,JSON.stringify(v))}catch(_){}}
+  function read(which=storeKey()){try{return JSON.parse(localStorage.getItem(which)||'{}')||{}}catch(_){return {}}}
+  function write(v,which=storeKey()){try{localStorage.setItem(which,JSON.stringify(v))}catch(_){}}
   function esc(s){return (window.CSS&&CSS.escape)?CSS.escape(s):String(s).replace(/[^a-zA-Z0-9_-]/g,'\\$&')}
   function key(el){
     if(!el)return '';
@@ -9970,6 +9982,7 @@ html.ups-edit-busy *{animation-play-state:paused!important}
     return 'path:'+parts.join('>');
   }
   function targetFrom(node){
+    /* v47: editor works in two independent groups: PC+TV and Phone+Tablet. */
     if(!(node instanceof Element))return null;
     if(node.closest('#upsUPanel,.upsUHandle,#upsURotate,#upsUFrame,.modal:not(.hidden),#sdxVideoSoundFloat'))return null;
     const inAuth=node.closest('#authPage');
@@ -9991,11 +10004,42 @@ html.ups-edit-busy *{animation-play-state:paused!important}
   function show(){if(!active||!document.contains(active)){hide();return}const r=active.getBoundingClientRect();if(!r.width&&!r.height){hide();return}frame.style.display='block';frame.style.left=(r.left-2)+'px';frame.style.top=(r.top-2)+'px';frame.style.width=r.width+'px';frame.style.height=r.height+'px';const cx=r.left+r.width/2,cy=r.top+r.height/2;const pts={tl:[r.left,r.top],t:[cx,r.top],tr:[r.right,r.top],r:[r.right,cy],br:[r.right,r.bottom],b:[cx,r.bottom],bl:[r.left,r.bottom],l:[r.left,cy]};handles.forEach(h=>{const p=pts[h.dataset.corner];h.style.display='block';h.style.left=(p[0]-10)+'px';h.style.top=(p[1]-10)+'px'});rotateStem.style.display='block';rotateStem.style.left=cx+'px';rotateStem.style.top=(r.top-30)+'px';rotateHandle.style.display='flex';rotateHandle.style.left=(cx-12)+'px';rotateHandle.style.top=(r.top-54)+'px';panel.style.display='block'}
   function scheduleShow(){if(raf)return;raf=requestAnimationFrame(()=>{raf=0;show()})}
   function hide(){if(active)active.classList.remove('upsUSelected');active=null;dragMode=false;moveState=null;resizeState=null;rotateState=null;frame.style.display='none';handles.forEach(h=>h.style.display='none');rotateStem.style.display='none';rotateHandle.style.display='none';panel.style.display='none'}
-  function select(el){if(!el)return;if(active&&active!==el)active.classList.remove('upsUSelected');active=el;dragMode=true;active.classList.add('upsUSelected');document.getElementById('upsUTitle').textContent=label(el);const db=panel.querySelector('[data-act="drag"]');db.classList.add('upsUActive');db.textContent='Sudrash ✓';show()}
+  function select(el){if(!el)return;if(active&&active!==el)active.classList.remove('upsUSelected');active=el;dragMode=true;active.classList.add('upsUSelected');document.getElementById('upsUTitle').textContent=label(el);const dg=document.getElementById('upsUDeviceGroup');if(dg)dg.textContent=isMobileLayout()?'📱 Telefon + Planshet dizayni':'🖥 PC + TV dizayni';const db=panel.querySelector('[data-act="drag"]');db.classList.add('upsUActive');db.textContent='Sudrash ✓';show()}
   function metric(el){const cs=getComputedStyle(el),r=el.getBoundingClientRect();const sp=String(el.style.scale||'1').trim().split(/\s+/);const sx=parseFloat(sp[0])||1,sy=parseFloat(sp[1])||sx;const rot=parseFloat(String(el.style.rotate||'0').replace('deg',''))||0;return {tx:parseFloat(el.style.translate?.split(' ')[0])||0,ty:parseFloat(el.style.translate?.split(' ')[1])||0,w:parseFloat(el.style.width)||Math.max(1,r.width/sx),h:parseFloat(el.style.height)||Math.max(1,r.height/sy),font:parseFloat(cs.fontSize)||16,pad:parseFloat(cs.paddingTop)||0,rad:parseFloat(cs.borderTopLeftRadius)||0,sx,sy,rot,scale:sx}}
+  function isMobileLayout(){return window.matchMedia('(max-width: 900px)').matches}
+  function clearDesktopEditInline(el){
+    if(!el)return;
+    ['translate','scale','rotate','width','height','font-size','padding','border-radius'].forEach(p=>el.style.removeProperty(p));
+  }
   function save(el){if(!el)return;const m=read();m[key(el)]=metric(el);write(m)}
-  function apply(el,m){if(!el||!m)return;if(Number.isFinite(m.tx)||Number.isFinite(m.ty))el.style.setProperty('translate',(Number(m.tx)||0)+'px '+(Number(m.ty)||0)+'px','important');if(m.w>0)el.style.setProperty('width',m.w+'px','important');if(m.h>0)el.style.setProperty('height',m.h+'px','important');if(m.font>0)el.style.setProperty('font-size',m.font+'px','important');if(m.pad>=0)el.style.setProperty('padding',m.pad+'px','important');if(m.rad>=0)el.style.setProperty('border-radius',m.rad+'px','important');const sx=Number(m.sx)||Number(m.scale)||1,sy=Number(m.sy)||Number(m.scale)||sx;if(sx!==1||sy!==1)el.style.setProperty('scale',sx+' '+sy,'important');if(Number(m.rot))el.style.setProperty('rotate',Number(m.rot)+'deg','important')}
-  function restore(root=document){const all=read();let els=[];try{els=[...root.querySelectorAll?.(TARGETS)||[]]}catch(_){return}for(const el of els){if(el.classList?.contains('sdx-side-storage'))continue;const m=all[key(el)];if(m)apply(el,m)}}
+  function apply(el,m){
+    /* Apply only the currently active device-group edits. */
+    if(!el||!m)return;
+    if(Number.isFinite(m.tx)||Number.isFinite(m.ty))el.style.setProperty('translate',(Number(m.tx)||0)+'px '+(Number(m.ty)||0)+'px','important');
+    if(m.w>0)el.style.setProperty('width',m.w+'px','important');
+    if(m.h>0)el.style.setProperty('height',m.h+'px','important');
+    if(m.font>0)el.style.setProperty('font-size',m.font+'px','important');
+    if(m.pad>=0)el.style.setProperty('padding',m.pad+'px','important');
+    if(m.rad>=0)el.style.setProperty('border-radius',m.rad+'px','important');
+    const sx=Number(m.sx)||Number(m.scale)||1,sy=Number(m.sy)||Number(m.scale)||sx;
+    if(sx!==1||sy!==1)el.style.setProperty('scale',sx+' '+sy,'important');
+    if(Number(m.rot))el.style.setProperty('rotate',Number(m.rot)+'deg','important');
+  }
+  function restore(root=document){
+    const current=read(storeKey());
+    const desktop=read(DESKTOP_STORE), mobile=read(MOBILE_STORE);
+    let els=[];try{els=[...root.querySelectorAll?.(TARGETS)||[]]}catch(_){return}
+    /* First remove visual-editor inline properties from either group, then apply ONLY this group's values. */
+    for(const el of els){
+      const k=key(el);
+      if(desktop[k]||mobile[k]) clearDesktopEditInline(el);
+    }
+    for(const el of els){
+      if(el.classList?.contains('sdx-side-storage'))continue;
+      const m=current[key(el)];
+      if(m)apply(el,m);
+    }
+  }
   function busy(on){try{window.upsSetEditBusy?.(on)}catch(_){}}
   function tweak(act){if(!active)return;busy(true);const m=metric(active);
     if(act==='w-'||act==='w+'||act==='h-'||act==='h+'){const r=active.getBoundingClientRect();active.style.removeProperty('scale');m.sx=1;m.sy=1;m.scale=1;m.w=r.width;m.h=r.height}
@@ -10006,8 +10050,8 @@ html.ups-edit-busy *{animation-play-state:paused!important}
     const ok=window.confirm('Ekrandagi barcha elementlarni standart joyiga qaytaraymi?');
     if(!ok)return;
     hide();busy(true);
-    const keys=['ups_universal_element_edit_v1','ups_full_layout_v1','ups_hold_layout_v1','ups_hold_scale_v1','ups_whole_login_card_scale_v3','ups_whole_login_card_panel_props_v1','ups_hold_bar_size_v1'];
-    try{keys.forEach(k=>localStorage.removeItem(k))}catch(_){}
+    /* Reset ONLY the current device group. PC+TV and Phone+Tablet remain independent. */
+    try{localStorage.removeItem(storeKey())}catch(_){}
     busy(false);
     try{if(typeof window.upsCloudSyncNow==='function')await window.upsCloudSyncNow()}catch(_){}
     setTimeout(()=>location.reload(),120);
@@ -10046,7 +10090,13 @@ html.ups-edit-busy *{animation-play-state:paused!important}
   function endRotate(e){if(!rotateState||e.pointerId!==rotateState.id)return;save(active);rotateState=null;busy(false);scheduleShow()}
   rotateHandle.addEventListener('pointerup',endRotate);rotateHandle.addEventListener('pointercancel',endRotate);
 
-  window.addEventListener('scroll',scheduleShow,true);window.addEventListener('resize',scheduleShow);
+  window.addEventListener('scroll',scheduleShow,true);
+  let upsDeviceModeTimer=0;
+  window.addEventListener('resize',()=>{
+    scheduleShow();
+    clearTimeout(upsDeviceModeTimer);
+    upsDeviceModeTimer=setTimeout(()=>restore(document),120);
+  });
   // Debounced child-list restore only. No attribute observer, so editing does not create feedback loops.
   let restoreTimer=0;const mo=new MutationObserver(muts=>{if(window.upsEditBusy)return;let added=false;for(const m of muts){if(m.addedNodes&&m.addedNodes.length){added=true;break}}if(!added)return;clearTimeout(restoreTimer);restoreTimer=setTimeout(()=>{if(!window.upsEditBusy)restore(document)},700)});mo.observe(document.documentElement,{subtree:true,childList:true});
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(()=>restore(document),150));else setTimeout(()=>restore(document),150);
@@ -10061,7 +10111,7 @@ html.ups-edit-busy *{animation-play-state:paused!important}
   const SYNC_KEYS=new Set([
     "ups_language","sdx_full_custom_theme_v1","sdx_visual_settings","ups_full_site_theme","ups_sidebar_icon_theme",
     "ups_full_layout_v1","ups_hold_layout_v1","ups_hold_scale_v1","ups_whole_login_card_scale_v3",
-    "ups_whole_login_card_panel_props_v1","ups_universal_element_edit_v1","ups_hold_bar_size_v1","sdx_video_audio_settings_v1",
+    "ups_whole_login_card_panel_props_v1","ups_universal_element_edit_v1","ups_universal_element_edit_mobile_v1","ups_hold_bar_size_v1","sdx_video_audio_settings_v1",
     "sdx_background_music_settings_v1","sdx_custom_apps","sdx_hidden_default_apps"
   ]);
   let applying=false,timer=0,currentUserId="",lastCloudStamp=0;
@@ -10681,5 +10731,7 @@ window.UPS45ToggleMenu=function(ev){
 })();
 </script>
 
+
+<!-- v47 DEVICE DESIGN GROUPS: PC+TV share desktop store; Phone+Tablet share mobile store. -->
 </body>
 </html>
